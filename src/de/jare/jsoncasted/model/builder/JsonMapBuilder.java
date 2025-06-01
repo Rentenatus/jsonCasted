@@ -132,7 +132,7 @@ public class JsonMapBuilder implements JsonModellClassBuilder {
      * @throws UnsupportedOperationException
      */
     @Override
-    public List<?> asList(Object ob) {
+    public List<?> asCollection(Object ob) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

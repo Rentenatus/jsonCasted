@@ -136,7 +136,7 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
      * @return A list of enum instances.
      */
     @Override
-    public List<?> asList(Object ob) {
+    public List<?> asCollection(Object ob) {
         Object[] arr = (Object[]) ob;
         return Arrays.asList(arr);
     }

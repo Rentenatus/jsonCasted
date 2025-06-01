@@ -62,7 +62,7 @@ public class JsonConfigDefinition implements JsonItemDefinition {
         logging.addField("level", asString);
         logging.addField("path", asString);
 
-        JsonClass feature = model.newJsonReflect(ConfigFeature.class, new JsonReflectBuilder(ConfigFeature.class) {
+        JsonClass feature = model.newJsonClass(ConfigFeature.class, new JsonReflectBuilder(ConfigFeature.class) {
             @Override
             public List<ConfigFeature> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
                 ArrayList<ConfigFeature> list = new ArrayList<>(size);

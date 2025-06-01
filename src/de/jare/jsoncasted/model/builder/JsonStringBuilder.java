@@ -120,7 +120,7 @@ public class JsonStringBuilder implements JsonModellClassBuilder, SimpleStringSp
      * @return A list of String values.
      */
     @Override
-    public List<?> asList(Object ob) {
+    public List<?> asCollection(Object ob) {
         String[] arr = (String[]) ob;
         return Arrays.asList(arr);
     }

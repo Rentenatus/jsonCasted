@@ -105,7 +105,7 @@ public class JsonBooleanObjBuilder implements JsonModellClassBuilder {
      * @return A list of Boolean values.
      */
     @Override
-    public List<?> asList(Object ob) {
+    public List<?> asCollection(Object ob) {
         Boolean[] arr = (Boolean[]) ob;
         return Arrays.asList(arr);
     }

@@ -102,7 +102,7 @@ public class JsonLongObjBuilder implements JsonModellClassBuilder {
      * @return A list of Long values.
      */
     @Override
-    public List<?> asList(Object ob) {
+    public List<?> asCollection(Object ob) {
         Long[] arr = (Long[]) ob;
         return Arrays.asList(arr);
     }

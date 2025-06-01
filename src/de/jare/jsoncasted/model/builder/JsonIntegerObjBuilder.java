@@ -103,7 +103,7 @@ public class JsonIntegerObjBuilder implements JsonModellClassBuilder {
      * @return A list of Integer values.
      */
     @Override
-    public List<?> asList(Object ob) {
+    public List<?> asCollection(Object ob) {
         Integer[] arr = (Integer[]) ob;
         return Arrays.asList(arr);
     }

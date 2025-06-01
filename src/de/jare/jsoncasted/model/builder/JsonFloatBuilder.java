@@ -76,11 +76,10 @@ public class JsonFloatBuilder implements JsonModellClassBuilder {
      */
     @Override
     public float[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
-        ArrayList<Float> list = buildList(jType, listIterator, size);
-        float[] ret = new float[list.size()];
+        final float[] ret = new float[size];
         int i = 0;
-        for (Float value : list) {
-            ret[i++] = value;
+        while (listIterator.hasNext()) {
+            ret[i++] = Float.parseFloat(listIterator.next().getStringValue());
         }
         return ret;
     }
@@ -107,7 +106,7 @@ public class JsonFloatBuilder implements JsonModellClassBuilder {
      * @return A list of Float values.
      */
     @Override
-    public List<?> asList(Object ob) {
+    public List<?> asCollection(Object ob) {
         float[] arr = (float[]) ob;
         List<Float> ret = new ArrayList<>(arr.length);
         for (float value : arr) {

@@ -13,6 +13,7 @@ import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -148,8 +149,8 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
      * @return A list representation of the object.
      */
     @Override
-    public List<?> asList(Object ob) {
-        return builder == null ? new ArrayList<>() : builder.asList(ob);
+    public Collection<?> asList(Object ob) {
+        return builder == null ? new ArrayList<>() : builder.asCollection(ob);
     }
 
     /**

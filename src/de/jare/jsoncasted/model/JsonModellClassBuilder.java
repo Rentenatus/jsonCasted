@@ -9,6 +9,7 @@ package de.jare.jsoncasted.model;
 
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.item.JsonItem;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public interface JsonModellClassBuilder {
 
     public String toString(Object attr);
 
-    public List<?> asList(Object ob);
+    public Collection<?> asCollection(Object ob);
 
     public default String setterPre() {
         return "set";

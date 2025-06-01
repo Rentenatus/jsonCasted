@@ -305,7 +305,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
     }
 
     @Override
-    public List<?> asList(Object ob) {
+    public List<?> asCollection(Object ob) {
         return Arrays.asList((Object[]) ob);
     }
 }

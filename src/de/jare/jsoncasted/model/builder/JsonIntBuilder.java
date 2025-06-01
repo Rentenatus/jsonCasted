@@ -76,11 +76,10 @@ public class JsonIntBuilder implements JsonModellClassBuilder {
      */
     @Override
     public int[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
-        ArrayList<Integer> list = buildList(jType, listIterator, 0);
-        int[] ret = new int[list.size()];
+        final int[] ret = new int[size];
         int i = 0;
-        for (Integer value : list) {
-            ret[i++] = value;
+        while (listIterator.hasNext()) {
+            ret[i++] = Integer.parseInt(listIterator.next().getStringValue());
         }
         return ret;
     }
@@ -107,7 +106,7 @@ public class JsonIntBuilder implements JsonModellClassBuilder {
      * @return A list of Integer values.
      */
     @Override
-    public List<?> asList(Object ob) {
+    public List<?> asCollection(Object ob) {
         int[] arr = (int[]) ob;
         List<Integer> ret = new ArrayList<>(arr.length);
         for (int value : arr) {

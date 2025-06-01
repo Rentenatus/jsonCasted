@@ -103,7 +103,7 @@ public class JsonDoubleObjBuilder implements JsonModellClassBuilder {
      * @return A list of Double values.
      */
     @Override
-    public List<?> asList(Object ob) {
+    public List<?> asCollection(Object ob) {
         Double[] arr = (Double[]) ob;
         return Arrays.asList(arr);
     }

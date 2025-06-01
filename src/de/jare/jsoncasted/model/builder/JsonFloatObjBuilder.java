@@ -102,7 +102,7 @@ public class JsonFloatObjBuilder implements JsonModellClassBuilder {
      * @return A list of Float values.
      */
     @Override
-    public List<?> asList(Object ob) {
+    public List<?> asCollection(Object ob) {
         Float[] arr = (Float[]) ob;
         return Arrays.asList(arr);
     }

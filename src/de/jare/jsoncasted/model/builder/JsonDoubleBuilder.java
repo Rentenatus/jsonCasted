@@ -76,11 +76,10 @@ public class JsonDoubleBuilder implements JsonModellClassBuilder {
      */
     @Override
     public double[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
-        ArrayList<Double> list = buildList(jType, listIterator, size);
-        double[] ret = new double[list.size()];
+        final double[] ret = new double[size];
         int i = 0;
-        for (Double value : list) {
-            ret[i++] = value;
+        while (listIterator.hasNext()) {
+            ret[i++] = Double.parseDouble(listIterator.next().getStringValue());
         }
         return ret;
     }
@@ -107,7 +106,7 @@ public class JsonDoubleBuilder implements JsonModellClassBuilder {
      * @return A list of Double values.
      */
     @Override
-    public List<?> asList(Object ob) {
+    public List<?> asCollection(Object ob) {
         double[] arr = (double[]) ob;
         List<Double> ret = new ArrayList<>(arr.length);
         for (double value : arr) {

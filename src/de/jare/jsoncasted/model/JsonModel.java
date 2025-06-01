@@ -135,7 +135,7 @@ public class JsonModel {
     }
 
     // Methods for dynamically creating JSON class definitions
-    public JsonClass newJsonReflect(Class<?> clazz, JsonModellClassBuilder builder) {
+    public JsonClass newJsonClass(Class<?> clazz, JsonModellClassBuilder builder) {
         JsonClass ret = new JsonClass(clazz.getTypeName(), builder);
         add(ret);
         return ret;

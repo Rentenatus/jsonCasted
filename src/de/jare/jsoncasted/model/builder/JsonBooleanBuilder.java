@@ -77,11 +77,10 @@ public class JsonBooleanBuilder implements JsonModellClassBuilder {
      */
     @Override
     public boolean[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
-        ArrayList<Boolean> list = buildList(jType, listIterator, size);
-        boolean[] ret = new boolean[list.size()];
+        final boolean[] ret = new boolean[size];
         int i = 0;
-        for (Boolean value : list) {
-            ret[i++] = value;
+        while (listIterator.hasNext()) {
+            ret[i++] = Boolean.parseBoolean(listIterator.next().getStringValue());
         }
         return ret;
     }
@@ -110,7 +109,7 @@ public class JsonBooleanBuilder implements JsonModellClassBuilder {
      * @return A list of Boolean values.
      */
     @Override
-    public List<?> asList(Object ob) {
+    public List<?> asCollection(Object ob) {
         boolean[] arr = (boolean[]) ob;
         List<Boolean> ret = new ArrayList<>(arr.length);
         for (boolean value : arr) {
