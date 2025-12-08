@@ -13,6 +13,7 @@ import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -82,6 +83,9 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
             if (singular == null) {
                 return null;
             }
+        }
+        if (jClass.getcName().equals("de.jare.supply.earth.AssociationSeassionInt")) {
+            System.out.println();
         }
         Object ob = createInstance(jClass, jsonItem);
         Iterator<String> it = jClass.keysForBuildIterator();
@@ -276,7 +280,9 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
      */
     @Override
     public Object[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
-        return buildList(jType, listIterator, size).toArray();
+        final List list = buildList(jType, listIterator, size);
+        Object[] array = (Object[]) Array.newInstance(singular, list.size());
+        return list.toArray(array);
     }
 
     /**
