@@ -50,10 +50,26 @@ public interface SimpleStringSplitter {
      * @param src The source string to split.
      * @param splitter The substring delimiter.
      * @return A list of substrings split by the specified delimiter.
+     * @param caseSens The search might be case-sensitive? False == src and
+     * splitter are converted to lowercase first.
+     */
+    public default List<String> simpleSplit(String src, String splitter, boolean caseSens) {
+        ArrayList<String> list = new ArrayList<>();
+        simpleSplitInto(src, splitter, list, caseSens);
+        return list;
+    }
+
+    /**
+     * Splits a string into a list of substrings using a specific substring as
+     * the delimiter (case sensitive).
+     *
+     * @param src The source string to split.
+     * @param splitter The substring delimiter.
+     * @return A list of substrings split by the specified delimiter.
      */
     public default List<String> simpleSplit(String src, String splitter) {
         ArrayList<String> list = new ArrayList<>();
-        simpleSplitInto(src, splitter, list);
+        simpleSplitInto(src, splitter, list, true);
         return list;
     }
 
@@ -63,16 +79,30 @@ public interface SimpleStringSplitter {
      * @param srcList The list of strings to process.
      * @param splitter The substring delimiter.
      * @return A new list containing the split values.
+     * @param caseSens The search might be case-sensitive? False == src and
+     * splitter are converted to lowercase first.
      */
-    public default List<String> simpleSplit(List<String> srcList, String splitter) {
+    public default List<String> simpleSplit(List<String> srcList, String splitter, boolean caseSens) {
         ArrayList<String> list = new ArrayList<>();
         for (String src : srcList) {
             if (src == null) {
                 continue;
             }
-            simpleSplitInto(src, splitter, list);
+            simpleSplitInto(src, splitter, list, caseSens);
         }
         return list;
+    }
+
+    /**
+     * Splits a list of strings using a specific substring delimiter (case
+     * sensitive).
+     *
+     * @param srcList The list of strings to process.
+     * @param splitter The substring delimiter.
+     * @return A new list containing the split values.
+     */
+    public default List<String> simpleSplit(List<String> srcList, String splitter) {
+        return simpleSplit(srcList, splitter, true);
     }
 
     /**
@@ -82,19 +112,34 @@ public interface SimpleStringSplitter {
      * @param splitterList A list of delimiter substrings.
      * @return A list of substrings obtained after applying each delimiter
      * sequentially.
+     * @param caseSens The search might be case-sensitive? False == src and
+     * splitter are converted to lowercase first.
      */
-    public default List<String> simpleSplit(String src, List<String> splitterList) {
+    public default List<String> simpleSplit(String src, List<String> splitterList, boolean caseSens) {
         Iterator<String> it = splitterList.iterator();
         if (!it.hasNext()) {
             ArrayList<String> list = new ArrayList<>();
             list.add(src);
             return list;
         }
-        List<String> list = simpleSplit(src, it.next());
+        List<String> list = simpleSplit(src, it.next(), caseSens);
         while (it.hasNext()) {
-            list = simpleSplit(list, it.next());
+            list = simpleSplit(list, it.next(), caseSens);
         }
         return list;
+    }
+
+    /**
+     * Splits a string using multiple delimiters from a provided list (case
+     * sensitive).
+     *
+     * @param src The source string to split.
+     * @param splitterList A list of delimiter substrings.
+     * @return A list of substrings obtained after applying each delimiter
+     * sequentially.
+     */
+    public default List<String> simpleSplit(String src, List<String> splitterList) {
+        return simpleSplit(src, splitterList, true);
     }
 
     /**
@@ -103,20 +148,44 @@ public interface SimpleStringSplitter {
      * @param src The source string.
      * @param splitter The substring delimiter.
      * @param list The list where split values will be stored.
+     * @param caseSens The search might be case-sensitive? False == src and
+     * splitter are converted to lowercase first.
      */
-    default void simpleSplitInto(String src, String splitter, ArrayList<String> list) {
+    default void simpleSplitInto(String src, String splitter,
+            ArrayList<String> list, boolean caseSens) {
         if (src == null) {
             return;
         }
         int off = 0;
         int next;
-        while ((next = src.indexOf(splitter, off)) != -1) {
-            list.add(src.substring(off, next));
-            off = next + splitter.length();
+        if (caseSens) {
+            while ((next = src.indexOf(splitter, off)) != -1) {
+                list.add(src.substring(off, next));
+                off = next + splitter.length();
+            }
+        } else {
+            final String src_up = src.toLowerCase();
+            final String splitter_up = splitter.toLowerCase();
+            while ((next = src_up.indexOf(splitter_up, off)) != -1) {
+                list.add(src.substring(off, next));
+                off = next + splitter.length();
+            }
         }
         // Add remaining segment
         // If no match was found, return all in one,
         list.add(src.substring(off));
+    }
+
+    /**
+     * Splits a string into a provided list using a substring delimiter (case
+     * sensitive).
+     *
+     * @param src The source string.
+     * @param splitter The substring delimiter.
+     * @param list The list where split values will be stored.
+     */
+    default void simpleSplitInto(String src, String splitter, ArrayList<String> list) {
+        simpleSplitInto(src, splitter, list, true);
     }
 
     /**
@@ -168,17 +237,35 @@ public interface SimpleStringSplitter {
      * @return The modified string with replacements applied, or null if the
      * source string is null.
      */
+    public default String simpleReplace(String src, String splitter, String wish, boolean caseSens) {
+        if (src == null) {
+            return null;
+        }
+        List<String> split = simpleSplit(src, splitter, caseSens);
+        return simpleConcat(split, wish);
+    }
+
+    /**
+     * Replaces occurrences of a specified substring in a string with a given
+     * replacement string.
+     *
+     * @param src The source string to process.
+     * @param splitter The substring to replace.
+     * @param wish The replacement string.
+     * @return The modified string with replacements applied, or null if the
+     * source string is null.
+     */
     public default String simpleReplace(String src, String splitter, String wish) {
         if (src == null) {
             return null;
         }
-        List<String> split = simpleSplit(src, splitter);
+        List<String> split = simpleSplit(src, splitter, true);
         return simpleConcat(split, wish);
     }
 
     /**
      * Replaces occurrences of multiple specified substrings in a string with a
-     * given replacement string.
+     * given replacement string (case sensitive).
      *
      * @param src The source string to process.
      * @param splitterList A list of substrings to replace.
@@ -190,7 +277,7 @@ public interface SimpleStringSplitter {
         if (src == null) {
             return null;
         }
-        List<String> split = simpleSplit(src, splitterList);
+        List<String> split = simpleSplit(src, splitterList, true);
         return simpleConcat(split, wish);
     }
 
