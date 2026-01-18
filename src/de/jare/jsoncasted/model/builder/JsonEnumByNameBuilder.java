@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The JsonEnumByNameBuilder class handles the conversion of JSON string values
@@ -96,9 +98,17 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
             return null;
         }
         String rawValue = simpleReplace(jsonItem.getStringValue(), "\\\"", "\"");
+        if (rawValue == null || rawValue.isEmpty()) {
+            return null;
+        }
         try {
             java.lang.reflect.Method method = enumClazz.getMethod("getByName", String.class);
-            return method.invoke(null, rawValue);
+            final Object enumObject = method.invoke(null, rawValue);
+            if (enumObject == null) {
+                final String msg = enumClazz.getSimpleName() + "." + rawValue + " not found.";
+                Logger.getGlobal().log(Level.WARNING, msg, new NullPointerException(msg));
+            }
+            return enumObject;
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new JsonBuildException("Method getByName(String) in Enum " + enumClazz.getSimpleName() + " not found.");
         }
