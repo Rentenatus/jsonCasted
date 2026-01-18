@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStringSplitter {
 
     private final Class<?> enumClazz;
+    private java.lang.reflect.Method getByNameMethod;
 
     /**
      * Constructs a JsonEnumByNameBuilder instance using the specified enum
@@ -40,6 +41,7 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
      */
     public JsonEnumByNameBuilder(Class<?> enumClazz) {
         this.enumClazz = enumClazz;
+        this.getByNameMethod = null;
     }
 
     /**
@@ -86,7 +88,7 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
 
     /**
      * Converts a JSON string value into an enum instance using the getByName
-     * method.
+     * getByNameMethod.
      *
      * @param jsonItem The JSON item containing the enum name.
      * @return The corresponding enum instance, or null if the lookup fails.
@@ -102,8 +104,10 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
             return null;
         }
         try {
-            java.lang.reflect.Method method = enumClazz.getMethod("getByName", String.class);
-            final Object enumObject = method.invoke(null, rawValue);
+            if (getByNameMethod == null) {
+                getByNameMethod = enumClazz.getMethod("getByName", String.class);
+            }
+            final Object enumObject = getByNameMethod.invoke(null, rawValue);
             if (enumObject == null) {
                 final String msg = enumClazz.getSimpleName() + "." + rawValue + " not found.";
                 Logger.getGlobal().log(Level.WARNING, msg, new NullPointerException(msg));
