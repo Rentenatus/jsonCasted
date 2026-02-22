@@ -103,13 +103,19 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
         if (rawValue == null || rawValue.isEmpty()) {
             return null;
         }
+        if (rawValue.length() != rawValue.trim().length()) {
+            final String msg = enumClazz.getSimpleName() + ": Value '" + rawValue + "' contains invalid spaces.";
+            Logger.getGlobal().log(Level.WARNING, msg);
+            rawValue = rawValue.trim();
+        }
+
         try {
             if (getByNameMethod == null) {
                 getByNameMethod = enumClazz.getMethod("getByName", String.class);
             }
             final Object enumObject = getByNameMethod.invoke(null, rawValue);
             if (enumObject == null) {
-                final String msg = enumClazz.getSimpleName() + "." + rawValue + " not found.";
+                final String msg = enumClazz.getName() + "." + rawValue + " not found.";
                 Logger.getGlobal().log(Level.WARNING, msg, new NullPointerException(msg));
             }
             return enumObject;
