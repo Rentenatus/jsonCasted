@@ -10,6 +10,7 @@ package de.jare.jsoncasted.parserwriter;
 import de.jare.jsoncasted.parser.inner.RootParser;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.tools.JsonMapFacade;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,6 +20,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -84,6 +86,23 @@ public class JsonParser {
 
     public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass) throws JsonParseException, IOException {
         return parse(file, definition, aClass, JsonDebugLevel.SIMPLE);
+    }
+
+    // New convenience: parse JSON to a Map<String,Object>
+    public static Map<String, Object> parseToMap(String s, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
+        return JsonMapFacade.parseToMap(s, definition, root);
+    }
+
+    public static Map<String, Object> parseToMap(File file, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
+        return JsonMapFacade.parseToMap(file, definition, root);
+    }
+
+    public static Map<String, Object> parseToMap(Reader in, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
+        return JsonMapFacade.parseToMap(in, definition, root);
+    }
+
+    public static Map<String, Object> parseToMap(URL url1, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
+        return JsonMapFacade.parseToMap(url1, definition, root);
     }
 
 }
