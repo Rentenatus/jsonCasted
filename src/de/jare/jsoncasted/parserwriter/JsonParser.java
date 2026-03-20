@@ -105,4 +105,38 @@ public class JsonParser {
         return JsonMapFacade.parseToMap(url1, definition, root);
     }
 
+    public static JsonItem parse(Map<String, Object> root, JsonItemDefinition definition, Class<?> aClass) throws JsonParseException {
+        return parse(root, definition, aClass, JsonDebugLevel.SIMPLE);
+    }
+
+    public static JsonItem parse(Map<String, Object> root, JsonItemDefinition definition, Class<?> aClass, JsonDebugLevel debbugLevel) throws JsonParseException {
+        if (definition == null) {
+            throw new IllegalArgumentException("JsonItemDefinition must not be null");
+        }
+        JsonClass jClass = aClass == null ? null : definition.getModel().getJsonClass(aClass);
+        try {
+            de.jare.jsoncasted.parser.inner.MapParseStreamReader mpsr = new de.jare.jsoncasted.parser.inner.MapParseStreamReader(root, debbugLevel);
+            return new RootParser(definition, jClass).parse(mpsr);
+        } catch (IOException ex) {
+            throw new JsonParseException("Unexpected IO error while parsing map: " + ex.getMessage());
+        }
+    }
+
+    // Overloads accepting JsonClass directly (tests use JsonClass)
+    public static JsonItem parse(Map<String, Object> root, JsonItemDefinition definition, JsonClass rootClass) throws JsonParseException {
+        return parse(root, definition, rootClass, JsonDebugLevel.SIMPLE);
+    }
+
+    public static JsonItem parse(Map<String, Object> root, JsonItemDefinition definition, JsonClass rootClass, JsonDebugLevel debbugLevel) throws JsonParseException {
+        if (definition == null) {
+            throw new IllegalArgumentException("JsonItemDefinition must not be null");
+        }
+        try {
+            de.jare.jsoncasted.parser.inner.MapParseStreamReader mpsr = new de.jare.jsoncasted.parser.inner.MapParseStreamReader(root, debbugLevel);
+            return new RootParser(definition, rootClass).parse(mpsr);
+        } catch (IOException ex) {
+            throw new JsonParseException("Unexpected IO error while parsing map: " + ex.getMessage());
+        }
+    }
+
 }

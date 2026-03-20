@@ -27,7 +27,7 @@ public class ParseStreamReader implements SimpleStringSplitter {
     private int pos;
     private int zeile;
 
-    ParseStreamReader(Reader in, JsonDebugLevel debbugLevel) {
+    protected ParseStreamReader(Reader in, JsonDebugLevel debbugLevel) {
         this.in = new BufferedReader(in);
         this.line = null;
         this.end = false;
