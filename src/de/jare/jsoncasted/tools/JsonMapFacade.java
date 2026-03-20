@@ -71,6 +71,23 @@ public class JsonMapFacade {
      */
     public static Object buildInstanceFromMap(Map<String, Object> map) throws Exception {
         JsonItem it = mapToJsonItem(map);
+        // If the created JsonItem has no JsonClass associated, wrap it into a JsonObject
+        // with a generic JsonMap class so buildInstance() can produce a usable instance.
+        if (it instanceof de.jare.jsoncasted.item.JsonObject) {
+            // If the JsonObject already has a class (unlikely from map conversion), use it.
+            // Otherwise assign a JsonMap class that builds generic map-based instances.
+            de.jare.jsoncasted.item.JsonObject jo = (de.jare.jsoncasted.item.JsonObject) it;
+            if (jo.getPrintClassName().equals("null")) {
+                // Create a JsonMap type that will build JsonInstance map-like containers.
+                de.jare.jsoncasted.model.item.JsonMap jsonMapType = new de.jare.jsoncasted.model.item.JsonMap("Map", true, (Class) de.jare.jsoncasted.lang.JsonInstance.class, null, de.jare.jsoncasted.model.JsonCollectionType.NONE);
+                // Wrap existing object into a new JsonObject with the jsonMapType class so buildInstance() will delegate to JsonMapBuilder.
+                de.jare.jsoncasted.item.JsonObject wrapped = new de.jare.jsoncasted.item.JsonObject(jsonMapType);
+                for (String key : jo.getParamSet()) {
+                    wrapped.putParam(key, jo.getParam(key));
+                }
+                it = wrapped;
+            }
+        }
         return it.buildInstance();
     }
 
