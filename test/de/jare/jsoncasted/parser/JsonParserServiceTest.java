@@ -56,4 +56,5 @@ public class JsonParserServiceTest {
             Assert.assertEquals(val.asText(), "hello");
         }
     }
+
 }

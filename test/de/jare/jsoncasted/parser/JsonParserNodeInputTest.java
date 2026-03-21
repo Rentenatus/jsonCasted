@@ -2,18 +2,15 @@ package de.jare.jsoncasted.parser;
 
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonObject;
-import de.jare.jsoncasted.item.JsonValue;
 import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonParser;
 import de.jare.jsonconfig.def.JsonConfigDefinition;
-import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
-import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
-import org.testng.annotations.Test;
-import org.testng.Assert;
-
 import java.io.File;
 import java.io.FileReader;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class JsonParserNodeInputTest {
 

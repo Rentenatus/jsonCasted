@@ -7,7 +7,6 @@
  */
 package de.jare.jsoncasted.parserwriter;
 
-import de.jare.jsoncasted.parser.inner.RootParser;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.io.BufferedReader;
@@ -63,6 +62,7 @@ public class JsonParser {
             de.jare.jsoncasted.lang.JsonNode node = service.parse(in);
             return parse(node, definition, root, debbugLevel);
         } catch (de.jare.jsoncasted.parser.JsonParserService.JsonParseException e) {
+            e.printStackTrace();
             throw new JsonParseException(e.getMessage());
         }
     }
@@ -92,9 +92,6 @@ public class JsonParser {
         return parse(file, definition, aClass, JsonDebugLevel.SIMPLE);
     }
 
-    /**
-     * Parse from an already built JsonNode tree.
-     */
     public static JsonItem parse(de.jare.jsoncasted.lang.JsonNode rootNode, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
         return JsonNodeConverter.convert(rootNode, definition, root, debbugLevel);
     }
