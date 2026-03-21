@@ -86,4 +86,11 @@ public class JsonParser {
         return parse(file, definition, aClass, JsonDebugLevel.SIMPLE);
     }
 
+    /**
+     * Parse from an already built JsonNode tree.
+     */
+    public static JsonItem parse(de.jare.jsoncasted.lang.JsonNode rootNode, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
+        return JsonNodeConverter.convert(rootNode, definition, root, debbugLevel);
+    }
+
 }

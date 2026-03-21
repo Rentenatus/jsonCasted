@@ -1,0 +1,44 @@
+package de.jare.jsoncasted.parser;
+
+import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.JsonObject;
+import de.jare.jsoncasted.item.JsonValue;
+import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.parserwriter.JsonParser;
+import de.jare.jsonconfig.def.JsonConfigDefinition;
+import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.parserwriter.JsonParseException;
+import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
+import org.testng.annotations.Test;
+import org.testng.Assert;
+
+import java.io.File;
+import java.io.FileReader;
+
+public class JsonParserNodeInputTest {
+
+    private String assetPath(String name) {
+        return System.getProperty("user.dir") + File.separator + "test_assets" + File.separator + "assets" + File.separator + "config" + File.separator + name;
+    }
+
+    @Test
+    public void testParseFromJsonNode() throws Exception {
+        File f = new File(assetPath("config_legacy_string.json"));
+        Assert.assertTrue(f.exists(), "asset file must exist: " + f.getAbsolutePath());
+        JsonParserService svc = new JsonParserService();
+        try (FileReader fr = new FileReader(f)) {
+            JsonNode node = svc.parse(fr);
+            JsonClass rootClass = JsonConfigDefinition.getInstance().getConfigRoot();
+            JsonItem item = JsonParser.parse(node, JsonConfigDefinition.getInstance(), rootClass, JsonDebugLevel.SIMPLE);
+            Assert.assertNotNull(item);
+            Assert.assertTrue(item instanceof JsonObject);
+            JsonObject obj = (JsonObject) item;
+            JsonItem cs = obj.getParam("castedString");
+            Assert.assertNotNull(cs);
+            Assert.assertTrue(cs instanceof JsonObject);
+            JsonItem cls = ((JsonObject) cs).getParam("_class");
+            // In converter we removed _class from params, so cls should be null
+            Assert.assertNull(cls);
+        }
+    }
+}
