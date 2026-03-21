@@ -102,8 +102,21 @@ public class JsonParserService {
             if (!isAtEnd() && in.charAt(pos) == '}') { pos++; return obj; }
             while (true) {
                 skipWhitespace();
-                if (isAtEnd() || in.charAt(pos) != '"') throw new JsonParseException("Expected string key at position " + pos);
-                String key = parseString();
+                if (isAtEnd()) throw new JsonParseException("Unexpected end in object at position " + pos);
+                String key;
+                char kc = in.charAt(pos);
+                if (kc == '"') {
+                    key = parseString();
+                } else {
+                    // accept unquoted identifier keys (legacy/config style)
+                    int nameStart = pos;
+                    while (!isAtEnd()) {
+                        char c = in.charAt(pos);
+                        if (Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '$') pos++; else break;
+                    }
+                    if (pos == nameStart) throw new JsonParseException("Expected key at position " + pos);
+                    key = in.substring(nameStart, pos);
+                }
                 skipWhitespace();
 
                 // Accept ':' (standard JSON) or '=' for legacy-cast pattern detection
@@ -167,8 +180,13 @@ public class JsonParserService {
                 skipWhitespace();
                 if (isAtEnd()) throw new JsonParseException("Unexpected end in object at position " + pos);
                 char ch = in.charAt(pos);
-                if (ch == ',') { pos++; continue; }
+                if (ch == ',') { pos++; skipWhitespace(); if (!isAtEnd() && in.charAt(pos) == '}') { pos++; break; } else continue; }
                 if (ch == '}') { pos++; break; }
+                // permissive: allow missing commas between object entries (legacy/config style)
+                if (ch == '"' || Character.isLetter(ch) || ch == '_' || ch == '$') {
+                    // treat as start of next key without requiring a comma
+                    continue;
+                }
                 throw new JsonParseException("Expected ',' or '}' in object at position " + pos);
             }
             return obj;
@@ -186,7 +204,7 @@ public class JsonParserService {
                 skipWhitespace();
                 if (isAtEnd()) throw new JsonParseException("Unexpected end in array at position " + pos);
                 char ch = in.charAt(pos);
-                if (ch == ',') { pos++; continue; }
+                if (ch == ',') { pos++; skipWhitespace(); if (!isAtEnd() && in.charAt(pos) == ']') { pos++; break; } else continue; }
                 if (ch == ']') { pos++; break; }
                 throw new JsonParseException("Expected ',' or ']' in array at position " + pos);
             }
