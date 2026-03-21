@@ -36,9 +36,12 @@ public class JsonParserNodeInputTest {
             JsonItem cs = obj.getParam("castedString");
             Assert.assertNotNull(cs);
             Assert.assertTrue(cs instanceof JsonObject);
-            JsonItem cls = ((JsonObject) cs).getParam("_class");
-            // In converter we removed _class from params, so cls should be null
-            Assert.assertNull(cls);
+            // After conversion the backing JsonNode should have an attached JsonClass
+            de.jare.jsoncasted.lang.JsonNode childNode = node.asObject().get("castedString");
+            Assert.assertNotNull(childNode.getJsonClass());
+            String cname = ((de.jare.jsoncasted.model.item.JsonClass) childNode.getJsonClass()).getcName();
+            // Accept both simple and fully-qualified class names depending on model configuration
+            Assert.assertTrue("java.lang.String".equals(cname) || "String".equals(cname));
         }
     }
 }

@@ -50,6 +50,11 @@ public class JsonNodeConverter {
                         // try endsWith (best-effort)
                         found = definition.getModel().getEndsWith(cname);
                     }
+                    if (found == null && cname.contains(".")) {
+                        // try simple name (e.g., java.lang.String -> String)
+                        String simple = cname.substring(cname.lastIndexOf('.') + 1);
+                        found = definition.getModel().getJsonClass(simple);
+                    }
                     if (found != null) {
                         useClass = found;
                     }
@@ -57,6 +62,8 @@ public class JsonNodeConverter {
             }
         }
         JsonObject obj = new JsonObject(useClass);
+        // attach JsonClass to the JsonNode for editor/debugging
+        node.setJsonClass(useClass);
         // copy properties, skip _class
         for (Map.Entry<String, JsonNode> e : map.entrySet()) {
             String key = e.getKey();

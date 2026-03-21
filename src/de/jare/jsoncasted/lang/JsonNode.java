@@ -7,10 +7,13 @@
 package de.jare.jsoncasted.lang;
 
 import java.util.*;
+import de.jare.jsoncasted.model.item.JsonClass;
 
 /**
  * Simple JsonNode representation supporting objects, arrays, strings, numbers,
  * booleans and null. This replaces the previous generic HashMap-based class.
+ *
+ * Note: JsonClass may be attached to OBJECT nodes to aid editing/debugging.
  */
 public class JsonNode {
     public enum Type { OBJECT, ARRAY, STRING, NUMBER, BOOLEAN, NULL }
@@ -21,6 +24,7 @@ public class JsonNode {
     private final String textValue;
     private final Double numberValue;
     private final Boolean boolValue;
+    private JsonClass jsonClass; // optional, set for OBJECT nodes
 
     private JsonNode(Type type,
                      Map<String, JsonNode> objectValue,
@@ -34,6 +38,7 @@ public class JsonNode {
         this.textValue = textValue;
         this.numberValue = numberValue;
         this.boolValue = boolValue;
+        this.jsonClass = null;
     }
 
     public static JsonNode objectNode() {
@@ -71,6 +76,15 @@ public class JsonNode {
         if (type != Type.ARRAY) throw new IllegalStateException("not an array node");
         arrayValue.add(value);
         return this;
+    }
+
+    // JsonClass attachment for OBJECT nodes
+    public void setJsonClass(JsonClass jc) {
+        this.jsonClass = jc;
+    }
+
+    public JsonClass getJsonClass() {
+        return this.jsonClass;
     }
 
     // Accessors
