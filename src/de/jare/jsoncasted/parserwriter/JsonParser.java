@@ -57,8 +57,14 @@ public class JsonParser {
     }
 
     public static JsonItem parse(Reader in, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws IOException, JsonParseException {
-        ParseStreamReader psr = new ParseStreamReader(in, debbugLevel);
-        return new RootParser(definition, root).parse(psr);
+        // Redirect: first parse text into JsonNode using JsonParserService, then convert
+        de.jare.jsoncasted.parser.JsonParserService service = new de.jare.jsoncasted.parser.JsonParserService();
+        try {
+            de.jare.jsoncasted.lang.JsonNode node = service.parse(in);
+            return parse(node, definition, root, debbugLevel);
+        } catch (de.jare.jsoncasted.parser.JsonParserService.JsonParseException e) {
+            throw new JsonParseException(e.getMessage());
+        }
     }
 
     public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {

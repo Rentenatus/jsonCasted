@@ -18,6 +18,10 @@ import java.util.logging.Logger;
  *
  * @author Janusch Rentenatus
  */
+/**
+ * @deprecated Replaced by JsonNode-based parsing pipeline. Will be removed in a future release.
+ */
+@Deprecated
 public class ParseStreamReader implements SimpleStringSplitter {
 
     private final BufferedReader in;
