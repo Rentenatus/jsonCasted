@@ -1,0 +1,6 @@
+{
+  "castedString": (java.lang.String) {
+    "value": "hello",
+    "note": "legacy string cast"
+  }
+}

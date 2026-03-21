@@ -1,0 +1,7 @@
+{
+  "castedValue": (java.lang.Long) {
+    "value": 123,
+    "name": "legacyLong"
+  },
+  "other": "data"
+}
