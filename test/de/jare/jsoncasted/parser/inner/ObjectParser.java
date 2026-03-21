@@ -26,8 +26,7 @@ import java.util.logging.Logger;
 /**
  *
  * @author Janusch Rentenatus
- */
-/**
+ *
  * @deprecated Replaced by JsonNode-based parsing pipeline. Will be removed in a future release.
  */
 @Deprecated
