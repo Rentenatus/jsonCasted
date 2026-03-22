@@ -138,6 +138,7 @@ public class JsonConfigFactoryNGTest {
             fail(ex.getMessage(), ex);
         }
         System.out.println("=============================================== Comment");
+        assertNotNull(root.getComments());
         for (String comment : root.getComments()) {
             System.out.println("comment  > " + comment);
         }
@@ -171,6 +172,7 @@ public class JsonConfigFactoryNGTest {
             fail(ex.getMessage(), ex);
         }
         System.out.println("=============================================== Comment");
+        assertNotNull(root.getComments());
         for (String comment : root.getComments()) {
             System.out.println("comment  > " + comment);
         }

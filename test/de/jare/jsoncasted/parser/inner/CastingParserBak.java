@@ -11,7 +11,7 @@ import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
-import de.jare.jsoncasted.parserwriter.ParseStreamReader;
+import de.jare.jsoncasted.parserservice.ParseStreamReader;
 import java.io.IOException;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import java.util.logging.Level;
@@ -24,12 +24,12 @@ import java.util.logging.Logger;
  * @deprecated Replaced by JsonNode-based parsing pipeline.
  */
 @Deprecated
-public class CastingParser {
+public class CastingParserBak {
 
     private final JsonItemDefinition definition;
     private final JsonType aType;
 
-    public CastingParser(JsonItemDefinition definition, JsonType aType) {
+    public CastingParserBak(JsonItemDefinition definition, JsonType aType) {
         this.definition = definition;
         this.aType = aType;
     }

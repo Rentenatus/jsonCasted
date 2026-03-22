@@ -12,7 +12,7 @@ import de.jare.jsoncasted.item.JsonValue;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
-import de.jare.jsoncasted.parserwriter.ParseStreamReader;
+import de.jare.jsoncasted.parserservice.ParseStreamReader;
 import java.io.IOException;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 
@@ -23,21 +23,21 @@ import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
  * @deprecated Replaced by JsonNode-based parsing pipeline.
  */
 @Deprecated
-public class RootParser {
+public class RootParserBak {
 
     private final JsonItemDefinition definition;
     private final JsonType jType;
     private JsonClass castClass;
     private final StringBuilder sb;
 
-    public RootParser(JsonItemDefinition definition, JsonType jType) {
+    public RootParserBak(JsonItemDefinition definition, JsonType jType) {
         this.definition = definition;
         this.jType = jType;
         this.sb = new StringBuilder();
         this.castClass = null;
     }
 
-    public RootParser(JsonItemDefinition definition, String className) {
+    public RootParserBak(JsonItemDefinition definition, String className) {
         this.definition = definition;
         this.jType = definition.getModel().getJsonClass(className);
         if (this.jType == null) {
@@ -47,7 +47,7 @@ public class RootParser {
         this.castClass = null;
     }
 
-    public RootParser(JsonItemDefinition definition, Class<?> clazz) {
+    public RootParserBak(JsonItemDefinition definition, Class<?> clazz) {
         this(definition, clazz.getTypeName());
     }
 
@@ -56,16 +56,16 @@ public class RootParser {
         while (psr.hasNext()) {
             char c = psr.next();
             if (c == '{') {
-                return new ObjectParser(definition, castClass).parse(psr);
+                return new ObjectParserBak(definition, castClass).parse(psr);
             }
             if (c == '[') {
-                return new ListParser(definition, castClass == null ? jType : castClass).parse(psr, true);
+                return new ListParserBak(definition, castClass == null ? jType : castClass).parse(psr, true);
             }
             if (c == '"') {
-                return new StringParser(definition, castClass).parse(psr);
+                return new StringParserBak(definition, castClass).parse(psr);
             }
             if (c == '(') {
-                castClass = new CastingParser(definition, jType).parse(psr);
+                castClass = new CastingParserBak(definition, jType).parse(psr);
             } else {
                 sb.append(c);
             }

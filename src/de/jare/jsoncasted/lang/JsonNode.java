@@ -16,7 +16,10 @@ import de.jare.jsoncasted.model.item.JsonClass;
  * Note: JsonClass may be attached to OBJECT nodes to aid editing/debugging.
  */
 public class JsonNode {
-    public enum Type { OBJECT, ARRAY, STRING, NUMBER, BOOLEAN, NULL }
+
+    public enum Type {
+        OBJECT, ARRAY, STRING, NUMBER, BOOLEAN, NULL
+    }
 
     private final Type type;
     private final Map<String, JsonNode> objectValue;
@@ -27,11 +30,11 @@ public class JsonNode {
     private JsonClass jsonClass; // optional, set for OBJECT nodes
 
     private JsonNode(Type type,
-                     Map<String, JsonNode> objectValue,
-                     List<JsonNode> arrayValue,
-                     String textValue,
-                     Double numberValue,
-                     Boolean boolValue) {
+            Map<String, JsonNode> objectValue,
+            List<JsonNode> arrayValue,
+            String textValue,
+            Double numberValue,
+            Boolean boolValue) {
         this.type = type;
         this.objectValue = objectValue;
         this.arrayValue = arrayValue;
@@ -47,6 +50,10 @@ public class JsonNode {
 
     public static JsonNode arrayNode() {
         return new JsonNode(Type.ARRAY, null, new ArrayList<>(), null, null, null);
+    }
+
+    public static JsonNode arrayNode(List<JsonNode> arrayValue) {
+        return new JsonNode(Type.ARRAY, null, arrayValue, null, null, null);
     }
 
     public static JsonNode stringNode(String s) {
@@ -67,13 +74,17 @@ public class JsonNode {
 
     // Mutating helpers for building nodes (return this for chaining)
     public JsonNode put(String key, JsonNode value) {
-        if (type != Type.OBJECT) throw new IllegalStateException("not an object node");
+        if (type != Type.OBJECT) {
+            throw new IllegalStateException("not an object node");
+        }
         objectValue.put(key, value);
         return this;
     }
 
     public JsonNode add(JsonNode value) {
-        if (type != Type.ARRAY) throw new IllegalStateException("not an array node");
+        if (type != Type.ARRAY) {
+            throw new IllegalStateException("not an array node");
+        }
         arrayValue.add(value);
         return this;
     }
@@ -88,12 +99,29 @@ public class JsonNode {
     }
 
     // Accessors
-    public Type getType() { return type; }
-    public Map<String, JsonNode> asObject() { return objectValue; }
-    public List<JsonNode> asArray() { return arrayValue; }
-    public String asText() { return textValue; }
-    public Double asNumber() { return numberValue; }
-    public Boolean asBoolean() { return boolValue; }
+    public Type getType() {
+        return type;
+    }
+
+    public Map<String, JsonNode> asObject() {
+        return objectValue;
+    }
+
+    public List<JsonNode> asArray() {
+        return arrayValue;
+    }
+
+    public String asText() {
+        return textValue;
+    }
+
+    public Double asNumber() {
+        return numberValue;
+    }
+
+    public Boolean asBoolean() {
+        return boolValue;
+    }
 
     @Override
     public String toString() {
@@ -103,7 +131,9 @@ public class JsonNode {
                 sb.append("{");
                 boolean first = true;
                 for (Map.Entry<String, JsonNode> e : objectValue.entrySet()) {
-                    if (!first) sb.append(',');
+                    if (!first) {
+                        sb.append(',');
+                    }
                     first = false;
                     sb.append('"').append(escape(e.getKey())).append('"').append(':').append(e.getValue().toString());
                 }
@@ -113,7 +143,9 @@ public class JsonNode {
                 StringBuilder sa = new StringBuilder();
                 sa.append('[');
                 for (int i = 0; i < arrayValue.size(); i++) {
-                    if (i > 0) sa.append(',');
+                    if (i > 0) {
+                        sa.append(',');
+                    }
                     sa.append(arrayValue.get(i).toString());
                 }
                 sa.append(']');
@@ -132,7 +164,9 @@ public class JsonNode {
     }
 
     private static String escape(String s) {
-        if (s == null) return null;
+        if (s == null) {
+            return null;
+        }
         return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
     }
 }

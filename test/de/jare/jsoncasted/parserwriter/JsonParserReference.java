@@ -7,9 +7,10 @@
  */
 package de.jare.jsoncasted.parserwriter;
 
+import de.jare.jsoncasted.parserservice.ParseStreamReader;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.parser.inner.RootParser;
+import de.jare.jsoncasted.parser.inner.RootParserBak;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -58,7 +59,7 @@ public class JsonParserReference {
 
       public static JsonItem parse(Reader in, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws IOException, JsonParseException {
           ParseStreamReader psr = new ParseStreamReader(in, debbugLevel);
-          return new RootParser(definition, root).parse(psr);
+          return new RootParserBak(definition, root).parse(psr);
       }
 
       public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {

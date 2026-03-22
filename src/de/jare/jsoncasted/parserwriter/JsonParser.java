@@ -8,7 +8,9 @@
 package de.jare.jsoncasted.parserwriter;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.parserservice.JsonParserService;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -57,14 +59,10 @@ public class JsonParser {
 
     public static JsonItem parse(Reader in, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws IOException, JsonParseException {
         // Redirect: first parse text into JsonNode using JsonParserService, then convert
-        de.jare.jsoncasted.parser.JsonParserService service = new de.jare.jsoncasted.parser.JsonParserService();
-        try {
-            de.jare.jsoncasted.lang.JsonNode node = service.parse(in);
-            return parse(node, definition, root, debbugLevel);
-        } catch (de.jare.jsoncasted.parser.JsonParserService.JsonParseException e) {
-            e.printStackTrace();
-            throw new JsonParseException(e.getMessage());
-        }
+        JsonParserService service = new JsonParserService();
+        JsonNode node = service.parse(in);
+        return parse(node, definition, root, debbugLevel);
+
     }
 
     public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
@@ -92,7 +90,7 @@ public class JsonParser {
         return parse(file, definition, aClass, JsonDebugLevel.SIMPLE);
     }
 
-    public static JsonItem parse(de.jare.jsoncasted.lang.JsonNode rootNode, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
+    public static JsonItem parse(JsonNode rootNode, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
         return JsonNodeConverter.convert(rootNode, definition, root, debbugLevel);
     }
 

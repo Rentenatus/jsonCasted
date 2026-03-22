@@ -1,5 +1,6 @@
 package de.jare.jsoncasted.parser;
 
+import de.jare.jsoncasted.parserservice.JsonParserService;
 import de.jare.jsoncasted.lang.JsonNode;
 import org.testng.annotations.Test;
 import org.testng.Assert;

@@ -5,38 +5,19 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.parser.inner;
+package de.jare.jsoncasted.parserservice;
 
-import de.jare.jsoncasted.item.JsonValue;
-import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
-import de.jare.jsoncasted.parserwriter.ParseStreamReader;
 import java.io.IOException;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 
 /**
  *
  * @author Janusch Rentenatus
  *
- * @deprecated Replaced by JsonNode-based parsing pipeline.
  */
-@Deprecated
 public class StringParser {
 
-    private final JsonClass aClass;
-
-    public StringParser(JsonItemDefinition definition) {
-        this.aClass = definition == null ? null : definition.getModel().getJsonClass("String");
-    }
-
-    public StringParser(JsonItemDefinition definition, JsonClass aClass) {
-        this.aClass = aClass == null
-                ? //
-                (definition == null ? null : definition.getModel().getJsonClass("String"))
-                : aClass;
-    }
-
-    JsonValue parse(ParseStreamReader psr) throws IOException, JsonParseException {
+    static String parse(ParseStreamReader psr) throws IOException, JsonParseException {
         boolean escape = false;
         StringBuilder sb = new StringBuilder();
 
@@ -59,10 +40,11 @@ public class StringParser {
                 } else {
                     sb.append('\\').append(c);
                 }
+
                 continue;
             }
             if (c == '"') {
-                return new JsonValue(sb.toString(), aClass);
+                return sb.toString();
             }
             escape = c == '\\';
             if (!escape) {

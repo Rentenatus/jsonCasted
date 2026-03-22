@@ -1,19 +1,17 @@
-package de.jare.jsoncasted.parser;
+package de.jare.jsoncasted.parserservice;
 
 import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
+import de.jare.jsoncasted.parserwriter.JsonParseException;
 
 import java.io.*;
 import java.util.*;
 
 /**
- * Simple recursive-descent JSON parser service.
- * Provides overloads for StringReader, FileReader and BufferedReader and returns a JsonNode.
+ * Simple recursive-descent JSON parser service. Provides overloads for
+ * StringReader, FileReader and BufferedReader and returns a JsonNode.
  */
 public class JsonParserService {
-
-    public static class JsonParseException extends Exception {
-        public JsonParseException(String message) { super(message); }
-    }
 
     public JsonNode parse(StringReader reader) throws IOException, JsonParseException {
         return parse((Reader) reader);
@@ -27,24 +25,21 @@ public class JsonParserService {
         return parse((Reader) reader);
     }
 
-    public JsonNode parse(Reader reader) throws IOException, JsonParseException {
-        StringBuilder sb = new StringBuilder();
-        char[] buf = new char[4096];
-        int r;
-        while ((r = reader.read(buf)) != -1) sb.append(buf, 0, r);
-        String input = sb.toString();
-        Parser p = new Parser(input);
-        JsonNode node = p.parse();
-        p.skipWhitespace();
-        if (!p.isAtEnd()) throw new JsonParseException("Extra data after JSON end at position " + p.pos);
-        return node;
+    public JsonNode parse(Reader reader) throws IOException, JsonParseException, JsonParseException {
+        ParseStreamReader psr = new ParseStreamReader(reader, JsonDebugLevel.SIMPLE);
+        return RootParser.parse(psr);
+
     }
 
     // Basic parser implementation
     private static class Parser {
+
         private final String in;
         private int pos = 0;
-        Parser(String in) { this.in = in; }
+
+        Parser(String in) {
+            this.in = in;
+        }
 
         JsonNode parse() throws JsonParseException {
             skipWhitespace();
@@ -52,23 +47,34 @@ public class JsonParserService {
             return v;
         }
 
-        boolean isAtEnd() { return pos >= in.length(); }
+        boolean isAtEnd() {
+            return pos >= in.length();
+        }
 
         void skipWhitespace() {
             while (!isAtEnd()) {
                 char c = in.charAt(pos);
-                if (c == ' ' || c == '\n' || c == '\r' || c == '\t') pos++; else break;
+                if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
+                    pos++;
+                } else {
+                    break;
+                }
             }
         }
 
         JsonNode parseValue() throws JsonParseException {
             skipWhitespace();
-            if (isAtEnd()) throw new JsonParseException("Unexpected end of input");
+            if (isAtEnd()) {
+                throw new JsonParseException("Unexpected end of input");
+            }
             char c = in.charAt(pos);
             switch (c) {
-                case '{': return parseObject();
-                case '[': return parseArray();
-                case '"': return JsonNode.stringNode(parseString());
+                case '{':
+                    return parseObject();
+                case '[':
+                    return parseArray();
+                case '"':
+                    return JsonNode.stringNode(parseString());
                 case 't':
                     expectLiteral("true");
                     return JsonNode.booleanNode(true);
@@ -99,10 +105,15 @@ public class JsonParserService {
             pos++;
             JsonNode obj = JsonNode.objectNode();
             skipWhitespace();
-            if (!isAtEnd() && in.charAt(pos) == '}') { pos++; return obj; }
+            if (!isAtEnd() && in.charAt(pos) == '}') {
+                pos++;
+                return obj;
+            }
             while (true) {
                 skipWhitespace();
-                if (isAtEnd()) throw new JsonParseException("Unexpected end in object at position " + pos);
+                if (isAtEnd()) {
+                    throw new JsonParseException("Unexpected end in object at position " + pos);
+                }
                 String key;
                 char kc = in.charAt(pos);
                 if (kc == '"') {
@@ -112,15 +123,23 @@ public class JsonParserService {
                     int nameStart = pos;
                     while (!isAtEnd()) {
                         char c = in.charAt(pos);
-                        if (Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '$') pos++; else break;
+                        if (Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '$') {
+                            pos++;
+                        } else {
+                            break;
+                        }
                     }
-                    if (pos == nameStart) throw new JsonParseException("Expected key at position " + pos);
+                    if (pos == nameStart) {
+                        throw new JsonParseException("Expected key at position " + pos);
+                    }
                     key = in.substring(nameStart, pos);
                 }
                 skipWhitespace();
 
                 // Accept ':' (standard JSON) or '=' for legacy-cast pattern detection
-                if (isAtEnd()) throw new JsonParseException("Expected ':' after key at position " + pos);
+                if (isAtEnd()) {
+                    throw new JsonParseException("Expected ':' after key at position " + pos);
+                }
                 char sep = in.charAt(pos);
                 if (sep == ':' || sep == '=') {
                     pos++; // consume separator
@@ -139,7 +158,11 @@ public class JsonParserService {
                     int nameStart = pos;
                     while (!isAtEnd()) {
                         char c = in.charAt(pos);
-                        if (Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '$') pos++; else break;
+                        if (Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '$') {
+                            pos++;
+                        } else {
+                            break;
+                        }
                     }
                     if (pos > nameStart) {
                         String className = in.substring(nameStart, pos);
@@ -178,10 +201,24 @@ public class JsonParserService {
 
                 obj.put(key, value);
                 skipWhitespace();
-                if (isAtEnd()) throw new JsonParseException("Unexpected end in object at position " + pos);
+                if (isAtEnd()) {
+                    throw new JsonParseException("Unexpected end in object at position " + pos);
+                }
                 char ch = in.charAt(pos);
-                if (ch == ',') { pos++; skipWhitespace(); if (!isAtEnd() && in.charAt(pos) == '}') { pos++; break; } else continue; }
-                if (ch == '}') { pos++; break; }
+                if (ch == ',') {
+                    pos++;
+                    skipWhitespace();
+                    if (!isAtEnd() && in.charAt(pos) == '}') {
+                        pos++;
+                        break;
+                    } else {
+                        continue;
+                    }
+                }
+                if (ch == '}') {
+                    pos++;
+                    break;
+                }
                 // permissive: allow missing commas between object entries (legacy/config style)
                 if (ch == '"' || Character.isLetter(ch) || ch == '_' || ch == '$') {
                     // treat as start of next key without requiring a comma
@@ -196,16 +233,33 @@ public class JsonParserService {
             pos++; // consume '['
             JsonNode arr = JsonNode.arrayNode();
             skipWhitespace();
-            if (!isAtEnd() && in.charAt(pos) == ']') { pos++; return arr; }
+            if (!isAtEnd() && in.charAt(pos) == ']') {
+                pos++;
+                return arr;
+            }
             while (true) {
                 skipWhitespace();
                 JsonNode elem = parseValue();
                 arr.add(elem);
                 skipWhitespace();
-                if (isAtEnd()) throw new JsonParseException("Unexpected end in array at position " + pos);
+                if (isAtEnd()) {
+                    throw new JsonParseException("Unexpected end in array at position " + pos);
+                }
                 char ch = in.charAt(pos);
-                if (ch == ',') { pos++; skipWhitespace(); if (!isAtEnd() && in.charAt(pos) == ']') { pos++; break; } else continue; }
-                if (ch == ']') { pos++; break; }
+                if (ch == ',') {
+                    pos++;
+                    skipWhitespace();
+                    if (!isAtEnd() && in.charAt(pos) == ']') {
+                        pos++;
+                        break;
+                    } else {
+                        continue;
+                    }
+                }
+                if (ch == ']') {
+                    pos++;
+                    break;
+                }
                 throw new JsonParseException("Expected ',' or ']' in array at position " + pos);
             }
             return arr;
@@ -217,32 +271,54 @@ public class JsonParserService {
             StringBuilder sb = new StringBuilder();
             while (!isAtEnd()) {
                 char c = in.charAt(pos++);
-                if (c == '"') return sb.toString();
+                if (c == '"') {
+                    return sb.toString();
+                }
                 if (c == '\\') {
-                    if (isAtEnd()) throw new JsonParseException("Unterminated escape in string");
+                    if (isAtEnd()) {
+                        throw new JsonParseException("Unterminated escape in string");
+                    }
                     char e = in.charAt(pos++);
                     switch (e) {
-                        case '"': sb.append('"'); break;
-                        case '\\': sb.append('\\'); break;
-                        case '/': sb.append('/'); break;
-                        case 'b': sb.append('\b'); break;
-                        case 'f': sb.append('\f'); break;
-                        case 'n': sb.append('\n'); break;
-                        case 'r': sb.append('\r'); break;
-                        case 't': sb.append('\t'); break;
+                        case '"':
+                            sb.append('"');
+                            break;
+                        case '\\':
+                            sb.append('\\');
+                            break;
+                        case '/':
+                            sb.append('/');
+                            break;
+                        case 'b':
+                            sb.append('\b');
+                            break;
+                        case 'f':
+                            sb.append('\f');
+                            break;
+                        case 'n':
+                            sb.append('\n');
+                            break;
+                        case 'r':
+                            sb.append('\r');
+                            break;
+                        case 't':
+                            sb.append('\t');
+                            break;
                         case 'u':
-                            if (pos + 4 > in.length()) throw new JsonParseException("Invalid unicode escape");
-                            String hex = in.substring(pos, pos+4);
+                            if (pos + 4 > in.length()) {
+                                throw new JsonParseException("Invalid unicode escape");
+                            }
+                            String hex = in.substring(pos, pos + 4);
                             try {
                                 int code = Integer.parseInt(hex, 16);
                                 sb.append((char) code);
                                 pos += 4;
                             } catch (NumberFormatException ex) {
-                                throw new JsonParseException("Invalid unicode escape: "+hex);
+                                throw new JsonParseException("Invalid unicode escape: " + hex);
                             }
                             break;
                         default:
-                            throw new JsonParseException("Invalid escape character: "+e);
+                            throw new JsonParseException("Invalid escape character: " + e);
                     }
                 } else {
                     sb.append(c);
@@ -253,25 +329,41 @@ public class JsonParserService {
 
         double parseNumber() throws JsonParseException {
             int start = pos;
-            if (in.charAt(pos) == '-') pos++;
-            if (isAtEnd()) throw new JsonParseException("Unexpected end parsing number");
+            if (in.charAt(pos) == '-') {
+                pos++;
+            }
+            if (isAtEnd()) {
+                throw new JsonParseException("Unexpected end parsing number");
+            }
             if (in.charAt(pos) == '0') {
                 pos++;
             } else if (in.charAt(pos) >= '1' && in.charAt(pos) <= '9') {
-                while (!isAtEnd() && Character.isDigit(in.charAt(pos))) pos++;
+                while (!isAtEnd() && Character.isDigit(in.charAt(pos))) {
+                    pos++;
+                }
             } else {
                 throw new JsonParseException("Invalid number at position " + pos);
             }
             if (!isAtEnd() && in.charAt(pos) == '.') {
                 pos++;
-                if (isAtEnd() || !Character.isDigit(in.charAt(pos))) throw new JsonParseException("Invalid fractional part in number at " + pos);
-                while (!isAtEnd() && Character.isDigit(in.charAt(pos))) pos++;
+                if (isAtEnd() || !Character.isDigit(in.charAt(pos))) {
+                    throw new JsonParseException("Invalid fractional part in number at " + pos);
+                }
+                while (!isAtEnd() && Character.isDigit(in.charAt(pos))) {
+                    pos++;
+                }
             }
             if (!isAtEnd() && (in.charAt(pos) == 'e' || in.charAt(pos) == 'E')) {
                 pos++;
-                if (!isAtEnd() && (in.charAt(pos) == '+' || in.charAt(pos) == '-')) pos++;
-                if (isAtEnd() || !Character.isDigit(in.charAt(pos))) throw new JsonParseException("Invalid exponent in number at " + pos);
-                while (!isAtEnd() && Character.isDigit(in.charAt(pos))) pos++;
+                if (!isAtEnd() && (in.charAt(pos) == '+' || in.charAt(pos) == '-')) {
+                    pos++;
+                }
+                if (isAtEnd() || !Character.isDigit(in.charAt(pos))) {
+                    throw new JsonParseException("Invalid exponent in number at " + pos);
+                }
+                while (!isAtEnd() && Character.isDigit(in.charAt(pos))) {
+                    pos++;
+                }
             }
             String numStr = in.substring(start, pos);
             try {

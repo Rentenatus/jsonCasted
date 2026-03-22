@@ -1,5 +1,6 @@
 package de.jare.jsoncasted.parser;
 
+import de.jare.jsoncasted.parserservice.JsonParserService;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.lang.JsonNode;
