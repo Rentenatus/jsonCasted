@@ -17,7 +17,7 @@ import java.io.IOException;
  */
 public class StringParser {
 
-    static String parse(ParseStreamReader psr) throws IOException, JsonParseException {
+    static String parse(ParseStreamReader psr, char quotation) throws IOException, JsonParseException {
         boolean escape = false;
         StringBuilder sb = new StringBuilder();
 
@@ -43,7 +43,7 @@ public class StringParser {
 
                 continue;
             }
-            if (c == '"') {
+            if (c == quotation) {
                 return sb.toString();
             }
             escape = c == '\\';

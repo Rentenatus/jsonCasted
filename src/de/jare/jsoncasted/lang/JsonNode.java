@@ -1,4 +1,4 @@
-/* <copyright> 
+/* <copyright>
  * Copyright (c) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
@@ -56,16 +56,33 @@ public class JsonNode {
         return new JsonNode(Type.ARRAY, null, arrayValue, null, null, null);
     }
 
-    public static JsonNode stringNode(String s) {
-        return new JsonNode(Type.STRING, null, null, s, null, null);
+    public static JsonNode stringNode(String str) {
+        return new JsonNode(Type.STRING, null, null, str, null, null);
     }
 
-    public static JsonNode numberNode(double n) {
-        return new JsonNode(Type.NUMBER, null, null, null, n, null);
+    public static JsonNode numberNode(double number) {
+        return new JsonNode(Type.NUMBER, null, null, null, number, null);
     }
 
-    public static JsonNode booleanNode(boolean b) {
-        return new JsonNode(Type.BOOLEAN, null, null, null, null, b);
+    public static JsonNode booleanNode(boolean aBool) {
+        return new JsonNode(Type.BOOLEAN, null, null, null, null, aBool);
+    }
+
+    public static JsonNode varNode(String str) {
+        if (str == null) {
+            return JsonNode.nullNode();
+        }
+        if ("true".equals(str)) {
+            return JsonNode.booleanNode(true);
+        }
+        if ("false".equals(str)) {
+            return JsonNode.booleanNode(false);
+        }
+        try {
+            return JsonNode.numberNode(Double.parseDouble(str.trim()));
+        } catch (NumberFormatException e) {
+            return JsonNode.stringNode(str);
+        }
     }
 
     public static JsonNode nullNode() {

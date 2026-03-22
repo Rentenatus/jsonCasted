@@ -30,12 +30,18 @@ public class ObjectParser {
                     return myObject;
                 }
                 if (c == '"') {
-                    paramName = StringParser.parse(psr);
+                    paramName = StringParser.parse(psr, '"');
                     while (psr.hasNext() && psr.next() != ':') {
                     }
                     break;
                 }
-                if (c == ':') {
+                if (c == '\'') {
+                    paramName = StringParser.parse(psr, '\'');
+                    while (psr.hasNext() && psr.next() != ':') {
+                    }
+                    break;
+                }
+                if (c == ':' || c == '=') {
                     paramName = sb.toString();
                     break;
                 }
@@ -50,7 +56,9 @@ public class ObjectParser {
                     return myObject;
                 }
                 if (c == '"') {
-                    paramValue = JsonNode.stringNode(StringParser.parse(psr));
+                    paramValue = JsonNode.stringNode(StringParser.parse(psr, '"'));
+                } else if (c == '\'') {
+                    paramValue = JsonNode.stringNode(StringParser.parse(psr, '\''));
                 } else if (c == '[') {
 
                     paramValue = ListParser.parse(psr);
@@ -71,7 +79,7 @@ public class ObjectParser {
 
     private static void appendParam(JsonNode myObject, String paramName, JsonNode paramValue, String alternativ) {
         String key = paramKey(paramName);
-        myObject.put(key, paramValue != null ? paramValue : JsonNode.stringNode(alternativ));
+        myObject.put(key, paramValue != null ? paramValue : JsonNode.varNode(alternativ));
     }
 
     private static String paramKey(final String paramName) {

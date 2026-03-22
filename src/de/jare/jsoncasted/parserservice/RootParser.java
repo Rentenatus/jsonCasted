@@ -29,14 +29,17 @@ public class RootParser {
                 return ListParser.parse(psr);
             }
             if (c == '"') {
-                return JsonNode.stringNode(StringParser.parse(psr));
+                return JsonNode.stringNode(StringParser.parse(psr, '"'));
+            }
+            if (c == '\'') {
+                return JsonNode.stringNode(StringParser.parse(psr, '\''));
             }
             if (c == '(') {
                 return CastingParser.parse(psr);
             }
             sb.append(c);
         }
-        return JsonNode.stringNode(sb.toString());
+        return JsonNode.varNode(sb.toString());
     }
 
 }

@@ -34,7 +34,9 @@ public class ListParser {
             } else if (c == '{') {
                 item = ObjectParser.parse(psr);
             } else if (c == '"') {
-                item = JsonNode.stringNode(StringParser.parse(psr));
+                item = JsonNode.stringNode(StringParser.parse(psr, '"'));
+            } else if (c == '\'') {
+                item = JsonNode.stringNode(StringParser.parse(psr, '\''));
             } else if (c == ',') {
                 addItem(list, item, sb);
                 item = null;
@@ -58,7 +60,7 @@ public class ListParser {
         if ("null".equals(toString.trim())) {
             list.add(JsonNode.nullNode());
         } else {
-            list.add(JsonNode.stringNode(sb.toString()));
+            list.add(JsonNode.varNode(sb.toString()));
         }
     }
 
