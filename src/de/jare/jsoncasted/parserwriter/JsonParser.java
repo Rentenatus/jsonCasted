@@ -7,6 +7,7 @@
  */
 package de.jare.jsoncasted.parserwriter;
 
+import de.jare.jsoncasted.pconvertservice.JsonNodeConverter;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.model.item.JsonClass;
