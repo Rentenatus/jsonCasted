@@ -6,8 +6,15 @@
  */
 package de.jare.jsoncasted.lang;
 
+import static de.jare.jsoncasted.lang.JsonNodeType.ARRAY;
+import static de.jare.jsoncasted.lang.JsonNodeType.BOOLEAN;
+import static de.jare.jsoncasted.lang.JsonNodeType.NULL;
+import static de.jare.jsoncasted.lang.JsonNodeType.NUMBER;
+import static de.jare.jsoncasted.lang.JsonNodeType.OBJECT;
+import static de.jare.jsoncasted.lang.JsonNodeType.STRING;
 import java.util.*;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.parserwriter.JsonParseException;
 
 /**
  * Simple JsonNode representation supporting objects, arrays, strings, numbers,
@@ -134,6 +141,21 @@ public class JsonNode {
 
     public Boolean asBoolean() {
         return boolValue;
+    }
+
+    public String toText() throws JsonParseException {
+        switch (type) {
+            case STRING:
+                return asText();
+            case NUMBER:
+                return String.valueOf(asNumber());
+            case BOOLEAN:
+                return String.valueOf(asBoolean());
+            case NULL:
+                return "null";
+            default:
+                throw new JsonParseException("Unsupported JsonNode type: " + type);
+        }
     }
 
     @Override

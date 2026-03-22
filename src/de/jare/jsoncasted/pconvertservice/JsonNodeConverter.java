@@ -1,3 +1,9 @@
+/* <copyright>
+ * Copyright (C) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
+ */
 package de.jare.jsoncasted.pconvertservice;
 
 import de.jare.jsoncasted.item.JsonItem;
@@ -28,13 +34,13 @@ public class JsonNodeConverter {
             case ARRAY:
                 return convertArray(node, definition, contextClass, debugLevel);
             case STRING:
-                return new JsonValue(node.asText(), contextClass);
+                return convertString(node, definition, contextClass, debugLevel);
             case NUMBER:
-                return new JsonValue(node.asNumber().toString(), contextClass);
+                return convertNumber(node, definition, contextClass, debugLevel);
             case BOOLEAN:
-                return new JsonValue(node.asBoolean().toString(), contextClass);
+                return convertBoolean(node, definition, contextClass, debugLevel);
             case NULL:
-                return new JsonValue("null", contextClass);
+                return convertNull(node, definition, contextClass, debugLevel);
             default:
                 throw new JsonParseException("Unsupported JsonNode type: " + node.getType());
         }
@@ -87,5 +93,35 @@ public class JsonNodeConverter {
             list.add(convert(child, definition, null, debugLevel));
         }
         return new JsonList(list, true, null);
+    }
+
+    private static JsonItem convertString(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
+        return new JsonValue(node.toText(), contextClass);
+    }
+
+    private static JsonItem convertNumber(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
+        if (node.asText() != null) {
+            return new JsonValue(node.asText(), contextClass);
+        }
+        checkType(node, contextClass);
+        return new JsonValue(node.asNumber(), contextClass);
+    }
+
+    private static JsonItem convertBoolean(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
+        if (node.asText() != null) {
+            return new JsonValue(node.asText(), contextClass);
+        }
+        checkType(node, contextClass);
+        return new JsonValue(node.asBoolean(), contextClass);
+    }
+
+    private static JsonItem convertNull(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
+        return new JsonValue(contextClass);
+    }
+
+    private static void checkType(JsonNode node, JsonClass contextClass) throws JsonParseException {
+        if (node.getType() != contextClass.getNodeType()) {
+            throw new JsonParseException("JsonNode type: " + node.getType() + " to class type missmatch.");
+        }
     }
 }
