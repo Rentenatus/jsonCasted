@@ -8,6 +8,8 @@
 package de.jare.jsoncasted.model.item;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
@@ -78,6 +80,10 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
     @Override
     public String getcName() {
         return cName;
+    }
+
+    public JsonNodeType getNodeType() {
+        return JsonNodeType.OBJECT;
     }
 
     /**

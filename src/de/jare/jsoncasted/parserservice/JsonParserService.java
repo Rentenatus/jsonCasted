@@ -1,6 +1,7 @@
 package de.jare.jsoncasted.parserservice;
 
 import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 
@@ -192,7 +193,7 @@ public class JsonParserService {
                 JsonNode value = parseValue();
 
                 // If legacy cast was used and value is an object, inject _class if not present
-                if (legacyClass != null && value != null && value.getType() == JsonNode.Type.OBJECT) {
+                if (legacyClass != null && value != null && value.getType() == JsonNodeType.OBJECT) {
                     Map<String, JsonNode> map = value.asObject();
                     if (!map.containsKey("_class")) {
                         value.put("_class", JsonNode.stringNode(legacyClass));

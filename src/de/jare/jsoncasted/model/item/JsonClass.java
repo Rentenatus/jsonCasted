@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model.item;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonCollectionType;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
@@ -20,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,9 +35,15 @@ public class JsonClass implements JsonType {
     private final String cName;
     private final JsonModellClassBuilder builder;
     private boolean skippingNulls;
+    private final JsonNodeType nodeType;
 
     public JsonClass(String cName, JsonModellClassBuilder builder) {
+        this(cName, JsonNodeType.OBJECT, builder);
+    }
+
+    public JsonClass(String cName, JsonNodeType nodeType, JsonModellClassBuilder builder) {
         this.cName = cName;
+        this.nodeType = nodeType;
         this.builder = builder;
         fields = new HashMap<>();
         keys = new ArrayList<>();
@@ -45,7 +51,12 @@ public class JsonClass implements JsonType {
     }
 
     public JsonClass(String cName, boolean skippingNulls, JsonModellClassBuilder builder) {
+        this(cName, JsonNodeType.OBJECT, skippingNulls, builder);
+    }
+
+    public JsonClass(String cName, JsonNodeType nodeType, boolean skippingNulls, JsonModellClassBuilder builder) {
         this.cName = cName;
+        this.nodeType = nodeType;
         this.builder = builder;
         this.skippingNulls = skippingNulls;
         fields = new HashMap<>();
@@ -55,6 +66,10 @@ public class JsonClass implements JsonType {
     @Override
     public String getcName() {
         return cName;
+    }
+
+    public JsonNodeType getNodeType() {
+        return nodeType;
     }
 
     @Override

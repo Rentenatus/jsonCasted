@@ -1,13 +1,13 @@
 package de.jare.jsoncasted.parser;
 
-import de.jare.jsoncasted.parserservice.JsonParserService;
 import de.jare.jsoncasted.lang.JsonNode;
-import org.testng.annotations.Test;
-import org.testng.Assert;
-
+import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.parserservice.JsonParserService;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Map;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class JsonParserServiceTest {
 
@@ -22,18 +22,18 @@ public class JsonParserServiceTest {
         JsonParserService svc = new JsonParserService();
         try (FileReader fr = new FileReader(f)) {
             JsonNode node = svc.parse(fr);
-            Assert.assertEquals(node.getType(), JsonNode.Type.OBJECT);
+            Assert.assertEquals(node.getType(), JsonNodeType.OBJECT);
             Map<String, JsonNode> root = node.asObject();
             JsonNode casted = root.get("castedValue");
             Assert.assertNotNull(casted);
-            Assert.assertEquals(casted.getType(), JsonNode.Type.OBJECT);
+            Assert.assertEquals(casted.getType(), JsonNodeType.OBJECT);
             JsonNode cls = casted.asObject().get("_class");
             Assert.assertNotNull(cls);
             Assert.assertEquals(cls.asText(), "java.lang.Long");
             // also check inner value
             JsonNode val = casted.asObject().get("value");
             Assert.assertNotNull(val);
-            Assert.assertEquals(val.getType(), JsonNode.Type.NUMBER);
+            Assert.assertEquals(val.getType(), JsonNodeType.NUMBER);
         }
     }
 
@@ -47,13 +47,13 @@ public class JsonParserServiceTest {
             Map<String, JsonNode> root = node.asObject();
             JsonNode casted = root.get("castedString");
             Assert.assertNotNull(casted);
-            Assert.assertEquals(casted.getType(), JsonNode.Type.OBJECT);
+            Assert.assertEquals(casted.getType(), JsonNodeType.OBJECT);
             JsonNode cls = casted.asObject().get("_class");
             Assert.assertNotNull(cls);
             Assert.assertEquals(cls.asText(), "java.lang.String");
             JsonNode val = casted.asObject().get("value");
             Assert.assertNotNull(val);
-            Assert.assertEquals(val.getType(), JsonNode.Type.STRING);
+            Assert.assertEquals(val.getType(), JsonNodeType.STRING);
             Assert.assertEquals(val.asText(), "hello");
         }
     }

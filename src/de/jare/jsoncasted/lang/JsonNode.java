@@ -17,11 +17,7 @@ import de.jare.jsoncasted.model.item.JsonClass;
  */
 public class JsonNode {
 
-    public enum Type {
-        OBJECT, ARRAY, STRING, NUMBER, BOOLEAN, NULL
-    }
-
-    private final Type type;
+    private final JsonNodeType type;
     private final Map<String, JsonNode> objectValue;
     private final List<JsonNode> arrayValue;
     private final String textValue;
@@ -29,7 +25,7 @@ public class JsonNode {
     private final Boolean boolValue;
     private JsonClass jsonClass; // optional, set for OBJECT nodes
 
-    private JsonNode(Type type,
+    private JsonNode(JsonNodeType type,
             Map<String, JsonNode> objectValue,
             List<JsonNode> arrayValue,
             String textValue,
@@ -45,27 +41,27 @@ public class JsonNode {
     }
 
     public static JsonNode objectNode() {
-        return new JsonNode(Type.OBJECT, new LinkedHashMap<>(), null, null, null, null);
+        return new JsonNode(JsonNodeType.OBJECT, new LinkedHashMap<>(), null, null, null, null);
     }
 
     public static JsonNode arrayNode() {
-        return new JsonNode(Type.ARRAY, null, new ArrayList<>(), null, null, null);
+        return new JsonNode(JsonNodeType.ARRAY, null, new ArrayList<>(), null, null, null);
     }
 
     public static JsonNode arrayNode(List<JsonNode> arrayValue) {
-        return new JsonNode(Type.ARRAY, null, arrayValue, null, null, null);
+        return new JsonNode(JsonNodeType.ARRAY, null, arrayValue, null, null, null);
     }
 
     public static JsonNode stringNode(String str) {
-        return new JsonNode(Type.STRING, null, null, str, null, null);
+        return new JsonNode(JsonNodeType.STRING, null, null, str, null, null);
     }
 
     public static JsonNode numberNode(double number) {
-        return new JsonNode(Type.NUMBER, null, null, null, number, null);
+        return new JsonNode(JsonNodeType.NUMBER, null, null, null, number, null);
     }
 
     public static JsonNode booleanNode(boolean aBool) {
-        return new JsonNode(Type.BOOLEAN, null, null, null, null, aBool);
+        return new JsonNode(JsonNodeType.BOOLEAN, null, null, null, null, aBool);
     }
 
     public static JsonNode varNode(String str) {
@@ -86,12 +82,12 @@ public class JsonNode {
     }
 
     public static JsonNode nullNode() {
-        return new JsonNode(Type.NULL, null, null, null, null, null);
+        return new JsonNode(JsonNodeType.NULL, null, null, null, null, null);
     }
 
     // Mutating helpers for building nodes (return this for chaining)
     public JsonNode put(String key, JsonNode value) {
-        if (type != Type.OBJECT) {
+        if (type != JsonNodeType.OBJECT) {
             throw new IllegalStateException("not an object node");
         }
         objectValue.put(key, value);
@@ -99,7 +95,7 @@ public class JsonNode {
     }
 
     public JsonNode add(JsonNode value) {
-        if (type != Type.ARRAY) {
+        if (type != JsonNodeType.ARRAY) {
             throw new IllegalStateException("not an array node");
         }
         arrayValue.add(value);
@@ -116,7 +112,7 @@ public class JsonNode {
     }
 
     // Accessors
-    public Type getType() {
+    public JsonNodeType getType() {
         return type;
     }
 

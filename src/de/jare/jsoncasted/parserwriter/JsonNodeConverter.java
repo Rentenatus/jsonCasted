@@ -1,14 +1,13 @@
 package de.jare.jsoncasted.parserwriter;
 
 import de.jare.jsoncasted.item.JsonItem;
-import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.item.JsonList;
+import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.item.JsonValue;
 import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.item.JsonClass;
-
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -17,7 +16,9 @@ import java.util.Map;
 public class JsonNodeConverter {
 
     public static JsonItem convert(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
-        if (node == null) return null;
+        if (node == null) {
+            return null;
+        }
         switch (node.getType()) {
             case OBJECT:
                 return convertObject(node, definition, contextClass, debugLevel);
@@ -42,7 +43,7 @@ public class JsonNodeConverter {
         // detect _class property
         if (map.containsKey("_class")) {
             JsonNode clsNode = map.get("_class");
-            if (clsNode != null && clsNode.getType() == JsonNode.Type.STRING) {
+            if (clsNode != null && clsNode.getType() == JsonNodeType.STRING) {
                 String cname = clsNode.asText();
                 if (definition != null && definition.getModel() != null) {
                     JsonClass found = definition.getModel().getJsonClass(cname);
@@ -67,7 +68,9 @@ public class JsonNodeConverter {
         // copy properties, skip _class
         for (Map.Entry<String, JsonNode> e : map.entrySet()) {
             String key = e.getKey();
-            if ("_class".equals(key)) continue;
+            if ("_class".equals(key)) {
+                continue;
+            }
             JsonNode child = e.getValue();
             JsonItem converted = convert(child, definition, null, debugLevel);
             obj.putParam(key, converted);

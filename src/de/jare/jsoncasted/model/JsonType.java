@@ -7,8 +7,9 @@
  */
 package de.jare.jsoncasted.model;
 
-import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
 import java.util.Collection;
 import java.util.Iterator;
@@ -43,6 +44,8 @@ public interface JsonType {
     public String toString(Object attr);
 
     public String getcName();
+
+    public JsonNodeType getNodeType();
 
     public Collection<?> asList(Object ob);
 
