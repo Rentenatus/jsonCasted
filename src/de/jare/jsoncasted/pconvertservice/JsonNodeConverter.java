@@ -30,66 +30,25 @@ public class JsonNodeConverter {
         }
         switch (node.getType()) {
             case OBJECT:
-                return convertObject(node, definition, contextClass, debugLevel);
+                return JsonObjectConverter.convertObject(node, contextClass, definition, debugLevel);
             case ARRAY:
-                return convertArray(node, definition, contextClass, debugLevel);
+                return convertArray(node, contextClass, definition, debugLevel);
             case STRING:
-                return convertString(node, definition, contextClass, debugLevel);
+                return convertString(node, contextClass, definition, debugLevel);
             case NUMBER:
-                return convertNumber(node, definition, contextClass, debugLevel);
+                return convertNumber(node, contextClass, definition, debugLevel);
             case LONG:
-                return convertLongNumber(node, definition, contextClass, debugLevel);
+                return convertLongNumber(node, contextClass, definition, debugLevel);
             case BOOLEAN:
-                return convertBoolean(node, definition, contextClass, debugLevel);
+                return convertBoolean(node, contextClass, definition, debugLevel);
             case NULL:
-                return convertNull(node, definition, contextClass, debugLevel);
+                return convertNull(node, contextClass, definition, debugLevel);
             default:
                 throw new JsonParseException("Unsupported JsonNode type: " + node.getType());
         }
     }
 
-    private static JsonItem convertObject(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
-        Map<String, JsonNode> map = node.asObject();
-        JsonClass useClass = contextClass;
-        // detect _class property
-        if (map.containsKey("_class")) {
-            JsonNode clsNode = map.get("_class");
-            if (clsNode != null && clsNode.getType() == JsonNodeType.STRING) {
-                String cname = clsNode.asText();
-                if (definition != null && definition.getModel() != null) {
-                    JsonClass found = definition.getModel().getJsonClass(cname);
-                    if (found == null) {
-                        // try endsWith (best-effort)
-                        found = definition.getModel().getEndsWith(cname);
-                    }
-                    if (found == null && cname.contains(".")) {
-                        // try simple name (e.g., java.lang.String -> String)
-                        String simple = cname.substring(cname.lastIndexOf('.') + 1);
-                        found = definition.getModel().getJsonClass(simple);
-                    }
-                    if (found != null) {
-                        useClass = found;
-                    }
-                }
-            }
-        }
-        JsonObject obj = new JsonObject(useClass);
-        // attach JsonClass to the JsonNode for editor/debugging
-        node.setJsonClass(useClass);
-        // copy properties, skip _class
-        for (Map.Entry<String, JsonNode> e : map.entrySet()) {
-            String key = e.getKey();
-            if ("_class".equals(key)) {
-                continue;
-            }
-            JsonNode child = e.getValue();
-            JsonItem converted = convert(child, definition, null, debugLevel);
-            obj.putParam(key, converted);
-        }
-        return obj;
-    }
-
-    private static JsonItem convertArray(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
+    private static JsonItem convertArray(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
         ArrayList<JsonItem> list = new ArrayList<>();
         for (JsonNode child : node.asArray()) {
             list.add(convert(child, definition, null, debugLevel));
@@ -97,11 +56,11 @@ public class JsonNodeConverter {
         return new JsonList(list, true, null);
     }
 
-    private static JsonItem convertString(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
+    private static JsonItem convertString(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
         return new JsonValue(node.toText(), contextClass);
     }
 
-    private static JsonItem convertNumber(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
+    private static JsonItem convertNumber(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
         if (node.asText() != null) {
             return new JsonValue(node.asText(), contextClass);
         }
@@ -109,7 +68,7 @@ public class JsonNodeConverter {
         return new JsonValue(node.asNumber(), contextClass);
     }
 
-    private static JsonItem convertLongNumber(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
+    private static JsonItem convertLongNumber(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
         if (node.asText() != null) {
             return new JsonValue(node.asText(), contextClass);
         }
@@ -117,7 +76,7 @@ public class JsonNodeConverter {
         return new JsonValue(node.asLong(), contextClass);
     }
 
-    private static JsonItem convertBoolean(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
+    private static JsonItem convertBoolean(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
         if (node.asText() != null) {
             return new JsonValue(node.asText(), contextClass);
         }
@@ -125,7 +84,7 @@ public class JsonNodeConverter {
         return new JsonValue(node.asBoolean(), contextClass);
     }
 
-    private static JsonItem convertNull(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
+    private static JsonItem convertNull(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
         return new JsonValue(contextClass);
     }
 

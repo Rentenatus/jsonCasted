@@ -23,15 +23,15 @@ public class JsonParserServiceTest {
         try (FileReader fr = new FileReader(f)) {
             JsonNode node = svc.parse(fr);
             Assert.assertEquals(node.getType(), JsonNodeType.OBJECT);
-            Map<String, JsonNode> root = node.asObject();
+            Map<String, JsonNode> root = node.asObjectValues();
             JsonNode casted = root.get("castedValue");
             Assert.assertNotNull(casted);
             Assert.assertEquals(casted.getType(), JsonNodeType.OBJECT);
-            JsonNode cls = casted.asObject().get("_class");
+            JsonNode cls = casted.asObjectValues().get("_class");
             Assert.assertNotNull(cls);
             Assert.assertEquals(cls.asText(), "java.lang.Long");
             // also check inner value
-            JsonNode val = casted.asObject().get("value");
+            JsonNode val = casted.asObjectValues().get("value");
             Assert.assertNotNull(val);
             Assert.assertEquals(val.getType(), JsonNodeType.NUMBER);
         }
@@ -44,14 +44,14 @@ public class JsonParserServiceTest {
         JsonParserService svc = new JsonParserService();
         try (FileReader fr = new FileReader(f)) {
             JsonNode node = svc.parse(fr);
-            Map<String, JsonNode> root = node.asObject();
+            Map<String, JsonNode> root = node.asObjectValues();
             JsonNode casted = root.get("castedString");
             Assert.assertNotNull(casted);
             Assert.assertEquals(casted.getType(), JsonNodeType.OBJECT);
-            JsonNode cls = casted.asObject().get("_class");
+            JsonNode cls = casted.asObjectValues().get("_class");
             Assert.assertNotNull(cls);
             Assert.assertEquals(cls.asText(), "java.lang.String");
-            JsonNode val = casted.asObject().get("value");
+            JsonNode val = casted.asObjectValues().get("value");
             Assert.assertNotNull(val);
             Assert.assertEquals(val.getType(), JsonNodeType.STRING);
             Assert.assertEquals(val.asText(), "hello");

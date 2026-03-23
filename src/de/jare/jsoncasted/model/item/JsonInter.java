@@ -82,6 +82,7 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
         return cName;
     }
 
+    @Override
     public JsonNodeType getNodeType() {
         return JsonNodeType.OBJECT;
     }

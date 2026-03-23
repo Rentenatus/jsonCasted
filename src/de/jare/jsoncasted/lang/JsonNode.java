@@ -140,7 +140,7 @@ public class JsonNode {
         return type;
     }
 
-    public Map<String, JsonNode> asObject() {
+    public Map<String, JsonNode> asObjectValues() {
         return objectValue;
     }
 

@@ -62,7 +62,7 @@ public class JsonModel {
      * @return The corresponding JsonClass, or null if not found.
      */
     public JsonClass getJsonClass(String key) {
-        return classes.get(key);
+        return classes.get(key.trim());
     }
 
     /**

@@ -35,7 +35,7 @@ public class JsonParserNodeInputTest {
             Assert.assertNotNull(cs);
             Assert.assertTrue(cs instanceof JsonObject);
             // After conversion the backing JsonNode should have an attached JsonClass
-            de.jare.jsoncasted.lang.JsonNode childNode = node.asObject().get("castedString");
+            de.jare.jsoncasted.lang.JsonNode childNode = node.asObjectValues().get("castedString");
             Assert.assertNotNull(childNode.getJsonClass());
             String cname = ((de.jare.jsoncasted.model.item.JsonClass) childNode.getJsonClass()).getcName();
             // Accept both simple and fully-qualified class names depending on model configuration
