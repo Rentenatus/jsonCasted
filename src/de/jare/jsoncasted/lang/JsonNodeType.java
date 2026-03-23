@@ -11,5 +11,5 @@ package de.jare.jsoncasted.lang;
  * @author Janusch Renteantus
  */
 public enum JsonNodeType {
-    OBJECT, ARRAY, STRING, NUMBER, BOOLEAN, NULL
+    OBJECT, ARRAY, STRING, NUMBER, LONG, BOOLEAN, NULL
 }

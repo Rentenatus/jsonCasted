@@ -23,6 +23,7 @@ public class JsonValue implements JsonItem {
 
     private final String strValue;
     private final Double numberValue;
+    private final Long longValue;
     private final Boolean boolValue;
     private final JsonClass jClass;
 
@@ -36,6 +37,7 @@ public class JsonValue implements JsonItem {
         this.jClass = aClass;
         this.strValue = value;
         this.numberValue = null;
+        this.longValue = null;
         this.boolValue = null;
     }
 
@@ -48,6 +50,7 @@ public class JsonValue implements JsonItem {
     public JsonValue(Double value, JsonClass aClass) {
         this.jClass = aClass;
         this.numberValue = value;
+        this.longValue = null;
         this.strValue = null;
         this.boolValue = null;
     }
@@ -62,6 +65,21 @@ public class JsonValue implements JsonItem {
         this.jClass = aClass;
         this.boolValue = value;
         this.numberValue = null;
+        this.longValue = null;
+        this.strValue = null;
+    }
+
+    /**
+     * Constructs a JsonValue instance with a Long value and an associated class type.
+     *
+     * @param value The raw JSON value as a Long.
+     * @param aClass The JSON class used for instance creation.
+     */
+    public JsonValue(Long value, JsonClass aClass) {
+        this.jClass = aClass;
+        this.longValue = value;
+        this.numberValue = null;
+        this.boolValue = null;
         this.strValue = null;
     }
 
@@ -74,6 +92,7 @@ public class JsonValue implements JsonItem {
         this.jClass = aClass;
         this.boolValue = null;
         this.numberValue = null;
+        this.longValue = null;
         this.strValue = null;
     }
 
@@ -86,6 +105,9 @@ public class JsonValue implements JsonItem {
     public String getStringValue() {
         if (numberValue != null) {
             return numberValue.toString();
+        }
+        if (longValue != null) {
+            return longValue.toString();
         }
         if (boolValue != null) {
             return boolValue.toString();
@@ -103,8 +125,30 @@ public class JsonValue implements JsonItem {
         if (numberValue != null) {
             return numberValue;
         }
+        if (longValue != null) {
+            return longValue.doubleValue();
+        }
         if (strValue != null) {
             return Double.valueOf(strValue);
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves the number representation of the JSON item's value.
+     *
+     * @return The stored value as a Long.
+     */
+    @Override
+    public Long getLongValue() {
+        if (longValue != null) {
+            return longValue;
+        }
+        if (numberValue != null) {
+            return numberValue.longValue();
+        }
+        if (strValue != null) {
+            return Long.valueOf(strValue);
         }
         return null;
     }

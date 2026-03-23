@@ -37,6 +37,8 @@ public class JsonNodeConverter {
                 return convertString(node, definition, contextClass, debugLevel);
             case NUMBER:
                 return convertNumber(node, definition, contextClass, debugLevel);
+            case LONG:
+                return convertLongNumber(node, definition, contextClass, debugLevel);
             case BOOLEAN:
                 return convertBoolean(node, definition, contextClass, debugLevel);
             case NULL:
@@ -107,6 +109,14 @@ public class JsonNodeConverter {
         return new JsonValue(node.asNumber(), contextClass);
     }
 
+    private static JsonItem convertLongNumber(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
+        if (node.asText() != null) {
+            return new JsonValue(node.asText(), contextClass);
+        }
+        checkType(node, contextClass);
+        return new JsonValue(node.asLong(), contextClass);
+    }
+
     private static JsonItem convertBoolean(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
         if (node.asText() != null) {
             return new JsonValue(node.asText(), contextClass);
@@ -121,7 +131,10 @@ public class JsonNodeConverter {
 
     private static void checkType(JsonNode node, JsonClass contextClass) throws JsonParseException {
         if (node.getType() != contextClass.getNodeType()) {
-            throw new JsonParseException("JsonNode type: " + node.getType() + " to class type missmatch.");
+            // allow LONG where NUMBER is expected
+            if (!(node.getType() == JsonNodeType.LONG && contextClass.getNodeType() == JsonNodeType.NUMBER)) {
+                throw new JsonParseException("JsonNode type: " + node.getType() + " to class type missmatch.");
+            }
         }
     }
 }

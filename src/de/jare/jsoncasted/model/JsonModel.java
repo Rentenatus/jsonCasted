@@ -123,13 +123,13 @@ public class JsonModel {
      */
     public void addBasicModel() {
         add(new JsonClass("String", JsonNodeType.STRING, new JsonStringBuilder()));
-        add(new JsonClass("Integer", JsonNodeType.NUMBER, new JsonIntegerObjBuilder()));
-        add(new JsonClass("Long", JsonNodeType.NUMBER, new JsonLongObjBuilder()));
+        add(new JsonClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder()));
+        add(new JsonClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder()));
         add(new JsonClass("Float", JsonNodeType.NUMBER, new JsonFloatObjBuilder()));
         add(new JsonClass("Double", JsonNodeType.NUMBER, new JsonDoubleObjBuilder()));
         add(new JsonClass("Boolean", JsonNodeType.BOOLEAN, new JsonBooleanObjBuilder()));
-        add(new JsonClass("int", JsonNodeType.NUMBER, new JsonIntBuilder()));
-        add(new JsonClass("long", JsonNodeType.NUMBER, new JsonLongBuilder()));
+        add(new JsonClass("int", JsonNodeType.LONG, new JsonIntBuilder()));
+        add(new JsonClass("long", JsonNodeType.LONG, new JsonLongBuilder()));
         add(new JsonClass("float", JsonNodeType.NUMBER, new JsonFloatBuilder()));
         add(new JsonClass("double", JsonNodeType.NUMBER, new JsonDoubleBuilder()));
         add(new JsonClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder()));

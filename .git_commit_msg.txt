@@ -1,0 +1,8 @@
+Add long support: JsonNode.longNode, JsonNodeType.LONG, update JsonNodeConverter and JsonValue
+
+- JsonNode: added longNode(long), asLong(), long storage, varNode prefers long for integers
+- JsonNodeType: added LONG
+- JsonNodeConverter: handle LONG and allow LONG where NUMBER expected
+- JsonValue: added longValue and constructor
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>

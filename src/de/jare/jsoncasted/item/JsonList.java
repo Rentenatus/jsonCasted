@@ -61,6 +61,15 @@ public class JsonList implements JsonItem {
     }
 
     /**
+     * Retrieves the whole number representation of the JSON item's value.
+     *
+     * @return null, as lists typically have nested properties.
+     */
+    @Override
+    public Long getLongValue() {
+        return null;
+    }
+    /**
      * Retrieves the boolean representation of the JSON item's value.
      *
      * @return null, as lists typically have nested properties.

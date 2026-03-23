@@ -8,6 +8,7 @@ package de.jare.jsoncasted.lang;
 
 import static de.jare.jsoncasted.lang.JsonNodeType.ARRAY;
 import static de.jare.jsoncasted.lang.JsonNodeType.BOOLEAN;
+import static de.jare.jsoncasted.lang.JsonNodeType.LONG;
 import static de.jare.jsoncasted.lang.JsonNodeType.NULL;
 import static de.jare.jsoncasted.lang.JsonNodeType.NUMBER;
 import static de.jare.jsoncasted.lang.JsonNodeType.OBJECT;
@@ -29,6 +30,7 @@ public class JsonNode {
     private final List<JsonNode> arrayValue;
     private final String textValue;
     private final Double numberValue;
+    private final Long numberLongValue;
     private final Boolean boolValue;
     private JsonClass jsonClass; // optional, set for OBJECT nodes
 
@@ -37,59 +39,74 @@ public class JsonNode {
             List<JsonNode> arrayValue,
             String textValue,
             Double numberValue,
+            Long numberLongValue,
             Boolean boolValue) {
         this.type = type;
         this.objectValue = objectValue;
         this.arrayValue = arrayValue;
         this.textValue = textValue;
         this.numberValue = numberValue;
+        this.numberLongValue = numberLongValue;
         this.boolValue = boolValue;
         this.jsonClass = null;
     }
 
     public static JsonNode objectNode() {
-        return new JsonNode(JsonNodeType.OBJECT, new LinkedHashMap<>(), null, null, null, null);
+        return new JsonNode(JsonNodeType.OBJECT, new LinkedHashMap<>(), null, null, null, null, null);
     }
 
     public static JsonNode arrayNode() {
-        return new JsonNode(JsonNodeType.ARRAY, null, new ArrayList<>(), null, null, null);
+        return new JsonNode(JsonNodeType.ARRAY, null, new ArrayList<>(), null, null, null, null);
     }
 
     public static JsonNode arrayNode(List<JsonNode> arrayValue) {
-        return new JsonNode(JsonNodeType.ARRAY, null, arrayValue, null, null, null);
+        return new JsonNode(JsonNodeType.ARRAY, null, arrayValue, null, null, null, null);
     }
 
     public static JsonNode stringNode(String str) {
-        return new JsonNode(JsonNodeType.STRING, null, null, str, null, null);
+        return new JsonNode(JsonNodeType.STRING, null, null, str, null, null, null);
     }
 
     public static JsonNode numberNode(double number) {
-        return new JsonNode(JsonNodeType.NUMBER, null, null, null, number, null);
+        return new JsonNode(JsonNodeType.NUMBER, null, null, null, number, null, null);
+    }
+
+    public static JsonNode longNode(long number) {
+        return new JsonNode(JsonNodeType.LONG, null, null, null, null, number, null);
     }
 
     public static JsonNode booleanNode(boolean aBool) {
-        return new JsonNode(JsonNodeType.BOOLEAN, null, null, null, null, aBool);
+        return new JsonNode(JsonNodeType.BOOLEAN, null, null, null, null, null, aBool);
     }
 
     public static JsonNode varNode(String str) {
         if (str == null) {
             return JsonNode.nullNode();
         }
-        if ("true".equals(str)) {
+        String trimmed = str.trim();
+        if ("true".equals(trimmed)) {
             return JsonNode.booleanNode(true);
         }
-        if ("false".equals(str)) {
+        if ("false".equals(trimmed)) {
             return JsonNode.booleanNode(false);
         }
+        // Prefer long when there's no decimal point or exponent
+        if (trimmed.matches("-?\\d+")) {
+            try {
+                return JsonNode.longNode(Long.parseLong(trimmed));
+            } catch (NumberFormatException e) {
+                // fall through to double parsing as a fallback
+            }
+        }
         try {
-            return JsonNode.numberNode(Double.parseDouble(str.trim()));
+            return JsonNode.numberNode(Double.parseDouble(trimmed));
         } catch (NumberFormatException e) {
             return JsonNode.stringNode(str);
         }
     }
 
     public static JsonNode nullNode() {
-        return new JsonNode(JsonNodeType.NULL, null, null, null, null, null);
+        return new JsonNode(JsonNodeType.NULL, null, null, null, null, null, null);
     }
 
     // Mutating helpers for building nodes (return this for chaining)
@@ -139,6 +156,10 @@ public class JsonNode {
         return numberValue;
     }
 
+    public Long asLong() {
+        return numberLongValue;
+    }
+
     public Boolean asBoolean() {
         return boolValue;
     }
@@ -149,6 +170,8 @@ public class JsonNode {
                 return asText();
             case NUMBER:
                 return String.valueOf(asNumber());
+            case LONG:
+                return String.valueOf(asLong());
             case BOOLEAN:
                 return String.valueOf(asBoolean());
             case NULL:
@@ -189,6 +212,8 @@ public class JsonNode {
                 return '"' + escape(textValue) + '"';
             case NUMBER:
                 return numberValue.toString();
+            case LONG:
+                return numberLongValue.toString();
             case BOOLEAN:
                 return boolValue.toString();
             case NULL:
