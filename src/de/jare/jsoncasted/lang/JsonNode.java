@@ -164,6 +164,13 @@ public class JsonNode {
         return boolValue;
     }
 
+    public Double toNumber() {
+        if (numberLongValue != null) {
+            return numberLongValue.doubleValue();
+        }
+        return numberValue;
+    }
+
     public String toText() throws JsonParseException {
         switch (type) {
             case STRING:

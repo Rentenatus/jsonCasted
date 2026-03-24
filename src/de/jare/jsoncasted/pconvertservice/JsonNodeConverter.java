@@ -8,7 +8,6 @@ package de.jare.jsoncasted.pconvertservice;
 
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonList;
-import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.item.JsonValue;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
@@ -17,7 +16,6 @@ import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Converter to transform a JsonNode tree into the library's JsonItem model.
@@ -51,7 +49,7 @@ public class JsonNodeConverter {
     private static JsonItem convertArray(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
         ArrayList<JsonItem> list = new ArrayList<>();
         for (JsonNode child : node.asArray()) {
-            list.add(convert(child, definition, null, debugLevel));
+            list.add(convert(child, definition, contextClass, debugLevel));
         }
         return new JsonList(list, true, null);
     }
@@ -61,7 +59,7 @@ public class JsonNodeConverter {
     }
 
     private static JsonItem convertNumber(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
-        if (node.asText() != null) {
+        if (contextClass.getNodeType() == JsonNodeType.STRING) {
             return new JsonValue(node.asText(), contextClass);
         }
         checkType(node, contextClass);
@@ -69,15 +67,18 @@ public class JsonNodeConverter {
     }
 
     private static JsonItem convertLongNumber(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
-        if (node.asText() != null) {
+        if (contextClass.getNodeType() == JsonNodeType.STRING) {
             return new JsonValue(node.asText(), contextClass);
+        }
+        if (contextClass.getNodeType() == JsonNodeType.NUMBER) {
+            return new JsonValue(node.toNumber(), contextClass);
         }
         checkType(node, contextClass);
         return new JsonValue(node.asLong(), contextClass);
     }
 
     private static JsonItem convertBoolean(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
-        if (node.asText() != null) {
+        if (contextClass.getNodeType() == JsonNodeType.STRING) {
             return new JsonValue(node.asText(), contextClass);
         }
         checkType(node, contextClass);
