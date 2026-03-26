@@ -60,10 +60,12 @@ public class JsonParser {
 
     public static JsonItem parse(Reader in, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws IOException, JsonParseException {
         // Redirect: first parse text into JsonNode using JsonParserService, then convert
-        JsonParserService service = new JsonParserService();
-        JsonNode node = service.parse(in);
+        JsonNode node = JsonParserService.parse(in);
         return parse(node, definition, root, debbugLevel);
+    }
 
+    public static JsonItem parse(JsonNode rootNode, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
+        return JsonNodeConverter.convert(rootNode, definition, root, debbugLevel);
     }
 
     public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
@@ -91,8 +93,8 @@ public class JsonParser {
         return parse(file, definition, aClass, JsonDebugLevel.SIMPLE);
     }
 
-    public static JsonItem parse(JsonNode rootNode, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
-        return JsonNodeConverter.convert(rootNode, definition, root, debbugLevel);
+    public static JsonItem parse(JsonNode rootNode, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
+        return JsonNodeConverter.convert(rootNode, definition, root, JsonDebugLevel.SIMPLE);
     }
 
 }

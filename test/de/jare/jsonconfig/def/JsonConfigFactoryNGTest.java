@@ -8,10 +8,14 @@
 package de.jare.jsonconfig.def;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.model.JsonBuildException;
+import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.parserservice.JsonParserService;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.parserwriter.JsonParser;
 import de.jare.jsoncasted.parserwriter.JsonParserReference;
+import de.jare.jsoncasted.writer.inner.RootObjectWriter;
 import de.jare.jsonconfig.JsonConfigHelper;
 import de.jare.jsonconfig.item.ConfigFeature;
 import de.jare.jsonconfig.item.ConfigRoot;
@@ -151,13 +155,20 @@ public class JsonConfigFactoryNGTest {
         System.out.println(configFile.getAbsolutePath());
 
         JsonItem obj1 = null;
+        JsonNode node = null;
         try {
-            obj1 = JsonParser.parse(configFile, definition, definition.getConfigRoot());
+            node = JsonParserService.parse(configFile);
+            obj1 = JsonParser.parse(node, definition, definition.getConfigRoot());
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
         assertNotNull(obj1);
+        System.out.println("=============================================== Print node");
+        RootObjectWriter writer = new RootObjectWriter(definition, definition.getConfigRoot());
+        writer.writeNode(System.out, node);
+        System.out.println("=============================================== Print object");
+        writer.write(System.out, definition.getConfigRoot(), obj1);
         System.out.println("=============================================== Config Class");
         System.out.println(obj1.getClass());
 

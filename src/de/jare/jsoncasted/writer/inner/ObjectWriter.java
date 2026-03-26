@@ -1,5 +1,5 @@
 /* <copyright>
- * Copyright (C) 2022 Janusch Rentenatus  
+ * Copyright (C) 2022 Janusch Rentenatus
  * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
@@ -7,14 +7,18 @@
  */
 package de.jare.jsoncasted.writer.inner;
 
+import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
-import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 
 /**
  * The ObjectWriter class handles the serialization of JSON object structures.
@@ -99,11 +103,22 @@ public class ObjectWriter {
     /**
      * Writes a JSON object representation.
      *
+     * @param out The PrintStream for output.
+     * @param jClass The JSON class defining the object's structure.
+     * @param ob The object to serialize.
+     */
+    public void write(PrintStream out, JsonClass jClass, Object ob) {
+        write(new PrintWriter(out), jClass, ob);
+    }
+
+    /**
+     * Writes a JSON object representation.
+     *
      * @param out The PrintWriter for output.
      * @param jClass The JSON class defining the object's structure.
      * @param ob The object to serialize.
      */
-    protected void write(PrintWriter out, JsonClass jClass, Object ob) {
+    public void write(PrintWriter out, JsonClass jClass, Object ob) {
         if (jType != null && jType.needCast(definition.getCastingLevel())) {
             out.print('(');
             out.print(jClass.getcName());
@@ -143,6 +158,7 @@ public class ObjectWriter {
             out.print(intentString);
         }
         out.print('}');
+        out.flush();
     }
 
     /**
@@ -187,4 +203,98 @@ public class ObjectWriter {
         ObjectWriter reWriter = new ObjectWriter(definition, jTypeItem, iString);
         reWriter.write(out, attr);
     }
+
+    /**
+     * Schreibt eine JsonNode-Struktur als JSON.
+     */
+    public void writeNode(PrintStream out, JsonNode node) {
+        writeNode(new PrintWriter(out), node, intentString);
+    }
+
+    /**
+     * Schreibt eine JsonNode-Struktur als JSON.
+     */
+    public void writeNode(PrintWriter out, JsonNode node) {
+        writeNode(out, node, intentString);
+    }
+
+    protected void writeNode(PrintWriter out, JsonNode node, String iString) {
+        if (node == null) {
+            out.print("null");
+            return;
+        }
+        JsonNodeType type = node.getType();
+        switch (type) {
+            case OBJECT:
+                writeNodeObject(out, node, iString);
+                break;
+            case ARRAY:
+                writeNodeArray(out, node, iString);
+                break;
+            case STRING:
+                out.print('"');
+                out.print(escape(node.asText()));
+                out.print('"');
+                break;
+            case NUMBER:
+                out.print(node.asNumber());
+                break;
+            case LONG:
+                out.print(node.asLong());
+                break;
+            case BOOLEAN:
+                out.print(node.asBoolean());
+                break;
+            case NULL:
+            default:
+                out.print("null");
+                break;
+        }
+        out.flush();
+    }
+
+    protected void writeNodeObject(PrintWriter out, JsonNode node, String iString) {
+        out.print('{');
+        Map<String, JsonNode> map = node.asObjectValues();
+        if (map != null && !map.isEmpty()) {
+            out.println();
+            String childIndent = iString + "  ";
+            boolean first = true;
+            for (Map.Entry<String, JsonNode> e : map.entrySet()) {
+                if (!first) {
+                    out.print(',');
+                    out.println();
+                }
+                first = false;
+                out.print(childIndent);
+                out.print('"');
+                out.print(escape(String.valueOf(e.getKey())));
+                out.print('"');
+                out.print(": ");
+                writeNode(out, (JsonNode) e.getValue(), childIndent);
+            }
+            out.println();
+            out.print(iString);
+        }
+        out.print('}');
+        out.flush();
+    }
+
+    protected void writeNodeArray(PrintWriter out, JsonNode node, String iString) {
+        ListWriter reWriter = new ListWriter(definition, null, iString);
+        reWriter.writeNode(out, node);
+    }
+
+    // einfacher Escape-Helper, analog zu JsonNode.toString()
+    private static String escape(String s) {
+        if (s == null) {
+            return null;
+        }
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
+    }
+
 }
