@@ -65,7 +65,7 @@ public class JsonParser {
     }
 
     public static JsonItem parse(JsonNode rootNode, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
-        return JsonNodeConverter.convert(rootNode, definition, root, debbugLevel);
+        return JsonNodeConverter.convert(rootNode, root, definition, debbugLevel);
     }
 
     public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
@@ -94,7 +94,7 @@ public class JsonParser {
     }
 
     public static JsonItem parse(JsonNode rootNode, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
-        return JsonNodeConverter.convert(rootNode, definition, root, JsonDebugLevel.SIMPLE);
+        return JsonNodeConverter.convert(rootNode, root, definition, JsonDebugLevel.SIMPLE);
     }
 
 }

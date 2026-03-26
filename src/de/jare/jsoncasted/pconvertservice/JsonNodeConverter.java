@@ -22,7 +22,7 @@ import java.util.ArrayList;
  */
 public class JsonNodeConverter {
 
-    public static JsonItem convert(JsonNode node, JsonItemDefinition definition, JsonClass contextClass, JsonDebugLevel debugLevel) throws JsonParseException {
+    public static JsonItem convert(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
         if (node == null) {
             return null;
         }
@@ -30,7 +30,7 @@ public class JsonNodeConverter {
             case OBJECT:
                 return JsonObjectConverter.convertObject(node, contextClass, definition, debugLevel);
             case ARRAY:
-                return convertArray(node, contextClass, definition, debugLevel);
+                return convertArray(node, contextClass, false, definition, debugLevel);
             case STRING:
                 return convertString(node, contextClass, definition, debugLevel);
             case NUMBER:
@@ -46,12 +46,12 @@ public class JsonNodeConverter {
         }
     }
 
-    private static JsonItem convertArray(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
+    protected static JsonItem convertArray(JsonNode node, JsonClass contextClass, boolean asList, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
         ArrayList<JsonItem> list = new ArrayList<>();
         for (JsonNode child : node.asArray()) {
-            list.add(convert(child, definition, contextClass, debugLevel));
+            list.add(convert(child, contextClass, definition, debugLevel));
         }
-        return new JsonList(list, true, null);
+        return new JsonList(list, asList, contextClass);
     }
 
     private static JsonItem convertString(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {

@@ -10,7 +10,6 @@ package de.jare.jsonconfig.def;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.model.JsonBuildException;
-import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.parserservice.JsonParserService;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.parserwriter.JsonParser;
@@ -65,7 +64,9 @@ public class JsonConfigFactoryNGTest {
      */
     @Test
     public void testModel1() {
+        System.out.println("===============================================");
         System.out.println("getLangDef");
+        System.out.println("===============================================");
 
         File configFile = new File("./assets/config/config1.json");
         testModel(configFile, JsonConfigDefinition.getInstance());
@@ -76,7 +77,9 @@ public class JsonConfigFactoryNGTest {
      */
     @Test
     public void testModelSeed() {
+        System.out.println("===============================================");
         System.out.println("getLangDef");
+        System.out.println("===============================================");
 
         File configFile = new File("./assets/config/seedConfigTemplate.json");
         JsonConfigHelper helperRef = testModelReference(configFile, JsonConfigDefinition.getInstance());
@@ -117,7 +120,7 @@ public class JsonConfigFactoryNGTest {
     }
 
     private JsonConfigHelper testModelReference(File configFile, JsonConfigDefinition definition) {
-        System.out.println("=============================================== File");
+        System.out.println("Reference=============================================== File");
         System.out.println(configFile.getAbsolutePath());
 
         JsonItem obj1 = null;
@@ -128,7 +131,7 @@ public class JsonConfigFactoryNGTest {
             fail(ex.getMessage(), ex);
         }
         assertNotNull(obj1);
-        System.out.println("=============================================== Config Class");
+        System.out.println("Reference=============================================== Config Class");
         System.out.println(obj1.getClass());
 
         ConfigRoot root = null;
@@ -141,17 +144,17 @@ public class JsonConfigFactoryNGTest {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
-        System.out.println("=============================================== Comment");
+        System.out.println("Reference=============================================== Comment");
         assertNotNull(root.getComments());
         for (String comment : root.getComments()) {
             System.out.println("comment  > " + comment);
         }
-        System.out.println("===============================================");
+        System.out.println("Reference===============================================");
         return new JsonConfigHelper(root);
     }
 
     private JsonConfigHelper testModel(File configFile, JsonConfigDefinition definition) {
-        System.out.println("=============================================== File");
+        System.out.println("Target=============================================== File");
         System.out.println(configFile.getAbsolutePath());
 
         JsonItem obj1 = null;
@@ -164,12 +167,10 @@ public class JsonConfigFactoryNGTest {
             fail(ex.getMessage(), ex);
         }
         assertNotNull(obj1);
-        System.out.println("=============================================== Print node");
+        System.out.println("Target=============================================== Print node");
         RootObjectWriter writer = new RootObjectWriter(definition, definition.getConfigRoot());
         writer.writeNode(System.out, node);
-        System.out.println("=============================================== Print object");
-        writer.write(System.out, definition.getConfigRoot(), obj1);
-        System.out.println("=============================================== Config Class");
+        System.out.println("Target=============================================== Config Class");
         System.out.println(obj1.getClass());
 
         ConfigRoot root = null;
@@ -182,12 +183,15 @@ public class JsonConfigFactoryNGTest {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
-        System.out.println("=============================================== Comment");
+        System.out.println("Target=============================================== Print object");
+        writer.write(System.out, definition.getConfigRoot(), root);
+
+        System.out.println("Target=============================================== Comment");
         assertNotNull(root.getComments());
         for (String comment : root.getComments()) {
             System.out.println("comment  > " + comment);
         }
-        System.out.println("===============================================");
+        System.out.println("Target===============================================");
         return new JsonConfigHelper(root);
     }
 }

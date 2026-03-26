@@ -104,7 +104,9 @@ public class JsonObjectConverter {
             return;
         }
 
-        JsonItem paramObject = JsonNodeConverter.convert(childNode, definition, childClass, debugLevel);
+        JsonItem paramObject = field.isAsListOrArray()
+                ? JsonNodeConverter.convertArray(childNode, childClass, field.isAsList(), definition, debugLevel)
+                : JsonNodeConverter.convert(childNode, childClass, definition, debugLevel);
         myObject.putParam(paramName, paramObject);
 
     }
