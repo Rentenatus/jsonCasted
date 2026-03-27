@@ -1,5 +1,5 @@
 {
-  "castedString": (java.lang.String) {
+  "castedString": (hallucinated.test.clazz) {
     "value": "hello",
     "note": "legacy string cast"
   }

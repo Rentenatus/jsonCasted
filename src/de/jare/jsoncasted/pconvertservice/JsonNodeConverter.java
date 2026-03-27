@@ -60,7 +60,7 @@ public class JsonNodeConverter {
 
     private static JsonItem convertNumber(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
         if (contextClass.getNodeType() == JsonNodeType.STRING) {
-            return new JsonValue(node.asText(), contextClass);
+            return new JsonValue(node.toText(), contextClass);
         }
         checkType(node, contextClass);
         return new JsonValue(node.asNumber(), contextClass);
@@ -68,7 +68,7 @@ public class JsonNodeConverter {
 
     private static JsonItem convertLongNumber(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
         if (contextClass.getNodeType() == JsonNodeType.STRING) {
-            return new JsonValue(node.asText(), contextClass);
+            return new JsonValue(node.toText(), contextClass);
         }
         if (contextClass.getNodeType() == JsonNodeType.NUMBER) {
             return new JsonValue(node.toNumber(), contextClass);
@@ -79,7 +79,7 @@ public class JsonNodeConverter {
 
     private static JsonItem convertBoolean(JsonNode node, JsonClass contextClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
         if (contextClass.getNodeType() == JsonNodeType.STRING) {
-            return new JsonValue(node.asText(), contextClass);
+            return new JsonValue(node.toText(), contextClass);
         }
         checkType(node, contextClass);
         return new JsonValue(node.asBoolean(), contextClass);

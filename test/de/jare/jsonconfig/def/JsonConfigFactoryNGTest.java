@@ -119,6 +119,13 @@ public class JsonConfigFactoryNGTest {
 
     }
 
+    /**
+     * Reference version.
+     *
+     * @param configFile
+     * @param definition
+     * @return
+     */
     private JsonConfigHelper testModelReference(File configFile, JsonConfigDefinition definition) {
         System.out.println("Reference=============================================== File");
         System.out.println(configFile.getAbsolutePath());
@@ -153,6 +160,13 @@ public class JsonConfigFactoryNGTest {
         return new JsonConfigHelper(root);
     }
 
+    /**
+     * Target version.
+     *
+     * @param configFile
+     * @param definition
+     * @return
+     */
     private JsonConfigHelper testModel(File configFile, JsonConfigDefinition definition) {
         System.out.println("Target=============================================== File");
         System.out.println(configFile.getAbsolutePath());

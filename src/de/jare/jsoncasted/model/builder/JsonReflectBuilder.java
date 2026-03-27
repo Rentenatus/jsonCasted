@@ -107,6 +107,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
                             if (setterMeth != null) {
                                 break;
                             }
+                            continue;
                         }
                         if (meth.getName().equals(next.getSetter()) && meth.getParameterCount() == 1) {
                             setterMeth = meth;
