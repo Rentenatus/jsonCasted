@@ -13,7 +13,7 @@ import de.jare.jsoncasted.item.JsonValue;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
-import de.jare.jsoncasted.parserwriter.ParseStreamReader;
+import de.jare.jsoncasted.parserservice.ParseStreamReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
@@ -21,15 +21,18 @@ import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 /**
  *
  * @author Janusch Rentenatus
+ *
+ * @deprecated Replaced by JsonNode-based parsing pipeline.
  */
-public class ListParser {
+@Deprecated
+public class ListParserBak {
 
     private final JsonItemDefinition definition;
     private final JsonType jType;
     private JsonClass castClass;
     private final ArrayList<JsonItem> list;
 
-    public ListParser(JsonItemDefinition definition, JsonType jType) {
+    public ListParserBak(JsonItemDefinition definition, JsonType jType) {
         this.definition = definition;
         this.jType = jType;
         this.list = new ArrayList<>();
@@ -47,11 +50,11 @@ public class ListParser {
                 return new JsonList(list, asList, jType);
             }
             if (c == '(') {
-                castClass = new CastingParser(definition, jType).parse(psr);
+                castClass = new CastingParserBak(definition, jType).parse(psr);
             } else if (c == '{') {
-                item = new ObjectParser(definition, castClass).parse(psr);
+                item = new ObjectParserBak(definition, castClass).parse(psr);
             } else if (c == '"') {
-                item = new StringParser(definition, castClass).parse(psr);
+                item = new StringParserBak(definition, castClass).parse(psr);
             } else if (c == ',') {
                 addItem(item, sb);
                 item = null;

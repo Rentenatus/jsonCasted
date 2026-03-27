@@ -45,8 +45,7 @@ public class JsonDoubleBuilder implements JsonModellClassBuilder {
      */
     @Override
     public Object build(JsonClass jClass, JsonItem jsonItem) {
-        final String value = jsonItem.getStringValue();
-        return value == null || "null".equals(value) ? Double.NaN : Double.valueOf(value);
+        return jsonItem.getNumberValue();
     }
 
     /**
@@ -61,7 +60,7 @@ public class JsonDoubleBuilder implements JsonModellClassBuilder {
     @Override
     public ArrayList<Double> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         ArrayList<Double> ret = new ArrayList<>(size);
-        listIterator.forEachRemaining(action -> ret.add(Double.parseDouble(action.getStringValue())));
+        listIterator.forEachRemaining(action -> ret.add(action.getNumberValue()));
         return ret;
     }
 
@@ -79,7 +78,8 @@ public class JsonDoubleBuilder implements JsonModellClassBuilder {
         final double[] ret = new double[size];
         int i = 0;
         while (listIterator.hasNext()) {
-            ret[i++] = Double.parseDouble(listIterator.next().getStringValue());
+            final Double numberValue = listIterator.next().getNumberValue();
+            ret[i++] = numberValue == null ? 0.0d : numberValue;
         }
         return ret;
     }

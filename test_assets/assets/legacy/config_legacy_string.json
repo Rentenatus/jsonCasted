@@ -1,0 +1,6 @@
+{
+  "castedString": (hallucinated.test.clazz) {
+    "value": "hello",
+    "note": "legacy string cast"
+  }
+}

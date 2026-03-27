@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model;
 
 import de.jare.jsoncasted.lang.JsonInstance;
+import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.builder.*;
 import de.jare.jsoncasted.model.item.*;
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class JsonModel {
      * @return The corresponding JsonClass, or null if not found.
      */
     public JsonClass getJsonClass(String key) {
-        return classes.get(key);
+        return classes.get(key.trim());
     }
 
     /**
@@ -121,17 +122,17 @@ public class JsonModel {
      * Populates the model with basic data types used in JSON processing.
      */
     public void addBasicModel() {
-        add(new JsonClass("String", new JsonStringBuilder()));
-        add(new JsonClass("Integer", new JsonIntegerObjBuilder()));
-        add(new JsonClass("Long", new JsonLongObjBuilder()));
-        add(new JsonClass("Float", new JsonFloatObjBuilder()));
-        add(new JsonClass("Double", new JsonDoubleObjBuilder()));
-        add(new JsonClass("Boolean", new JsonBooleanObjBuilder()));
-        add(new JsonClass("int", new JsonIntBuilder()));
-        add(new JsonClass("long", new JsonLongBuilder()));
-        add(new JsonClass("float", new JsonFloatBuilder()));
-        add(new JsonClass("double", new JsonDoubleBuilder()));
-        add(new JsonClass("boolean", new JsonBooleanBuilder()));
+        add(new JsonClass("String", JsonNodeType.STRING, new JsonStringBuilder()));
+        add(new JsonClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder()));
+        add(new JsonClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder()));
+        add(new JsonClass("Float", JsonNodeType.NUMBER, new JsonFloatObjBuilder()));
+        add(new JsonClass("Double", JsonNodeType.NUMBER, new JsonDoubleObjBuilder()));
+        add(new JsonClass("Boolean", JsonNodeType.BOOLEAN, new JsonBooleanObjBuilder()));
+        add(new JsonClass("int", JsonNodeType.LONG, new JsonIntBuilder()));
+        add(new JsonClass("long", JsonNodeType.LONG, new JsonLongBuilder()));
+        add(new JsonClass("float", JsonNodeType.NUMBER, new JsonFloatBuilder()));
+        add(new JsonClass("double", JsonNodeType.NUMBER, new JsonDoubleBuilder()));
+        add(new JsonClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder()));
     }
 
     // Methods for dynamically creating JSON class definitions

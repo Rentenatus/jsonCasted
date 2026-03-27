@@ -46,8 +46,7 @@ public class JsonFloatObjBuilder implements JsonModellClassBuilder {
      */
     @Override
     public Object build(JsonClass jClass, JsonItem jsonItem) {
-        final String value = jsonItem.getStringValue();
-        return value == null || "null".equals(value) ? null : Float.valueOf(value);
+        return jsonItem.getFloatValue();
     }
 
     /**
@@ -62,7 +61,7 @@ public class JsonFloatObjBuilder implements JsonModellClassBuilder {
     @Override
     public ArrayList<Float> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         ArrayList<Float> ret = new ArrayList<>(size);
-        listIterator.forEachRemaining(action -> ret.add(Float.parseFloat(action.getStringValue())));
+        listIterator.forEachRemaining(action -> ret.add(action.getFloatValue()));
         return ret;
     }
 

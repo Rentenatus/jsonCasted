@@ -16,7 +16,7 @@ import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
-import de.jare.jsoncasted.parserwriter.ParseStreamReader;
+import de.jare.jsoncasted.parserservice.ParseStreamReader;
 import java.io.IOException;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import java.util.ArrayList;
@@ -26,15 +26,18 @@ import java.util.logging.Logger;
 /**
  *
  * @author Janusch Rentenatus
+ *
+ * @deprecated Replaced by JsonNode-based parsing pipeline.
  */
-public class ObjectParser {
+@Deprecated
+public class ObjectParserBak {
 
     private final JsonItemDefinition definition;
     private final JsonClass aClass;
 
     private final JsonClass strClazz;
 
-    public ObjectParser(JsonItemDefinition definition, JsonClass aClass) {
+    public ObjectParserBak(JsonItemDefinition definition, JsonClass aClass) {
         this.definition = definition;
         strClazz = definition == null ? null : definition.getModel().getJsonClass("String");
         this.aClass = aClass;
@@ -53,7 +56,7 @@ public class ObjectParser {
                     return myObject;
                 }
                 if (c == '"') {
-                    paramName = new StringParser(definition).parse(psr);
+                    paramName = new StringParserBak(definition).parse(psr);
                     while (psr.hasNext() && psr.next() != ':') {
                     }
                     break;
@@ -79,18 +82,18 @@ public class ObjectParser {
                 }
                 if (c == '"') {
                     checkDoubleParam(paramValue, paramName, psr.getZeile());
-                    paramValue = new StringParser(definition, paramClass(field, null)).parse(psr);
+                    paramValue = new StringParserBak(definition, paramClass(field, null)).parse(psr);
                 } else if (c == '[') {
                     checkDoubleParam(paramValue, paramName, psr.getZeile());
                     if (field != null && !field.isAsListOrArray()) {
                         throw new JsonParseException("Field " + field.getfName() + " is not a list nor array. (:" + psr.getZeile() + ")");
                     }
-                    paramValue = new ListParser(definition, paramType(field)).parse(psr, field == null || field.isAsList());
+                    paramValue = new ListParserBak(definition, paramType(field)).parse(psr, field == null || field.isAsList());
                 } else if (c == '(') {
-                    castClass = new CastingParser(definition, paramType(field)).parse(psr);
+                    castClass = new CastingParserBak(definition, paramType(field)).parse(psr);
                 } else if (c == '{') {
                     checkDoubleParam(paramValue, paramName, psr.getZeile());
-                    paramValue = new ObjectParser(definition, paramClass(field, castClass)).parse(psr);
+                    paramValue = new ObjectParserBak(definition, paramClass(field, castClass)).parse(psr);
                 } else if (c == ',') {
                     appendParam(myObject, paramName, paramValue, sb.toString(), psr.getDebbugLevel());
                     break;

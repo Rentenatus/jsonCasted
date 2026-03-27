@@ -5,8 +5,10 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.parserwriter;
+package de.jare.jsoncasted.parserservice;
 
+import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
+import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.tools.SimpleStringSplitter;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,7 +29,7 @@ public class ParseStreamReader implements SimpleStringSplitter {
     private int pos;
     private int zeile;
 
-    ParseStreamReader(Reader in, JsonDebugLevel debbugLevel) {
+    public ParseStreamReader(Reader in, JsonDebugLevel debbugLevel) {
         this.in = new BufferedReader(in);
         this.line = null;
         this.end = false;

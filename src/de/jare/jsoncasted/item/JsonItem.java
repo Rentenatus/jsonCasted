@@ -23,9 +23,37 @@ public interface JsonItem {
     /**
      * Retrieves the string representation of the JSON item's value.
      *
-     * @return The value as a string.
+     * @return The value as a String.
      */
     public String getStringValue();
+
+    /**
+     * Retrieves the number representation of the JSON item's value.
+     *
+     * @return The value as a Double.
+     */
+    public Double getNumberValue();
+
+    /**
+     * Retrieves the number representation of the JSON item's value.
+     *
+     * @return The value as a Float.
+     */
+    public Float getFloatValue();
+
+    /**
+     * Retrieves the whole number representation of the JSON item's value.
+     *
+     * @return The value as a Long.
+     */
+    public Long getLongValue();
+
+    /**
+     * Retrieves the boolean representation of the JSON item's value.
+     *
+     * @return The value as a Boolean.
+     */
+    public Boolean getBooleanValue();
 
     /**
      * Determines if the JSON item represents an array or list structure.

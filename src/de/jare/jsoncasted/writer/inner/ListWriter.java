@@ -1,5 +1,5 @@
 /* <copyright>
- * Copyright (C) 2022 Janusch Rentenatus  
+ * Copyright (C) 2022 Janusch Rentenatus
  * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
@@ -7,11 +7,14 @@
  */
 package de.jare.jsoncasted.writer.inner;
 
+import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Iterator;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
+import java.util.List;
 
 /**
  * The ListWriter class handles the serialization of JSON list structures. It
@@ -87,6 +90,7 @@ class ListWriter {
             out.print(intentString);
         }
         out.print(']');
+        out.flush();
     }
 
     /**
@@ -128,4 +132,42 @@ class ListWriter {
         ObjectWriter reWriter = new ObjectWriter(definition, jType, iString);
         reWriter.write(out, reWriter.calculateJsonClass(attr), attr);
     }
+
+    /**
+     * Schreibt eine JsonNode-ARRAY oder ein einzelnes JsonNode-Element als
+     * Liste.
+     */
+    public void writeNode(PrintWriter out, JsonNode node) {
+        out.print('[');
+        if (node != null && node.getType() != JsonNodeType.ARRAY) {
+            ObjectWriter reWriter = new ObjectWriter(definition, null, intentString);
+            reWriter.writeNode(out, node);
+        } else {
+            writeNodeArrayItems(out, node, intentString);
+        }
+        out.print(intentString);
+        out.print(']');
+        out.flush();
+    }
+
+    protected void writeNodeArrayItems(PrintWriter out, JsonNode node, String iString) {
+        ObjectWriter reWriter = new ObjectWriter(definition, null, iString + "  ");
+        List<JsonNode> list = node.asArray();
+        if (list != null && !list.isEmpty()) {
+            out.println();
+            String childIndent = iString + " ";
+            boolean first = true;
+            for (JsonNode item : list) {
+                if (!first) {
+                    out.print(',');
+                    out.println();
+                }
+                first = false;
+                out.print(childIndent);
+                reWriter.writeNode(out, item, childIndent);
+            }
+            out.println();
+        }
+    }
+
 }

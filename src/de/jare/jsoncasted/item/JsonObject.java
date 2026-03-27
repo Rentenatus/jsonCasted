@@ -89,6 +89,46 @@ public class JsonObject implements JsonItem {
     }
 
     /**
+     * Retrieves the number representation of the JSON item's value.
+     *
+     * @return null, as objects typically have nested properties.
+     */
+    @Override
+    public Double getNumberValue() {
+        return null;
+    }
+
+    /**
+     * Retrieves the float number representation of the JSON item's value.
+     *
+     * @return null, as lists typically have nested properties.
+     */
+    @Override
+    public Float getFloatValue() {
+        return null;
+    }
+
+    /**
+     * Retrieves the number representation of the JSON item's value.
+     *
+     * @return null, as objects typically have nested properties.
+     */
+    @Override
+    public Long getLongValue() {
+        return null;
+    }
+
+    /**
+     * Retrieves the boolean representation of the JSON item's value.
+     *
+     * @return null, as objects typically have nested properties.
+     */
+    @Override
+    public Boolean getBooleanValue() {
+        return null;
+    }
+
+    /**
      * Determines if this JSON item represents an array.
      *
      * @return false, as this class represents a JSON object.
