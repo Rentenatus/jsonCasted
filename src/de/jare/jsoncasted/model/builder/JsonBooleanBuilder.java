@@ -46,8 +46,7 @@ public class JsonBooleanBuilder implements JsonModellClassBuilder {
      */
     @Override
     public Object build(JsonClass jClass, JsonItem jsonItem) throws JsonBuildException {
-        final String value = jsonItem.getStringValue();
-        return value == null || "null".equals(value) ? false : Boolean.valueOf(value);
+        return jsonItem.getBooleanValue();
     }
 
     /**
@@ -62,7 +61,7 @@ public class JsonBooleanBuilder implements JsonModellClassBuilder {
     @Override
     public ArrayList<Boolean> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         ArrayList<Boolean> ret = new ArrayList<>(size);
-        listIterator.forEachRemaining(action -> ret.add(Boolean.parseBoolean(action.getStringValue())));
+        listIterator.forEachRemaining(action -> ret.add(action.getBooleanValue()));
         return ret;
     }
 
@@ -80,7 +79,8 @@ public class JsonBooleanBuilder implements JsonModellClassBuilder {
         final boolean[] ret = new boolean[size];
         int i = 0;
         while (listIterator.hasNext()) {
-            ret[i++] = Boolean.parseBoolean(listIterator.next().getStringValue());
+            final Boolean booleanValue = listIterator.next().getBooleanValue();
+            ret[i++] = booleanValue == null ? false : booleanValue;
         }
         return ret;
     }

@@ -1,17 +1,10 @@
 package de.jare.jsoncasted.parserservice;
 
-import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
-import de.jare.jsoncasted.lang.JsonNodeType;
-import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
-import static de.jare.jsoncasted.parserwriter.JsonParser.parse;
-
 import java.io.*;
 import java.net.URL;
-import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

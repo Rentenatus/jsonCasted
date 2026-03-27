@@ -70,7 +70,8 @@ public class JsonValue implements JsonItem {
     }
 
     /**
-     * Constructs a JsonValue instance with a Long value and an associated class type.
+     * Constructs a JsonValue instance with a Long value and an associated class
+     * type.
      *
      * @param value The raw JSON value as a Long.
      * @param aClass The JSON class used for instance creation.
@@ -130,6 +131,25 @@ public class JsonValue implements JsonItem {
         }
         if (strValue != null) {
             return Double.valueOf(strValue);
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves the number representation of the JSON item's value.
+     *
+     * @return The stored value as a Float.
+     */
+    @Override
+    public Float getFloatValue() {
+        if (longValue != null) {
+            return longValue.floatValue();
+        }
+        if (numberValue != null) {
+            return numberValue.floatValue();
+        }
+        if (strValue != null) {
+            return Float.valueOf(strValue);
         }
         return null;
     }

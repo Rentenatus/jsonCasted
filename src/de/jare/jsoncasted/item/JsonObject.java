@@ -99,6 +99,16 @@ public class JsonObject implements JsonItem {
     }
 
     /**
+     * Retrieves the float number representation of the JSON item's value.
+     *
+     * @return null, as lists typically have nested properties.
+     */
+    @Override
+    public Float getFloatValue() {
+        return null;
+    }
+
+    /**
      * Retrieves the number representation of the JSON item's value.
      *
      * @return null, as objects typically have nested properties.

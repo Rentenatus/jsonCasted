@@ -45,8 +45,7 @@ public class JsonLongBuilder implements JsonModellClassBuilder {
      */
     @Override
     public Object build(JsonClass jClass, JsonItem jsonItem) {
-        final String value = jsonItem.getStringValue();
-        return value == null || "null".equals(value) ? 0 : Long.valueOf(value);
+        return jsonItem.getLongValue();
     }
 
     /**
@@ -61,7 +60,7 @@ public class JsonLongBuilder implements JsonModellClassBuilder {
     @Override
     public ArrayList<Long> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         ArrayList<Long> ret = new ArrayList<>(size);
-        listIterator.forEachRemaining(action -> ret.add(Long.parseLong(action.getStringValue())));
+        listIterator.forEachRemaining(action -> ret.add(action.getLongValue()));
         return ret;
     }
 
@@ -79,7 +78,8 @@ public class JsonLongBuilder implements JsonModellClassBuilder {
         final long[] ret = new long[size];
         int i = 0;
         while (listIterator.hasNext()) {
-            ret[i++] = Long.parseLong(listIterator.next().getStringValue());
+            final Long longValue = listIterator.next().getLongValue();
+            ret[i++] = longValue == null ? 0 : longValue;
         }
         return ret;
     }

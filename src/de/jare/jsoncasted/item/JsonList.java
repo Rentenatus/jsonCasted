@@ -61,6 +61,16 @@ public class JsonList implements JsonItem {
     }
 
     /**
+     * Retrieves the float number representation of the JSON item's value.
+     *
+     * @return null, as lists typically have nested properties.
+     */
+    @Override
+    public Float getFloatValue() {
+        return null;
+    }
+
+    /**
      * Retrieves the whole number representation of the JSON item's value.
      *
      * @return null, as lists typically have nested properties.
@@ -69,6 +79,7 @@ public class JsonList implements JsonItem {
     public Long getLongValue() {
         return null;
     }
+
     /**
      * Retrieves the boolean representation of the JSON item's value.
      *

@@ -35,9 +35,16 @@ public interface JsonItem {
     public Double getNumberValue();
 
     /**
+     * Retrieves the number representation of the JSON item's value.
+     *
+     * @return The value as a Float.
+     */
+    public Float getFloatValue();
+
+    /**
      * Retrieves the whole number representation of the JSON item's value.
      *
-     *       @return The value as a Long.
+     * @return The value as a Long.
      */
     public Long getLongValue();
 
