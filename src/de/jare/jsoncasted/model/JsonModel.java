@@ -142,6 +142,12 @@ public class JsonModel {
         return ret;
     }
 
+    public JsonClass newJsonClass(Class<?> clazz, JsonNodeType nodeType, JsonModellClassBuilder builder) {
+        JsonClass ret = new JsonClass(clazz.getTypeName(), nodeType, builder);
+        add(ret);
+        return ret;
+    }
+
     public JsonClass newJsonReflect(Class<?> clazz) {
         JsonClass ret = new JsonClass(clazz.getTypeName(), new JsonReflectBuilder(clazz));
         add(ret);

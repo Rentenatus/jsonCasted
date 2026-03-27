@@ -12,7 +12,7 @@ import de.jare.jsoncasted.lang.JsonInstance;
 /**
  * Feature Object.
  *
- * @author Janusch Rentenatu
+ * @author Janusch Rentenatus
  */
 public class ConfigFeature {
 

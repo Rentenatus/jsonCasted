@@ -7,11 +7,10 @@
  */
 package de.jare.jsoncasted.model;
 
-import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.model.item.JsonClass;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  *

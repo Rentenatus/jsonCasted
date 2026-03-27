@@ -10,7 +10,7 @@ package de.jare.jsonconfig.item;
 /**
  * Logging Object.
  *
- * @author Janusch Rentenatu
+ * @author Janusch Rentenatus
  */
 public class ConfigLogging {
 

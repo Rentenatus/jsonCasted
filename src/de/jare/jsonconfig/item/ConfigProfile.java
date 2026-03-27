@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Main Json Config Object.
  *
- * @author Janusch Rentenatu
+ * @author Janusch Rentenatus
  */
 public class ConfigProfile {
 

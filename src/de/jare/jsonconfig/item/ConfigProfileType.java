@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Type of Config Object.
  *
- * @author Janusch Rentenatu
+ * @author Janusch Rentenatus
  */
 public enum ConfigProfileType {
 

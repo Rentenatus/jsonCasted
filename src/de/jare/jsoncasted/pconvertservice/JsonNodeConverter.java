@@ -19,6 +19,8 @@ import java.util.ArrayList;
 
 /**
  * Converter to transform a JsonNode tree into the library's JsonItem model.
+ *
+ * @author Janusch Rentenatus
  */
 public class JsonNodeConverter {
 

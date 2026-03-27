@@ -8,7 +8,6 @@
 package de.jare.jsoncasted.model.item;
 
 import de.jare.jsoncasted.item.JsonItem;
-import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
@@ -17,7 +16,6 @@ import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * The JsonInter class represents an interface definition in a JSON structure.

@@ -22,6 +22,8 @@ import de.jare.jsoncasted.parserwriter.JsonParseException;
  * booleans and null. This replaces the previous generic HashMap-based class.
  *
  * Note: JsonClass may be attached to OBJECT nodes to aid editing/debugging.
+ *
+ * @author Janusch Renteantus
  */
 public class JsonNode {
 

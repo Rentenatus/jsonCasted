@@ -14,6 +14,7 @@ import java.util.HashMap;
  * HashMap to store key-value pairs dynamically with type safety.
  *
  * @author Janusch Rentenatus
+ *
  * @param <T> The expected type of JSON values.
  */
 public class JsonInstance<T> extends HashMap<String, T> {
