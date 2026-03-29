@@ -155,8 +155,8 @@ public class JsonClass implements JsonType {
         add(new JsonField(this, fName, jType, getterSetterNorm, JsonValidationMethod.NONE));
     }
 
-    public void addField(String fName, JsonType jType, JsonCollectionType type) {
-        add(new JsonField(this, fName, jType, type, JsonValidationMethod.NONE));
+    public void addField(String fName, JsonType jType, JsonCollectionType colType) {
+        add(new JsonField(this, fName, jType, colType, JsonValidationMethod.NONE));
     }
 
     public void addField(String fName, JsonType jType, String getter, String setter) {
@@ -171,8 +171,8 @@ public class JsonClass implements JsonType {
         add(new JsonField(this, fName, jType, getterSetterNorm, jsonValidationMethod));
     }
 
-    public void addField(String fName, JsonType jType, JsonCollectionType type, JsonValidationMethod jsonValidationMethod) {
-        add(new JsonField(this, fName, jType, type, jsonValidationMethod));
+    public void addField(String fName, JsonType jType, JsonCollectionType colType, JsonValidationMethod jsonValidationMethod) {
+        add(new JsonField(this, fName, jType, colType, jsonValidationMethod));
     }
 
     public void addField(String fName, JsonType jType, String getter, String setter, JsonValidationMethod jsonValidationMethod) {
@@ -183,12 +183,16 @@ public class JsonClass implements JsonType {
         add(new JsonCParam(this, paramName, jType));
     }
 
-    public void addCParam(String paramName, JsonType jType, JsonCollectionType type) {
-        add(new JsonCParam(this, paramName, jType, type));
+    public void addCParam(String paramName, JsonType jType, JsonCollectionType colType) {
+        add(new JsonCParam(this, paramName, jType, colType));
     }
 
-    public void addCParam(String paramName, JsonType jType, String getter, String setter) {
-        add(new JsonCParam(paramName, jType, getter, setter));
+    public void addCParam(String paramName, JsonType jType, String getter) {
+        add(new JsonCParam(paramName, jType, getter, null));
+    }
+
+    public void addCParam(String paramName, JsonType jType, JsonCollectionType colType, String getter) {
+        add(new JsonCParam(paramName, jType, colType, getter, null));
     }
 
     /**
