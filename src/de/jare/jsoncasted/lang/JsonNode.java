@@ -137,9 +137,20 @@ public class JsonNode {
         return this.jsonClass;
     }
 
-    // Accessors
     public JsonNodeType getType() {
         return type;
+    }
+
+    public boolean isObject() {
+        return type == OBJECT;
+    }
+
+    public boolean isArray() {
+        return type == ARRAY;
+    }
+
+    public boolean isNull() {
+        return type == NULL;
     }
 
     public Map<String, JsonNode> asObjectValues() {
@@ -238,4 +249,5 @@ public class JsonNode {
         }
         return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
     }
+
 }
