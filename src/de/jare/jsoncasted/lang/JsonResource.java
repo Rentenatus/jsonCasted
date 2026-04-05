@@ -1,6 +1,7 @@
 package de.jare.jsoncasted.lang;
 
 import de.jare.jsoncasted.lang.calculator.JsonLinkScanResult;
+import de.jare.jsoncasted.wood.WoodProviderBox;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +11,7 @@ public final class JsonResource {
 
     private String resourceFile;
     private JsonNode root;
+    private WoodProviderBox expectedBox;
     private List<String> importedProviderSynonyms;
     private JsonLinkScanResult scanResult;
 
@@ -62,6 +64,14 @@ public final class JsonResource {
 
     public void setRoot(JsonNode root) {
         this.root = root;
+    }
+
+    public WoodProviderBox getExpectedBox() {
+        return expectedBox;
+    }
+
+    public void setExpectedBox(WoodProviderBox expectedBox) {
+        this.expectedBox = expectedBox;
     }
 
     public List<String> getImportedProviderSynonyms() {

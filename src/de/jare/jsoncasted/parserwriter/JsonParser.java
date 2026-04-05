@@ -10,6 +10,7 @@ package de.jare.jsoncasted.parserwriter;
 import de.jare.jsoncasted.pconvertservice.JsonNodeConverter;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parserservice.JsonParserService;
 import java.io.BufferedReader;
@@ -31,37 +32,18 @@ import java.util.logging.Logger;
 public class JsonParser {
 
     public static JsonItem parse(String s, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
-        StringReader in = new StringReader(s);
-        return parse(in, definition, root, debbugLevel);
+        JsonResource res = JsonParserService.parse(s);
+        return parse(res.getRoot(), definition, root, debbugLevel);
     }
 
     public static JsonItem parse(File file, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
-        FileReader in;
-        try {
-            in = new FileReader(file);
-            return parse(in, definition, root, debbugLevel);
-        } catch (FileNotFoundException ex) {
-            Logger.getGlobal().log(Level.SEVERE, null, ex);
-        }
-        return null;
+        JsonResource res = JsonParserService.parse(file);
+        return parse(res.getRoot(), definition, root, debbugLevel);
     }
 
-    public static JsonItem parse(final URL url1, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
-        BufferedReader in;
-        try {
-            final InputStreamReader inputStreamReader = new InputStreamReader(url1.openStream());
-            in = new BufferedReader(inputStreamReader);
-            return parse(in, definition, root, debbugLevel);
-        } catch (FileNotFoundException ex) {
-            Logger.getGlobal().log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    public static JsonItem parse(Reader in, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws IOException, JsonParseException {
-        // Redirect: first parse text into JsonNode using JsonParserService, then convert
-        JsonNode node = JsonParserService.parse(in);
-        return parse(node, definition, root, debbugLevel);
+    public static JsonItem parse(final URL url, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
+        JsonResource res = JsonParserService.parse(url);
+        return parse(res.getRoot(), definition, root, debbugLevel);
     }
 
     public static JsonItem parse(JsonNode rootNode, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
@@ -83,10 +65,6 @@ public class JsonParser {
 
     public static JsonItem parse(final URL url1, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
         return parse(url1, definition, root, JsonDebugLevel.SIMPLE);
-    }
-
-    public static JsonItem parse(Reader in, JsonItemDefinition definition, JsonClass root) throws IOException, JsonParseException {
-        return parse(in, definition, root, JsonDebugLevel.SIMPLE);
     }
 
     public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass) throws JsonParseException, IOException {

@@ -174,7 +174,7 @@ public class JsonConfigFactoryNGTest {
         JsonItem obj1 = null;
         JsonNode node = null;
         try {
-            node = JsonParserService.parse(configFile);
+            node = JsonParserService.parse(configFile).getRoot();
             obj1 = JsonParser.parse(node, definition, definition.getConfigRoot());
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
