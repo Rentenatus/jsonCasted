@@ -1,4 +1,10 @@
 {
+    "_woodProviders": [
+        {
+          "synonym": "core",
+          "filename": "config1.json"   
+        }
+    ],
     comments: [
         "Das ist ein Json Config Datei.",
         "Das ist ein Template fuer seed-test.",

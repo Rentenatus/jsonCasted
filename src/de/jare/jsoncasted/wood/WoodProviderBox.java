@@ -1,3 +1,9 @@
+/* <copyright>
+ * Copyright (C) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
+ */
 package de.jare.jsoncasted.wood;
 
 import java.util.ArrayList;
@@ -9,13 +15,13 @@ public final class WoodProviderBox {
 
     private final List<WoodProvider> providers;
 
-    public WoodProviderBox(List<WoodProvider> providers) {
-        Objects.requireNonNull(providers, "providers must not be null");
-        this.providers = Collections.unmodifiableList(new ArrayList<>(providers));
+    public WoodProviderBox(List<WoodProvider> _woodProviders) {
+        Objects.requireNonNull(_woodProviders, "providers must not be null");
+        this.providers = new ArrayList<>(_woodProviders);
     }
 
     public List<WoodProvider> getProviders() {
-        return providers;
+        return Collections.unmodifiableList(providers);
     }
 
     public WoodProvider findBySynonym(String synonym) {
@@ -44,5 +50,12 @@ public final class WoodProviderBox {
         return "WoodProviderBox{"
                 + "providers=" + providers
                 + '}';
+    }
+
+    public void add(WoodProviderBox box) {
+        if (box.isEmpty()) {
+            return;
+        }
+        providers.addAll(box.getProviders());
     }
 }

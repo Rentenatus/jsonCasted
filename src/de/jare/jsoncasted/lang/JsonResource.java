@@ -14,6 +14,7 @@ public final class JsonResource {
     private WoodProviderBox expectedBox;
     private List<String> importedProviderSynonyms;
     private JsonLinkScanResult scanResult;
+    private final List<JsonExceptionEntry> exceptions = new ArrayList<>();
 
     private JsonResource() {
         this.importedProviderSynonyms = new ArrayList<>();
@@ -137,5 +138,9 @@ public final class JsonResource {
                 + ", importedProviderSynonyms=" + importedProviderSynonyms
                 + ", hasScanResult=" + (scanResult != null)
                 + '}';
+    }
+
+    public void addExceptions(List<JsonExceptionEntry> addExceptions) {
+        exceptions.addAll(addExceptions);
     }
 }

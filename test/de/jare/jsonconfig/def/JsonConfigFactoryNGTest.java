@@ -9,6 +9,7 @@ package de.jare.jsonconfig.def;
 
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.parserservice.JsonParserService;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
@@ -174,7 +175,11 @@ public class JsonConfigFactoryNGTest {
         JsonItem obj1 = null;
         JsonNode node = null;
         try {
-            node = JsonParserService.parse(configFile).getRoot();
+            final JsonResource res = JsonParserService.parse(configFile);
+            System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
+            System.out.println(res.getExpectedBox());
+            System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
+            node = res.getRoot();
             obj1 = JsonParser.parse(node, definition, definition.getConfigRoot());
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);

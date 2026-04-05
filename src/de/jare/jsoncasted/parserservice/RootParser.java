@@ -8,6 +8,11 @@
 package de.jare.jsoncasted.parserservice;
 
 import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.lang.JsonResource;
+import de.jare.jsoncasted.lang.calculator.JsonWoodProviderBuildResult;
+import de.jare.jsoncasted.lang.calculator.JsonWoodProviderBuilder;
+import de.jare.jsoncasted.lang.calculator.JsonWoodProviderScanResult;
+import de.jare.jsoncasted.lang.calculator.JsonWoodProviderScanner;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import java.io.IOException;
 
@@ -18,7 +23,19 @@ import java.io.IOException;
  */
 public class RootParser {
 
-    static JsonNode parse(ParseStreamReader psr) throws IOException, JsonParseException {
+    static JsonResource parse(ParseStreamReader psr, JsonResource container) throws IOException, JsonParseException {
+        final JsonNode rootNode = parseRoot(psr);
+        container.setRoot(rootNode);
+        JsonWoodProviderScanResult scan = JsonWoodProviderScanner.INSTANCE.scan(rootNode);
+        JsonWoodProviderBuildResult result = JsonWoodProviderBuilder.INSTANCE.build(scan);
+        if (result.hasExceptions()) {
+            container.addExceptions(result.getExceptions());
+        }
+        container.setExpectedBox(result.getWoodProviderBox());
+        return container;
+    }
+
+    static JsonNode parseRoot(ParseStreamReader psr) throws IOException, JsonParseException {
         StringBuilder sb = new StringBuilder();
         while (psr.hasNext()) {
             char c = psr.next();

@@ -1,5 +1,12 @@
+/* <copyright>
+ * Copyright (C) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
+ */
 package de.jare.jsoncasted.lang.calculator;
 
+import de.jare.jsoncasted.lang.JsonExceptionEntry;
 import de.jare.jsoncasted.lang.JsonNode;
 
 import java.util.ArrayList;
@@ -14,12 +21,9 @@ import java.util.Set;
 /**
  * Ergebnis eines JsonLinkScanner-Durchlaufs.
  *
- * Enthält:
- * - eindeutige ObjectIds
- * - gefundene Link-Nodes
- * - verwendete Provider-Synonyme aus _woodLink
- * - doppelte ObjectIds
- * - Scan-Exceptions (z.B. Parsing-Fehler bei toText())
+ * Enthält: - eindeutige ObjectIds - gefundene Link-Nodes - verwendete
+ * Provider-Synonyme aus _woodLink - doppelte ObjectIds - Scan-Exceptions (z.B.
+ * Parsing-Fehler bei toText())
  *
  * Keine echte Auflösung auf Zielobjekte.
  */
@@ -30,7 +34,7 @@ public final class JsonLinkScanResult {
     private final List<LinkNodeEntry> linkNodes = new ArrayList<>();
     private final Set<String> providerSynonyms = new LinkedHashSet<>();
     private final List<DuplicateObjectIdEntry> duplicateObjectIds = new ArrayList<>();
-    private final List<ScanExceptionEntry> scanExceptions = new ArrayList<>();
+    private final List<JsonExceptionEntry> scanExceptions = new ArrayList<>();
 
     void registerObjectId(String objectId, JsonNode node, String path) {
         Objects.requireNonNull(objectId, "objectId must not be null");
@@ -69,7 +73,7 @@ public final class JsonLinkScanResult {
         Objects.requireNonNull(path, "path must not be null");
         Objects.requireNonNull(exception, "exception must not be null");
 
-        scanExceptions.add(new ScanExceptionEntry(path, node, exception));
+        scanExceptions.add(new JsonExceptionEntry(node, path, exception));
     }
 
     public Map<String, JsonNode> getObjectIdToNode() {
@@ -92,7 +96,7 @@ public final class JsonLinkScanResult {
         return Collections.unmodifiableList(duplicateObjectIds);
     }
 
-    public List<ScanExceptionEntry> getScanExceptions() {
+    public List<JsonExceptionEntry> getScanExceptions() {
         return Collections.unmodifiableList(scanExceptions);
     }
 
@@ -235,36 +239,4 @@ public final class JsonLinkScanResult {
         }
     }
 
-    public static final class ScanExceptionEntry {
-
-        private final String path;
-        private final JsonNode node;
-        private final Exception exception;
-
-        public ScanExceptionEntry(String path, JsonNode node, Exception exception) {
-            this.path = Objects.requireNonNull(path, "path must not be null");
-            this.node = node;
-            this.exception = Objects.requireNonNull(exception, "exception must not be null");
-        }
-
-        public String getPath() {
-            return path;
-        }
-
-        public JsonNode getNode() {
-            return node;
-        }
-
-        public Exception getException() {
-            return exception;
-        }
-
-        @Override
-        public String toString() {
-            return "ScanExceptionEntry{"
-                    + "path='" + path + '\''
-                    + ", exception=" + exception
-                    + '}';
-        }
-    }
 }

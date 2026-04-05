@@ -191,7 +191,7 @@ public class JsonClass implements JsonType {
         add(new JsonCParam(paramName, jType, getter, null));
     }
 
-    public void addCParam(String paramName, JsonType jType, JsonCollectionType colType, String getter) {
+    public void addCParam(String paramName, JsonType jType, String getter, JsonCollectionType colType) {
         add(new JsonCParam(paramName, jType, colType, getter, null));
     }
 
