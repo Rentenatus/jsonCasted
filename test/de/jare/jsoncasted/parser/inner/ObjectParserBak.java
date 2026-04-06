@@ -8,17 +8,17 @@
 package de.jare.jsoncasted.parser.inner;
 
 import de.jare.jsoncasted.item.JsonItem;
-import de.jare.jsoncasted.item.JsonList;
-import de.jare.jsoncasted.item.JsonObject;
-import de.jare.jsoncasted.item.JsonValue;
+import de.jare.jsoncasted.item.JsonListBak;
+import de.jare.jsoncasted.item.JsonObjectBak;
+import de.jare.jsoncasted.item.JsonValueBak;
+import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
-import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.parserservice.ParseStreamReader;
-import java.io.IOException;
+import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
+import de.jare.jsoncasted.parserwriter.JsonParseException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,9 +45,9 @@ public class ObjectParserBak {
     }
 
     public JsonItem parse(ParseStreamReader psr) throws IOException, JsonParseException {
-        JsonObject myObject = new JsonObject(aClass);
+        JsonObjectBak myObject = new JsonObjectBak(aClass);
         while (psr.hasNext()) {
-            JsonValue paramName = null;
+            JsonValueBak paramName = null;
             JsonItem paramValue = null;
             StringBuilder sb = new StringBuilder();
             while (psr.hasNext()) {
@@ -62,7 +62,7 @@ public class ObjectParserBak {
                     break;
                 }
                 if (c == ':') {
-                    paramName = new JsonValue(sb.toString(), strClazz);
+                    paramName = new JsonValueBak(sb.toString(), strClazz);
                     break;
                 }
                 sb.append(c);
@@ -105,7 +105,7 @@ public class ObjectParserBak {
         throw new JsonParseException("End of file without end of list.");
     }
 
-    protected void checkDoubleParam(JsonItem paramValue, JsonValue paramName, int zeile) throws JsonParseException {
+    protected void checkDoubleParam(JsonItem paramValue, JsonValueBak paramName, int zeile) throws JsonParseException {
         if (paramValue != null) {
             String key = paramName == null ? null : paramName.getStringValue();
             key = key == null ? "null" : key.trim();
@@ -113,12 +113,12 @@ public class ObjectParserBak {
         }
     }
 
-    protected void appendParam(JsonObject myObject, JsonValue paramName, JsonItem paramValue, String alternativ, JsonDebugLevel debbugLevel) {
+    protected void appendParam(JsonObjectBak myObject, JsonValueBak paramName, JsonItem paramValue, String alternativ, JsonDebugLevel debbugLevel) {
         String key = paramKey(paramName);
         JsonField field = paramField(key);
         final String cName = aClass == null ? "null" : aClass.getcName();
         if (paramValue == null) {
-            myObject.putParam(key, new JsonValue(alternativ.trim(), paramClass(field, null)));
+            myObject.putParam(key, new JsonValueBak(alternativ.trim(), paramClass(field, null)));
             if (aClass != null && debbugLevel.satisfyInfo()) {
                 // nur interesssant, wenn aClass sinnvoll ist.
                 Logger.getGlobal().log(Level.INFO, "The key {0} of {1} is set to string {2}.", new Object[]{
@@ -138,7 +138,7 @@ public class ObjectParserBak {
         if (field.isAsListOrArray() && !paramValue.isList()) {
             ArrayList<JsonItem> list = new ArrayList<>(1);
             list.add(paramValue);
-            myObject.putParam(key, new JsonList(list, field.isAsList(), field.getjType()));
+            myObject.putParam(key, new JsonListBak(list, field.isAsList(), field.getjType()));
             if (debbugLevel.satisfyWarning()) {
                 Logger.getGlobal().log(Level.WARNING, "The field {0} of {1} is a list, but the value is not. Convert the value to a single-element list.", new Object[]{
                     field.getfName(), cName});
@@ -152,7 +152,7 @@ public class ObjectParserBak {
         }
     }
 
-    private String paramKey(JsonValue paramName) {
+    private String paramKey(JsonValueBak paramName) {
         String key = paramName.getStringValue();
         key = key == null ? "null" : key.trim();
         return key;

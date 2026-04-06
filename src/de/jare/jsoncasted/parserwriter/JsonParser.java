@@ -11,6 +11,7 @@ import de.jare.jsoncasted.pconvertservice.JsonNodeConverter;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parserservice.JsonParserService;
 import java.io.BufferedReader;
@@ -31,48 +32,47 @@ import java.util.logging.Logger;
  */
 public class JsonParser {
 
-    public static JsonItem parse(String s, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
+    public static JsonItem parse(String s, JsonModelDescriptor descriptor, String root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
         JsonResource res = JsonParserService.parse(s);
-        return parse(res.getRoot(), definition, root, debbugLevel);
+        return parse(res.getRoot(), descriptor, root, debbugLevel);
     }
 
-    public static JsonItem parse(File file, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
+    public static JsonItem parse(File file, JsonModelDescriptor descriptor, String root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
         JsonResource res = JsonParserService.parse(file);
-        return parse(res.getRoot(), definition, root, debbugLevel);
+        return parse(res.getRoot(), descriptor, root, debbugLevel);
     }
 
-    public static JsonItem parse(final URL url, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
+    public static JsonItem parse(final URL url, JsonModelDescriptor descriptor, String root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
         JsonResource res = JsonParserService.parse(url);
-        return parse(res.getRoot(), definition, root, debbugLevel);
+        return parse(res.getRoot(), descriptor, root, debbugLevel);
     }
 
-    public static JsonItem parse(JsonNode rootNode, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
-        return JsonNodeConverter.convert(rootNode, root, definition, debbugLevel);
+    public static JsonItem parse(JsonNode rootNode, JsonModelDescriptor descriptor, String root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
+        return JsonNodeConverter.convert(rootNode, root, descriptor, debbugLevel);
     }
 
-    public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
-        JsonClass jClass = definition.getModel().getJsonClass(aClass);
-        return parse(file, definition, jClass, debbugLevel);
+    public static JsonItem parse(File file, JsonModelDescriptor descriptor, Class<?> aClass, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
+        return parse(file, descriptor, aClass.getTypeName(), debbugLevel);
     }
 
-    public static JsonItem parse(String s, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
-        return parse(s, definition, root, JsonDebugLevel.SIMPLE);
+    public static JsonItem parse(String s, JsonModelDescriptor descriptor, String root) throws JsonParseException, IOException {
+        return parse(s, descriptor, root, JsonDebugLevel.SIMPLE);
     }
 
-    public static JsonItem parse(File file, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
-        return parse(file, definition, root, JsonDebugLevel.SIMPLE);
+    public static JsonItem parse(File file, JsonModelDescriptor descriptor, String root) throws JsonParseException, IOException {
+        return parse(file, descriptor, root, JsonDebugLevel.SIMPLE);
     }
 
-    public static JsonItem parse(final URL url1, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
-        return parse(url1, definition, root, JsonDebugLevel.SIMPLE);
+    public static JsonItem parse(final URL url1, JsonModelDescriptor descriptor, String root) throws JsonParseException, IOException {
+        return parse(url1, descriptor, root, JsonDebugLevel.SIMPLE);
     }
 
-    public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass) throws JsonParseException, IOException {
-        return parse(file, definition, aClass, JsonDebugLevel.SIMPLE);
+    public static JsonItem parse(File file, JsonModelDescriptor descriptor, Class<?> aClass) throws JsonParseException, IOException {
+        return parse(file, descriptor, aClass, JsonDebugLevel.SIMPLE);
     }
 
-    public static JsonItem parse(JsonNode rootNode, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
-        return JsonNodeConverter.convert(rootNode, root, definition, JsonDebugLevel.SIMPLE);
+    public static JsonItem parse(JsonNode rootNode, JsonModelDescriptor descriptor, String root) throws JsonParseException, IOException {
+        return JsonNodeConverter.convert(rootNode, root, descriptor, JsonDebugLevel.SIMPLE);
     }
 
 }

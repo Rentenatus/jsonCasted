@@ -144,7 +144,7 @@ public class JsonConfigFactoryNGTest {
 
         ConfigRoot root = null;
         try {
-            final Object buildInstance1 = obj1.buildInstance();
+            final Object buildInstance1 = obj1.buildInstance(definition.getModel());
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (ConfigRoot) buildInstance1);
 
@@ -180,7 +180,7 @@ public class JsonConfigFactoryNGTest {
             System.out.println(res.getExpectedBox());
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
-            obj1 = JsonParser.parse(node, definition, definition.getConfigRoot());
+            obj1 = JsonParser.parse(node, definition.getDescriptor(), definition.getConfigRoot().getcName());
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
@@ -194,7 +194,7 @@ public class JsonConfigFactoryNGTest {
 
         ConfigRoot root = null;
         try {
-            final Object buildInstance1 = obj1.buildInstance();
+            final Object buildInstance1 = obj1.buildInstance(definition.getModel());
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (ConfigRoot) buildInstance1);
 

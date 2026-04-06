@@ -9,6 +9,7 @@ package de.jare.jsoncasted.model.item;
 
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonCollectionType;
+import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonMapBuilder;
 import de.jare.jsoncasted.parserwriter.JsonValidationMethod;
@@ -24,15 +25,15 @@ public class JsonMap extends JsonClass implements JsonType {
     private final JsonClass itemClass;
     private final JsonCollectionType colType;
 
-    public JsonMap(String cName, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
-        super(cName, new JsonMapBuilder(singular, itemClass));
+    public JsonMap(JsonModel model, String cName, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
+        super(cName, new JsonMapBuilder(model, singular, itemClass));
         this.itemClass = itemClass;
         this.colType = colType;
 
     }
 
-    public JsonMap(String cName, boolean skippingNulls, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
-        super(cName, skippingNulls, new JsonMapBuilder(singular, itemClass));
+    public JsonMap(JsonModel model, String cName, boolean skippingNulls, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
+        super(cName, skippingNulls, new JsonMapBuilder(model, singular, itemClass));
         this.itemClass = itemClass;
         this.colType = colType;
     }

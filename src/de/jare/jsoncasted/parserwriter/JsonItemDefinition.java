@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.parserwriter;
 
 import de.jare.jsoncasted.model.JsonModel;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 
 /**
  *
@@ -16,6 +17,10 @@ import de.jare.jsoncasted.model.JsonModel;
 public interface JsonItemDefinition {
 
     public JsonModel getModel();
+
+    default JsonModelDescriptor getDescriptor() {
+        return getModel().getOrCreateDescriptor();
+    }
 
     public JsonCastingLevel getCastingLevel();
 

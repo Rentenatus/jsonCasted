@@ -13,6 +13,7 @@ import static de.jare.jsoncasted.lang.JsonNodeType.NULL;
 import static de.jare.jsoncasted.lang.JsonNodeType.NUMBER;
 import static de.jare.jsoncasted.lang.JsonNodeType.OBJECT;
 import static de.jare.jsoncasted.lang.JsonNodeType.STRING;
+import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.*;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
@@ -34,7 +35,7 @@ public class JsonNode {
     private final Double numberValue;
     private final Long numberLongValue;
     private final Boolean boolValue;
-    private JsonClass jsonClass; // optional, set for OBJECT nodes
+    private JsonTypeDescriptor jsonDescriptor; // optional, set for OBJECT nodes
 
     private JsonNode(JsonNodeType type,
             Map<String, JsonNode> objectValue,
@@ -50,7 +51,7 @@ public class JsonNode {
         this.numberValue = numberValue;
         this.numberLongValue = numberLongValue;
         this.boolValue = boolValue;
-        this.jsonClass = null;
+        this.jsonDescriptor = null;
     }
 
     public static JsonNode objectNode() {
@@ -129,12 +130,12 @@ public class JsonNode {
     }
 
     // JsonClass attachment for OBJECT nodes
-    public void setJsonClass(JsonClass jc) {
-        this.jsonClass = jc;
+    public void setJsonDescriptor(JsonTypeDescriptor jc) {
+        this.jsonDescriptor = jc;
     }
 
-    public JsonClass getJsonClass() {
-        return this.jsonClass;
+    public JsonTypeDescriptor getJsonDescriptor() {
+        return this.jsonDescriptor;
     }
 
     public JsonNodeType getType() {

@@ -9,6 +9,7 @@ package de.jare.jsoncasted.model.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.model.JsonBuildException;
+import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
@@ -42,20 +43,26 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
     );
 
     private Class<?> singular;
+    private JsonModel model;
 
     /**
      * Default constructor for JsonReflectBuilder.
+     *
+     * @param model
      */
-    public JsonReflectBuilder() {
+    public JsonReflectBuilder(JsonModel model) {
+        this.model = model;
     }
 
     /**
      * Constructs a JsonReflectBuilder instance for a specific class.
      *
+     * @param model
      * @param singular The target class for reflection-based object creation.
      */
-    public JsonReflectBuilder(Class<?> singular) {
+    public JsonReflectBuilder(JsonModel model, Class<?> singular) {
         this.singular = singular;
+        this.model = model;
     }
 
     /**
@@ -97,7 +104,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
                 }
                 JsonItem para = jsonItem.getParam(next.getfName());
                 if (para != null) {
-                    Object inst = para.buildInstance();
+                    Object inst = para.buildInstance(model);
                     Method getterMeth = null;
                     Method setterMeth = null;
                     boolean suchtNoch = true;
@@ -201,7 +208,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
                     }
                     throw new JsonBuildException("Item '" + next.getfName() + "' not found but is necessary for the constructor of class " + jClass.getcName() + '.');
                 }
-                paramObjects.add(para.buildInstance());
+                paramObjects.add(para.buildInstance(model));
             } catch (JsonBuildException ex) {
                 Logger.getGlobal().log(Level.SEVERE, null, ex);
                 throw new JsonBuildException(ex.getMessage(), ex);
@@ -264,7 +271,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
         ArrayList list = new ArrayList(size);
         while (listIterator.hasNext()) {
             JsonItem next = listIterator.next();
-            Object elem = next.buildInstance();
+            Object elem = next.buildInstance(model);
             list.add(elem);
         }
         return list;

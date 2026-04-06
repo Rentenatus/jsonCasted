@@ -30,6 +30,7 @@ public class JsonModel {
 
     private final HashMap<String, JsonClass> classes;
     private final String mName;
+    private JsonModelDescriptor descriptor;
 
     /**
      * Constructs a JsonModel instance with a specified model name.
@@ -38,6 +39,7 @@ public class JsonModel {
      */
     public JsonModel(String mName) {
         this.mName = mName;
+        this.descriptor = null;
         classes = new HashMap<>();
     }
 
@@ -153,13 +155,13 @@ public class JsonModel {
     }
 
     public JsonClass newJsonReflect(Class<?> clazz) {
-        JsonClass ret = new JsonClass(clazz.getTypeName(), new JsonReflectBuilder(clazz));
+        JsonClass ret = new JsonClass(clazz.getTypeName(), new JsonReflectBuilder(this, clazz));
         add(ret);
         return ret;
     }
 
     public JsonClass newJsonReflect(Class<?> clazz, boolean skippingNulls) {
-        JsonClass ret = new JsonClass(clazz.getTypeName(), skippingNulls, new JsonReflectBuilder(clazz));
+        JsonClass ret = new JsonClass(clazz.getTypeName(), skippingNulls, new JsonReflectBuilder(this, clazz));
         add(ret);
         return ret;
     }
@@ -181,17 +183,17 @@ public class JsonModel {
     }
 
     public JsonInter newJsonInterface(Class<?> clazz, JsonClass... jClass) {
-        return new JsonInter(clazz.getTypeName(), new JsonReflectBuilder(clazz), jClass);
+        return new JsonInter(clazz.getTypeName(), new JsonReflectBuilder(this, clazz), jClass);
     }
 
     public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, JsonClass itemClass, JsonCollectionType type) {
-        JsonMap ret = new JsonMap(clazz.getTypeName(), clazz, itemClass, type);
+        JsonMap ret = new JsonMap(this, clazz.getTypeName(), clazz, itemClass, type);
         add(ret);
         return ret;
     }
 
     public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, boolean skippingNulls, JsonClass itemClass, JsonCollectionType type) {
-        JsonMap ret = new JsonMap(clazz.getTypeName(), skippingNulls, clazz, itemClass, type);
+        JsonMap ret = new JsonMap(this, clazz.getTypeName(), skippingNulls, clazz, itemClass, type);
         add(ret);
         return ret;
     }
@@ -230,6 +232,15 @@ public class JsonModel {
             jsonClass.describeDependencies(context);
         }
 
+        descriptor = context;
         return context;
     }
+
+    public JsonModelDescriptor getOrCreateDescriptor() {
+        if (descriptor != null) {
+            return descriptor;
+        }
+        return describe();
+    }
+
 }

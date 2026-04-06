@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -56,11 +55,11 @@ public class JsonModelDescriptor {
         return containsType(typeName);
     }
 
-    public Optional<JsonTypeDescriptor> getType(String typeName) {
+    public JsonTypeDescriptor getType(String typeName) {
         if (typeName == null) {
-            return Optional.empty();
+            return null;
         }
-        return Optional.ofNullable(describedTypes.get(typeName));
+        return describedTypes.get(typeName);
     }
 
     public JsonTypeDescriptor requireType(String typeName) {
@@ -73,21 +72,6 @@ public class JsonModelDescriptor {
 
     public JsonTypeDescriptor getOrDefault(String typeName, JsonTypeDescriptor fallback) {
         return describedTypes.getOrDefault(typeName, fallback);
-    }
-
-    public Optional<JsonTypeDescriptor> getFirstType() {
-        for (JsonTypeDescriptor type : describedTypes.values()) {
-            return Optional.of(type);
-        }
-        return Optional.empty();
-    }
-
-    public Optional<JsonTypeDescriptor> getLastType() {
-        JsonTypeDescriptor last = null;
-        for (JsonTypeDescriptor type : describedTypes.values()) {
-            last = type;
-        }
-        return Optional.ofNullable(last);
     }
 
     // -------------------------------------------------------------------------
@@ -164,11 +148,11 @@ public class JsonModelDescriptor {
     // -------------------------------------------------------------------------
     // Entfernen / Leeren
     // -------------------------------------------------------------------------
-    public Optional<JsonTypeDescriptor> removeType(String typeName) {
+    public JsonTypeDescriptor removeType(String typeName) {
         if (typeName == null) {
-            return Optional.empty();
+            return null;
         }
-        return Optional.ofNullable(describedTypes.remove(typeName));
+        return describedTypes.remove(typeName);
     }
 
     public boolean removeType(JsonTypeDescriptor type) {
@@ -203,37 +187,6 @@ public class JsonModelDescriptor {
 
     public Map<String, JsonTypeDescriptor> getTypeMap() {
         return Collections.unmodifiableMap(describedTypes);
-    }
-
-    // -------------------------------------------------------------------------
-    // Reihenfolge / Index
-    // -------------------------------------------------------------------------
-    public Optional<JsonTypeDescriptor> getTypeAt(int index) {
-        if (index < 0 || index >= describedTypes.size()) {
-            return Optional.empty();
-        }
-        int i = 0;
-        for (JsonTypeDescriptor type : describedTypes.values()) {
-            if (i == index) {
-                return Optional.of(type);
-            }
-            i++;
-        }
-        return Optional.empty();
-    }
-
-    public int indexOf(String typeName) {
-        if (typeName == null) {
-            return -1;
-        }
-        int i = 0;
-        for (String key : describedTypes.keySet()) {
-            if (key.equals(typeName)) {
-                return i;
-            }
-            i++;
-        }
-        return -1;
     }
 
     // -------------------------------------------------------------------------

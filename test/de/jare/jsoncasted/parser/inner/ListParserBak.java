@@ -8,8 +8,8 @@
 package de.jare.jsoncasted.parser.inner;
 
 import de.jare.jsoncasted.item.JsonItem;
-import de.jare.jsoncasted.item.JsonList;
-import de.jare.jsoncasted.item.JsonValue;
+import de.jare.jsoncasted.item.JsonListBak;
+import de.jare.jsoncasted.item.JsonValueBak;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
@@ -47,7 +47,7 @@ public class ListParserBak {
             char c = psr.next();
             if (c == ']') {
                 addItem(item, sb);
-                return new JsonList(list, asList, jType);
+                return new JsonListBak(list, asList, jType);
             }
             if (c == '(') {
                 castClass = new CastingParserBak(definition, jType).parse(psr);
@@ -79,9 +79,9 @@ public class ListParserBak {
             return;
         }
         if ("null".equals(toString.trim())) {
-            list.add(new JsonValue(toString, null));
+            list.add(new JsonValueBak(toString, null));
         } else if (castClass != null) {
-            list.add(new JsonValue(toString, castClass));
+            list.add(new JsonValueBak(toString, castClass));
         } else {
             throw new RuntimeException("JsonClass not found.");
         }

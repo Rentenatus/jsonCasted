@@ -9,7 +9,6 @@ package de.jare.jsoncasted.item;
 
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModel;
-import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,18 +20,18 @@ import java.util.Set;
  *
  * @author Janusch Rentenatus
  */
-public class JsonObject implements JsonItem {
+public class JsonObjectBak implements JsonItem {
 
     private final HashMap<String, JsonItem> map;
-    private final JsonTypeDescriptor contextClass;
+    private final JsonClass jClass;
 
     /**
      * Constructs a JsonObject instance with an associated class type.
      *
-     * @param aClassDescriptor The JSON class used for instance creation.
+     * @param aClass The JSON class used for instance creation.
      */
-    public JsonObject(JsonTypeDescriptor aClassDescriptor) {
-        this.contextClass = aClassDescriptor;
+    public JsonObjectBak(JsonClass aClass) {
+        this.jClass = aClass;
         map = new HashMap<>();
     }
 
@@ -53,7 +52,7 @@ public class JsonObject implements JsonItem {
      */
     @Override
     public String getPrintClassName() {
-        return contextClass == null ? "null" : contextClass.getTypeName();
+        return jClass == null ? "null" : jClass.getcName();
     }
 
     /**
@@ -171,10 +170,9 @@ public class JsonObject implements JsonItem {
      */
     @Override
     public Object buildInstance(JsonModel model) throws JsonBuildException {
-        JsonClass jType = model.getJsonClass(contextClass.getTypeName());
-        if (jType == null) {
+        if (jClass == null) {
             return null;
         }
-        return jType.build(this);
+        return jClass.build(this);
     }
 }

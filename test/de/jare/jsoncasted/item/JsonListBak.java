@@ -7,10 +7,12 @@
  */
 package de.jare.jsoncasted.item;
 
+import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModel;
-import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.JsonType;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
@@ -21,10 +23,10 @@ import java.util.Set;
  *
  * @author Janusch Rentenatus
  */
-public class JsonList implements JsonItem {
+public class JsonListBak implements JsonItem {
 
     private final ArrayList<JsonItem> list;
-    private final JsonTypeDescriptor contextClass;
+    private final JsonType jType;
     private final boolean asList;
 
     /**
@@ -34,10 +36,10 @@ public class JsonList implements JsonItem {
      * @param list The list of JSON items.
      * @param asList Indicates whether the list is structured as a typical JSON
      * array.
-     * @param contextClass The JSON type description used for instance creation.
+     * @param jType The JSON type used for instance creation.
      */
-    public JsonList(ArrayList<JsonItem> list, boolean asList, JsonTypeDescriptor contextClass) {
-        this.contextClass = contextClass;
+    public JsonListBak(ArrayList<JsonItem> list, boolean asList, JsonType jType) {
+        this.jType = jType;
         this.list = list;
         this.asList = asList;
     }
@@ -163,7 +165,6 @@ public class JsonList implements JsonItem {
      */
     @Override
     public Object buildInstance(JsonModel model) throws JsonBuildException {
-        JsonClass jType = model.getJsonClass(contextClass.getTypeName());
         if (jType == null) {
             return null;
         }

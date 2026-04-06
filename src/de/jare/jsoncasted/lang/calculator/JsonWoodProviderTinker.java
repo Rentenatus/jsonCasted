@@ -43,8 +43,9 @@ public final class JsonWoodProviderTinker {
 
     private void buildEntry(JsonWoodProviderScanResult.ProviderNodeEntry entry, JsonWoodProviderTinkerResult result) {
         try {
-            JsonItem jsonItem = JsonParser.parse(entry.getOwnerNode(), definition, definition.getWoodProviderBox());
-            Object instance = jsonItem.buildInstance();
+            JsonItem jsonItem = JsonParser.parse(entry.getOwnerNode(),
+                    definition.getDescriptor(), definition.getWoodProviderBox().getcName());
+            Object instance = jsonItem.buildInstance(definition.getModel());
 
             if (!(instance instanceof WoodProviderBox)) {
                 result.registerException(

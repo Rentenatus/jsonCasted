@@ -8,7 +8,7 @@
 package de.jare.jsoncasted.parser.inner;
 
 import de.jare.jsoncasted.item.JsonItem;
-import de.jare.jsoncasted.item.JsonValue;
+import de.jare.jsoncasted.item.JsonValueBak;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
@@ -70,7 +70,7 @@ public class RootParserBak {
                 sb.append(c);
             }
         }
-        return new JsonValue(sb.toString(), castClass);
+        return new JsonValueBak(sb.toString(), castClass);
     }
 
 }

@@ -361,7 +361,7 @@ public class JsonClass implements JsonType {
             }
 
             JsonFieldDescriptor fd = new JsonFieldDescriptor(
-                    jf.getfName(), // jsonName
+                    jf.getfName(), // fieldName
                     targetTypeName, // typeName
                     jf.getCollectionType(), // JsonCollectionType 
                     !skippingNulls, // required?

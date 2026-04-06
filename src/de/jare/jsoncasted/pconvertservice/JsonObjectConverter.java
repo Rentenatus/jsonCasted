@@ -9,11 +9,10 @@ package de.jare.jsoncasted.pconvertservice;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.lang.JsonNode;
-import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.model.item.JsonField;
+import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -27,32 +26,32 @@ import java.util.logging.Logger;
  */
 public class JsonObjectConverter {
 
-    public static JsonItem convertObject(JsonNode node, JsonClass aClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
-        JsonObjectConverter converter = new JsonObjectConverter(node, aClass, definition, debugLevel);
+    public static JsonItem convertObject(JsonNode node, JsonTypeDescriptor contextClass, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
+        JsonObjectConverter converter = new JsonObjectConverter(node, contextClass, descriptor, debugLevel);
         return converter.convertObject();
     }
 
     final Map<String, JsonNode> values;
     final JsonObject myObject;
-    final JsonClass aClass;
-    final JsonItemDefinition definition;
+    final JsonTypeDescriptor contextClass;
+    final JsonModelDescriptor descriptor;
     final JsonDebugLevel debugLevel;
 
-    JsonObjectConverter(JsonNode node, JsonClass aClass, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonParseException {
+    JsonObjectConverter(JsonNode node, JsonTypeDescriptor contextClass, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
         this.values = node.asObjectValues();
-        if (aClass == null && values != null) {
+        if (contextClass == null && values != null) {
             final JsonNode cast = values.get("_class");
             if (cast != null) {
-                aClass = definition.getModel().getJsonClass(cast.asText());
+                contextClass = descriptor.getType(cast.asText());
             }
         }
-        node.setJsonClass(aClass);
-        if (aClass == null) {
+        node.setJsonDescriptor(contextClass);
+        if (contextClass == null) {
             throw new JsonParseException("No Class.");
         }
-        this.aClass = aClass;
-        this.myObject = new JsonObject(aClass);
-        this.definition = definition;
+        this.contextClass = contextClass;
+        this.myObject = new JsonObject(contextClass);
+        this.descriptor = descriptor;
         this.debugLevel = debugLevel;
     }
 
@@ -80,33 +79,32 @@ public class JsonObjectConverter {
 
     protected void calculateParam(String paramName, JsonNode childNode) throws JsonParseException {
 
-        JsonField field = aClass.get(paramName);
+        JsonFieldDescriptor field = contextClass.getField(paramName);
         if (field == null) {
             return;
         }
-        final JsonType childType = field.getjType();
-        JsonClass childClass = childType.getDirectClass();
+        JsonTypeDescriptor childType = descriptor.getType(field.getTypeName());
         Map<String, JsonNode> childValues = childNode.asObjectValues();
         final JsonNode cast = childValues == null ? null : childValues.get("_class");
-        if (childClass == null) {
+        if (childType == null) {
             if (cast == null) {
                 Logger.getGlobal().log(Level.WARNING, "Missing cast.");
                 return;
             }
-            childClass = definition.getModel().getJsonClass(cast.asText());
-            if (childClass == null) {
+            childType = descriptor.getType(cast.asText());
+            if (childType == null) {
                 Logger.getGlobal().log(Level.WARNING, "Unknown class.");
                 return;
             }
         }
-        if (!childType.contains(childClass)) {
+        if (!childType.contains(childType)) {
             Logger.getGlobal().log(Level.WARNING, "Wrong class.");
             return;
         }
 
         JsonItem paramObject = field.isAsListOrArray()
-                ? JsonNodeConverter.convertArray(childNode, childClass, field.isAsList(), definition, debugLevel)
-                : JsonNodeConverter.convert(childNode, childClass, definition, debugLevel);
+                ? JsonNodeConverter.convertArray(childNode, childType, field.isAsList(), descriptor, debugLevel)
+                : JsonNodeConverter.convert(childNode, childType, descriptor, debugLevel);
         myObject.putParam(paramName, paramObject);
 
     }

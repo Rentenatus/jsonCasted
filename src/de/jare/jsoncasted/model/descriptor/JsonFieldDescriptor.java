@@ -1,9 +1,7 @@
 package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.jsoncasted.model.JsonCollectionType;
-import java.lang.reflect.Method;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Beschreibt ein Feld bzw. Property eines JSON-mapbaren Typs.
@@ -17,7 +15,7 @@ import java.util.Optional;
  */
 public class JsonFieldDescriptor {
 
-    private final String jsonName;
+    private final String fieldName;
     private final String typeName;
     private final JsonCollectionType collectionType;
     private final boolean required;
@@ -29,14 +27,14 @@ public class JsonFieldDescriptor {
         this(jsonName, typeName, null, false, false, null, null);
     }
 
-    public JsonFieldDescriptor(String jsonName,
+    public JsonFieldDescriptor(String fieldName,
             String typeName,
             JsonCollectionType collectionType,
             boolean required,
             boolean constructorParam,
             String getter,
             String setter) {
-        this.jsonName = Objects.requireNonNull(jsonName, "jsonName");
+        this.fieldName = Objects.requireNonNull(fieldName, "jsonName");
         this.typeName = Objects.requireNonNull(typeName, "typeName");
         this.collectionType = collectionType;
         this.required = required;
@@ -45,20 +43,32 @@ public class JsonFieldDescriptor {
         this.setter = setter;
     }
 
-    public String getJsonName() {
-        return jsonName;
+    public String getFieldName() {
+        return fieldName;
     }
 
     public String getTypeName() {
         return typeName;
     }
 
-    public Optional<JsonCollectionType> getCollectionType() {
-        return Optional.ofNullable(collectionType);
+    public JsonCollectionType getCollectionType() {
+        return collectionType;
     }
 
-    public boolean isCollection() {
-        return collectionType != null;
+    public boolean isNotCollection() {
+        return collectionType == JsonCollectionType.NONE;
+    }
+
+    public boolean isAsListOrArray() {
+        return collectionType == JsonCollectionType.ARRAY || collectionType == JsonCollectionType.LIST;
+    }
+
+    public boolean isAsList() {
+        return collectionType == JsonCollectionType.LIST;
+    }
+
+    public boolean isAsArray() {
+        return collectionType == JsonCollectionType.ARRAY;
     }
 
     public boolean isRequired() {
@@ -74,24 +84,24 @@ public class JsonFieldDescriptor {
     }
 
     public void validate() {
-        if (jsonName.isBlank()) {
+        if (fieldName.isBlank()) {
             throw new IllegalStateException("jsonName is blank");
         }
         if (typeName.isBlank()) {
             throw new IllegalStateException("typeName is blank");
         }
         if (constructorParam && setter != null) {
-            throw new IllegalStateException("Constructor param must not have a setter: " + jsonName);
+            throw new IllegalStateException("Constructor param must not have a setter: " + fieldName);
         }
         if (!constructorParam && getter != null && setter == null) {
-            throw new IllegalStateException("Setter field without setter: " + jsonName);
+            throw new IllegalStateException("Setter field without setter: " + fieldName);
         }
     }
 
     @Override
     public String toString() {
         return "JsonFieldDescriptor["
-                + "jsonName=" + jsonName
+                + "jsonName=" + fieldName
                 + ", typeName=" + typeName
                 + ", collectionType=" + collectionType
                 + ", required=" + required
@@ -100,4 +110,5 @@ public class JsonFieldDescriptor {
                 + ", setter=" + setter
                 + "]";
     }
+
 }
