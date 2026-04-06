@@ -9,8 +9,8 @@ package de.jare.jsoncasted.parserservice;
 
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
-import de.jare.jsoncasted.lang.calculator.JsonWoodProviderBuildResult;
-import de.jare.jsoncasted.lang.calculator.JsonWoodProviderBuilder;
+import de.jare.jsoncasted.lang.calculator.JsonWoodProviderTinkerResult;
+import de.jare.jsoncasted.lang.calculator.JsonWoodProviderTinker;
 import de.jare.jsoncasted.lang.calculator.JsonWoodProviderScanResult;
 import de.jare.jsoncasted.lang.calculator.JsonWoodProviderScanner;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
@@ -27,7 +27,7 @@ public class RootParser {
         final JsonNode rootNode = parseRoot(psr);
         container.setRoot(rootNode);
         JsonWoodProviderScanResult scan = JsonWoodProviderScanner.INSTANCE.scan(rootNode);
-        JsonWoodProviderBuildResult result = JsonWoodProviderBuilder.INSTANCE.build(scan);
+        JsonWoodProviderTinkerResult result = JsonWoodProviderTinker.INSTANCE.build(scan);
         if (result.hasExceptions()) {
             container.addExceptions(result.getExceptions());
         }

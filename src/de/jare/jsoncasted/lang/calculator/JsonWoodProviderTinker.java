@@ -7,7 +7,6 @@
 package de.jare.jsoncasted.lang.calculator;
 
 import de.jare.jsoncasted.item.JsonItem;
-import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.parserwriter.JsonParser;
@@ -16,24 +15,24 @@ import de.jare.jsoncasted.wood.WoodProviderDefinition;
 import java.io.IOException;
 import java.util.Objects;
 
-public final class JsonWoodProviderBuilder {
+public final class JsonWoodProviderTinker {
 
-    public final static JsonWoodProviderBuilder INSTANCE = new JsonWoodProviderBuilder();
+    public final static JsonWoodProviderTinker INSTANCE = new JsonWoodProviderTinker();
 
     private final WoodProviderDefinition definition;
 
-    public JsonWoodProviderBuilder() {
+    public JsonWoodProviderTinker() {
         this(WoodProviderDefinition.getInstance());
     }
 
-    public JsonWoodProviderBuilder(WoodProviderDefinition definition) {
+    public JsonWoodProviderTinker(WoodProviderDefinition definition) {
         this.definition = Objects.requireNonNull(definition, "definition must not be null");
     }
 
-    public JsonWoodProviderBuildResult build(JsonWoodProviderScanResult scanResult) {
+    public JsonWoodProviderTinkerResult build(JsonWoodProviderScanResult scanResult) {
         Objects.requireNonNull(scanResult, "scanResult must not be null");
 
-        JsonWoodProviderBuildResult result = new JsonWoodProviderBuildResult();
+        JsonWoodProviderTinkerResult result = new JsonWoodProviderTinkerResult();
 
         for (JsonWoodProviderScanResult.ProviderNodeEntry entry : scanResult.getProviderNodes()) {
             buildEntry(entry, result);
@@ -42,7 +41,7 @@ public final class JsonWoodProviderBuilder {
         return result;
     }
 
-    private void buildEntry(JsonWoodProviderScanResult.ProviderNodeEntry entry, JsonWoodProviderBuildResult result) {
+    private void buildEntry(JsonWoodProviderScanResult.ProviderNodeEntry entry, JsonWoodProviderTinkerResult result) {
         try {
             JsonItem jsonItem = JsonParser.parse(entry.getOwnerNode(), definition, definition.getWoodProviderBox());
             Object instance = jsonItem.buildInstance();

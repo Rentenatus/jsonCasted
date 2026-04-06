@@ -13,6 +13,9 @@ import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonCollectionType;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
 import de.jare.jsoncasted.parserwriter.JsonValidationMethod;
 import java.lang.reflect.InvocationTargetException;
@@ -147,52 +150,76 @@ public class JsonClass implements JsonType {
         fields.put(key, jField);
     }
 
-    public void addField(String fName, JsonType jType) {
-        add(new JsonField(this, fName, jType, JsonValidationMethod.NONE));
+    public JsonField addField(String fName, JsonType jType) {
+        final JsonField jsonField = new JsonField(this, fName, jType, JsonValidationMethod.NONE);
+        add(jsonField);
+        return jsonField;
     }
 
-    public void addField(String fName, JsonType jType, String getterSetterNorm) {
-        add(new JsonField(this, fName, jType, getterSetterNorm, JsonValidationMethod.NONE));
+    public JsonField addField(String fName, JsonType jType, String getterSetterNorm) {
+        final JsonField jsonField = new JsonField(this, fName, jType, getterSetterNorm, JsonValidationMethod.NONE);
+        add(jsonField);
+        return jsonField;
     }
 
-    public void addField(String fName, JsonType jType, JsonCollectionType colType) {
-        add(new JsonField(this, fName, jType, colType, JsonValidationMethod.NONE));
+    public JsonField addField(String fName, JsonType jType, JsonCollectionType colType) {
+        final JsonField jsonField = new JsonField(this, fName, jType, colType, JsonValidationMethod.NONE);
+        add(jsonField);
+        return jsonField;
     }
 
-    public void addField(String fName, JsonType jType, String getter, String setter) {
-        add(new JsonField(fName, jType, getter, setter, JsonValidationMethod.NONE));
+    public JsonField addField(String fName, JsonType jType, String getter, String setter) {
+        final JsonField jsonField = new JsonField(fName, jType, getter, setter, JsonValidationMethod.NONE);
+        add(jsonField);
+        return jsonField;
     }
 
-    public void addField(String fName, JsonType jType, JsonValidationMethod jsonValidationMethod) {
-        add(new JsonField(this, fName, jType, jsonValidationMethod));
+    public JsonField addField(String fName, JsonType jType, JsonValidationMethod jsonValidationMethod) {
+        final JsonField jsonField = new JsonField(this, fName, jType, jsonValidationMethod);
+        add(jsonField);
+        return jsonField;
     }
 
-    public void addField(String fName, JsonType jType, String getterSetterNorm, JsonValidationMethod jsonValidationMethod) {
-        add(new JsonField(this, fName, jType, getterSetterNorm, jsonValidationMethod));
+    public JsonField addField(String fName, JsonType jType, String getterSetterNorm, JsonValidationMethod jsonValidationMethod) {
+        final JsonField jsonField = new JsonField(this, fName, jType, getterSetterNorm, jsonValidationMethod);
+        add(jsonField);
+        return jsonField;
     }
 
-    public void addField(String fName, JsonType jType, JsonCollectionType colType, JsonValidationMethod jsonValidationMethod) {
-        add(new JsonField(this, fName, jType, colType, jsonValidationMethod));
+    public JsonField addField(String fName, JsonType jType, JsonCollectionType colType, JsonValidationMethod jsonValidationMethod) {
+        final JsonField jsonField = new JsonField(this, fName, jType, colType, jsonValidationMethod);
+        add(jsonField);
+        return jsonField;
     }
 
-    public void addField(String fName, JsonType jType, String getter, String setter, JsonValidationMethod jsonValidationMethod) {
-        add(new JsonField(fName, jType, getter, setter, jsonValidationMethod));
+    public JsonField addField(String fName, JsonType jType, String getter, String setter, JsonValidationMethod jsonValidationMethod) {
+        final JsonField jsonField = new JsonField(fName, jType, getter, setter, jsonValidationMethod);
+        add(jsonField);
+        return jsonField;
     }
 
-    public void addCParam(String paramName, JsonType jType) {
-        add(new JsonCParam(this, paramName, jType));
+    public JsonCParam addCParam(String paramName, JsonType jType) {
+        final JsonCParam jsonCParam = new JsonCParam(this, paramName, jType);
+        add(jsonCParam);
+        return jsonCParam;
     }
 
-    public void addCParam(String paramName, JsonType jType, JsonCollectionType colType) {
-        add(new JsonCParam(this, paramName, jType, colType));
+    public JsonCParam addCParam(String paramName, JsonType jType, JsonCollectionType colType) {
+        final JsonCParam jsonCParam = new JsonCParam(this, paramName, jType, colType);
+        add(jsonCParam);
+        return jsonCParam;
     }
 
-    public void addCParam(String paramName, JsonType jType, String getter) {
-        add(new JsonCParam(paramName, jType, getter, null));
+    public JsonCParam addCParam(String paramName, JsonType jType, String getter) {
+        final JsonCParam jsonCParam = new JsonCParam(paramName, jType, getter, null);
+        add(jsonCParam);
+        return jsonCParam;
     }
 
-    public void addCParam(String paramName, JsonType jType, String getter, JsonCollectionType colType) {
-        add(new JsonCParam(paramName, jType, colType, getter, null));
+    public JsonCParam addCParam(String paramName, JsonType jType, String getter, JsonCollectionType colType) {
+        final JsonCParam jsonCParam = new JsonCParam(paramName, jType, colType, getter, null);
+        add(jsonCParam);
+        return jsonCParam;
     }
 
     /**
@@ -307,4 +334,47 @@ public class JsonClass implements JsonType {
         }
     }
 
+    public JsonTypeDescriptor describeHead() {
+        return new JsonTypeDescriptor(cName)
+                .withNodeType(nodeType)
+                .withSkippingNulls(skippingNulls);
+    }
+
+    public void describeDependencies(JsonModelDescriptor context) {
+        JsonTypeDescriptor target = context.requireType(cName);
+
+        for (String key : keys) {
+            JsonField jf = fields.get(key);
+            if (jf == null) {
+                continue;
+            }
+
+            JsonType jType = jf.getjType();
+            String targetTypeName = jType.getcName();
+
+            // Wenn dieses Feld auf eine JsonClass verweist, Abhängigkeit sicherstellen
+            JsonClass depClass = jType.getDirectClass();
+            if (depClass != null && !context.isDescribed(depClass.getcName())) {
+                JsonTypeDescriptor depHead = depClass.describeHead();
+                context.addType(depHead);
+                depClass.describeDependencies(context);
+            }
+
+            JsonFieldDescriptor fd = new JsonFieldDescriptor(
+                    jf.getfName(), // jsonName
+                    targetTypeName, // typeName
+                    jf.getCollectionType(), // JsonCollectionType 
+                    !skippingNulls, // required?
+                    jf.isConstructorParam(), // constructorParam?
+                    jf.getGetter(), // getterName (String) oder null
+                    jf.getSetter() // setterName (String) oder null
+            );
+
+            if (jf.isConstructorParam()) {
+                target.addConstructorParam(fd);
+            } else {
+                target.addField(fd);
+            }
+        }
+    }
 }

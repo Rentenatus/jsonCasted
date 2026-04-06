@@ -10,9 +10,13 @@ package de.jare.jsoncasted.model;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.builder.*;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.item.*;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -208,4 +212,24 @@ public class JsonModel {
         return newJsonMap((Class<? extends JsonInstance<?>>) clazz, skippingNulls, itemClass, type);
     }
 
+    private List<JsonClass> getOrderedClasses() {
+        List<JsonClass> ordered = new ArrayList<>(classes.values());
+        ordered.sort(Comparator.comparing(JsonClass::getcName));
+        return ordered;
+    }
+
+    public JsonModelDescriptor describe() {
+        JsonModelDescriptor context = new JsonModelDescriptor(mName);
+        List<JsonClass> ordered = getOrderedClasses();
+
+        for (JsonClass jsonClass : ordered) {
+            context.addType(jsonClass.describeHead());
+        }
+
+        for (JsonClass jsonClass : ordered) {
+            jsonClass.describeDependencies(context);
+        }
+
+        return context;
+    }
 }

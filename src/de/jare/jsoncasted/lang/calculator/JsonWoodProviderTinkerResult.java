@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public final class JsonWoodProviderBuildResult {
+public final class JsonWoodProviderTinkerResult {
 
     private final List<BuildEntry> entries = new ArrayList<>();
     private final List<JsonExceptionEntry> exceptions = new ArrayList<>();
