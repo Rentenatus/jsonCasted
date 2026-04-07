@@ -7,24 +7,16 @@
  */
 package de.jare.jsoncasted.parserwriter;
 
-import de.jare.jsoncasted.pconvertservice.JsonNodeConverter;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parserservice.JsonParserService;
-import java.io.BufferedReader;
+import de.jare.jsoncasted.pconvertservice.JsonNodeConverter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -75,4 +67,7 @@ public class JsonParser {
         return JsonNodeConverter.convert(rootNode, root, descriptor, JsonDebugLevel.SIMPLE);
     }
 
+    public static JsonItem parse(File file, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
+        return parse(file, definition.getDescriptor(), root.getcName());
+    }
 }

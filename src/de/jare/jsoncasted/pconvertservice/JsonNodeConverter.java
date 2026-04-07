@@ -13,11 +13,9 @@ import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import java.util.ArrayList;
-import java.util.Optional;
 
 /**
  * Converter to transform a JsonNode tree into the library's JsonItem model.

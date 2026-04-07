@@ -9,6 +9,7 @@ package de.jare.jsoncasted.pconvertservice;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.lang.JsonNode;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
@@ -40,7 +41,7 @@ public class JsonObjectConverter {
     JsonObjectConverter(JsonNode node, JsonTypeDescriptor contextClass, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
         this.values = node.asObjectValues();
         if (contextClass == null && values != null) {
-            final JsonNode cast = values.get("_class");
+            final JsonNode cast = values.get(TERM_CLASS);
             if (cast != null) {
                 contextClass = descriptor.getType(cast.asText());
             }
@@ -88,7 +89,7 @@ public class JsonObjectConverter {
         }
         JsonTypeDescriptor childType = descriptor.getType(field.getTypeName());
         Map<String, JsonNode> childValues = childNode.asObjectValues();
-        final JsonNode cast = childValues == null ? null : childValues.get("_class");
+        final JsonNode cast = childValues == null ? null : childValues.get(TERM_CLASS);
         if (childType == null) {
             if (cast == null) {
                 Logger.getGlobal().log(Level.WARNING, "Missing cast.");

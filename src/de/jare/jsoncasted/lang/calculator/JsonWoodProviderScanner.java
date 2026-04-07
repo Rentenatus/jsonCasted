@@ -10,10 +10,10 @@ import de.jare.jsoncasted.lang.JsonNode;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 
 public final class JsonWoodProviderScanner {
 
-    public static final String KEY_WOOD_PROVIDERS = "_woodProviders";
     public final static JsonWoodProviderScanner INSTANCE = new JsonWoodProviderScanner();
 
     public JsonWoodProviderScanResult scan(JsonNode root) {
@@ -45,7 +45,7 @@ public final class JsonWoodProviderScanner {
         children.forEach((key, childNode) -> {
             String childPath = path + "." + key;
 
-            if (KEY_WOOD_PROVIDERS.equals(key)) {
+            if (TERM_WOOD_PROVIDERS.equals(key)) {
                 result.registerProviderNode(node, childNode, path);
             }
 

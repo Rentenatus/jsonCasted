@@ -1,6 +1,7 @@
 package de.jare.jsoncasted.parser;
 
 import de.jare.jsoncasted.lang.JsonNode;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
 import de.jare.jsoncasted.parserservice.JsonParserService;
 import java.io.File;
 import java.io.FileReader;
@@ -18,7 +19,7 @@ public class JsonParserNodeInputTest {
             JsonNode node = svc.parse(fr, f.getName()).getRoot();
             de.jare.jsoncasted.lang.JsonNode childNode = node.asObjectValues().get("castedString");
             Assert.assertNotNull(childNode);
-            JsonNode cname = childNode.asObjectValues().get("_class");
+            JsonNode cname = childNode.asObjectValues().get(TERM_CLASS);
             Assert.assertTrue("hallucinated.test.clazz".equals(cname.asText()));
         }
     }
@@ -32,7 +33,7 @@ public class JsonParserNodeInputTest {
             JsonNode node = svc.parse(fr, f.getName()).getRoot();
             de.jare.jsoncasted.lang.JsonNode childNode = node.asObjectValues().get("castedValue");
             Assert.assertNotNull(childNode);
-            JsonNode cname = childNode.asObjectValues().get("_class");
+            JsonNode cname = childNode.asObjectValues().get(TERM_CLASS);
             Assert.assertTrue("hallucinated.test.clazz".equals(cname.asText()));
         }
     }

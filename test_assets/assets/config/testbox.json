@@ -1,0 +1,42 @@
+{
+
+    "one": {
+      "_class": "ValueBoolean",
+      "frage": true
+    },
+    "arr": [
+      {
+        "_class": "ValueInteger",
+        "zahl": 42
+      },
+      (ValueString){ 
+        "text": "Hallo Welt"
+      },
+      {
+        "_class": "ValueBoolean",
+        "frage": false
+      }
+    ],
+    "list": [
+      {
+        "_class": "ValueInteger",
+        "zahl": 100
+      },
+      {
+        "_class": "ValueString",
+        "text": "Test Eintrag"
+      },
+      {
+        "_class": "ValueBoolean",
+        "frage": true
+      },
+      (ValueInteger){ 
+        "zahl": -17
+      },
+      {
+        "_class": "ValueString",
+        "text": "JSON Test"
+      }
+    ]
+
+}

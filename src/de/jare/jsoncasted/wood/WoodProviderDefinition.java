@@ -11,6 +11,7 @@ import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 
 /**
  *
@@ -37,7 +38,7 @@ public class WoodProviderDefinition implements JsonItemDefinition {
         provider.addCParam("filename", asString);
 
         woodProviderBox = model.newJsonReflect(WoodProviderBox.class);
-        woodProviderBox.addCParam("_woodProviders", provider, "getProvider", LIST);
+        woodProviderBox.addCParam(TERM_WOOD_PROVIDERS, provider, "getProvider", LIST);
 
     }
 

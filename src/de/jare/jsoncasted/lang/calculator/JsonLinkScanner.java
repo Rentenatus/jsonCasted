@@ -11,6 +11,8 @@ import de.jare.jsoncasted.parserwriter.JsonParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_OBJECT_ID;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_LINK;
 
 /**
  * Scannt einen JsonNode-Baum nach WoodJJ-Id-Metadaten.
@@ -18,8 +20,7 @@ import java.util.Objects;
  */
 public final class JsonLinkScanner {
 
-    public static final String KEY_WOOD_OBJECT_ID = "_woodObjectId";
-    public static final String KEY_WOOD_LINK = "_woodLink";
+
     public final static JsonLinkScanner INSTANCE = new JsonLinkScanner();
 
     public JsonLinkScanResult scan(JsonNode root) {
@@ -69,9 +70,9 @@ public final class JsonLinkScanner {
     }
 
     private void scanObjectRegister(JsonNode node, String key, JsonNode childNode, String path, JsonLinkScanResult result) {
-        if (KEY_WOOD_OBJECT_ID.equals(key)) {
+        if (TERM_WOOD_OBJECT_ID.equals(key)) {
             if (childNode.isNull()) {
-                result.registerException(path, childNode, new NullPointerException(KEY_WOOD_OBJECT_ID + " must not be null."));
+                result.registerException(path, childNode, new NullPointerException(TERM_WOOD_OBJECT_ID + " must not be null."));
             } else {
                 try {
                     result.registerObjectId(childNode.toText(), node, path);
@@ -81,9 +82,9 @@ public final class JsonLinkScanner {
             }
         }
 
-        if (KEY_WOOD_LINK.equals(key)) {
+        if (TERM_WOOD_LINK.equals(key)) {
             if (childNode.isNull()) {
-                result.registerException(path, childNode, new NullPointerException(KEY_WOOD_LINK + " must not be null."));
+                result.registerException(path, childNode, new NullPointerException(TERM_WOOD_LINK + " must not be null."));
             } else {
                 try {
                     result.registerLinkNode(node, childNode.toText(), path);
