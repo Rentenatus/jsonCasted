@@ -71,6 +71,7 @@ public class JsonClass implements JsonType {
         return cName;
     }
 
+    @Override
     public JsonNodeType getNodeType() {
         return nodeType;
     }
@@ -334,7 +335,7 @@ public class JsonClass implements JsonType {
         }
     }
 
-    public JsonTypeDescriptor describeHead() {
+    public JsonTypeDescriptor describeHead(JsonModelDescriptor modelDescriptor) {
         return new JsonTypeDescriptor(cName)
                 .withNodeType(nodeType)
                 .withSkippingNulls(skippingNulls);
@@ -355,7 +356,7 @@ public class JsonClass implements JsonType {
             // Wenn dieses Feld auf eine JsonClass verweist, Abhängigkeit sicherstellen
             JsonClass depClass = jType.getDirectClass();
             if (depClass != null && !context.isDescribed(depClass.getcName())) {
-                JsonTypeDescriptor depHead = depClass.describeHead();
+                JsonTypeDescriptor depHead = depClass.describeHead(context);
                 context.addType(depHead);
                 depClass.describeDependencies(context);
             }

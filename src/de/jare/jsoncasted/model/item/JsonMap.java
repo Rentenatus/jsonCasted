@@ -12,6 +12,9 @@ import de.jare.jsoncasted.model.JsonCollectionType;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonMapBuilder;
+import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.parserwriter.JsonValidationMethod;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -46,6 +49,10 @@ public class JsonMap extends JsonClass implements JsonType {
     @Override
     public String getterPre(JsonType jType) {
         return "";
+    }
+
+    public JsonClass getItemClass() {
+        return itemClass;
     }
 
     /**
@@ -115,6 +122,40 @@ public class JsonMap extends JsonClass implements JsonType {
     @Override
     public String toString(Object attr) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public JsonTypeDescriptor describeHead(JsonModelDescriptor context) {
+        if (context.getType(itemClass.getcName()) == null) {
+            context.addType(itemClass.describeHead(context));
+        }
+        return super.describeHead(context);
+    }
+
+    @Override
+    public void describeDependencies(JsonModelDescriptor context) {
+
+        JsonTypeDescriptor target = context.requireType(getcName());
+
+        // Wenn dieses Feld auf eine JsonClass verweist, Abhängigkeit sicherstellen
+        JsonClass depClass = itemClass;
+        if (depClass != null && !context.isDescribed(depClass.getcName())) {
+            JsonTypeDescriptor depHead = depClass.describeHead(context);
+            context.addType(depHead);
+            depClass.describeDependencies(context);
+        }
+
+        JsonFieldDescriptor fd = new JsonFieldDescriptor(
+                "*:" + itemClass.getcName() + (colType == JsonCollectionType.NONE ? "" : "[]"),
+                itemClass.getcName(), // typeName
+                colType, // JsonCollectionType 
+                false, // required?
+                false, // constructorParam?
+                null, // getterName (String) oder null
+                null // setterName (String) oder null
+        );
+
+        target.setMappingAllFields(fd);
     }
 
 }

@@ -186,14 +186,16 @@ public class JsonModel {
         return new JsonInter(clazz.getTypeName(), new JsonReflectBuilder(this, clazz), jClass);
     }
 
-    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, JsonClass itemClass, JsonCollectionType type) {
-        JsonMap ret = new JsonMap(this, clazz.getTypeName(), clazz, itemClass, type);
+    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, JsonClass itemClass, JsonCollectionType colType) {
+        JsonMap ret = new JsonMap(this, clazz.getTypeName() + "<" + itemClass.getcName() + ">"
+                + (colType == JsonCollectionType.NONE ? "" : "[]"), clazz, itemClass, colType);
         add(ret);
         return ret;
     }
 
-    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, boolean skippingNulls, JsonClass itemClass, JsonCollectionType type) {
-        JsonMap ret = new JsonMap(this, clazz.getTypeName(), skippingNulls, clazz, itemClass, type);
+    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, boolean skippingNulls, JsonClass itemClass, JsonCollectionType colType) {
+        JsonMap ret = new JsonMap(this, clazz.getTypeName() + "<" + itemClass.getcName() + ">"
+                + (colType == JsonCollectionType.NONE ? "" : "[]"), skippingNulls, clazz, itemClass, colType);
         add(ret);
         return ret;
     }
@@ -225,7 +227,7 @@ public class JsonModel {
         List<JsonClass> ordered = getOrderedClasses();
 
         for (JsonClass jsonClass : ordered) {
-            context.addType(jsonClass.describeHead());
+            context.addType(jsonClass.describeHead(context));
         }
 
         for (JsonClass jsonClass : ordered) {

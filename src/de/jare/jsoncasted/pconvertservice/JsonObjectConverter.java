@@ -78,7 +78,10 @@ public class JsonObjectConverter {
     }
 
     protected void calculateParam(String paramName, JsonNode childNode) throws JsonParseException {
-
+        if (contextClass.getMappingAllFields() != null) {
+            calculateMapEntry(paramName, childNode);
+            return;
+        }
         JsonFieldDescriptor field = contextClass.getField(paramName);
         if (field == null) {
             return;
@@ -102,6 +105,16 @@ public class JsonObjectConverter {
             return;
         }
 
+        JsonItem paramObject = field.isAsListOrArray()
+                ? JsonNodeConverter.convertArray(childNode, childType, field.isAsList(), descriptor, debugLevel)
+                : JsonNodeConverter.convert(childNode, childType, descriptor, debugLevel);
+        myObject.putParam(paramName, paramObject);
+
+    }
+
+    protected void calculateMapEntry(String paramName, JsonNode childNode) throws JsonParseException {
+        JsonFieldDescriptor field = contextClass.getMappingAllFields();
+        JsonTypeDescriptor childType = descriptor.getType(field.getTypeName());
         JsonItem paramObject = field.isAsListOrArray()
                 ? JsonNodeConverter.convertArray(childNode, childType, field.isAsList(), descriptor, debugLevel)
                 : JsonNodeConverter.convert(childNode, childType, descriptor, debugLevel);

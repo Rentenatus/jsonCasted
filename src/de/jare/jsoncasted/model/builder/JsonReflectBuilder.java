@@ -91,9 +91,6 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
                 return null;
             }
         }
-        if (jClass.getcName().equals("de.jare.supply.earth.AssociationSeassionInt")) {
-            System.out.println();
-        }
         Object ob = createInstance(jClass, jsonItem);
         Iterator<String> it = jClass.keysForBuildIterator();
         while (it.hasNext()) {

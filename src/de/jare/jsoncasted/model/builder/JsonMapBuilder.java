@@ -143,7 +143,6 @@ public class JsonMapBuilder implements JsonModellClassBuilder {
     /**
      * Not supported for this builder.
      *
-     * @param ob Object
      * @return none
      * @throws UnsupportedOperationException
      */

@@ -9,12 +9,14 @@ package de.jare.jsonconfig.def;
 
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonInstance;
+import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonBuildException;
 import static de.jare.jsoncasted.model.JsonCollectionType.ARRAY;
 import static de.jare.jsoncasted.model.JsonCollectionType.LIST;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonReflectBuilder;
+import de.jare.jsoncasted.model.builder.JsonStringBuilder;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
 import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
@@ -48,14 +50,15 @@ public class JsonConfigDefinition implements JsonItemDefinition {
     public JsonConfigDefinition() {
         model = new JsonModel("Seed");
         model.addBasicModel();
+
         final JsonClass asString = model.getJsonClass("String");
         final JsonClass asBoolean = model.getJsonClass("Boolean");
 
         JsonClass profileType = model.newJsonEnumByName(ConfigProfileType.class);
 
-        JsonMap stringMap = model.newRawJsonMap((new JsonInstance<String>()).getClass(), asString);
-        JsonMap stringArrayMap = model.newRawJsonMap((new JsonInstance<String[]>()).getClass(), asString, ARRAY);
-        JsonMap booleanMap = model.newRawJsonMap((new JsonInstance<Boolean>()).getClass(), asBoolean);
+        JsonMap stringMap = model.newRawJsonMap(JsonInstance.class, asString);
+        JsonMap stringArrayMap = model.newRawJsonMap(JsonInstance.class, asString, ARRAY);
+        JsonMap booleanMap = model.newRawJsonMap(JsonInstance.class, asBoolean);
 
         JsonClass logging = model.newJsonReflect(ConfigLogging.class);
 

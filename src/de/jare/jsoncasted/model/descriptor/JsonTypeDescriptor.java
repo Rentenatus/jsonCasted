@@ -1,7 +1,6 @@
 package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.jsoncasted.lang.JsonNodeType;
-import de.jare.jsoncasted.model.item.JsonClass;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,18 +19,27 @@ public class JsonTypeDescriptor {
     private final List<JsonFieldDescriptor> constructorParams = new ArrayList<>();
     private final List<JsonFieldDescriptor> fields = new ArrayList<>();
 
-    private String javaClassName;
     private JsonNodeType nodeType;
     private boolean skippingNulls;
     private boolean primitive;
     private boolean reflective;
+    private JsonFieldDescriptor mappingAllFields;
 
     public JsonTypeDescriptor(String typeName) {
         this.typeName = Objects.requireNonNull(typeName, "typeName");
+        this.mappingAllFields = null;
     }
 
     public String getTypeName() {
         return typeName;
+    }
+
+    public JsonFieldDescriptor getMappingAllFields() {
+        return mappingAllFields;
+    }
+
+    public void setMappingAllFields(JsonFieldDescriptor mappingAllFields) {
+        this.mappingAllFields = mappingAllFields;
     }
 
     public List<JsonFieldDescriptor> getConstructorParams() {
@@ -78,10 +86,6 @@ public class JsonTypeDescriptor {
         return null;
     }
 
-    public String getJavaClassName() {
-        return javaClassName;
-    }
-
     public JsonNodeType getNodeType() {
         return nodeType;
     }
@@ -113,12 +117,6 @@ public class JsonTypeDescriptor {
         return this;
     }
 
-    public JsonTypeDescriptor withJavaClassName(String javaClassName) {
-        this.javaClassName = javaClassName;
-        this.reflective = javaClassName != null && !javaClassName.isBlank();
-        return this;
-    }
-
     public JsonTypeDescriptor withNodeType(JsonNodeType nodeType) {
         this.nodeType = nodeType;
         return this;
@@ -142,10 +140,6 @@ public class JsonTypeDescriptor {
         return constructorParams.size();
     }
 
-    public boolean hasJavaClassName() {
-        return javaClassName != null && !javaClassName.isBlank();
-    }
-
     public void validate() {
         if (typeName.isBlank()) {
             throw new IllegalStateException("typeName is blank");
@@ -166,7 +160,6 @@ public class JsonTypeDescriptor {
     public String toString() {
         return "JsonTypeDescriptor["
                 + "typeName=" + typeName
-                + ", javaClassName=" + javaClassName
                 + ", nodeType=" + nodeType
                 + ", primitive=" + primitive
                 + ", reflective=" + reflective

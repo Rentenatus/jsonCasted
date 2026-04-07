@@ -12,6 +12,7 @@ import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
+import de.jare.jsoncasted.model.item.JsonMap;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -83,6 +84,10 @@ public class ObjectWriter {
      * type.
      */
     protected JsonClass calculateJsonClass(Object ob) throws NullPointerException, ClassCastException {
+        if (jType instanceof JsonMap jMap) {
+            JsonClass itemClass = jMap.getItemClass();
+            return itemClass;
+        }
         JsonClass jClass = definition.getModel().getJsonClass(ob.getClass());
         if (jClass == null) {
             final String msg = "No description found for " + ob.getClass().getTypeName() + ".";
@@ -172,12 +177,15 @@ public class ObjectWriter {
     protected void writeAttr(PrintWriter out, JsonField jField, Object attr, String iString) {
         if (attr == null) {
             out.print(" null");
-        } else if (jField.isAsListOrArray()) {
-            writeList(out, jField.getjType(), attr, iString);
-        } else if (jField.getjType().isPrimitive()) {
-            writePrimitive(out, jField.getjType(), attr, iString);
+            return;
+        }
+        final JsonType fieldType = jField.getjType();
+        if (jField.isAsListOrArray()) {
+            writeList(out, fieldType, attr, iString);
+        } else if (fieldType.isPrimitive()) {
+            writePrimitive(out, fieldType, attr, iString);
         } else {
-            writeObject(out, jField.getjType(), attr, iString);
+            writeObject(out, fieldType, attr, iString);
         }
     }
 
