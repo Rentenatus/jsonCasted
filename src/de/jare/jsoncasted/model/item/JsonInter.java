@@ -12,6 +12,8 @@ import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -167,5 +169,14 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
     @Override
     public boolean needCast(JsonCastingLevel level) {
         return JsonCastingLevel.NEVER != level;
+    }
+
+    public JsonTypeDescriptor describeHead(JsonModelDescriptor context) {
+        final JsonTypeDescriptor ret = new JsonTypeDescriptor(cName)
+                .withNodeType(JsonNodeType.OBJECT);
+        for (JsonClass next : this) {
+            ret.addImplementor(context.getType(next.getcName()));
+        }
+        return ret;
     }
 }

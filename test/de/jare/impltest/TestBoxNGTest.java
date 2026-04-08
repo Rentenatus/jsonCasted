@@ -8,7 +8,9 @@ import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.JsonBuildException;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.parserservice.JsonParserService;
+import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.parserwriter.JsonParser;
 import de.jare.jsoncasted.writer.inner.RootObjectWriter;
@@ -86,7 +88,8 @@ public class TestBoxNGTest {
             System.out.println(res.getExpectedBox());
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
-            obj1 = JsonParser.parse(node, definition.getDescriptor(), definition.getTestBox().getcName());
+            final JsonModelDescriptor descriptor = definition.getDescriptor();
+            obj1 = JsonParser.parse(node, descriptor, definition.getTestBox().getcName(), JsonDebugLevel.INFO);
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);

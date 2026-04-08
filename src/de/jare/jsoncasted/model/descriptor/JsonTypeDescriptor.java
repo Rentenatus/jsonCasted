@@ -107,7 +107,7 @@ public class JsonTypeDescriptor {
         return this;
     }
 
-    public JsonTypeDescriptor addConstructorParam(JsonTypeDescriptor implementor) {
+    public JsonTypeDescriptor addImplementor(JsonTypeDescriptor implementor) {
         implementors.add(Objects.requireNonNull(implementor, "implementor"));
         return this;
     }

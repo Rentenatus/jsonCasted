@@ -7,6 +7,10 @@
  */
 package de.jare.jsoncasted.parserwriter;
 
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * The JsonDebugLevel enum defines different levels of debugging information.
  * Each level determines the severity of the debug messages that should be
@@ -76,4 +80,21 @@ public enum JsonDebugLevel {
     public boolean satisfyInfo() {
         return key >= INFO.getKey();
     }
+
+    /**
+     * Print info, if sytasfied.
+     *
+     * dl.info(() -> new InfoTuple( "Wrong cast: {0} implements {1}",
+     * cast.asText(), childType.getTypeName()));
+     *
+     * @param block
+     */
+    public void info(Supplier<DebugTuple> block) {
+        if (!satisfyInfo()) {
+            return; // Block wird NICHT ausgewertet
+        }
+        DebugTuple t = block.get(); // Lazy evaluation
+        Logger.getGlobal().log(Level.INFO, t.info(), t.args());
+    }
+
 }

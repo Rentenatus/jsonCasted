@@ -62,6 +62,26 @@ public class JsonModelDescriptor {
         return describedTypes.get(typeName);
     }
 
+    public JsonTypeDescriptor getTypePerceptive(String typeName) {
+        if (typeName == null) {
+            return null;
+        }
+        final JsonTypeDescriptor ret = describedTypes.getOrDefault(typeName, null);
+        if (ret != null) {
+            return ret;
+        }
+        if (typeName.contains(".")) {
+            return null;
+        }
+        String endingName = "." + typeName;
+        for (String key : describedTypes.keySet()) {
+            if (key.endsWith(endingName)) {
+                return getType(key);
+            }
+        }
+        return null;
+    }
+
     public JsonTypeDescriptor requireType(String typeName) {
         JsonTypeDescriptor type = describedTypes.get(typeName);
         if (type == null) {

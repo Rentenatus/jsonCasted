@@ -29,6 +29,7 @@ import java.util.Set;
 public class JsonModel {
 
     private final HashMap<String, JsonClass> classes;
+    private final HashMap<String, JsonInter> interfaces;
     private final String mName;
     private JsonModelDescriptor descriptor;
 
@@ -40,7 +41,8 @@ public class JsonModel {
     public JsonModel(String mName) {
         this.mName = mName;
         this.descriptor = null;
-        classes = new HashMap<>();
+        this.classes = new HashMap<>();
+        this.interfaces = new HashMap<>();
     }
 
     /**
@@ -183,7 +185,9 @@ public class JsonModel {
     }
 
     public JsonInter newJsonInterface(Class<?> clazz, JsonClass... jClass) {
-        return new JsonInter(clazz.getTypeName(), new JsonReflectBuilder(this, clazz), jClass);
+        final JsonInter ret = new JsonInter(clazz.getTypeName(), new JsonReflectBuilder(this, clazz), jClass);
+        interfaces.put(ret.getcName(), ret);
+        return ret;
     }
 
     public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, JsonClass itemClass, JsonCollectionType colType) {
@@ -216,21 +220,47 @@ public class JsonModel {
         return newJsonMap((Class<? extends JsonInstance<?>>) clazz, skippingNulls, itemClass, type);
     }
 
-    private List<JsonClass> getOrderedClasses() {
-        List<JsonClass> ordered = new ArrayList<>(classes.values());
-        ordered.sort(Comparator.comparing(JsonClass::getcName));
+    private List<JsonClass> getClassesList() {
+        List<JsonClass> ordered = new ArrayList<>(classes.size());
+        for (JsonClass jc : classes.values()) {
+            if (!jc.getcName().contains(".")) {
+                ordered.add(jc);
+            }
+        }
+        for (JsonClass jc : classes.values()) {
+            if (jc.getcName().contains(".")) {
+                ordered.add(jc);
+            }
+        }
+        return ordered;
+    }
+
+    private List<JsonInter> getOrderedInterfacesList() {
+        List<JsonInter> ordered = new ArrayList<>(interfaces.values());
+        ordered.sort(Comparator.comparing(JsonInter::getcName));
         return ordered;
     }
 
     public JsonModelDescriptor describe() {
         JsonModelDescriptor context = new JsonModelDescriptor(mName);
-        List<JsonClass> ordered = getOrderedClasses();
+        List<JsonClass> orderedClasses = getClassesList();
+        List<JsonInter> orderedInterfaces = getOrderedInterfacesList();
 
-        for (JsonClass jsonClass : ordered) {
+        for (JsonClass jsonClass : orderedClasses) {
             context.addType(jsonClass.describeHead(context));
         }
 
-        for (JsonClass jsonClass : ordered) {
+        for (JsonInter jsonInter : orderedInterfaces) {
+            for (JsonClass next : jsonInter) {
+                if (!context.containsType(next.getcName())) {
+                    context.addType(next.describeHead(context));
+                    orderedClasses.add(next);
+                }
+            }
+            context.addType(jsonInter.describeHead(context));
+        }
+
+        for (JsonClass jsonClass : orderedClasses) {
             jsonClass.describeDependencies(context);
         }
 
