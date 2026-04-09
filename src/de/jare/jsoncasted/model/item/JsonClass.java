@@ -113,8 +113,7 @@ public class JsonClass implements JsonType {
         return parent;
     }
 
-    @Override
-    public boolean contains(JsonClass check) {
+    public boolean isSubOf(JsonType check) {
         if (check == null) {
             return false;
         }
@@ -130,7 +129,21 @@ public class JsonClass implements JsonType {
         if (parent == null) {
             return false;
         }
-        return parent.contains(check);
+        return parent.isSubOf(check);
+    }
+
+    @Override
+    public boolean contains(JsonType check) {
+        if (check == null) {
+            return false;
+        }
+        if (check == this) {
+            return true;
+        }
+        if (check.getcName() == null || this.getcName() == null) {
+            return false;
+        }
+        return check.getcName().equals(this.getcName()) && check.getNodeType() == this.getNodeType();
     }
 
     public Object build(JsonItem jsonItem) throws JsonBuildException {
@@ -346,11 +359,31 @@ public class JsonClass implements JsonType {
 
     @Override
     public boolean needCast(JsonCastingLevel level) {
-        return JsonCastingLevel.ALWAYS == level;
+        if (JsonCastingLevel.ALWAYS_CAST == level) {
+            return true;
+        }
+        if (JsonCastingLevel.NECESSARY_CAST != level) {
+            return false;
+        }
+        return parent != null;
+    }
+
+    @Override
+    public boolean needClassDef(JsonCastingLevel level) {
+        if (JsonCastingLevel.ALWAYS_CLASS_DEF == level) {
+            return true;
+        }
+        if (JsonCastingLevel.NECESSARY_CLASS_DEF != level) {
+            return false;
+        }
+        return parent != null;
     }
 
     public void addFromSuperclass(JsonClass parent) {
         if (parent.getParent() != null) {
+            if (parent.getcName().equals(cName)) {
+                throw new IllegalArgumentException("A class cannot be its own superclass.");
+            }
             addFromSuperclass(parent.getParent());
         }
         Iterator<JsonField> it = parent.fieldsIterator();
@@ -369,6 +402,10 @@ public class JsonClass implements JsonType {
 
     public void describeDependencies(JsonModelDescriptor context) {
         JsonTypeDescriptor target = context.requireType(cName);
+        if (parent != null) {
+            JsonTypeDescriptor parentDescr = context.getOrDefault(parent.getcName(), null);
+            target.setParent(parentDescr);
+        }
 
         for (String key : keys) {
             JsonField jf = fields.get(key);
@@ -404,4 +441,5 @@ public class JsonClass implements JsonType {
             }
         }
     }
+
 }

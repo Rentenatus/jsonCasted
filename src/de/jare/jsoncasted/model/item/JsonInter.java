@@ -105,7 +105,7 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
      * @return true if the class is included, false otherwise.
      */
     @Override
-    public boolean contains(JsonClass check) {
+    public boolean contains(JsonType check) {
         if (check == null) {
             return false;
         }
@@ -168,7 +168,12 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
      */
     @Override
     public boolean needCast(JsonCastingLevel level) {
-        return JsonCastingLevel.NEVER != level;
+        return JsonCastingLevel.ALWAYS_CAST == level || JsonCastingLevel.NECESSARY_CAST == level;
+    }
+
+    @Override
+    public boolean needClassDef(JsonCastingLevel level) {
+        return JsonCastingLevel.ALWAYS_CLASS_DEF == level || JsonCastingLevel.NECESSARY_CLASS_DEF == level;
     }
 
     public JsonTypeDescriptor describeHead(JsonModelDescriptor context) {

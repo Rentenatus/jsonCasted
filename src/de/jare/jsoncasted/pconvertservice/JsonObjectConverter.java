@@ -147,8 +147,12 @@ public class JsonObjectConverter {
             );
         } else if (cast != null) {
             final List<JsonTypeDescriptor> implementors = suspectedType.getImplementors();
-            if (!implementors.isEmpty()) {
-                final JsonTypeDescriptor candidate = descriptor.getTypePerceptive(cast.asText());
+            final JsonTypeDescriptor candidate = descriptor.getTypePerceptive(cast.asText());
+            if (implementors.isEmpty()) {
+                if (candidate.containsSuper(suspectedType)) {
+                    castedChildType = candidate;
+                }
+            } else {
                 if (candidate == null) {
                     Logger.getGlobal().log(Level.SEVERE, "Unknown class: {0}", cast.asText());
                     return null;
@@ -169,6 +173,7 @@ public class JsonObjectConverter {
                     return null;
                 }
             }
+
         }
         return castedChildType;
     }

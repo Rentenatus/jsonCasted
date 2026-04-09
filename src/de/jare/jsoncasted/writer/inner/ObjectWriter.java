@@ -95,7 +95,7 @@ public class ObjectWriter {
             Logger.getGlobal().log(Level.SEVERE, msg, ex);
             throw ex;
         }
-        if (jType != null && !jType.contains(jClass)) {
+        if (jType != null && !jType.contains(jClass) && !jClass.isSubOf(jType)) {
             final String msg = "Item has the class '" + jClass.getcName()
                     + "', but the root should have been '" + jType.getcName() + "'.";
             final ClassCastException ex = new ClassCastException(msg);
@@ -130,10 +130,20 @@ public class ObjectWriter {
             out.print(')');
         }
         out.print('{');
+        String iString = intentString + "  ";
+        if (jType != null && jType.needClassDef(definition.getCastingLevel())) {
+            out.println();
+            out.print(iString);
+            out.print("\"_class\": \"");
+            out.print(jClass.getcName());
+            out.print('\"');
+            if (jClass.hasFieldKeys(ob)) {
+                out.print(',');
+            }
+        }
         if (jClass.hasFieldKeys(ob)) {
             out.println();
         }
-        String iString = intentString + "  ";
         Iterator<String> it = jClass.keysForWriteIterator(ob);
         boolean isFollowing = false;
 

@@ -24,6 +24,7 @@ public class JsonTypeDescriptor {
     private boolean primitive;
     private boolean reflective;
     private JsonFieldDescriptor mappingAllFields;
+    private JsonTypeDescriptor parent;
 
     public JsonTypeDescriptor(String typeName) {
         this.typeName = Objects.requireNonNull(typeName, "typeName");
@@ -32,6 +33,24 @@ public class JsonTypeDescriptor {
 
     public String getTypeName() {
         return typeName;
+    }
+
+    public JsonTypeDescriptor getParent() {
+        return parent;
+    }
+
+    public void setParent(JsonTypeDescriptor parent) {
+        this.parent = parent;
+    }
+
+    public boolean containsSuper(JsonTypeDescriptor suspectedType) {
+        if (parent == null) {
+            return false;
+        }
+        if (parent.getTypeName().equals(suspectedType.getTypeName()) && parent.getNodeType() == suspectedType.getNodeType()) {
+            return true;
+        }
+        return parent.containsSuper(suspectedType);
     }
 
     public JsonFieldDescriptor getMappingAllFields() {

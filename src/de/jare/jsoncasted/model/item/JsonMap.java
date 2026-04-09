@@ -68,7 +68,7 @@ public class JsonMap extends JsonClass implements JsonType {
     }
 
     @Override
-    public boolean contains(JsonClass check) {
+    public boolean contains(JsonType check) {
         return (check instanceof JsonMap);
     }
 

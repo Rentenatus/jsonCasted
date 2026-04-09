@@ -50,7 +50,7 @@ public class ImplTestDefinition implements JsonItemDefinition {
         JsonClass valueStringSub = model.newJsonReflect(ValueStringSub.class, valueString);
         // valueStringSub.addCParam("text", asString); // passin on valueString
 
-        JsonClass valueStringSubSub = model.newJsonReflect(ValueStringSub.class, valueStringSub);
+        JsonClass valueStringSubSub = model.newJsonReflect(ValueStringSubSub.class, valueStringSub);
         // valueStringSubSub.addCParam("text", asString); // passin on valueStringSub
         valueStringSubSub.addCParam("frage", asBoolean, "getFrage");
 
@@ -75,6 +75,6 @@ public class ImplTestDefinition implements JsonItemDefinition {
 
     @Override
     public JsonCastingLevel getCastingLevel() {
-        return JsonCastingLevel.NEVER;
+        return JsonCastingLevel.NECESSARY_CLASS_DEF;
     }
 }

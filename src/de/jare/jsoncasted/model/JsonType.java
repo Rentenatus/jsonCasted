@@ -35,7 +35,7 @@ public interface JsonType {
      * @param check Vorschlag.
      * @return true, wenns passt.
      */
-    public boolean contains(JsonClass check);
+    public boolean contains(JsonType check);
 
     public Object build(Iterator<JsonItem> listIterator, boolean asList, int size) throws JsonBuildException;
 
@@ -50,6 +50,8 @@ public interface JsonType {
     public Collection<?> asList(Object ob);
 
     public boolean needCast(JsonCastingLevel level);
+
+    public boolean needClassDef(JsonCastingLevel level);
 
     public default String setterPre(JsonType jType) {
         return jType.ownSetterPre();
