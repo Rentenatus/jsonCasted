@@ -5,7 +5,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.parserwriter;
+package de.jare.debug;
 
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -87,7 +87,8 @@ public enum JsonDebugLevel {
      * dl.info(() -> new InfoTuple( "Wrong cast: {0} implements {1}",
      * cast.asText(), childType.getTypeName()));
      *
-     * @param block
+     * @param block A function, which when called, produces the desired log
+     * message and param Objects.
      */
     public void info(Supplier<DebugTuple> block) {
         if (!satisfyInfo()) {
@@ -97,4 +98,37 @@ public enum JsonDebugLevel {
         Logger.getGlobal().log(Level.INFO, t.info(), t.args());
     }
 
+    /**
+     * Print info, if sytasfied.
+     *
+     * dl.info(() -> new InfoTuple( "Wrong cast: {0} implements {1}",
+     * cast.asText(), childType.getTypeName()));
+     *
+     * @param block A function, which when called, produces the desired log
+     * message and param Objects.
+     */
+    public void warning(Supplier<DebugTuple> block) {
+        if (!satisfyWarning()) {
+            return; // Block wird NICHT ausgewertet
+        }
+        DebugTuple t = block.get(); // Lazy evaluation
+        Logger.getGlobal().log(Level.WARNING, t.info(), t.args());
+    }
+
+    /**
+     * Print info, if sytasfied.
+     *
+     * dl.info(() -> new InfoTuple( "Wrong cast: {0} implements {1}",
+     * cast.asText(), childType.getTypeName()));
+     *
+     * @param thrown
+     * @param msgSupplier A function, which when called, produces the desired
+     * log message
+     */
+    public void warning(Throwable thrown, Supplier<String> msgSupplier) {
+        if (!satisfyWarning()) {
+            return; // Block wird NICHT ausgewertet
+        }
+        Logger.getGlobal().log(Level.WARNING, thrown, msgSupplier);
+    }
 }

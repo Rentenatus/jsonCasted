@@ -1,4 +1,4 @@
-package de.jare.jsoncasted.parserwriter;
+package de.jare.debug;
 
 /**
  *

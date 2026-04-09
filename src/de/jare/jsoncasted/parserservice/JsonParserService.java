@@ -6,8 +6,8 @@
  */
 package de.jare.jsoncasted.parserservice;
 
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.lang.JsonResource;
-import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import java.io.*;
 import java.net.URL;

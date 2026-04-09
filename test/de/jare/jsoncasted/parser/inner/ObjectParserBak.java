@@ -7,6 +7,7 @@
  */
 package de.jare.jsoncasted.parser.inner;
 
+import de.jare.debug.DebugTuple;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonListBak;
 import de.jare.jsoncasted.item.JsonObjectBak;
@@ -15,7 +16,7 @@ import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.parserservice.ParseStreamReader;
-import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import java.io.IOException;
@@ -69,7 +70,7 @@ public class ObjectParserBak {
             }
             JsonClass castClass = null;
             JsonField field = paramField(paramKey(paramName));
-            if (field == null && psr.getDebbugLevel().satisfyWarning()) {
+            if (field == null && psr.getDebugLevel().satisfyWarning()) {
                 Logger.getGlobal().log(Level.WARNING, "The field {0} not found in {1}.", new Object[]{
                     paramName == null ? "null" : paramName.getStringValue(), aClass == null ? "null" : aClass.getcName()});
             }
@@ -77,7 +78,7 @@ public class ObjectParserBak {
             while (psr.hasNext()) {
                 char c = psr.next();
                 if (c == '}') {
-                    appendParam(myObject, paramName, paramValue, sb.toString(), psr.getDebbugLevel());
+                    appendParam(myObject, paramName, paramValue, sb.toString(), psr.getDebugLevel());
                     return myObject;
                 }
                 if (c == '"') {
@@ -95,7 +96,7 @@ public class ObjectParserBak {
                     checkDoubleParam(paramValue, paramName, psr.getZeile());
                     paramValue = new ObjectParserBak(definition, paramClass(field, castClass)).parse(psr);
                 } else if (c == ',') {
-                    appendParam(myObject, paramName, paramValue, sb.toString(), psr.getDebbugLevel());
+                    appendParam(myObject, paramName, paramValue, sb.toString(), psr.getDebugLevel());
                     break;
                 } else {
                     sb.append(c);
@@ -113,13 +114,13 @@ public class ObjectParserBak {
         }
     }
 
-    protected void appendParam(JsonObjectBak myObject, JsonValueBak paramName, JsonItem paramValue, String alternativ, JsonDebugLevel debbugLevel) {
+    protected void appendParam(JsonObjectBak myObject, JsonValueBak paramName, JsonItem paramValue, String alternativ, JsonDebugLevel debugLevel) {
         String key = paramKey(paramName);
         JsonField field = paramField(key);
         final String cName = aClass == null ? "null" : aClass.getcName();
         if (paramValue == null) {
             myObject.putParam(key, new JsonValueBak(alternativ.trim(), paramClass(field, null)));
-            if (aClass != null && debbugLevel.satisfyInfo()) {
+            if (aClass != null && debugLevel.satisfyInfo()) {
                 // nur interesssant, wenn aClass sinnvoll ist.
                 Logger.getGlobal().log(Level.INFO, "The key {0} of {1} is set to string {2}.", new Object[]{
                     key, cName, alternativ.trim()});
@@ -128,7 +129,7 @@ public class ObjectParserBak {
         }
         if (field == null) {
             myObject.putParam(key, paramValue);
-            if (aClass != null && debbugLevel.satisfyInfo()) {
+            if (aClass != null && debugLevel.satisfyInfo()) {
                 // nur interesssant, wenn aClass sinnvoll ist.
                 Logger.getGlobal().log(Level.INFO, "The key {0} of {1} is set to {2}.", new Object[]{
                     key, cName, paramValue.getStringValue()});
@@ -139,14 +140,13 @@ public class ObjectParserBak {
             ArrayList<JsonItem> list = new ArrayList<>(1);
             list.add(paramValue);
             myObject.putParam(key, new JsonListBak(list, field.isAsList(), field.getjType()));
-            if (debbugLevel.satisfyWarning()) {
-                Logger.getGlobal().log(Level.WARNING, "The field {0} of {1} is a list, but the value is not. Convert the value to a single-element list.", new Object[]{
-                    field.getfName(), cName});
-            }
+            debugLevel.warning(() -> new DebugTuple(
+                    "The field {0} of {1} is a list, but the value is not. Convert the value to a single-element list.",
+                    field.getfName(), cName));
             return;
         }
         myObject.putParam(key, paramValue);
-        if (debbugLevel.satisfyInfo()) {
+        if (debugLevel.satisfyInfo()) {
             Logger.getGlobal().log(Level.INFO, "The field {0} of {1} is set to {2}.", new Object[]{
                 field.getfName(), cName, paramValue.getStringValue()});
         }

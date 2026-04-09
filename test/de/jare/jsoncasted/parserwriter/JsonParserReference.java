@@ -7,6 +7,7 @@
  */
 package de.jare.jsoncasted.parserwriter;
 
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.parserservice.ParseStreamReader;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.model.item.JsonClass;
@@ -29,42 +30,42 @@ import java.util.logging.Logger;
  */
 public class JsonParserReference {
 
-    public static JsonItem parse(String s, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
+    public static JsonItem parse(String s, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
           StringReader in = new StringReader(s);
-          return parse(in, definition, root, debbugLevel);
+          return parse(in, definition, root, debugLevel);
       }
 
-      public static JsonItem parse(File file, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
+      public static JsonItem parse(File file, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
           FileReader in;
           try {
               in = new FileReader(file);
-              return parse(in, definition, root, debbugLevel);
+              return parse(in, definition, root, debugLevel);
           } catch (FileNotFoundException ex) {
               Logger.getGlobal().log(Level.SEVERE, null, ex);
           }
           return null;
       }
 
-      public static JsonItem parse(final URL url1, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
+      public static JsonItem parse(final URL url1, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
           BufferedReader in;
           try {
               final InputStreamReader inputStreamReader = new InputStreamReader(url1.openStream());
               in = new BufferedReader(inputStreamReader);
-              return parse(in, definition, root, debbugLevel);
+              return parse(in, definition, root, debugLevel);
           } catch (FileNotFoundException ex) {
               Logger.getGlobal().log(Level.SEVERE, null, ex);
           }
           return null;
       }
 
-      public static JsonItem parse(Reader in, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debbugLevel) throws IOException, JsonParseException {
-          ParseStreamReader psr = new ParseStreamReader(in, debbugLevel);
+      public static JsonItem parse(Reader in, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws IOException, JsonParseException {
+          ParseStreamReader psr = new ParseStreamReader(in, debugLevel);
           return new RootParserBak(definition, root).parse(psr);
       }
 
-      public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass, JsonDebugLevel debbugLevel) throws JsonParseException, IOException {
+      public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
           JsonClass jClass = definition.getModel().getJsonClass(aClass);
-          return parse(file, definition, jClass, debbugLevel);
+          return parse(file, definition, jClass, debugLevel);
       }
 
       public static JsonItem parse(String s, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {

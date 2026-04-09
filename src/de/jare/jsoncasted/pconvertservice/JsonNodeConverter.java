@@ -6,6 +6,7 @@
  */
 package de.jare.jsoncasted.pconvertservice;
 
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonList;
 import de.jare.jsoncasted.item.JsonValue;
@@ -13,7 +14,6 @@ import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import java.util.ArrayList;
 

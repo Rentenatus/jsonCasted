@@ -9,7 +9,7 @@ package de.jare.jsoncasted.parser.inner;
 
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.parserservice.ParseStreamReader;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class CastingParserBak {
             while (psr.hasNext()) {
                 char c = psr.next();
                 if (c == ')') {
-                    return search(sb, psr.getZeile(), psr.getDebbugLevel());
+                    return search(sb, psr.getZeile(), psr.getDebugLevel());
                 }
                 sb.append(c);
             }
@@ -48,7 +48,7 @@ public class CastingParserBak {
         throw new JsonParseException("End of file without end of cast.");
     }
 
-    private JsonClass search(StringBuilder sb, int zeile, JsonDebugLevel debbugLevel) {
+    private JsonClass search(StringBuilder sb, int zeile, JsonDebugLevel debugLevel) {
         String cName = sb.toString().trim();
         JsonClass found = definition.getModel().getJsonClass(cName);
         if (found == null) {
@@ -60,7 +60,7 @@ public class CastingParserBak {
         if (aType != null && !aType.contains(found)) {
             throw new RuntimeException("JsonClass '" + cName + "' not allowed. (:" + zeile + ")");
         }
-        if (debbugLevel.satisfyInfo()) {
+        if (debugLevel.satisfyInfo()) {
             Logger.getGlobal().log(Level.INFO, "JsonClass '{0}' found for casting.", new Object[]{cName});
         }
         return found;

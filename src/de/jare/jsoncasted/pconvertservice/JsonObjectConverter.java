@@ -6,6 +6,8 @@
  */
 package de.jare.jsoncasted.pconvertservice;
 
+import de.jare.debug.DebugTuple;
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.lang.JsonNode;
@@ -13,8 +15,6 @@ import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.parserwriter.DebugTuple;
-import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,14 +74,12 @@ public class JsonObjectConverter {
             try {
                 calculateParam(paramName, childNode);
             } catch (JsonParseException ex) {
-                if (debugLevel.satisfyWarning()) {
-                    Logger.getGlobal().log(
-                            Level.WARNING,
-                            "[WARNING] " + contextClass.getTypeName() + "." + paramName
-                            + ": Convert failed.",
-                            ex
-                    );
-                }
+                debugLevel.warning(() -> new DebugTuple(
+                        "[WARNING] " + contextClass.getTypeName() + "." + paramName
+                        + ": Convert failed.",
+                        ex
+                ));
+
                 exList.add(ex);
             }
         });

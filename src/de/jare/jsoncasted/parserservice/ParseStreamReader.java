@@ -7,7 +7,7 @@
  */
 package de.jare.jsoncasted.parserservice;
 
-import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.tools.SimpleStringSplitter;
 import java.io.BufferedReader;
@@ -23,19 +23,19 @@ import java.util.logging.Logger;
 public class ParseStreamReader implements SimpleStringSplitter {
 
     private final BufferedReader in;
-    private final JsonDebugLevel debbugLevel;
+    private final JsonDebugLevel debugLevel;
     private String line;
     private boolean end;
     private int pos;
     private int zeile;
 
-    public ParseStreamReader(Reader in, JsonDebugLevel debbugLevel) {
+    public ParseStreamReader(Reader in, JsonDebugLevel debugLevel) {
         this.in = new BufferedReader(in);
         this.line = null;
         this.end = false;
         this.pos = 0;
         this.zeile = 0;
-        this.debbugLevel = debbugLevel == null ? JsonDebugLevel.SIMPLE : debbugLevel;
+        this.debugLevel = debugLevel == null ? JsonDebugLevel.SIMPLE : debugLevel;
     }
 
     public boolean hasNext() throws IOException {
@@ -53,7 +53,7 @@ public class ParseStreamReader implements SimpleStringSplitter {
                     return false;
                 }
                 final int simpleCount = simpleCount(line, "\"");
-                if ((simpleCount & 1) == 1 && debbugLevel.satisfyWarning()) {
+                if ((simpleCount & 1) == 1 && debugLevel.satisfyWarning()) {
                     Logger.getGlobal().log(Level.WARNING, "Line {0} has {1} quotation ''\"''.", new Object[]{zeile, simpleCount});
                 }
             }
@@ -100,8 +100,8 @@ public class ParseStreamReader implements SimpleStringSplitter {
         }
     }
 
-    public JsonDebugLevel getDebbugLevel() {
-        return debbugLevel;
+    public JsonDebugLevel getDebugLevel() {
+        return debugLevel;
     }
 
 }
