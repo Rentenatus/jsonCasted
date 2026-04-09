@@ -11,9 +11,12 @@ import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.item.JsonInter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The JsonList class represents a JSON array structure. It stores a list of
@@ -165,6 +168,11 @@ public class JsonList implements JsonItem {
     public Object buildInstance(JsonModel model) throws JsonBuildException {
         JsonClass jType = model.getJsonClass(contextClass.getTypeName());
         if (jType == null) {
+            JsonInter jInter = model.getJsonInter(contextClass.getTypeName());
+            if (jInter != null) {
+                return jInter.build(listIterator(), asList, listSize());
+            }
+            Logger.getGlobal().log(Level.SEVERE, "JsonClass '{0}' is unknown.", new Object[]{contextClass.getTypeName()});
             return null;
         }
         return jType.build(listIterator(), asList, listSize());

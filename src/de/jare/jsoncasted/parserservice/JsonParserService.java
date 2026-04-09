@@ -6,7 +6,6 @@
  */
 package de.jare.jsoncasted.parserservice;
 
-import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.parserwriter.JsonDebugLevel;
 import de.jare.jsoncasted.parserwriter.JsonParseException;

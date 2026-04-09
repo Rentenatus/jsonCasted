@@ -38,13 +38,13 @@ public class ImplTestDefinition implements JsonItemDefinition {
         final JsonClass asBoolean = model.getJsonClass("Boolean");
         final JsonClass asInteger = model.getJsonClass("Integer");
 
-        JsonClass valueBoolean = model.newJsonEnumByName(ValueBoolean.class);
+        JsonClass valueBoolean = model.newJsonReflect(ValueBoolean.class);
         valueBoolean.addCParam("frage", asBoolean, "getFrage");
 
-        JsonClass valueInteger = model.newJsonEnumByName(ValueInteger.class);
+        JsonClass valueInteger = model.newJsonReflect(ValueInteger.class);
         valueInteger.addCParam("zahl", asInteger);
 
-        JsonClass valueString = model.newJsonEnumByName(ValueString.class);
+        JsonClass valueString = model.newJsonReflect(ValueString.class);
         valueString.addCParam("text", asString);
 
         JsonInter valueIx = model.newJsonInterface(ValueInterface.class, valueBoolean, valueInteger, valueString);

@@ -99,6 +99,16 @@ public class JsonModel {
     }
 
     /**
+     * Retrieves a JSON interface by its name.
+     *
+     * @param key The name of the JSON interface.
+     * @return The corresponding JsonInter, or null if not found.
+     */
+    public JsonInter getJsonInter(String key) {
+        return interfaces.get(key.trim());
+    }
+
+    /**
      * Removes a JSON class from the model registry.
      *
      * @param jClass The JSON class to remove.
