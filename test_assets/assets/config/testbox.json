@@ -1,8 +1,12 @@
 {
-
+    "subsub": {
+      "_class": "ValueStringSubSub",
+      "text": "subsub",
+      "frage": true
+    },
     "one": {
       "_class": "ValueBoolean",
-      "frage": true
+      "frage": false
     },
     "arr": [
       {

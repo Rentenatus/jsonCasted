@@ -8,9 +8,18 @@ import java.util.List;
  */
 public class TestBox {
 
+    private ValueString subsub;
     private ValueInterface one;
     private ValueInterface[] arr;
     private List<ValueInterface> list;
+
+    public ValueString getSubsub() {
+        return subsub;
+    }
+
+    public void setSubsub(ValueString subsub) {
+        this.subsub = subsub;
+    }
 
     public ValueInterface getOne() {
         return one;

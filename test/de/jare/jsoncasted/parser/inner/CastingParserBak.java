@@ -61,7 +61,7 @@ public class CastingParserBak {
             throw new RuntimeException("JsonClass '" + cName + "' not allowed. (:" + zeile + ")");
         }
         if (debugLevel.satisfyInfo()) {
-            Logger.getGlobal().log(Level.INFO, "JsonClass '{0}' found for casting.", new Object[]{cName});
+            Logger.getGlobal().log(Level.INFO, "JsonClass {0} found for casting.", new Object[]{cName});
         }
         return found;
     }

@@ -95,7 +95,9 @@ public enum JsonDebugLevel {
             return; // Block wird NICHT ausgewertet
         }
         DebugTuple t = block.get(); // Lazy evaluation
-        Logger.getGlobal().log(Level.INFO, t.info(), t.args());
+        Throwable th = new Throwable();
+        StackTraceElement trace = th.getStackTrace()[1];
+        Logger.getGlobal().log(Level.INFO, t.info() + " At " + trace, t.args());
     }
 
     /**
@@ -112,7 +114,9 @@ public enum JsonDebugLevel {
             return; // Block wird NICHT ausgewertet
         }
         DebugTuple t = block.get(); // Lazy evaluation
-        Logger.getGlobal().log(Level.WARNING, t.info(), t.args());
+        Throwable th = new Throwable();
+        StackTraceElement trace = th.getStackTrace()[1];
+        Logger.getGlobal().log(Level.WARNING, t.info() + " At " + trace, t.args());
     }
 
     /**

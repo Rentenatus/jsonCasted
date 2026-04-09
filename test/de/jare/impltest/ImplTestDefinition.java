@@ -47,9 +47,17 @@ public class ImplTestDefinition implements JsonItemDefinition {
         JsonClass valueString = model.newJsonReflect(ValueString.class);
         valueString.addCParam("text", asString);
 
+        JsonClass valueStringSub = model.newJsonReflect(ValueStringSub.class, valueString);
+        // valueStringSub.addCParam("text", asString); // passin on valueString
+
+        JsonClass valueStringSubSub = model.newJsonReflect(ValueStringSub.class, valueStringSub);
+        // valueStringSubSub.addCParam("text", asString); // passin on valueStringSub
+        valueStringSubSub.addCParam("frage", asBoolean, "getFrage");
+
         JsonInter valueIx = model.newJsonInterface(ValueInterface.class, valueBoolean, valueInteger, valueString);
 
         testBox = model.newJsonReflect(TestBox.class);
+        testBox.addField("subsub", valueString);
         testBox.addField("one", valueIx);
         testBox.addField("list", valueIx, LIST);
         testBox.addField("arr", valueIx, ARRAY);

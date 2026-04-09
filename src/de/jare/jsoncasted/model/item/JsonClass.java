@@ -39,6 +39,7 @@ public class JsonClass implements JsonType {
     private final JsonModellClassBuilder builder;
     private boolean skippingNulls;
     private final JsonNodeType nodeType;
+    private JsonClass parent;
 
     public JsonClass(String cName, JsonModellClassBuilder builder) {
         this(cName, JsonNodeType.OBJECT, builder);
@@ -51,6 +52,7 @@ public class JsonClass implements JsonType {
         fields = new HashMap<>();
         keys = new ArrayList<>();
         skippingNulls = false;
+        parent = null;
     }
 
     public JsonClass(String cName, boolean skippingNulls, JsonModellClassBuilder builder) {
@@ -64,6 +66,7 @@ public class JsonClass implements JsonType {
         this.skippingNulls = skippingNulls;
         fields = new HashMap<>();
         keys = new ArrayList<>();
+        parent = null;
     }
 
     @Override
@@ -106,9 +109,28 @@ public class JsonClass implements JsonType {
         return this;
     }
 
+    public JsonClass getParent() {
+        return parent;
+    }
+
     @Override
     public boolean contains(JsonClass check) {
-        return equals(check);
+        if (check == null) {
+            return false;
+        }
+        if (check == this) {
+            return true;
+        }
+        if (check.getcName() == null || this.getcName() == null) {
+            return false;
+        }
+        if (check.getcName().equals(this.getcName()) && check.getNodeType() == this.getNodeType()) {
+            return true;
+        }
+        if (parent == null) {
+            return false;
+        }
+        return parent.contains(check);
     }
 
     public Object build(JsonItem jsonItem) throws JsonBuildException {
@@ -328,11 +350,15 @@ public class JsonClass implements JsonType {
     }
 
     public void addFromSuperclass(JsonClass parent) {
+        if (parent.getParent() != null) {
+            addFromSuperclass(parent.getParent());
+        }
         Iterator<JsonField> it = parent.fieldsIterator();
         while (it.hasNext()) {
             JsonField next = it.next();
             add(next);
         }
+        this.parent = parent;
     }
 
     public JsonTypeDescriptor describeHead(JsonModelDescriptor modelDescriptor) {

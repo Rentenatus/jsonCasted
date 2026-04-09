@@ -178,10 +178,10 @@ public class JsonObject implements JsonItem {
         if (jType == null) {
             JsonInter jInter = model.getJsonInter(contextClass.getTypeName());
             if (jInter != null) {
-                Logger.getGlobal().log(Level.SEVERE, "JsonClass '{0}' needs a casting.", new Object[]{contextClass.getTypeName()});
+                Logger.getGlobal().log(Level.SEVERE, "JsonClass {0} needs a casting.", new Object[]{contextClass.getTypeName()});
                 return null;
             }
-            Logger.getGlobal().log(Level.SEVERE, "JsonClass '{0}' is unknown.", new Object[]{contextClass.getTypeName()});
+            Logger.getGlobal().log(Level.SEVERE, "JsonClass {0} is unknown.", new Object[]{contextClass.getTypeName()});
             return null;
         }
         return jType.build(this);

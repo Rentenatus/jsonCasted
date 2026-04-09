@@ -172,7 +172,7 @@ public class JsonList implements JsonItem {
             if (jInter != null) {
                 return jInter.build(listIterator(), asList, listSize());
             }
-            Logger.getGlobal().log(Level.SEVERE, "JsonClass '{0}' is unknown.", new Object[]{contextClass.getTypeName()});
+            Logger.getGlobal().log(Level.SEVERE, "JsonClass {0} is unknown.", new Object[]{contextClass.getTypeName()});
             return null;
         }
         return jType.build(listIterator(), asList, listSize());

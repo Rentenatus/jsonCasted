@@ -119,6 +119,8 @@ public class TestBoxNGTest {
         assertNotNull(root.getOne());
         assertNotNull(root.getList());
         assertNotNull(root.getArr());
+        System.out.println("subsub  = " + root.getSubsub().getText());
+        System.out.println("one  = " + root.getOne().getText());
         for (ValueInterface elem : root.getArr()) {
             System.out.println("elem  > " + elem.getText());
         }
@@ -189,6 +191,7 @@ public class TestBoxNGTest {
         assertNull(root.getOne());
         assertNotNull(root.getList());
         assertNotNull(root.getArr());
+        System.out.println("subsub  = " + root.getSubsub().getText());
         for (ValueInterface elem : root.getArr()) {
             System.out.println("elem  > " + (elem == null ? "null" : elem.getText()));
         }
