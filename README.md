@@ -181,7 +181,8 @@ public class ImplTestDefinition implements JsonItemDefinition {
         // valueStringSubSub.addCParam("text", asString); // passin on valueStringSub
         valueStringSubSub.addCParam("frage", asBoolean, "getFrage");
 
-        JsonInter valueIx = model.newJsonInterface(ValueInterface.class, valueBoolean, valueInteger, valueString);
+        // ValueStringSub implements ValueInterface, but isn't registered.
+        JsonInter valueIx = model.newJsonInterface(ValueInterface.class, valueBoolean, valueInteger, valueString, valueStringSubSub);
 
         testBox = model.newJsonReflect(TestBox.class);
         testBox.addField("subsub", valueString);    // setter- and getter- field.
