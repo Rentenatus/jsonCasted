@@ -62,16 +62,14 @@ public class PostJsonClient {
     }
 
     public Object buildObject(String answer, JsonItemDefinition definition, final JsonClass readClass) throws JsonBuildException, IOException {
-
         JsonItem obj = null;
         try {
-
-            obj = JsonParser.parse(answer, definition, readClass);
+            obj = JsonParser.parse(answer, definition.getDescriptor(), readClass.getcName());
         } catch (JsonParseException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
 
-        return obj.buildInstance();
+        return obj.buildInstance(definition.getModel());
     }
 
 }

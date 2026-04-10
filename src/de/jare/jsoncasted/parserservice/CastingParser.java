@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.parserservice;
 
 import de.jare.jsoncasted.lang.JsonNode;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import java.io.IOException;
 
@@ -29,7 +30,7 @@ public class CastingParser {
                         c = psr.next();
                         if (c == '{') {
                             JsonNode ret = ObjectParser.parse(psr);
-                            ret.put("_class", JsonNode.stringNode(cast));
+                            ret.put(TERM_CLASS, JsonNode.stringNode(cast));
                             return ret;
                         }
                         if (c == ' ' || c == '\n' || c == '\t') {
@@ -43,5 +44,6 @@ public class CastingParser {
         }
         throw new JsonParseException("End of file without end of cast.");
     }
+    
 
 }

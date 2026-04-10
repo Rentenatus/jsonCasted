@@ -7,7 +7,7 @@
  */
 package de.jare.jsoncasted.parser.inner;
 
-import de.jare.jsoncasted.item.JsonValue;
+import de.jare.jsoncasted.item.JsonValueBak;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.parserservice.ParseStreamReader;
@@ -36,7 +36,7 @@ public class StringParserBak {
                 : aClass;
     }
 
-    JsonValue parse(ParseStreamReader psr) throws IOException, JsonParseException {
+    JsonValueBak parse(ParseStreamReader psr) throws IOException, JsonParseException {
         boolean escape = false;
         StringBuilder sb = new StringBuilder();
 
@@ -62,7 +62,7 @@ public class StringParserBak {
                 continue;
             }
             if (c == '"') {
-                return new JsonValue(sb.toString(), aClass);
+                return new JsonValueBak(sb.toString(), aClass);
             }
             escape = c == '\\';
             if (!escape) {

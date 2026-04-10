@@ -9,8 +9,12 @@ package de.jare.jsoncasted.model.item;
 
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonCollectionType;
+import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonMapBuilder;
+import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.parserwriter.JsonValidationMethod;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,15 +28,15 @@ public class JsonMap extends JsonClass implements JsonType {
     private final JsonClass itemClass;
     private final JsonCollectionType colType;
 
-    public JsonMap(String cName, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
-        super(cName, new JsonMapBuilder(singular, itemClass));
+    public JsonMap(JsonModel model, String cName, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
+        super(cName, new JsonMapBuilder(model, singular, itemClass));
         this.itemClass = itemClass;
         this.colType = colType;
 
     }
 
-    public JsonMap(String cName, boolean skippingNulls, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
-        super(cName, skippingNulls, new JsonMapBuilder(singular, itemClass));
+    public JsonMap(JsonModel model, String cName, boolean skippingNulls, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
+        super(cName, skippingNulls, new JsonMapBuilder(model, singular, itemClass));
         this.itemClass = itemClass;
         this.colType = colType;
     }
@@ -45,6 +49,10 @@ public class JsonMap extends JsonClass implements JsonType {
     @Override
     public String getterPre(JsonType jType) {
         return "";
+    }
+
+    public JsonClass getItemClass() {
+        return itemClass;
     }
 
     /**
@@ -60,7 +68,7 @@ public class JsonMap extends JsonClass implements JsonType {
     }
 
     @Override
-    public boolean contains(JsonClass check) {
+    public boolean contains(JsonType check) {
         return (check instanceof JsonMap);
     }
 
@@ -114,6 +122,40 @@ public class JsonMap extends JsonClass implements JsonType {
     @Override
     public String toString(Object attr) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public JsonTypeDescriptor describeHead(JsonModelDescriptor context) {
+        if (context.getType(itemClass.getcName()) == null) {
+            context.addType(itemClass.describeHead(context));
+        }
+        return super.describeHead(context);
+    }
+
+    @Override
+    public void describeDependencies(JsonModelDescriptor context) {
+
+        JsonTypeDescriptor target = context.requireType(getcName());
+
+        // Wenn dieses Feld auf eine JsonClass verweist, Abhängigkeit sicherstellen
+        JsonClass depClass = itemClass;
+        if (depClass != null && !context.isDescribed(depClass.getcName())) {
+            JsonTypeDescriptor depHead = depClass.describeHead(context);
+            context.addType(depHead);
+            depClass.describeDependencies(context);
+        }
+
+        JsonFieldDescriptor fd = new JsonFieldDescriptor(
+                "*:" + itemClass.getcName() + (colType == JsonCollectionType.NONE ? "" : "[]"),
+                itemClass.getcName(), // typeName
+                colType, // JsonCollectionType 
+                false, // required?
+                false, // constructorParam?
+                null, // getterName (String) oder null
+                null // setterName (String) oder null
+        );
+
+        target.setMappingAllFields(fd);
     }
 
 }

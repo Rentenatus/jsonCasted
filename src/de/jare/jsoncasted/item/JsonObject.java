@@ -8,10 +8,15 @@
 package de.jare.jsoncasted.item;
 
 import de.jare.jsoncasted.model.JsonBuildException;
+import de.jare.jsoncasted.model.JsonModel;
+import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.item.JsonInter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The JsonObject class represents a JSON object structure. It stores key-value
@@ -22,15 +27,15 @@ import java.util.Set;
 public class JsonObject implements JsonItem {
 
     private final HashMap<String, JsonItem> map;
-    private final JsonClass jClass;
+    private final JsonTypeDescriptor contextClass;
 
     /**
      * Constructs a JsonObject instance with an associated class type.
      *
-     * @param aClass The JSON class used for instance creation.
+     * @param aClassDescriptor The JSON class used for instance creation.
      */
-    public JsonObject(JsonClass aClass) {
-        this.jClass = aClass;
+    public JsonObject(JsonTypeDescriptor aClassDescriptor) {
+        this.contextClass = aClassDescriptor;
         map = new HashMap<>();
     }
 
@@ -51,7 +56,7 @@ public class JsonObject implements JsonItem {
      */
     @Override
     public String getPrintClassName() {
-        return jClass == null ? "null" : jClass.getcName();
+        return contextClass == null ? "null" : contextClass.getTypeName();
     }
 
     /**
@@ -168,10 +173,17 @@ public class JsonObject implements JsonItem {
      * @throws JsonBuildException If instance creation fails.
      */
     @Override
-    public Object buildInstance() throws JsonBuildException {
-        if (jClass == null) {
+    public Object buildInstance(JsonModel model) throws JsonBuildException {
+        JsonClass jType = model.getJsonClass(contextClass.getTypeName());
+        if (jType == null) {
+            JsonInter jInter = model.getJsonInter(contextClass.getTypeName());
+            if (jInter != null) {
+                Logger.getGlobal().log(Level.SEVERE, "JsonClass {0} needs a casting.", new Object[]{contextClass.getTypeName()});
+                return null;
+            }
+            Logger.getGlobal().log(Level.SEVERE, "JsonClass {0} is unknown.", new Object[]{contextClass.getTypeName()});
             return null;
         }
-        return jClass.build(this);
+        return jType.build(this);
     }
 }

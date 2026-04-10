@@ -235,4 +235,13 @@ public class JsonField {
         }
         return validationMethod.validate(xFromJson, target);
     }
+
+    JsonCollectionType getCollectionType() {
+        if (isAsArray()) {
+            return JsonCollectionType.ARRAY;
+        } else if (isAsList()) {
+            return JsonCollectionType.LIST;
+        }
+        return JsonCollectionType.NONE;
+    }
 }

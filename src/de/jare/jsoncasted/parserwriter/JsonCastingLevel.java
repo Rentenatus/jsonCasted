@@ -9,26 +9,36 @@ package de.jare.jsoncasted.parserwriter;
 
 /**
  * The `JsonCastingLevel` enum defines different levels of JSON type casting.
- * Each level determines when interface resolution and class identification should occur.
+ * Each level determines when interface resolution and class identification
+ * should occur.
  *
  * @author Janusch Rentenatus
  */
 public enum JsonCastingLevel {
 
     /**
-     * Never cast types – compatible with main JSON but cannot resolve interfaces.
+     * Never cast types – compatible with main JSON but cannot resolve
+     * interfaces.
      */
     NEVER(0),
-
     /**
      * Cast types only when interfaces mask different underlying classes.
      */
-    NECESSARY(5),
-
+    NECESSARY_CLASS_DEF(4),
     /**
-     * Always cast types, even if the data structure already provides a clear distinction.
+     * Cast types only when interfaces mask different underlying classes.
      */
-    ALWAYS(10);
+    NECESSARY_CAST(5),
+    /**
+     * Always cast types, even if the data structure already provides a clear
+     * distinction.
+     */
+    ALWAYS_CLASS_DEF(9),
+    /**
+     * Always cast types, even if the data structure already provides a clear
+     * distinction.
+     */
+    ALWAYS_CAST(10);
 
     private final int key;
 

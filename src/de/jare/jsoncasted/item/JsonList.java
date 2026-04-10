@@ -8,10 +8,15 @@
 package de.jare.jsoncasted.item;
 
 import de.jare.jsoncasted.model.JsonBuildException;
-import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.model.JsonModel;
+import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
+import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.item.JsonInter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The JsonList class represents a JSON array structure. It stores a list of
@@ -22,7 +27,7 @@ import java.util.Set;
 public class JsonList implements JsonItem {
 
     private final ArrayList<JsonItem> list;
-    private final JsonType jType;
+    private final JsonTypeDescriptor contextClass;
     private final boolean asList;
 
     /**
@@ -32,10 +37,10 @@ public class JsonList implements JsonItem {
      * @param list The list of JSON items.
      * @param asList Indicates whether the list is structured as a typical JSON
      * array.
-     * @param jType The JSON type used for instance creation.
+     * @param contextClass The JSON type description used for instance creation.
      */
-    public JsonList(ArrayList<JsonItem> list, boolean asList, JsonType jType) {
-        this.jType = jType;
+    public JsonList(ArrayList<JsonItem> list, boolean asList, JsonTypeDescriptor contextClass) {
+        this.contextClass = contextClass;
         this.list = list;
         this.asList = asList;
     }
@@ -160,8 +165,14 @@ public class JsonList implements JsonItem {
      * @throws JsonBuildException If instance creation fails.
      */
     @Override
-    public Object buildInstance() throws JsonBuildException {
+    public Object buildInstance(JsonModel model) throws JsonBuildException {
+        JsonClass jType = model.getJsonClass(contextClass.getTypeName());
         if (jType == null) {
+            JsonInter jInter = model.getJsonInter(contextClass.getTypeName());
+            if (jInter != null) {
+                return jInter.build(listIterator(), asList, listSize());
+            }
+            Logger.getGlobal().log(Level.SEVERE, "JsonClass {0} is unknown.", new Object[]{contextClass.getTypeName()});
             return null;
         }
         return jType.build(listIterator(), asList, listSize());

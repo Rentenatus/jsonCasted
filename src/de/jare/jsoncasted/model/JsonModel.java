@@ -10,9 +10,13 @@ package de.jare.jsoncasted.model;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.builder.*;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.item.*;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -25,7 +29,9 @@ import java.util.Set;
 public class JsonModel {
 
     private final HashMap<String, JsonClass> classes;
+    private final HashMap<String, JsonInter> interfaces;
     private final String mName;
+    private JsonModelDescriptor descriptor;
 
     /**
      * Constructs a JsonModel instance with a specified model name.
@@ -34,7 +40,9 @@ public class JsonModel {
      */
     public JsonModel(String mName) {
         this.mName = mName;
-        classes = new HashMap<>();
+        this.descriptor = null;
+        this.classes = new HashMap<>();
+        this.interfaces = new HashMap<>();
     }
 
     /**
@@ -88,6 +96,16 @@ public class JsonModel {
      */
     public JsonClass getJsonClass(Class<?> clazz) {
         return classes.get(clazz.getTypeName());
+    }
+
+    /**
+     * Retrieves a JSON interface by its name.
+     *
+     * @param key The name of the JSON interface.
+     * @return The corresponding JsonInter, or null if not found.
+     */
+    public JsonInter getJsonInter(String key) {
+        return interfaces.get(key.trim());
     }
 
     /**
@@ -149,13 +167,13 @@ public class JsonModel {
     }
 
     public JsonClass newJsonReflect(Class<?> clazz) {
-        JsonClass ret = new JsonClass(clazz.getTypeName(), new JsonReflectBuilder(clazz));
+        JsonClass ret = new JsonClass(clazz.getTypeName(), new JsonReflectBuilder(this, clazz));
         add(ret);
         return ret;
     }
 
     public JsonClass newJsonReflect(Class<?> clazz, boolean skippingNulls) {
-        JsonClass ret = new JsonClass(clazz.getTypeName(), skippingNulls, new JsonReflectBuilder(clazz));
+        JsonClass ret = new JsonClass(clazz.getTypeName(), skippingNulls, new JsonReflectBuilder(this, clazz));
         add(ret);
         return ret;
     }
@@ -177,17 +195,21 @@ public class JsonModel {
     }
 
     public JsonInter newJsonInterface(Class<?> clazz, JsonClass... jClass) {
-        return new JsonInter(clazz.getTypeName(), new JsonReflectBuilder(clazz), jClass);
+        final JsonInter ret = new JsonInter(clazz.getTypeName(), new JsonReflectBuilder(this, clazz), jClass);
+        interfaces.put(ret.getcName(), ret);
+        return ret;
     }
 
-    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, JsonClass itemClass, JsonCollectionType type) {
-        JsonMap ret = new JsonMap(clazz.getTypeName(), clazz, itemClass, type);
+    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, JsonClass itemClass, JsonCollectionType colType) {
+        JsonMap ret = new JsonMap(this, clazz.getTypeName() + "<" + itemClass.getcName() + ">"
+                + (colType == JsonCollectionType.NONE ? "" : "[]"), clazz, itemClass, colType);
         add(ret);
         return ret;
     }
 
-    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, boolean skippingNulls, JsonClass itemClass, JsonCollectionType type) {
-        JsonMap ret = new JsonMap(clazz.getTypeName(), skippingNulls, clazz, itemClass, type);
+    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, boolean skippingNulls, JsonClass itemClass, JsonCollectionType colType) {
+        JsonMap ret = new JsonMap(this, clazz.getTypeName() + "<" + itemClass.getcName() + ">"
+                + (colType == JsonCollectionType.NONE ? "" : "[]"), skippingNulls, clazz, itemClass, colType);
         add(ret);
         return ret;
     }
@@ -206,6 +228,61 @@ public class JsonModel {
 
     public JsonMap newRawJsonMap(Class<? extends JsonInstance> clazz, boolean skippingNulls, JsonClass itemClass, JsonCollectionType type) {
         return newJsonMap((Class<? extends JsonInstance<?>>) clazz, skippingNulls, itemClass, type);
+    }
+
+    private List<JsonClass> getClassesList() {
+        List<JsonClass> ordered = new ArrayList<>(classes.size());
+        for (JsonClass jc : classes.values()) {
+            if (!jc.getcName().contains(".")) {
+                ordered.add(jc);
+            }
+        }
+        for (JsonClass jc : classes.values()) {
+            if (jc.getcName().contains(".")) {
+                ordered.add(jc);
+            }
+        }
+        return ordered;
+    }
+
+    private List<JsonInter> getOrderedInterfacesList() {
+        List<JsonInter> ordered = new ArrayList<>(interfaces.values());
+        ordered.sort(Comparator.comparing(JsonInter::getcName));
+        return ordered;
+    }
+
+    public JsonModelDescriptor describe() {
+        JsonModelDescriptor context = new JsonModelDescriptor(mName);
+        List<JsonClass> orderedClasses = getClassesList();
+        List<JsonInter> orderedInterfaces = getOrderedInterfacesList();
+
+        for (JsonClass jsonClass : orderedClasses) {
+            context.addType(jsonClass.describeHead(context));
+        }
+
+        for (JsonInter jsonInter : orderedInterfaces) {
+            for (JsonClass next : jsonInter) {
+                if (!context.containsType(next.getcName())) {
+                    context.addType(next.describeHead(context));
+                    orderedClasses.add(next);
+                }
+            }
+            context.addType(jsonInter.describeHead(context));
+        }
+
+        for (JsonClass jsonClass : orderedClasses) {
+            jsonClass.describeDependencies(context);
+        }
+
+        descriptor = context;
+        return context;
+    }
+
+    public JsonModelDescriptor getOrCreateDescriptor() {
+        if (descriptor != null) {
+            return descriptor;
+        }
+        return describe();
     }
 
 }

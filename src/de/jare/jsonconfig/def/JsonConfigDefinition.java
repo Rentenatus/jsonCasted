@@ -48,27 +48,29 @@ public class JsonConfigDefinition implements JsonItemDefinition {
     public JsonConfigDefinition() {
         model = new JsonModel("Seed");
         model.addBasicModel();
+
         final JsonClass asString = model.getJsonClass("String");
         final JsonClass asBoolean = model.getJsonClass("Boolean");
 
         JsonClass profileType = model.newJsonEnumByName(ConfigProfileType.class);
 
-        JsonMap stringMap = model.newRawJsonMap((new JsonInstance<String>()).getClass(), asString);
-        JsonMap stringArrayMap = model.newRawJsonMap((new JsonInstance<String[]>()).getClass(), asString, ARRAY);
-        JsonMap booleanMap = model.newRawJsonMap((new JsonInstance<Boolean>()).getClass(), asBoolean);
+        JsonMap stringMap = model.newRawJsonMap(JsonInstance.class, asString);
+        JsonMap stringArrayMap = model.newRawJsonMap(JsonInstance.class, asString, ARRAY);
+        JsonMap booleanMap = model.newRawJsonMap(JsonInstance.class, asBoolean);
 
         JsonClass logging = model.newJsonReflect(ConfigLogging.class);
 
         logging.addField("level", asString);
         logging.addField("path", asString);
 
-        JsonClass feature = model.newJsonClass(ConfigFeature.class, new JsonReflectBuilder(ConfigFeature.class) {
+        JsonClass feature = model.newJsonClass(ConfigFeature.class,
+                new JsonReflectBuilder(model, ConfigFeature.class) {
             @Override
             public List<ConfigFeature> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
                 ArrayList<ConfigFeature> list = new ArrayList<>(size);
                 while (listIterator.hasNext()) {
                     JsonItem next = listIterator.next();
-                    Object elem = next.buildInstance();
+                    Object elem = next.buildInstance(model);
                     list.add((ConfigFeature) elem);
                 }
                 return list;

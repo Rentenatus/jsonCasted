@@ -7,7 +7,11 @@
  */
 package de.jare.jsoncasted.item;
 
+import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.model.JsonBuildException;
+import de.jare.jsoncasted.model.JsonModel;
+import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.util.Iterator;
 import java.util.Set;
@@ -25,16 +29,17 @@ public class JsonValue implements JsonItem {
     private final Double numberValue;
     private final Long longValue;
     private final Boolean boolValue;
-    private final JsonClass jClass;
+    private final JsonTypeDescriptor contextClass;
 
     /**
      * Constructs a JsonValue instance with an associated class type.
      *
      * @param value The raw JSON value as a string.
-     * @param aClass The JSON class used for instance creation.
+     * @param contextClass The JSON class description used for instance
+     * creation.
      */
-    public JsonValue(String value, JsonClass aClass) {
-        this.jClass = aClass;
+    public JsonValue(String value, JsonTypeDescriptor contextClass) {
+        this.contextClass = contextClass;
         this.strValue = value;
         this.numberValue = null;
         this.longValue = null;
@@ -45,10 +50,11 @@ public class JsonValue implements JsonItem {
      * Constructs a JsonValue instance with an associated class type.
      *
      * @param value The raw JSON value as a Double.
-     * @param aClass The JSON class used for instance creation.
+     * @param contextClass The JSON class description used for instance
+     * creation.
      */
-    public JsonValue(Double value, JsonClass aClass) {
-        this.jClass = aClass;
+    public JsonValue(Double value, JsonTypeDescriptor contextClass) {
+        this.contextClass = contextClass;
         this.numberValue = value;
         this.longValue = null;
         this.strValue = null;
@@ -59,10 +65,11 @@ public class JsonValue implements JsonItem {
      * Constructs a JsonValue instance with an associated class type.
      *
      * @param value The raw JSON value as a Boolean.
-     * @param aClass The JSON class used for instance creation.
+     * @param contextClass The JSON class description used for instance
+     * creation.
      */
-    public JsonValue(Boolean value, JsonClass aClass) {
-        this.jClass = aClass;
+    public JsonValue(Boolean value, JsonTypeDescriptor contextClass) {
+        this.contextClass = contextClass;
         this.boolValue = value;
         this.numberValue = null;
         this.longValue = null;
@@ -74,10 +81,11 @@ public class JsonValue implements JsonItem {
      * type.
      *
      * @param value The raw JSON value as a Long.
-     * @param aClass The JSON class used for instance creation.
+     * @param contextClass The JSON class description used for instance
+     * creation.
      */
-    public JsonValue(Long value, JsonClass aClass) {
-        this.jClass = aClass;
+    public JsonValue(Long value, JsonTypeDescriptor contextClass) {
+        this.contextClass = contextClass;
         this.longValue = value;
         this.numberValue = null;
         this.boolValue = null;
@@ -87,10 +95,11 @@ public class JsonValue implements JsonItem {
     /**
      * Constructs a JsonValue instance with an associated class type.
      *
-     * @param aClass The JSON class used for instance creation.
+     * @param contextClass The JSON class description used for instance
+     * creation.
      */
-    public JsonValue(JsonClass aClass) {
-        this.jClass = aClass;
+    public JsonValue(JsonTypeDescriptor contextClass) {
+        this.contextClass = contextClass;
         this.boolValue = null;
         this.numberValue = null;
         this.longValue = null;
@@ -196,7 +205,7 @@ public class JsonValue implements JsonItem {
      */
     @Override
     public String getPrintClassName() {
-        return jClass == null ? "null" : jClass.getcName();
+        return contextClass == null ? "null" : contextClass.getTypeName();
     }
 
     /**
@@ -273,10 +282,11 @@ public class JsonValue implements JsonItem {
      * @throws JsonBuildException If instance creation fails.
      */
     @Override
-    public Object buildInstance() throws JsonBuildException {
-        if (jClass == null) {
+    public Object buildInstance(JsonModel model) throws JsonBuildException {
+        JsonClass jType = model.getJsonClass(contextClass.getTypeName());
+        if (jType == null) {
             return null;
         }
-        return jClass.build(this);
+        return jType.build(this);
     }
 }

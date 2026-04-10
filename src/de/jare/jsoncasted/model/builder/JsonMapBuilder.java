@@ -10,6 +10,7 @@ package de.jare.jsoncasted.model.builder;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonBuildException;
+import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
@@ -32,17 +33,20 @@ public class JsonMapBuilder implements JsonModellClassBuilder {
 
     private final Class<? extends JsonInstance> singular;
     private final JsonClass itemClass;
+    private final JsonModel model;
 
     /**
      * Constructs a JsonMapBuilder instance with the specified class type and
      * item class.
      *
+     * @param model
      * @param singular The target JsonInstance class type.
      * @param itemClass The JSON class describing the map structure.
      */
-    public JsonMapBuilder(Class<? extends JsonInstance> singular, JsonClass itemClass) {
+    public JsonMapBuilder(JsonModel model, Class<? extends JsonInstance> singular, JsonClass itemClass) {
         this.singular = singular;
         this.itemClass = itemClass;
+        this.model = model;
     }
 
     /**
@@ -57,7 +61,7 @@ public class JsonMapBuilder implements JsonModellClassBuilder {
         JsonInstance ret = createInstance();
         for (String para : jsonItem.getParamSet()) {
             JsonItem item = jsonItem.getParam(para);
-            ret.putObject(para, item.buildInstance());
+            ret.putObject(para, item.buildInstance(model));
         }
         return ret;
     }
@@ -139,7 +143,6 @@ public class JsonMapBuilder implements JsonModellClassBuilder {
     /**
      * Not supported for this builder.
      *
-     * @param ob Object
      * @return none
      * @throws UnsupportedOperationException
      */
