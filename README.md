@@ -101,6 +101,113 @@ Example Java result:
 Shape shape = new Circle(5);
 ```
 
+## Model concept: Where interfaces and superclasses are represented
+
+jsonCasted makes interfaces and superclasses explicit in the model so they can be visualized and edited instead of being hidden in ad-hoc deserialization logic.
+
+- **On the Description level**  
+  The `Description` layer carries high-level type metadata.  
+  This is where you declare:
+  - that a node is of an interface type (e.g. `Shape`)
+  - which concrete implementations are allowed (e.g. `Circle`, `Rectangle`)
+  - or that a node is an abstract superclass (e.g. `Animal`) with a known set of subclasses.  
+  In a UI (like Woot JSON Jack), this can be visualized as:
+  - a “declared type” field (interface or abstract base)
+  - plus a list or dropdown of allowed concrete types.
+
+- **On the JsonNode level**  
+  `JsonNode` represents the actual JSON tree as it is being edited.  
+  Here you can see:
+  - which node is currently bound to which concrete implementation
+  - any discriminator fields (e.g. `"type": "Circle"`) that influence type resolution.[web:9][web:10]  
+  In the editor this typically appears as:
+  - a node in the tree with a label like `Shape (Circle)`
+  - or a type selector attached to the node that lets the user switch the concrete implementation while keeping the interface/superclass contract.
+
+- **On the JsonClass level**  
+  `JsonClass` is where the concrete Java class mapping is modeled.  
+  It explicitly links:
+  - interface types to their implementing classes
+  - abstract superclasses to their known subclasses  
+  In a visual representation you can show:
+  - a class node for the interface or superclass
+  - connected child nodes for each registered implementation or subclass
+  - making the polymorphic hierarchy and whitelist visible at a glance.
+
+- **During object building (whitelist resolution)**  
+  In the final object-building step, the engine picks a concrete class for each node based on:
+  - the declared interface or superclass in `Description`
+  - the current discriminator / state in `JsonNode`
+  - the allowed implementations in `JsonClass` and the whitelist.
+  If you visualize this, you can:
+  - highlight which concrete class will be instantiated for a selected node
+  - and show whether a particular implementation is blocked or allowed by the whitelist.
+ 
+Whitelist model examle:
+
+```java
+public class ImplTestDefinition implements JsonItemDefinition {
+
+    public static final ImplTestDefinition INSTANCE = new ImplTestDefinition();
+
+    public static ImplTestDefinition getInstance() {
+        return INSTANCE;
+    }
+
+    private final JsonModel model;
+    private final JsonClass testBox;
+
+    public ImplTestDefinition() {
+        model = new JsonModel("impltest");
+        model.addBasicModel();
+
+        final JsonClass asString = model.getJsonClass("String");
+        final JsonClass asBoolean = model.getJsonClass("Boolean");
+        final JsonClass asInteger = model.getJsonClass("Integer");
+
+        JsonClass valueBoolean = model.newJsonReflect(ValueBoolean.class);
+        valueBoolean.addCParam("frage", asBoolean, "getFrage"); // constructor param
+
+        JsonClass valueInteger = model.newJsonReflect(ValueInteger.class);
+        valueInteger.addCParam("zahl", asInteger);
+
+        JsonClass valueString = model.newJsonReflect(ValueString.class);
+        valueString.addCParam("text", asString);
+
+        JsonClass valueStringSub = model.newJsonReflect(ValueStringSub.class, valueString);
+        // valueStringSub.addCParam("text", asString); // passin on valueString
+
+        JsonClass valueStringSubSub = model.newJsonReflect(ValueStringSubSub.class, valueStringSub);
+        // valueStringSubSub.addCParam("text", asString); // passin on valueStringSub
+        valueStringSubSub.addCParam("frage", asBoolean, "getFrage");
+
+        JsonInter valueIx = model.newJsonInterface(ValueInterface.class, valueBoolean, valueInteger, valueString);
+
+        testBox = model.newJsonReflect(TestBox.class);
+        testBox.addField("subsub", valueString);    // setter- and getter- field.
+        testBox.addField("one", valueIx);
+        testBox.addField("list", valueIx, LIST);
+        testBox.addField("arr", valueIx, ARRAY);
+
+    }
+
+    @Override
+    public JsonModel getModel() {
+        return model;
+    }
+
+    public JsonClass getTestBox() {
+        return testBox;
+    }
+
+    @Override
+    public JsonCastingLevel getCastingLevel() {
+        return JsonCastingLevel.NECESSARY_CLASS_DEF;
+    }
+}
+```
+
+
 ## Security
 
 A key design goal is controlled deserialization:
