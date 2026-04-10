@@ -1,5 +1,6 @@
 package de.jare.jsoncasted.parser;
 
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.lang.JsonNode;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
 import de.jare.jsoncasted.parserservice.JsonParserService;
@@ -16,7 +17,7 @@ public class JsonParserNodeInputTest {
         Assert.assertTrue(f.exists(), "asset file must exist: " + f.getAbsolutePath());
         JsonParserService svc = new JsonParserService();
         try (FileReader fr = new FileReader(f)) {
-            JsonNode node = svc.parse(fr, f.getName()).getRoot();
+            JsonNode node = svc.parse(fr, f.getName(), JsonDebugLevel.INFO).getRoot();
             de.jare.jsoncasted.lang.JsonNode childNode = node.asObjectValues().get("castedString");
             Assert.assertNotNull(childNode);
             JsonNode cname = childNode.asObjectValues().get(TERM_CLASS);
@@ -30,7 +31,7 @@ public class JsonParserNodeInputTest {
         Assert.assertTrue(f.exists(), "asset file must exist: " + f.getAbsolutePath());
         JsonParserService svc = new JsonParserService();
         try (FileReader fr = new FileReader(f)) {
-            JsonNode node = svc.parse(fr, f.getName()).getRoot();
+            JsonNode node = svc.parse(fr, f.getName(), JsonDebugLevel.INFO).getRoot();
             de.jare.jsoncasted.lang.JsonNode childNode = node.asObjectValues().get("castedValue");
             Assert.assertNotNull(childNode);
             JsonNode cname = childNode.asObjectValues().get(TERM_CLASS);

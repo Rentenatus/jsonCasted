@@ -22,47 +22,47 @@ import java.util.logging.Logger;
  */
 public class JsonParserService {
 
-    public static JsonResource parse(String s) throws JsonParseException, IOException {
-        return parse(new StringReader(s), JsonResource.empty());
+    public static JsonResource parse(String s, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
+        return parse(new StringReader(s), JsonResource.empty(), debugLevel);
     }
 
-    public static JsonResource parse(File file) throws JsonParseException, IOException {
+    public static JsonResource parse(File file, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
         FileReader in;
         try {
             in = new FileReader(file);
-            return parse(in, file.getPath());
+            return parse(in, file.getPath(), debugLevel);
         } catch (FileNotFoundException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
         return null;
     }
 
-    public static JsonResource parse(final URL url1) throws JsonParseException, IOException {
+    public static JsonResource parse(final URL url1, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
         BufferedReader in;
         try {
             final InputStreamReader inputStreamReader = new InputStreamReader(url1.openStream());
             in = new BufferedReader(inputStreamReader);
-            return parse(in, url1.toString());
+            return parse(in, url1.toString(), debugLevel);
         } catch (FileNotFoundException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
         return null;
     }
 
-    public static JsonResource parse(StringReader reader, String filename) throws IOException, JsonParseException {
-        return parse((Reader) reader, JsonResource.forFile(filename));
+    public static JsonResource parse(StringReader reader, String filename, JsonDebugLevel debugLevel) throws IOException, JsonParseException {
+        return parse((Reader) reader, JsonResource.forFile(filename), debugLevel);
     }
 
-    public static JsonResource parse(FileReader reader, String filename) throws IOException, JsonParseException {
-        return parse((Reader) reader, JsonResource.forFile(filename));
+    public static JsonResource parse(FileReader reader, String filename, JsonDebugLevel debugLevel) throws IOException, JsonParseException {
+        return parse((Reader) reader, JsonResource.forFile(filename), debugLevel);
     }
 
-    public static JsonResource parse(BufferedReader reader, String filename) throws IOException, JsonParseException {
-        return parse((Reader) reader, JsonResource.forFile(filename));
+    public static JsonResource parse(BufferedReader reader, String filename, JsonDebugLevel debugLevel) throws IOException, JsonParseException {
+        return parse((Reader) reader, JsonResource.forFile(filename), debugLevel);
     }
 
-    public static JsonResource parse(Reader reader, JsonResource container) throws IOException, JsonParseException, JsonParseException {
-        ParseStreamReader psr = new ParseStreamReader(reader, JsonDebugLevel.SIMPLE);
+    public static JsonResource parse(Reader reader, JsonResource container, JsonDebugLevel debugLevel) throws IOException, JsonParseException, JsonParseException {
+        ParseStreamReader psr = new ParseStreamReader(reader, debugLevel);
         return RootParser.parse(psr, container);
     }
 

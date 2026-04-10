@@ -84,7 +84,7 @@ public class TestBoxNGTest {
         JsonItem obj1 = null;
         JsonNode node = null;
         try {
-            final JsonResource res = JsonParserService.parse(configFile);
+            final JsonResource res = JsonParserService.parse(configFile, JsonDebugLevel.INFO);
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             System.out.println(res.getExpectedBox());
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
@@ -156,7 +156,7 @@ public class TestBoxNGTest {
         JsonItem obj1 = null;
         JsonNode node = null;
         try {
-            final JsonResource res = JsonParserService.parse(configFile);
+            final JsonResource res = JsonParserService.parse(configFile, JsonDebugLevel.INFO);
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             System.out.println(res.getExpectedBox());
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");

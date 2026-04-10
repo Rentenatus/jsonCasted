@@ -26,17 +26,17 @@ import java.net.URL;
 public class JsonParser {
 
     public static JsonItem parse(String s, JsonModelDescriptor descriptor, String root, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
-        JsonResource res = JsonParserService.parse(s);
+        JsonResource res = JsonParserService.parse(s, debugLevel);
         return parse(res.getRoot(), descriptor, root, debugLevel);
     }
 
     public static JsonItem parse(File file, JsonModelDescriptor descriptor, String root, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
-        JsonResource res = JsonParserService.parse(file);
+        JsonResource res = JsonParserService.parse(file, debugLevel);
         return parse(res.getRoot(), descriptor, root, debugLevel);
     }
 
     public static JsonItem parse(final URL url, JsonModelDescriptor descriptor, String root, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
-        JsonResource res = JsonParserService.parse(url);
+        JsonResource res = JsonParserService.parse(url, debugLevel);
         return parse(res.getRoot(), descriptor, root, debugLevel);
     }
 
