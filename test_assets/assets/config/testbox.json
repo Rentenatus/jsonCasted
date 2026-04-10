@@ -27,8 +27,9 @@
         "zahl": 100
       },
       {
-        "_class": "ValueString",
-        "text": "Test Eintrag"
+        "_class": "ValueStringSubSub",
+        "text": "Test Eintrag",
+        "frage": true
       },
       {
         "_class": "ValueBoolean",
