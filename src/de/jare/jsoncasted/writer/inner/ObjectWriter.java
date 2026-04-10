@@ -124,14 +124,16 @@ public class ObjectWriter {
      * @param ob The object to serialize.
      */
     public void write(PrintWriter out, JsonClass jClass, Object ob) {
-        if (jType != null && jType.needCast(definition.getCastingLevel())) {
+        if (jType != null && jType.needCast(definition.getCastingLevel())
+                || jClass.needCast(definition.getCastingLevel())) {
             out.print('(');
             out.print(jClass.getcName());
             out.print(')');
         }
         out.print('{');
         String iString = intentString + "  ";
-        if (jType != null && jType.needClassDef(definition.getCastingLevel())) {
+        if (jType != null && jType.needClassDef(definition.getCastingLevel())
+                || jClass.needClassDef(definition.getCastingLevel())) {
             out.println();
             out.print(iString);
             out.print("\"_class\": \"");

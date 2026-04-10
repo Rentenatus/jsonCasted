@@ -150,6 +150,12 @@ public class JsonObjectConverter {
             final JsonTypeDescriptor candidate = descriptor.getTypePerceptive(cast.asText());
             if (implementors.isEmpty()) {
                 if (candidate.containsSuper(suspectedType)) {
+
+                    debugLevel.info(() -> new DebugTuple("{0}.{1}: Cast used: {2} extends {3}",
+                            contextClass.getTypeName(),
+                            paramName,
+                            candidate.getTypeName(),
+                            suspectedType.getTypeName()));
                     castedChildType = candidate;
                 }
             } else {
@@ -162,7 +168,10 @@ public class JsonObjectConverter {
                     if (im.getTypeName().equals(candidate.getTypeName())) {
                         castedChildType = candidate;
                         debugLevel.info(() -> new DebugTuple("{0}.{1}: Cast used: {2} implements {3}",
-                                contextClass.getTypeName(), paramName, candidate.getTypeName(), suspectedType.getTypeName())
+                                contextClass.getTypeName(),
+                                paramName,
+                                candidate.getTypeName(),
+                                suspectedType.getTypeName())
                         );
                         break;
                     }
