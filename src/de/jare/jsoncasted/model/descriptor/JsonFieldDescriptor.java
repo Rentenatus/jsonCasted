@@ -1,6 +1,7 @@
 package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.jsoncasted.model.JsonCollectionType;
+import de.jare.jsoncasted.model.FieldKind;
 import java.util.Objects;
 
 /**
@@ -22,6 +23,7 @@ public class JsonFieldDescriptor {
     private final boolean constructorParam;
     private String getter;
     private String setter;
+    private FieldKind kind;
 
     public JsonFieldDescriptor(String jsonName, String typeName) {
         this(jsonName, typeName, null, false, false, null, null);
@@ -98,6 +100,14 @@ public class JsonFieldDescriptor {
         }
     }
 
+    public FieldKind getKind() {
+        return kind;
+    }
+
+    public void setKind(FieldKind kind) {
+        this.kind = kind;
+    }
+
     @Override
     public String toString() {
         return "JsonFieldDescriptor["
@@ -105,6 +115,7 @@ public class JsonFieldDescriptor {
                 + ", typeName=" + typeName
                 + ", collectionType=" + collectionType
                 + ", required=" + required
+                + ", kind=" + kind.getName()
                 + ", constructorParam=" + constructorParam
                 + ", getter=" + getter
                 + ", setter=" + setter

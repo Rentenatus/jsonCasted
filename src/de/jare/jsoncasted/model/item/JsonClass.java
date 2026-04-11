@@ -433,6 +433,7 @@ public class JsonClass implements JsonType {
                     jf.getGetter(), // getterName (String) oder null
                     jf.getSetter() // setterName (String) oder null
             );
+            fd.setKind(jf.getKind());
 
             if (jf.isConstructorParam()) {
                 target.addConstructorParam(fd);

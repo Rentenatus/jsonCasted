@@ -7,6 +7,7 @@
  */
 package de.jare.jsoncasted.model.item;
 
+import de.jare.jsoncasted.model.FieldKind;
 import de.jare.jsoncasted.model.JsonCollectionType;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.parserwriter.JsonValidationMethod;
@@ -26,6 +27,7 @@ public class JsonField {
     private final boolean asArray;
     private final String getter;
     private final String setter;
+    private FieldKind kind;
     private JsonValidationMethod validationMethod;
 
     /**
@@ -50,6 +52,7 @@ public class JsonField {
         this.getter = getter;
         this.setter = setter;
         this.validationMethod = validationMethod;
+        this.kind = FieldKind.ATTRIBUTE;
     }
 
     /**
@@ -87,6 +90,7 @@ public class JsonField {
         this.getter = parent.getterPre(jType) + getterSetterNorm;
         this.setter = parent.setterPre(jType) + getterSetterNorm;
         this.validationMethod = validationMethod;
+        this.kind = FieldKind.ATTRIBUTE;
     }
 
     /**
@@ -125,6 +129,7 @@ public class JsonField {
         this.getter = parent.getterPre(jType) + getterSetterNorm;
         this.setter = parent.setterPre(jType) + getterSetterNorm;
         this.validationMethod = validationMethod;
+        this.kind = FieldKind.ATTRIBUTE;
     }
 
     /**
@@ -211,6 +216,24 @@ public class JsonField {
      */
     public String getSetter() {
         return setter;
+    }
+
+    public FieldKind getKind() {
+        return kind;
+    }
+
+    public void setKind(FieldKind kind) {
+        this.kind = kind;
+    }
+
+    public JsonField makeAsContainment() {
+        this.kind = FieldKind.CONTAINMENT;
+        return this;
+    }
+
+    public JsonField makeAsReference() {
+        this.kind = FieldKind.REFERENCE;
+        return this;
     }
 
     /**

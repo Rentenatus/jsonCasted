@@ -6,18 +6,24 @@ import de.jare.jsoncasted.wood.WoodProviderBox;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public final class JsonResource {
 
     private String resourceFile;
+    private String providerName;
     private JsonNode root;
     private WoodProviderBox expectedBox;
     private List<String> importedProviderSynonyms;
     private JsonLinkScanResult scanResult;
     private final List<JsonExceptionEntry> exceptions = new ArrayList<>();
 
+    private Map<String, JsonNode> objectIdMap;
+    private Map<String, JsonNode> linkMap;
+
     private JsonResource() {
         this.importedProviderSynonyms = new ArrayList<>();
+        this.providerName = "self";
     }
 
     public static JsonResource empty() {
@@ -57,6 +63,14 @@ public final class JsonResource {
 
     public void setResourceFile(String resourceFile) {
         this.resourceFile = resourceFile;
+    }
+
+    public String getProviderName() {
+        return providerName;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
     }
 
     public JsonNode getRoot() {
@@ -130,6 +144,22 @@ public final class JsonResource {
         return root == null && resourceFile != null && !resourceFile.isBlank();
     }
 
+    public Map<String, JsonNode> getObjectIdMap() {
+        return objectIdMap;
+    }
+
+    public void setObjectIdMap(Map<String, JsonNode> objectIdMap) {
+        this.objectIdMap = objectIdMap;
+    }
+
+    public Map<String, JsonNode> getLinkMap() {
+        return linkMap;
+    }
+
+    public void setLinkMap(Map<String, JsonNode> linkMap) {
+        this.linkMap = linkMap;
+    }
+
     @Override
     public String toString() {
         return "JsonResource{"
@@ -143,4 +173,5 @@ public final class JsonResource {
     public void addExceptions(List<JsonExceptionEntry> addExceptions) {
         exceptions.addAll(addExceptions);
     }
+
 }
