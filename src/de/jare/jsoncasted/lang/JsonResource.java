@@ -18,8 +18,7 @@ public final class JsonResource {
     private JsonLinkScanResult scanResult;
     private final List<JsonExceptionEntry> exceptions = new ArrayList<>();
 
-    private Map<String, JsonNode> objectIdMap;
-    private Map<String, JsonNode> linkMap;
+    private LinkingSet linkingSet;
 
     private JsonResource() {
         this.importedProviderSynonyms = new ArrayList<>();
@@ -144,20 +143,12 @@ public final class JsonResource {
         return root == null && resourceFile != null && !resourceFile.isBlank();
     }
 
-    public Map<String, JsonNode> getObjectIdMap() {
-        return objectIdMap;
+    public LinkingSet getLinkingSet() {
+        return linkingSet;
     }
 
-    public void setObjectIdMap(Map<String, JsonNode> objectIdMap) {
-        this.objectIdMap = objectIdMap;
-    }
-
-    public Map<String, JsonNode> getLinkMap() {
-        return linkMap;
-    }
-
-    public void setLinkMap(Map<String, JsonNode> linkMap) {
-        this.linkMap = linkMap;
+    public void setLinkingSet(LinkingSet linkingSet) {
+        this.linkingSet = linkingSet;
     }
 
     @Override

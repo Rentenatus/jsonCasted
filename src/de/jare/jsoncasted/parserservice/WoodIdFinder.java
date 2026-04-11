@@ -8,9 +8,8 @@ package de.jare.jsoncasted.parserservice;
 
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonTerms;
+import de.jare.jsoncasted.lang.LinkingSet;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,86 +17,72 @@ import java.util.logging.Logger;
 public final class WoodIdFinder {
 
     private static final Logger LOG = Logger.getLogger(WoodIdFinder.class.getName());
+    private static final String PREFIX_THIS = "this::";
+    private static final String PREFIX_SELF = "self::";
 
-    public static Map<String, JsonNode> findWoodObjectIdParents(JsonNode root, String provider) {
+    private WoodIdFinder() {
+        throw new IllegalStateException("Utility class");
+    }
+
+    public static LinkingSet buildLinkingSet(JsonNode root, String providerName) {
         Objects.requireNonNull(root, "root must not be null");
-        Objects.requireNonNull(provider, "provider must not be null");
+        Objects.requireNonNull(providerName, "providerName must not be null");
 
-        Map<String, JsonNode> result = new LinkedHashMap<>();
-        traverseIdSearch(root, provider, result);
+        LinkingSet result = new LinkingSet(providerName);
+        traverse(root, providerName, result);
         return result;
     }
 
-    public static Map<String, JsonNode> findWoodLinkParents(JsonNode root) {
-        Objects.requireNonNull(root, "root must not be null");
-
-        Map<String, JsonNode> result = new LinkedHashMap<>();
-        traverseLinkSearch(root, result);
-        return result;
-    }
-
-    private static void traverseIdSearch(
-            JsonNode node,
-            String provider,
-            Map<String, JsonNode> result) {
-
+    private static void traverse(JsonNode node, String providerName, LinkingSet result) {
         if (node == null) {
             return;
         }
 
         if (node.isObject()) {
             JsonNode idNode = node.asObjectValues().get(JsonTerms.TERM_WOOD_OBJECT_ID);
-
             if (idNode != null) {
                 try {
-                    String key = provider + "::" + idNode.toText();
-                    result.put(key, node);
+                    String key = providerName + "::" + idNode.toText();
+                    result.getObjectIdMap().put(key, node);
                 } catch (JsonParseException ex) {
                     LOG.log(Level.WARNING, "Could not read _woodObjectId as text.", ex);
                 }
             }
-        }
 
-        if (node.isObject()) {
-            for (JsonNode child : node.asObjectValues().values()) {
-                traverseIdSearch(child, provider, result);
-            }
-        } else if (node.isArray()) {
-            for (JsonNode child : node.asArray()) {
-                traverseIdSearch(child, provider, result);
-            }
-        }
-    }
-
-    private static void traverseLinkSearch(
-            JsonNode node,
-            Map<String, JsonNode> result) {
-
-        if (node == null) {
-            return;
-        }
-
-        if (node.isObject()) {
             JsonNode linkNode = node.asObjectValues().get(JsonTerms.TERM_WOOD_LINK);
-
             if (linkNode != null) {
                 try {
-                    String key = linkNode.toText();
-                    result.put(key, node);
+                    String rawKey = linkNode.toText();
+                    String normalizedKey = normalizeLinkKey(rawKey, providerName);
+                    result.getLinkMap().put(normalizedKey, node);
                 } catch (JsonParseException ex) {
                     LOG.log(Level.WARNING, "Could not read _woodLink as text.", ex);
                 }
             }
+
+            for (JsonNode child : node.asObjectValues().values()) {
+                traverse(child, providerName, result);
+            }
+            return;
         }
 
-        if (node.isObject()) {
-            for (JsonNode child : node.asObjectValues().values()) {
-                traverseLinkSearch(child, result);
-            }
-        } else if (node.isArray()) {
+        if (node.isArray()) {
             for (JsonNode child : node.asArray()) {
-                traverseLinkSearch(child, result);
+                traverse(child, providerName, result);
             }
         }
+    }
+
+    private static String normalizeLinkKey(String linkKey, String providerName) {
+        if (linkKey == null) {
+            return null;
+        }
+        if (linkKey.startsWith(PREFIX_THIS)) {
+            return providerName + "::" + linkKey.substring(PREFIX_THIS.length());
+        }
+        if (linkKey.startsWith(PREFIX_SELF)) {
+            return providerName + "::" + linkKey.substring(PREFIX_SELF.length());
+        }
+        return linkKey;
     }
 }

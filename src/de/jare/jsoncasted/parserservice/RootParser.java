@@ -28,8 +28,7 @@ public class RootParser {
         container.setRoot(rootNode);
         JsonWoodProviderScanResult scan = JsonWoodProviderScanner.INSTANCE.scan(rootNode);
         JsonWoodProviderTinkerResult result = JsonWoodProviderTinker.INSTANCE.build(scan);
-        container.setObjectIdMap(WoodIdFinder.findWoodObjectIdParents(rootNode, container.getProviderName()));
-        container.setLinkMap(WoodIdFinder.findWoodLinkParents(rootNode));
+        container.setLinkingSet(WoodIdFinder.buildLinkingSet(rootNode, container.getProviderName()));
         if (result.hasExceptions()) {
             container.addExceptions(result.getExceptions());
         }
