@@ -6,10 +6,14 @@
  */
 package de.jare.jsoncasted.parserservice;
 
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonTerms;
+import de.jare.jsoncasted.lang.LinkNodeEntry;
 import de.jare.jsoncasted.lang.LinkingSet;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,16 +28,17 @@ public final class WoodIdFinder {
         throw new IllegalStateException("Utility class");
     }
 
-    public static LinkingSet buildLinkingSet(JsonNode root, String providerName) {
+    public static LinkingSet buildLinkingSet(JsonNode root, String providerName, JsonDebugLevel debugLevel) {
         Objects.requireNonNull(root, "root must not be null");
         Objects.requireNonNull(providerName, "providerName must not be null");
 
         LinkingSet result = new LinkingSet(providerName);
-        traverse(root, providerName, result);
+        traverse("$", root, providerName, result, debugLevel);
         return result;
     }
 
-    private static void traverse(JsonNode node, String providerName, LinkingSet result) {
+    private static void traverse(String path, JsonNode node,
+            String providerName, LinkingSet result, JsonDebugLevel debugLevel) {
         if (node == null) {
             return;
         }
@@ -43,8 +48,10 @@ public final class WoodIdFinder {
             if (idNode != null) {
                 try {
                     String key = providerName + "::" + idNode.toText();
-                    result.getObjectIdMap().put(key, node);
+                    final LinkNodeEntry linkNodeEntry = new LinkNodeEntry(node, key, path);
+                    result.getObjectIdMap().put(key, linkNodeEntry);
                 } catch (JsonParseException ex) {
+                    result.registerException(path, node, ex);
                     LOG.log(Level.WARNING, "Could not read _woodObjectId as text.", ex);
                 }
             }
@@ -54,21 +61,32 @@ public final class WoodIdFinder {
                 try {
                     String rawKey = linkNode.toText();
                     String normalizedKey = normalizeLinkKey(rawKey, providerName);
-                    result.getLinkMap().put(normalizedKey, node);
+                    final LinkNodeEntry linkNodeEntry = new LinkNodeEntry(node, normalizedKey, path);
+                    result.getLinkMap().put(normalizedKey, linkNodeEntry);
                 } catch (JsonParseException ex) {
+                    result.registerException(path, node, ex);
                     LOG.log(Level.WARNING, "Could not read _woodLink as text.", ex);
                 }
             }
 
-            for (JsonNode child : node.asObjectValues().values()) {
-                traverse(child, providerName, result);
+            Map<String, JsonNode> children = node.asObjectValues();
+            if (children == null || children.isEmpty()) {
+                return;
             }
+            children.forEach((key, childNode) -> {
+                String childPath = path + "." + key;
+                traverse(childPath, childNode, providerName, result, debugLevel);
+            });
+
             return;
         }
 
         if (node.isArray()) {
-            for (JsonNode child : node.asArray()) {
-                traverse(child, providerName, result);
+            List<JsonNode> array = node.asArray();
+            for (int i = 0; i < array.size(); i++) {
+                final JsonNode childNode = array.get(i);
+                String childPath = path + "[" + i + "]";
+                traverse(childPath, childNode, providerName, result, debugLevel);
             }
         }
     }

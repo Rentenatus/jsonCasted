@@ -1,12 +1,15 @@
+/* <copyright>
+ * Copyright (c) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
+ */
 package de.jare.jsoncasted.lang;
 
-import de.jare.jsoncasted.lang.calculator.JsonLinkScanResult;
 import de.jare.jsoncasted.wood.WoodProviderBox;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public final class JsonResource {
 
@@ -15,7 +18,6 @@ public final class JsonResource {
     private JsonNode root;
     private WoodProviderBox expectedBox;
     private List<String> importedProviderSynonyms;
-    private JsonLinkScanResult scanResult;
     private final List<JsonExceptionEntry> exceptions = new ArrayList<>();
 
     private LinkingSet linkingSet;
@@ -111,24 +113,12 @@ public final class JsonResource {
         return importedProviderSynonyms != null && !importedProviderSynonyms.isEmpty();
     }
 
-    public JsonLinkScanResult getScanResult() {
-        return scanResult;
-    }
-
-    public void setScanResult(JsonLinkScanResult scanResult) {
-        this.scanResult = scanResult;
-    }
-
     public boolean hasResourceFile() {
         return resourceFile != null && !resourceFile.isBlank();
     }
 
     public boolean hasRoot() {
         return root != null;
-    }
-
-    public boolean hasScanResult() {
-        return scanResult != null;
     }
 
     public boolean isLoaded() {
@@ -157,7 +147,6 @@ public final class JsonResource {
                 + "resourceFile='" + resourceFile + '\''
                 + ", hasRoot=" + (root != null)
                 + ", importedProviderSynonyms=" + importedProviderSynonyms
-                + ", hasScanResult=" + (scanResult != null)
                 + '}';
     }
 

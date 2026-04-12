@@ -181,7 +181,7 @@ public class JsonConfigFactoryNGTest {
             System.out.println(res.getExpectedBox());
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
-            obj1 = JsonParser.parse(node, definition.getDescriptor(), definition.getConfigRoot().getcName());
+            obj1 = JsonParser.parse(res, definition.getDescriptor(), definition.getConfigRoot().getcName());
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);

@@ -7,13 +7,11 @@
 package de.jare.jsoncasted.pconvertservice;
 
 import de.jare.debug.DebugTuple;
-import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.lang.JsonNode;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
-import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import java.util.ArrayList;
@@ -29,8 +27,14 @@ import java.util.logging.Logger;
  */
 public class JsonObjectConverter {
 
-    public static JsonItem convertObject(JsonNode node, JsonTypeDescriptor contextClass, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
-        JsonObjectConverter converter = new JsonObjectConverter(node, contextClass, descriptor, debugLevel);
+    public JsonObjectConverter() {
+        throw new IllegalStateException("Utility class");
+    }
+
+    public static JsonItem convertObject(JsonNode node, JsonTypeDescriptor contextClass,
+            ConvertService service) throws JsonParseException {
+
+        JsonObjectConverter converter = new JsonObjectConverter(node, contextClass, service);
         final JsonTypeDescriptor castedChildType
                 = converter.castOrGet(contextClass, node.asObjectValues(), "this");
         if (castedChildType != null && castedChildType != contextClass) {
@@ -42,15 +46,16 @@ public class JsonObjectConverter {
     final Map<String, JsonNode> values;
     private JsonObject myObject;
     private JsonTypeDescriptor contextClass;
-    final JsonModelDescriptor descriptor;
-    final JsonDebugLevel debugLevel;
+    final ConvertService service;
 
-    JsonObjectConverter(JsonNode node, JsonTypeDescriptor contextClass, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
+    JsonObjectConverter(JsonNode node, JsonTypeDescriptor contextClass,
+            ConvertService service) throws JsonParseException {
+
         this.values = node.asObjectValues();
         if (contextClass == null && values != null) {
             final JsonNode cast = values.get(TERM_CLASS);
             if (cast != null) {
-                contextClass = descriptor.getType(cast.asText());
+                contextClass = service.getType(cast.asText());
             }
         }
         node.setJsonDescriptor(contextClass);
@@ -59,8 +64,7 @@ public class JsonObjectConverter {
         }
         this.contextClass = contextClass;
         this.myObject = new JsonObject(contextClass);
-        this.descriptor = descriptor;
-        this.debugLevel = debugLevel;
+        this.service = service;
     }
 
     private void setCastedContext(JsonTypeDescriptor castedChildType) {
@@ -74,7 +78,7 @@ public class JsonObjectConverter {
             try {
                 calculateParam(paramName, childNode);
             } catch (JsonParseException ex) {
-                debugLevel.warning(() -> new DebugTuple(
+                service.warning(() -> new DebugTuple(
                         "[WARNING] " + contextClass.getTypeName() + "." + paramName
                         + ": Convert failed.",
                         ex
@@ -108,21 +112,21 @@ public class JsonObjectConverter {
             if (TERM_CLASS.equals(paramName)) {
                 return;
             }
-            debugLevel.info(() -> new DebugTuple("{0}: Field {1} not found.",
+            service.info(() -> new DebugTuple("{0}: Field {1} not found.",
                     contextClass.getTypeName(), paramName)
             );
             return;
         }
 
-        final JsonTypeDescriptor childType = descriptor.getType(field.getTypeName());
+        final JsonTypeDescriptor childType = service.getType(field.getTypeName());
         final JsonTypeDescriptor castedChildType = castOrGet(childType, childNode.asObjectValues(), paramName);
         if (castedChildType == null) {
             return;
         }
 
         JsonItem paramObject = field.isAsListOrArray()
-                ? JsonNodeConverter.convertArray(childNode, castedChildType, field.isAsList(), descriptor, debugLevel)
-                : JsonNodeConverter.convert(childNode, castedChildType, descriptor, debugLevel);
+                ? JsonNodeConverter.convertArray(childNode, castedChildType, field.isAsList(), service)
+                : JsonNodeConverter.convert(childNode, castedChildType, service);
         myObject.putParam(paramName, paramObject);
 
     }
@@ -136,22 +140,22 @@ public class JsonObjectConverter {
                         new Object[]{contextClass.getTypeName(), paramName});
                 return null;
             }
-            castedChildType = descriptor.getTypePerceptive(cast.asText());
+            castedChildType = service.getTypePerceptive(cast.asText());
             if (castedChildType == null) {
                 Logger.getGlobal().log(Level.SEVERE, "{0}.{1}: Unknown class: {2}",
                         new Object[]{contextClass.getTypeName(), paramName, cast.asText()});
                 return null;
             }
-            debugLevel.info(() -> new DebugTuple("{0}.{1}: Cast used: {2}",
+            service.info(() -> new DebugTuple("{0}.{1}: Cast used: {2}",
                     contextClass.getTypeName(), paramName, cast.asText())
             );
         } else if (cast != null) {
             final List<JsonTypeDescriptor> implementors = suspectedType.getImplementors();
-            final JsonTypeDescriptor candidate = descriptor.getTypePerceptive(cast.asText());
+            final JsonTypeDescriptor candidate = service.getTypePerceptive(cast.asText());
             if (implementors.isEmpty()) {
                 if (candidate.containsSuper(suspectedType)) {
 
-                    debugLevel.info(() -> new DebugTuple("{0}.{1}: Cast used: {2} extends {3}",
+                    service.info(() -> new DebugTuple("{0}.{1}: Cast used: {2} extends {3}",
                             contextClass.getTypeName(),
                             paramName,
                             candidate.getTypeName(),
@@ -167,7 +171,7 @@ public class JsonObjectConverter {
                 for (JsonTypeDescriptor im : implementors) {
                     if (im.getTypeName().equals(candidate.getTypeName())) {
                         castedChildType = candidate;
-                        debugLevel.info(() -> new DebugTuple("{0}.{1}: Cast used: {2} implements {3}",
+                        service.info(() -> new DebugTuple("{0}.{1}: Cast used: {2} implements {3}",
                                 contextClass.getTypeName(),
                                 paramName,
                                 candidate.getTypeName(),
@@ -189,10 +193,10 @@ public class JsonObjectConverter {
 
     protected void calculateMapEntry(String paramName, JsonNode childNode) throws JsonParseException {
         JsonFieldDescriptor field = contextClass.getMappingAllFields();
-        JsonTypeDescriptor childType = descriptor.getType(field.getTypeName());
+        JsonTypeDescriptor childType = service.getType(field.getTypeName());
         JsonItem paramObject = field.isAsListOrArray()
-                ? JsonNodeConverter.convertArray(childNode, childType, field.isAsList(), descriptor, debugLevel)
-                : JsonNodeConverter.convert(childNode, childType, descriptor, debugLevel);
+                ? JsonNodeConverter.convertArray(childNode, childType, field.isAsList(), service)
+                : JsonNodeConverter.convert(childNode, childType, service);
         myObject.putParam(paramName, paramObject);
 
     }

@@ -7,7 +7,9 @@
 package de.jare.jsoncasted.lang.calculator;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.JsonBuildException;
+import de.jare.jsoncasted.parserservice.JsonParserService;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.parserwriter.JsonParser;
 import de.jare.jsoncasted.wood.WoodProviderBox;
@@ -43,7 +45,8 @@ public final class JsonWoodProviderTinker {
 
     private void buildEntry(JsonWoodProviderScanResult.ProviderNodeEntry entry, JsonWoodProviderTinkerResult result) {
         try {
-            JsonItem jsonItem = JsonParser.parse(entry.getOwnerNode(),
+            JsonResource res = JsonResource.forRoot(entry.getOwnerNode());
+            JsonItem jsonItem = JsonParser.parse(res,
                     definition.getDescriptor(), definition.getWoodProviderBox().getcName());
             Object instance = jsonItem.buildInstance(definition.getModel());
 

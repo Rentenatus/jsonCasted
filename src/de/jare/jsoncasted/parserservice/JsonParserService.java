@@ -63,7 +63,7 @@ public class JsonParserService {
 
     public static JsonResource parse(Reader reader, JsonResource container, JsonDebugLevel debugLevel) throws IOException, JsonParseException, JsonParseException {
         ParseStreamReader psr = new ParseStreamReader(reader, debugLevel);
-        return RootParser.parse(psr, container);
+        return RootParser.parse(psr, container, debugLevel);
     }
 
 }

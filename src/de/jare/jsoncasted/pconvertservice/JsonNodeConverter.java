@@ -12,6 +12,7 @@ import de.jare.jsoncasted.item.JsonList;
 import de.jare.jsoncasted.item.JsonValue;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
@@ -24,54 +25,62 @@ import java.util.ArrayList;
  */
 public class JsonNodeConverter {
 
-    public static JsonItem convert(JsonNode node, String cName, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
-        if (node == null) {
+    public JsonNodeConverter() {
+        throw new IllegalStateException("Utility class");
+    }
+
+    public static JsonItem convert(JsonResource res, String cName, JsonModelDescriptor descriptor, WoodResolution resolution, JsonDebugLevel debugLevel) throws JsonParseException {
+        if (res == null) {
+            return null;
+        }
+        if (res.getRoot() == null) {
             return null;
         }
         JsonTypeDescriptor contextClass = descriptor.getType(cName);
         if (contextClass == null) {
             return null;
         }
-        return convert(node, contextClass, descriptor, debugLevel);
+        ConvertService service = new ConvertService(res, descriptor, resolution, debugLevel);
+        return convert(res.getRoot(), contextClass, service);
     }
 
-    public static JsonItem convert(JsonNode node, JsonTypeDescriptor contextClass, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
+    public static JsonItem convert(JsonNode node, JsonTypeDescriptor contextClass, ConvertService service) throws JsonParseException {
         if (node == null) {
             return null;
         }
         switch (node.getType()) {
             case OBJECT:
-                return JsonObjectConverter.convertObject(node, contextClass, descriptor, debugLevel);
+                return JsonObjectConverter.convertObject(node, contextClass, service);
             case ARRAY:
-                return convertArray(node, contextClass, false, descriptor, debugLevel);
+                return convertArray(node, contextClass, false, service);
             case STRING:
-                return convertString(node, contextClass, descriptor, debugLevel);
+                return convertString(node, contextClass, service);
             case NUMBER:
-                return convertNumber(node, contextClass, descriptor, debugLevel);
+                return convertNumber(node, contextClass, service);
             case LONG:
-                return convertLongNumber(node, contextClass, descriptor, debugLevel);
+                return convertLongNumber(node, contextClass, service);
             case BOOLEAN:
-                return convertBoolean(node, contextClass, descriptor, debugLevel);
+                return convertBoolean(node, contextClass, service);
             case NULL:
-                return convertNull(node, contextClass, descriptor, debugLevel);
+                return convertNull(node, contextClass, service);
             default:
                 throw new JsonParseException("Unsupported JsonNode type: " + node.getType());
         }
     }
 
-    protected static JsonItem convertArray(JsonNode node, JsonTypeDescriptor contextClass, boolean asList, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
+    protected static JsonItem convertArray(JsonNode node, JsonTypeDescriptor contextClass, boolean asList, ConvertService service) throws JsonParseException {
         ArrayList<JsonItem> list = new ArrayList<>();
         for (JsonNode child : node.asArray()) {
-            list.add(convert(child, contextClass, descriptor, debugLevel));
+            list.add(convert(child, contextClass, service));
         }
         return new JsonList(list, asList, contextClass);
     }
 
-    private static JsonItem convertString(JsonNode node, JsonTypeDescriptor contextClass, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
+    private static JsonItem convertString(JsonNode node, JsonTypeDescriptor contextClass, ConvertService service) throws JsonParseException {
         return new JsonValue(node.toText(), contextClass);
     }
 
-    private static JsonItem convertNumber(JsonNode node, JsonTypeDescriptor contextClass, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
+    private static JsonItem convertNumber(JsonNode node, JsonTypeDescriptor contextClass, ConvertService service) throws JsonParseException {
         if (contextClass.getNodeType() == JsonNodeType.STRING) {
             return new JsonValue(node.toText(), contextClass);
         }
@@ -79,7 +88,7 @@ public class JsonNodeConverter {
         return new JsonValue(node.asNumber(), contextClass);
     }
 
-    private static JsonItem convertLongNumber(JsonNode node, JsonTypeDescriptor contextClass, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
+    private static JsonItem convertLongNumber(JsonNode node, JsonTypeDescriptor contextClass, ConvertService service) throws JsonParseException {
         if (contextClass.getNodeType() == JsonNodeType.STRING) {
             return new JsonValue(node.toText(), contextClass);
         }
@@ -90,7 +99,7 @@ public class JsonNodeConverter {
         return new JsonValue(node.asLong(), contextClass);
     }
 
-    private static JsonItem convertBoolean(JsonNode node, JsonTypeDescriptor contextClass, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
+    private static JsonItem convertBoolean(JsonNode node, JsonTypeDescriptor contextClass, ConvertService service) throws JsonParseException {
         if (contextClass.getNodeType() == JsonNodeType.STRING) {
             return new JsonValue(node.toText(), contextClass);
         }
@@ -98,7 +107,7 @@ public class JsonNodeConverter {
         return new JsonValue(node.asBoolean(), contextClass);
     }
 
-    private static JsonItem convertNull(JsonNode node, JsonTypeDescriptor contextClass, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
+    private static JsonItem convertNull(JsonNode node, JsonTypeDescriptor contextClass, ConvertService service) throws JsonParseException {
         return new JsonValue(contextClass);
     }
 
