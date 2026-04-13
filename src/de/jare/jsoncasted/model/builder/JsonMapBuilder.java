@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModel;
@@ -33,20 +34,17 @@ public class JsonMapBuilder implements JsonModellClassBuilder {
 
     private final Class<? extends JsonInstance> singular;
     private final JsonClass itemClass;
-    private final JsonModel model;
 
     /**
      * Constructs a JsonMapBuilder instance with the specified class type and
      * item class.
      *
-     * @param model
      * @param singular The target JsonInstance class type.
      * @param itemClass The JSON class describing the map structure.
      */
-    public JsonMapBuilder(JsonModel model, Class<? extends JsonInstance> singular, JsonClass itemClass) {
+    public JsonMapBuilder(Class<? extends JsonInstance> singular, JsonClass itemClass) {
         this.singular = singular;
         this.itemClass = itemClass;
-        this.model = model;
     }
 
     /**
@@ -54,14 +52,15 @@ public class JsonMapBuilder implements JsonModellClassBuilder {
      *
      * @param aThis The JSON map structure.
      * @param jsonItem The JSON item containing the mapped values.
+     * @param builderService
      * @return A constructed JsonInstance containing mapped properties.
      * @throws JsonBuildException If instance creation fails.
      */
-    public JsonInstance buildMap(JsonMap aThis, JsonItem jsonItem) throws JsonBuildException {
+    public JsonInstance buildMap(JsonMap aThis, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
         JsonInstance ret = createInstance();
         for (String para : jsonItem.getParamSet()) {
             JsonItem item = jsonItem.getParam(para);
-            ret.putObject(para, item.buildInstance(model));
+            ret.putObject(para, item.buildInstance(builderService));
         }
         return ret;
     }
@@ -94,16 +93,17 @@ public class JsonMapBuilder implements JsonModellClassBuilder {
      * Builds a list of JsonInstance objects from a JSON map array.
      *
      * @param aThis The JSON map structure.
+     * @param builderService
      * @param listIterator Iterator over JSON items.
      * @param size The expected size of the list.
      * @return A list of JsonInstance objects.
      * @throws JsonBuildException If instance creation fails.
      */
-    public List<JsonInstance> buildMapList(JsonMap aThis, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public List<JsonInstance> buildMapList(JsonMap aThis, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         List<JsonInstance> ret = new ArrayList<>(size);
         while (listIterator.hasNext()) {
             JsonItem next = listIterator.next();
-            ret.add(buildMap(aThis, next));
+            ret.add(buildMap(aThis, next, builderService));
         }
         return ret;
     }
@@ -112,17 +112,18 @@ public class JsonMapBuilder implements JsonModellClassBuilder {
      * Builds an array of JsonInstance objects from a JSON map array.
      *
      * @param aThis The JSON map structure.
+     * @param builderService
      * @param listIterator Iterator over JSON items.
      * @param size The expected size of the array.
      * @return An array of JsonInstance objects.
      * @throws JsonBuildException If instance creation fails.
      */
-    public JsonInstance[] buildMapArray(JsonMap aThis, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public JsonInstance[] buildMapArray(JsonMap aThis, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         JsonInstance[] ret = new JsonInstance[size];
         int index = 0;
         while (listIterator.hasNext()) {
             JsonItem next = listIterator.next();
-            ret[index] = buildMap(aThis, next);
+            ret[index] = buildMap(aThis, next, builderService);
             index++;
         }
         return ret;
@@ -156,40 +157,43 @@ public class JsonMapBuilder implements JsonModellClassBuilder {
      *
      * @param aThis The JSON map structure.
      * @param jsonItem The JSON item containing the mapped values.
+     * @param builderService
      * @return A constructed JsonInstance containing mapped properties.
      * @throws JsonBuildException If instance creation fails.
      */
     @Override
-    public Object build(JsonClass aThis, JsonItem jsonItem) throws JsonBuildException {
-        return buildMap((JsonMap) aThis, jsonItem);
+    public Object build(JsonClass aThis, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
+        return buildMap((JsonMap) aThis, jsonItem, builderService);
     }
 
     /**
      * Builds a list of JsonInstance objects from a JSON map array.
      *
      * @param aThis The JSON map structure.
+     * @param builderService
      * @param listIterator Iterator over JSON items.
      * @param size The expected size of the list.
      * @return A list of JsonInstance objects.
      * @throws JsonBuildException If instance creation fails.
      */
     @Override
-    public Object buildList(JsonType aThis, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
-        return buildMapList((JsonMap) aThis, listIterator, size);
+    public Object buildList(JsonType aThis, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+        return buildMapList((JsonMap) aThis, builderService, listIterator, size);
     }
 
     /**
      * Builds an array of JsonInstance objects from a JSON map array.
      *
      * @param aThis The JSON map structure.
+     * @param builderService
      * @param listIterator Iterator over JSON items.
      * @param size The expected size of the array.
      * @return An array of JsonInstance objects.
      * @throws JsonBuildException If instance creation fails.
      */
     @Override
-    public Object buildArray(JsonType aThis, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
-        return buildMapArray((JsonMap) aThis, listIterator, size);
+    public Object buildArray(JsonType aThis, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+        return buildMapArray((JsonMap) aThis, builderService, listIterator, size);
     }
 
     /**

@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
@@ -44,7 +45,7 @@ public class JsonLongBuilder implements JsonModellClassBuilder {
      * @return The long representation of the JSON value.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem) {
+    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
         return jsonItem.getLongValue();
     }
 
@@ -58,7 +59,7 @@ public class JsonLongBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public ArrayList<Long> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public ArrayList<Long> buildList(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         ArrayList<Long> ret = new ArrayList<>(size);
         listIterator.forEachRemaining(action -> ret.add(action.getLongValue()));
         return ret;
@@ -74,7 +75,7 @@ public class JsonLongBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public long[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public long[] buildArray(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         final long[] ret = new long[size];
         int i = 0;
         while (listIterator.hasNext()) {

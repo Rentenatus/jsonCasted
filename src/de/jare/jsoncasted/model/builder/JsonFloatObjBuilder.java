@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
@@ -45,7 +46,7 @@ public class JsonFloatObjBuilder implements JsonModellClassBuilder {
      * @return A Float object representing the JSON value, or null if undefined.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem) {
+    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
         return jsonItem.getFloatValue();
     }
 
@@ -59,7 +60,7 @@ public class JsonFloatObjBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public ArrayList<Float> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public ArrayList<Float> buildList(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         ArrayList<Float> ret = new ArrayList<>(size);
         listIterator.forEachRemaining(action -> ret.add(action.getFloatValue()));
         return ret;
@@ -75,8 +76,8 @@ public class JsonFloatObjBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public Object[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
-        return buildList(jType, listIterator, size).toArray(new Float[size]);
+    public Object[] buildArray(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+        return buildList(jType, builderService, listIterator, size).toArray(new Float[size]);
     }
 
     /**

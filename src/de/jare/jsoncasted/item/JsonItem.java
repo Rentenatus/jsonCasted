@@ -7,8 +7,8 @@
  */
 package de.jare.jsoncasted.item;
 
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
-import de.jare.jsoncasted.model.JsonModel;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -96,11 +96,11 @@ public interface JsonItem {
     /**
      * Builds an instance of an object based on the JSON item's structure.
      *
-     * @param model
+     * @param builderService
      * @return The constructed object.
      * @throws JsonBuildException If the instance creation fails.
      */
-    public Object buildInstance(JsonModel model) throws JsonBuildException;
+    public Object buildInstance(BuilderService builderService) throws JsonBuildException;
 
     /**
      * Returns the class name representation of the JSON item.

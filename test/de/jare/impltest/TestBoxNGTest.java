@@ -11,6 +11,7 @@ import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.parserservice.JsonParserService;
 import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.parserwriter.JsonParser;
 import de.jare.jsoncasted.writer.inner.RootObjectWriter;
@@ -104,7 +105,7 @@ public class TestBoxNGTest {
 
         TestBox root = null;
         try {
-            final Object buildInstance1 = obj1.buildInstance(definition.getModel());
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (TestBox) buildInstance1);
 
@@ -176,7 +177,7 @@ public class TestBoxNGTest {
 
         TestBox root = null;
         try {
-            final Object buildInstance1 = obj1.buildInstance(definition.getModel());
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (TestBox) buildInstance1);
 

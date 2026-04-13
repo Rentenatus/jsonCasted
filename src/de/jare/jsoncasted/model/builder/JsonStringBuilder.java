@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
@@ -46,7 +47,7 @@ public class JsonStringBuilder implements JsonModellClassBuilder, SimpleStringSp
      * @return The processed string representation of the JSON value.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem) {
+    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
         return buildString(jsonItem);
     }
 
@@ -60,7 +61,7 @@ public class JsonStringBuilder implements JsonModellClassBuilder, SimpleStringSp
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public ArrayList<String> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public ArrayList<String> buildList(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         ArrayList<String> ret = new ArrayList<>(size);
         listIterator.forEachRemaining(action -> ret.add(buildString(action)));
         return ret;
@@ -92,8 +93,8 @@ public class JsonStringBuilder implements JsonModellClassBuilder, SimpleStringSp
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public Object[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
-        return buildList(jType, listIterator, 0).toArray(new String[size]);
+    public Object[] buildArray(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+        return buildList(jType, builderService, listIterator, 0).toArray(new String[size]);
     }
 
     /**

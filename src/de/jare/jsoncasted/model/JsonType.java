@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
@@ -37,7 +38,7 @@ public interface JsonType {
      */
     public boolean contains(JsonType check);
 
-    public Object build(Iterator<JsonItem> listIterator, boolean asList, int size) throws JsonBuildException;
+    public Object build(BuilderService builderService, Iterator<JsonItem> listIterator, boolean asList, int size) throws JsonBuildException;
 
     public boolean isPrimitive();
 

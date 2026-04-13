@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
@@ -63,7 +64,7 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
      * @throws JsonBuildException If the enum cannot be retrieved.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem) throws JsonBuildException {
+    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
         return buildFromString(jsonItem);
     }
 
@@ -77,7 +78,7 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public ArrayList<Object> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public ArrayList<Object> buildList(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         ArrayList<Object> list = new ArrayList<>(size);
         while (listIterator.hasNext()) {
             JsonItem next = listIterator.next();
@@ -134,8 +135,8 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public Object[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
-        return buildList(jType, listIterator, size).toArray();
+    public Object[] buildArray(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+        return buildList(jType, builderService, listIterator, size).toArray();
     }
 
     /**

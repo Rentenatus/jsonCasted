@@ -7,6 +7,7 @@
  */
 package de.jare.jsoncasted.item;
 
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.model.JsonBuildException;
@@ -282,11 +283,7 @@ public class JsonValue implements JsonItem {
      * @throws JsonBuildException If instance creation fails.
      */
     @Override
-    public Object buildInstance(JsonModel model) throws JsonBuildException {
-        JsonClass jType = model.getJsonClass(contextClass.getTypeName());
-        if (jType == null) {
-            return null;
-        }
-        return jType.build(this);
+    public Object buildInstance(BuilderService builderService) throws JsonBuildException {
+        return builderService.buildValue(this, contextClass);
     }
 }

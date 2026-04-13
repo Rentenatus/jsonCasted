@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model.item;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
@@ -143,10 +144,10 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
      * @throws JsonBuildException If instance creation fails.
      */
     @Override
-    public Object build(Iterator<JsonItem> listIterator, boolean asList, int size) throws JsonBuildException {
+    public Object build(BuilderService builderService, Iterator<JsonItem> listIterator, boolean asList, int size) throws JsonBuildException {
         return builder == null ? null : (asList
-                ? builder.buildList(this, listIterator, size)
-                : builder.buildArray(this, listIterator, size));
+                ? builder.buildList(this, builderService, listIterator, size)
+                : builder.buildArray(this, builderService, listIterator, size));
     }
 
     /**

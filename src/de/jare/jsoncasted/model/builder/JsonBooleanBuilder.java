@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
@@ -45,7 +46,7 @@ public class JsonBooleanBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem) throws JsonBuildException {
+    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
         return jsonItem.getBooleanValue();
     }
 
@@ -59,7 +60,7 @@ public class JsonBooleanBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public ArrayList<Boolean> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public ArrayList<Boolean> buildList(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         ArrayList<Boolean> ret = new ArrayList<>(size);
         listIterator.forEachRemaining(action -> ret.add(action.getBooleanValue()));
         return ret;
@@ -75,7 +76,7 @@ public class JsonBooleanBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public boolean[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public boolean[] buildArray(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         final boolean[] ret = new boolean[size];
         int i = 0;
         while (listIterator.hasNext()) {

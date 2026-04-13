@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
@@ -44,7 +45,7 @@ public class JsonDoubleBuilder implements JsonModellClassBuilder {
      * @return The double representation of the JSON value.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem) {
+    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
         return jsonItem.getNumberValue();
     }
 
@@ -58,7 +59,7 @@ public class JsonDoubleBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public ArrayList<Double> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public ArrayList<Double> buildList(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         ArrayList<Double> ret = new ArrayList<>(size);
         listIterator.forEachRemaining(action -> ret.add(action.getNumberValue()));
         return ret;
@@ -74,7 +75,7 @@ public class JsonDoubleBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public double[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public double[] buildArray(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         final double[] ret = new double[size];
         int i = 0;
         while (listIterator.hasNext()) {

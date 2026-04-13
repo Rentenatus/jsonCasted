@@ -9,7 +9,7 @@ import java.io.FileReader;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class JsonParserNodeInputTest {
+public class JsonParserNodeInputNGTest {
 
     @Test
     public void testParseNodeCast1() throws Exception {

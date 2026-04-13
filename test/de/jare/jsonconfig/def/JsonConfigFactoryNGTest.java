@@ -9,6 +9,7 @@ package de.jare.jsonconfig.def;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.JsonBuildException;
@@ -145,7 +146,7 @@ public class JsonConfigFactoryNGTest {
 
         ConfigRoot root = null;
         try {
-            final Object buildInstance1 = obj1.buildInstance(definition.getModel());
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (ConfigRoot) buildInstance1);
 
@@ -195,7 +196,7 @@ public class JsonConfigFactoryNGTest {
 
         ConfigRoot root = null;
         try {
-            final Object buildInstance1 = obj1.buildInstance(definition.getModel());
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (ConfigRoot) buildInstance1);
 

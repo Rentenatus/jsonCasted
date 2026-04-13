@@ -7,6 +7,7 @@
  */
 package de.jare.jsoncasted.item;
 
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
@@ -184,17 +185,7 @@ public class JsonObject implements JsonItem {
      * @throws JsonBuildException If instance creation fails.
      */
     @Override
-    public Object buildInstance(JsonModel model) throws JsonBuildException {
-        JsonClass jType = model.getJsonClass(contextClass.getTypeName());
-        if (jType == null) {
-            JsonInter jInter = model.getJsonInter(contextClass.getTypeName());
-            if (jInter != null) {
-                Logger.getGlobal().log(Level.SEVERE, "JsonClass {0} needs a casting.", new Object[]{contextClass.getTypeName()});
-                return null;
-            }
-            Logger.getGlobal().log(Level.SEVERE, "JsonClass {0} is unknown.", new Object[]{contextClass.getTypeName()});
-            return null;
-        }
-        return jType.build(this);
+    public Object buildInstance(BuilderService builderService) throws JsonBuildException {
+        return builderService.getOrBuild(this, contextClass);
     }
 }
