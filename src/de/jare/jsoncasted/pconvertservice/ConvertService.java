@@ -8,6 +8,7 @@ package de.jare.jsoncasted.pconvertservice;
 
 import de.jare.debug.DebugTuple;
 import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.LinkingSet;
@@ -99,7 +100,11 @@ public class ConvertService {
         return res.getLinkingSet();
     }
 
-    public Object getResolvedObject(String key) {
+    public JsonItem getResolvedObject(String key) {
         return resolution.getResolvedObject(key);
+    }
+
+    boolean containsResolutionKey(String aKey) {
+        return getResolution().containsKey(aKey);
     }
 }

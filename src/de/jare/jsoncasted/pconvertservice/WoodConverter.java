@@ -7,6 +7,7 @@
 package de.jare.jsoncasted.pconvertservice;
 
 import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonTerms;
@@ -46,7 +47,7 @@ public final class WoodConverter {
 
         ConvertService service = new ConvertService(container, descriptor, resolution, debugLevel);
         while (!remainingKeys.isEmpty() && progress) {
-            progress = convertLoop(remainingKeys, linkingSet,  service);
+            progress = convertLoop(remainingKeys, linkingSet, service);
         }
 
         for (String unresolved : remainingKeys) {
@@ -75,8 +76,9 @@ public final class WoodConverter {
 
             try {
                 JsonTypeDescriptor typeDescriptor = resolveContextClass(node, service.getDescriptor());
-                Object builtObject = JsonObjectConverter.convertObject(node, typeDescriptor, service);
-                service.getResolution().putResolvedObject(key, builtObject);
+                JsonItem convertedObject = JsonObjectConverter.convertObject(node, typeDescriptor, service);
+                convertedObject.setWoodKey(key);
+                service.getResolution().putResolvedObject(key, convertedObject);
                 resolvedThisRound.add(key);
                 progress = true;
             } catch (JsonParseException ex) {
@@ -89,45 +91,14 @@ public final class WoodConverter {
         return progress;
     }
 
-    private static boolean isConvertibleNow(
-            JsonNode node,
+    private static boolean isConvertibleNow(JsonNode node,
             LinkingSet linkingSet,
             WoodResolution resolution) {
 
         if (node == null) {
             return false;
         }
-
-        if (node.isObject()) {
-            JsonNode linkNode = node.asObjectValues().get(JsonTerms.TERM_WOOD_LINK);
-            if (linkNode != null) {
-                try {
-                    String linkKey = linkNode.toText();
-                    if (!linkingSet.getObjectIdMap().containsKey(linkKey)
-                            && !resolution.getUnmodifiableResolvedObjects().containsKey(linkKey)) {
-                        return false;
-                    }
-                    if (linkingSet.getObjectIdMap().containsKey(linkKey)
-                            && !resolution.getUnmodifiableResolvedObjects().containsKey(linkKey)) {
-                        return false;
-                    }
-                } catch (JsonParseException ex) {
-                    resolution.addException(ex);
-                    return false;
-                }
-            }
-
-            for (Map.Entry<String, JsonNode> entry : node.asObjectValues().entrySet()) {
-                String key = entry.getKey();
-                if (JsonTerms.TERM_WOOD_OBJECT_ID.equals(key) || JsonTerms.TERM_WOOD_LINK.equals(key)) {
-                    continue;
-                }
-                if (!isConvertibleNow(entry.getValue(), linkingSet, resolution)) {
-                    return false;
-                }
-            }
-            return true;
-        }
+        final String providerName = linkingSet.getProviderName();
 
         if (node.isArray()) {
             for (JsonNode child : node.asArray()) {
@@ -138,6 +109,45 @@ public final class WoodConverter {
             return true;
         }
 
+        if (!node.isObject()) {
+            return true;
+        }
+
+        try {
+            String linkKey = node.getLink(providerName);
+            if (linkKey != null) {
+                if ( !resolution.getUnmodifiableResolvedObjects().containsKey(linkKey)) {
+                    return false;
+                }
+            }
+            String idKey = node.getObjectId(providerName);
+            if (idKey != null) {
+                if ( !resolution.getUnmodifiableResolvedObjects().containsKey(idKey)) {
+                    return isConvertibleBelow(node, linkingSet, resolution);
+                }
+            }
+        } catch (JsonParseException ex) {
+            resolution.addException(ex);
+            return false;
+        }
+
+        return true;
+
+    }
+
+    public static boolean isConvertibleBelow(JsonNode node,
+            LinkingSet linkingSet,
+            WoodResolution resolution) {
+        for (Map.Entry<String, JsonNode> entry : node.asObjectValues().entrySet()) {
+            String key = entry.getKey();
+            if (JsonTerms.TERM_WOOD_OBJECT_ID.equals(key) || JsonTerms.TERM_WOOD_LINK.equals(key)
+                    || JsonTerms.TERM_CLASS.equals(key) || JsonTerms.TERM_WOOD_PROVIDERS.equals(key)) {
+                continue;
+            }
+            if (!isConvertibleNow(entry.getValue(), linkingSet, resolution)) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -154,7 +164,7 @@ public final class WoodConverter {
         }
 
         String className = classNode.toText();
-        JsonTypeDescriptor typeDescriptor = descriptor.getOrDefault(className, null);
+        JsonTypeDescriptor typeDescriptor = descriptor.getTypePerceptive(className);
 
         if (typeDescriptor == null) {
             throw new JsonParseException("No JsonClass found in descriptor for _class=" + className);

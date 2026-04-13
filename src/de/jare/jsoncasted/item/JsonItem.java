@@ -109,4 +109,8 @@ public interface JsonItem {
      */
     public String getPrintClassName();
 
+    default void setWoodKey(String key) {
+        //NoOp
+    }
+
 }

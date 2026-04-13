@@ -21,8 +21,6 @@ import java.util.logging.Logger;
 public final class WoodIdFinder {
 
     private static final Logger LOG = Logger.getLogger(WoodIdFinder.class.getName());
-    private static final String PREFIX_THIS = "this::";
-    private static final String PREFIX_SELF = "self::";
 
     private WoodIdFinder() {
         throw new IllegalStateException("Utility class");
@@ -44,29 +42,26 @@ public final class WoodIdFinder {
         }
 
         if (node.isObject()) {
-            JsonNode idNode = node.asObjectValues().get(JsonTerms.TERM_WOOD_OBJECT_ID);
-            if (idNode != null) {
-                try {
-                    String key = providerName + "::" + idNode.toText();
+            try {
+                String key = node.getObjectId(providerName);
+                if (key != null) {
                     final LinkNodeEntry linkNodeEntry = new LinkNodeEntry(node, key, path);
                     result.getObjectIdMap().put(key, linkNodeEntry);
-                } catch (JsonParseException ex) {
-                    result.registerException(path, node, ex);
-                    LOG.log(Level.WARNING, "Could not read _woodObjectId as text.", ex);
                 }
+            } catch (JsonParseException ex) {
+                result.registerException(path, node, ex);
+                LOG.log(Level.WARNING, "Could not read _woodObjectId as text.", ex);
             }
 
-            JsonNode linkNode = node.asObjectValues().get(JsonTerms.TERM_WOOD_LINK);
-            if (linkNode != null) {
-                try {
-                    String rawKey = linkNode.toText();
-                    String normalizedKey = normalizeLinkKey(rawKey, providerName);
+            try {
+                String normalizedKey = node.getLink(providerName);
+                if (normalizedKey != null) {
                     final LinkNodeEntry linkNodeEntry = new LinkNodeEntry(node, normalizedKey, path);
                     result.getLinkMap().put(normalizedKey, linkNodeEntry);
-                } catch (JsonParseException ex) {
-                    result.registerException(path, node, ex);
-                    LOG.log(Level.WARNING, "Could not read _woodLink as text.", ex);
                 }
+            } catch (JsonParseException ex) {
+                result.registerException(path, node, ex);
+                LOG.log(Level.WARNING, "Could not read _woodLink as text.", ex);
             }
 
             Map<String, JsonNode> children = node.asObjectValues();
@@ -91,16 +86,4 @@ public final class WoodIdFinder {
         }
     }
 
-    private static String normalizeLinkKey(String linkKey, String providerName) {
-        if (linkKey == null) {
-            return null;
-        }
-        if (linkKey.startsWith(PREFIX_THIS)) {
-            return providerName + "::" + linkKey.substring(PREFIX_THIS.length());
-        }
-        if (linkKey.startsWith(PREFIX_SELF)) {
-            return providerName + "::" + linkKey.substring(PREFIX_SELF.length());
-        }
-        return linkKey;
-    }
 }

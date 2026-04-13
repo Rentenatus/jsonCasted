@@ -28,6 +28,7 @@ public class JsonObject implements JsonItem {
 
     private final HashMap<String, JsonItem> map;
     private final JsonTypeDescriptor contextClass;
+    private String woodKey;
 
     /**
      * Constructs a JsonObject instance with an associated class type.
@@ -36,7 +37,8 @@ public class JsonObject implements JsonItem {
      */
     public JsonObject(JsonTypeDescriptor aClassDescriptor) {
         this.contextClass = aClassDescriptor;
-        map = new HashMap<>();
+        this.map = new HashMap<>();
+        this.woodKey = null;
     }
 
     /**
@@ -46,7 +48,8 @@ public class JsonObject implements JsonItem {
      * @param value The corresponding JsonItem value.
      */
     public void putParam(String key, JsonItem value) {
-        map.put(key, value);
+        this.map.put(key, value);
+        this.woodKey = null;
     }
 
     /**
@@ -164,6 +167,14 @@ public class JsonObject implements JsonItem {
     @Override
     public int listSize() {
         return 1;
+    }
+
+    public void setWoodKey(String woodKey) {
+        this.woodKey = woodKey;
+    }
+
+    public String getWoodKey() {
+        return woodKey;
     }
 
     /**

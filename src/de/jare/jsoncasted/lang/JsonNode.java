@@ -28,6 +28,9 @@ import de.jare.jsoncasted.parserwriter.JsonParseException;
  */
 public class JsonNode {
 
+    private static final String PREFIX_THIS = "this::";
+    private static final String PREFIX_SELF = "self::";
+
     private final JsonNodeType type;
     private final Map<String, JsonNode> objectValue;
     private final List<JsonNode> arrayValue;
@@ -242,6 +245,35 @@ public class JsonNode {
             default:
                 return "null";
         }
+    }
+
+    public String getObjectId(String providerName) throws JsonParseException {
+        JsonNode idNode = objectValue.get(JsonTerms.TERM_WOOD_OBJECT_ID);
+        if (idNode == null) {
+            return null;
+        }
+        return providerName + "::" + idNode.toText();
+    }
+
+    public String getLink(String providerName) throws JsonParseException {
+        JsonNode idNode = objectValue.get(JsonTerms.TERM_WOOD_LINK);
+        if (idNode == null) {
+            return null;
+        } 
+        return normalizeLinkKey(idNode.toText(), providerName);
+    }
+
+    private static String normalizeLinkKey(String linkKey, String providerName) {
+        if (linkKey == null) {
+            return null;
+        }
+        if (linkKey.startsWith(PREFIX_THIS)) {
+            return providerName + "::" + linkKey.substring(PREFIX_THIS.length());
+        }
+        if (linkKey.startsWith(PREFIX_SELF)) {
+            return providerName + "::" + linkKey.substring(PREFIX_SELF.length());
+        }
+        return linkKey;
     }
 
     private static String escape(String s) {

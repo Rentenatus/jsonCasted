@@ -6,6 +6,7 @@
  */
 package de.jare.jsoncasted.pconvertservice;
 
+import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.Set;
 
 public class WoodResolution {
 
-    private final Map<String, Object> resolvedObjects;
+    private final Map<String, JsonItem> resolvedObjects;
     private final Set<String> unresolvedKeys;
     private final List<JsonParseException> exceptions;
 
@@ -45,7 +46,7 @@ public class WoodResolution {
         return !exceptions.isEmpty();
     }
 
-    public void putResolvedObject(String key, Object entry) {
+    public void putResolvedObject(String key, JsonItem entry) {
         Objects.requireNonNull(key, "key must not be null");
         resolvedObjects.put(key, entry);
     }
@@ -60,13 +61,17 @@ public class WoodResolution {
         exceptions.add(exception);
     }
 
-    public Object getResolvedObject(String key) {
+    public JsonItem getResolvedObject(String key) {
         Objects.requireNonNull(key, "key must not be null");
         return resolvedObjects.get(key);
     }
 
-    public Map<String, Object> getUnmodifiableResolvedObjects() {
+    public Map<String, JsonItem> getUnmodifiableResolvedObjects() {
         return Collections.unmodifiableMap(resolvedObjects);
+    }
+
+    public boolean containsKey(String aKey) {
+        return resolvedObjects.containsKey(aKey);
     }
 
     public Set<String> getUnmodifiableUnresolvedKeys() {
@@ -85,4 +90,5 @@ public class WoodResolution {
                 + ", exceptionsSize=" + exceptions.size()
                 + '}';
     }
+
 }

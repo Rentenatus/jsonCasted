@@ -34,13 +34,45 @@ public class JsonObjectConverter {
     public static JsonItem convertObject(JsonNode node, JsonTypeDescriptor contextClass,
             ConvertService service) throws JsonParseException {
 
+        JsonItem cached = findCachedObject(node, service);
+        if (cached != null) {
+            return cached;
+        }
+
         JsonObjectConverter converter = new JsonObjectConverter(node, contextClass, service);
         final JsonTypeDescriptor castedChildType
                 = converter.castOrGet(contextClass, node.asObjectValues(), "this");
         if (castedChildType != null && castedChildType != contextClass) {
             converter.setCastedContext(castedChildType);
         }
+
         return converter.convertObject();
+    }
+
+    private static JsonItem findCachedObject(JsonNode node, ConvertService service) throws JsonParseException {
+        String key = findResolvedKey(node, service);
+        if (key == null) {
+            return null;
+        }
+        return service.getResolvedObject(key);
+    }
+
+    private static String findResolvedKey(JsonNode node, ConvertService service) throws JsonParseException {
+        if (node == null || !node.isObject()) {
+            return null;
+        }
+        final String providerName = service.getLinkingSet().getProviderName();
+
+        String providerKey = node.getObjectId(providerName);
+        if (providerKey != null && service.containsResolutionKey(providerKey)) {
+            return providerKey;
+        }
+
+        String linkKey = node.getLink(providerName);
+        if (service.containsResolutionKey(linkKey)) {
+            return linkKey;
+        }
+        return null;
     }
 
     final Map<String, JsonNode> values;
