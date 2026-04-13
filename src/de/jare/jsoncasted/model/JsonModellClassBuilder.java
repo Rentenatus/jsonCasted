@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.util.Collection;
 import java.util.Iterator;
@@ -21,11 +22,11 @@ public interface JsonModellClassBuilder {
     // public static final String NOT_LIST = "This Class is not a list.";
     public Class<?> getSingularClass();
 
-    public Object build(JsonClass jClass, JsonItem jsonItem) throws JsonBuildException;
+    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException;
 
-    public Object buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException;
+    public Object buildList(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException;
 
-    public Object buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException;
+    public Object buildArray(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException;
 
     public default boolean isPrimitive() {
         return true;

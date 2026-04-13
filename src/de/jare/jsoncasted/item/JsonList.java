@@ -7,6 +7,7 @@
  */
 package de.jare.jsoncasted.item;
 
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
@@ -165,16 +166,7 @@ public class JsonList implements JsonItem {
      * @throws JsonBuildException If instance creation fails.
      */
     @Override
-    public Object buildInstance(JsonModel model) throws JsonBuildException {
-        JsonClass jType = model.getJsonClass(contextClass.getTypeName());
-        if (jType == null) {
-            JsonInter jInter = model.getJsonInter(contextClass.getTypeName());
-            if (jInter != null) {
-                return jInter.build(listIterator(), asList, listSize());
-            }
-            Logger.getGlobal().log(Level.SEVERE, "JsonClass {0} is unknown.", new Object[]{contextClass.getTypeName()});
-            return null;
-        }
-        return jType.build(listIterator(), asList, listSize());
+    public Object buildInstance(BuilderService builderService) throws JsonBuildException {
+        return builderService.buildList(this, asList, contextClass);
     }
 }

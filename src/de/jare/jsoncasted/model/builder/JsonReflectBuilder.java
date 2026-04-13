@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
@@ -43,26 +44,21 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
     );
 
     private Class<?> singular;
-    private JsonModel model;
 
     /**
      * Default constructor for JsonReflectBuilder.
      *
-     * @param model
      */
-    public JsonReflectBuilder(JsonModel model) {
-        this.model = model;
+    public JsonReflectBuilder() {
     }
 
     /**
      * Constructs a JsonReflectBuilder instance for a specific class.
      *
-     * @param model
      * @param singular The target class for reflection-based object creation.
      */
-    public JsonReflectBuilder(JsonModel model, Class<?> singular) {
+    public JsonReflectBuilder(Class<?> singular) {
         this.singular = singular;
-        this.model = model;
     }
 
     /**
@@ -84,14 +80,14 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If object creation fails.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem) throws JsonBuildException {
+    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
         if (singular == null) {
             singular = jClass.createOrGetSing();
             if (singular == null) {
                 return null;
             }
         }
-        Object ob = createInstance(jClass, jsonItem);
+        Object ob = createInstance(jClass, jsonItem, builderService);
         Iterator<String> it = jClass.keysForBuildIterator();
         while (it.hasNext()) {
             try {
@@ -101,7 +97,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
                 }
                 JsonItem para = jsonItem.getParam(next.getfName());
                 if (para != null) {
-                    Object inst = para.buildInstance(model);
+                    Object inst = para.buildInstance(builderService);
                     Method getterMeth = null;
                     Method setterMeth = null;
                     boolean suchtNoch = true;
@@ -157,7 +153,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
      * @return The instantiated object.
      * @throws JsonBuildException If instantiation fails.
      */
-    protected Object createInstance(JsonClass jClass, JsonItem jsonItem) throws JsonBuildException {
+    protected Object createInstance(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
         Object ob;
         ArrayList<JsonField> params = new ArrayList<>();
         Iterator<String> it = jClass.keysForBuildIterator();
@@ -168,7 +164,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
             }
         }
         try {
-            ob = params.isEmpty() ? useDeclaredConstructor() : useConstructorWith(jClass, params, jsonItem);
+            ob = params.isEmpty() ? useDeclaredConstructor() : useConstructorWith(jClass, params, jsonItem, builderService);
         } catch (NoSuchMethodException | SecurityException | InstantiationException
                 | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
@@ -182,8 +178,8 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
         return singular.getDeclaredConstructor().newInstance();
     }
 
-    protected Object useConstructorWith(JsonClass jClass, ArrayList<JsonField> params, JsonItem jsonItem) throws SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, IllegalArgumentException, NoSuchMethodException, JsonBuildException {
-        ArrayList<Object> paramObjects = calculateParamObjects(params, jsonItem, jClass);
+    protected Object useConstructorWith(JsonClass jClass, ArrayList<JsonField> params, JsonItem jsonItem, BuilderService builderService) throws SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, IllegalArgumentException, NoSuchMethodException, JsonBuildException {
+        ArrayList<Object> paramObjects = calculateParamObjects(params, jsonItem, builderService, jClass);
 
         Constructor<?> constructor = calculateConstructor(params, paramObjects);
 
@@ -193,7 +189,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
         return constructor.newInstance(paramObjects.toArray());
     }
 
-    protected ArrayList<Object> calculateParamObjects(ArrayList<JsonField> params, JsonItem jsonItem, JsonClass jClass) throws JsonBuildException {
+    protected ArrayList<Object> calculateParamObjects(ArrayList<JsonField> params, JsonItem jsonItem, BuilderService builderService, JsonClass jClass) throws JsonBuildException {
         ArrayList<Object> paramObjects = new ArrayList<>(params.size());
         for (JsonField next : params) {
             try {
@@ -205,7 +201,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
                     }
                     throw new JsonBuildException("Item '" + next.getfName() + "' not found but is necessary for the constructor of class " + jClass.getcName() + '.');
                 }
-                paramObjects.add(para.buildInstance(model));
+                paramObjects.add(para.buildInstance(builderService));
             } catch (JsonBuildException ex) {
                 Logger.getGlobal().log(Level.SEVERE, null, ex);
                 throw new JsonBuildException(ex.getMessage(), ex);
@@ -258,17 +254,18 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
      * Builds a list of objects from a JSON array.
      *
      * @param jType The JSON type for conversion.
+     * @param builderService
      * @param listIterator Iterator over JSON items.
      * @param size The expected size of the array.
      * @return A list of constructed objects.
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public List buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public List buildList(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         ArrayList list = new ArrayList(size);
         while (listIterator.hasNext()) {
             JsonItem next = listIterator.next();
-            Object elem = next.buildInstance(model);
+            Object elem = next.buildInstance(builderService);
             list.add(elem);
         }
         return list;
@@ -284,8 +281,8 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public Object[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
-        final List list = buildList(jType, listIterator, size);
+    public Object[] buildArray(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+        final List list = buildList(jType, builderService, listIterator, size);
         Object[] array = (Object[]) Array.newInstance(singular, list.size());
         return list.toArray(array);
     }

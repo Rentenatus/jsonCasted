@@ -28,15 +28,15 @@ public class JsonMap extends JsonClass implements JsonType {
     private final JsonClass itemClass;
     private final JsonCollectionType colType;
 
-    public JsonMap(JsonModel model, String cName, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
-        super(cName, new JsonMapBuilder(model, singular, itemClass));
+    public JsonMap(String cName, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
+        super(cName, new JsonMapBuilder(singular, itemClass));
         this.itemClass = itemClass;
         this.colType = colType;
 
     }
 
-    public JsonMap(JsonModel model, String cName, boolean skippingNulls, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
-        super(cName, skippingNulls, new JsonMapBuilder(model, singular, itemClass));
+    public JsonMap(String cName, boolean skippingNulls, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
+        super(cName, skippingNulls, new JsonMapBuilder(singular, itemClass));
         this.itemClass = itemClass;
         this.colType = colType;
     }

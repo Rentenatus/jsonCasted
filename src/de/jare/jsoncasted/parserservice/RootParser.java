@@ -7,6 +7,7 @@
  */
 package de.jare.jsoncasted.parserservice;
 
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.calculator.JsonWoodProviderTinkerResult;
@@ -23,11 +24,12 @@ import java.io.IOException;
  */
 public class RootParser {
 
-    static JsonResource parse(ParseStreamReader psr, JsonResource container) throws IOException, JsonParseException {
+    static JsonResource parse(ParseStreamReader psr, JsonResource container, JsonDebugLevel debugLevel) throws IOException, JsonParseException {
         final JsonNode rootNode = parseRoot(psr);
         container.setRoot(rootNode);
         JsonWoodProviderScanResult scan = JsonWoodProviderScanner.INSTANCE.scan(rootNode);
         JsonWoodProviderTinkerResult result = JsonWoodProviderTinker.INSTANCE.build(scan);
+        container.setLinkingSet(WoodIdFinder.buildLinkingSet(rootNode, container.getProviderName(), debugLevel));
         if (result.hasExceptions()) {
             container.addExceptions(result.getExceptions());
         }

@@ -7,8 +7,8 @@
  */
 package de.jare.jsoncasted.item;
 
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
-import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -169,10 +169,10 @@ public class JsonObjectBak implements JsonItem {
      * @throws JsonBuildException If instance creation fails.
      */
     @Override
-    public Object buildInstance(JsonModel model) throws JsonBuildException {
+    public Object buildInstance(BuilderService builderService) throws JsonBuildException {
         if (jClass == null) {
             return null;
         }
-        return jClass.build(this);
+        return jClass.build(this, builderService);
     }
 }

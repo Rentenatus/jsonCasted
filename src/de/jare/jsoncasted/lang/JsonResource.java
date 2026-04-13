@@ -1,8 +1,12 @@
+/* <copyright>
+ * Copyright (c) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
+ */
 package de.jare.jsoncasted.lang;
 
-import de.jare.jsoncasted.lang.calculator.JsonLinkScanResult;
 import de.jare.jsoncasted.wood.WoodProviderBox;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,14 +14,17 @@ import java.util.List;
 public final class JsonResource {
 
     private String resourceFile;
+    private String providerName;
     private JsonNode root;
     private WoodProviderBox expectedBox;
     private List<String> importedProviderSynonyms;
-    private JsonLinkScanResult scanResult;
     private final List<JsonExceptionEntry> exceptions = new ArrayList<>();
+
+    private LinkingSet linkingSet;
 
     private JsonResource() {
         this.importedProviderSynonyms = new ArrayList<>();
+        this.providerName = "self";
     }
 
     public static JsonResource empty() {
@@ -59,6 +66,14 @@ public final class JsonResource {
         this.resourceFile = resourceFile;
     }
 
+    public String getProviderName() {
+        return providerName;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
+    }
+
     public JsonNode getRoot() {
         return root;
     }
@@ -98,24 +113,12 @@ public final class JsonResource {
         return importedProviderSynonyms != null && !importedProviderSynonyms.isEmpty();
     }
 
-    public JsonLinkScanResult getScanResult() {
-        return scanResult;
-    }
-
-    public void setScanResult(JsonLinkScanResult scanResult) {
-        this.scanResult = scanResult;
-    }
-
     public boolean hasResourceFile() {
         return resourceFile != null && !resourceFile.isBlank();
     }
 
     public boolean hasRoot() {
         return root != null;
-    }
-
-    public boolean hasScanResult() {
-        return scanResult != null;
     }
 
     public boolean isLoaded() {
@@ -130,17 +133,25 @@ public final class JsonResource {
         return root == null && resourceFile != null && !resourceFile.isBlank();
     }
 
+    public LinkingSet getLinkingSet() {
+        return linkingSet;
+    }
+
+    public void setLinkingSet(LinkingSet linkingSet) {
+        this.linkingSet = linkingSet;
+    }
+
     @Override
     public String toString() {
         return "JsonResource{"
                 + "resourceFile='" + resourceFile + '\''
                 + ", hasRoot=" + (root != null)
                 + ", importedProviderSynonyms=" + importedProviderSynonyms
-                + ", hasScanResult=" + (scanResult != null)
                 + '}';
     }
 
     public void addExceptions(List<JsonExceptionEntry> addExceptions) {
         exceptions.addAll(addExceptions);
     }
+
 }

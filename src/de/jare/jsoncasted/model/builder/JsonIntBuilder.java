@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
@@ -44,7 +45,7 @@ public class JsonIntBuilder implements JsonModellClassBuilder {
      * @return The integer representation of the JSON value.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem) {
+    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
         final Long value = jsonItem.getLongValue();
         return value == null ? 0 : value.intValue();
     }
@@ -59,7 +60,7 @@ public class JsonIntBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public ArrayList<Integer> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public ArrayList<Integer> buildList(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         ArrayList<Integer> ret = new ArrayList<>(size);
         listIterator.forEachRemaining(action -> {
             final Long value = action.getLongValue();
@@ -78,7 +79,7 @@ public class JsonIntBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public int[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public int[] buildArray(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         final int[] ret = new int[size];
         int i = 0;
         while (listIterator.hasNext()) {

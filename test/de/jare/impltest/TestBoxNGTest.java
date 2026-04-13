@@ -11,6 +11,7 @@ import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.parserservice.JsonParserService;
 import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.parserwriter.JsonParser;
 import de.jare.jsoncasted.writer.inner.RootObjectWriter;
@@ -84,13 +85,13 @@ public class TestBoxNGTest {
         JsonItem obj1 = null;
         JsonNode node = null;
         try {
-            final JsonResource res = JsonParserService.parse(configFile);
+            final JsonResource res = JsonParserService.parse(configFile, JsonDebugLevel.INFO);
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             System.out.println(res.getExpectedBox());
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
             final JsonModelDescriptor descriptor = definition.getDescriptor();
-            obj1 = JsonParser.parse(node, descriptor, definition.getTestBox().getcName(), JsonDebugLevel.INFO);
+            obj1 = JsonParser.parse(res, descriptor, definition.getTestBox().getcName(), JsonDebugLevel.INFO);
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
@@ -104,7 +105,7 @@ public class TestBoxNGTest {
 
         TestBox root = null;
         try {
-            final Object buildInstance1 = obj1.buildInstance(definition.getModel());
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (TestBox) buildInstance1);
 
@@ -156,13 +157,13 @@ public class TestBoxNGTest {
         JsonItem obj1 = null;
         JsonNode node = null;
         try {
-            final JsonResource res = JsonParserService.parse(configFile);
+            final JsonResource res = JsonParserService.parse(configFile, JsonDebugLevel.INFO);
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             System.out.println(res.getExpectedBox());
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
             final JsonModelDescriptor descriptor = definition.getDescriptor();
-            obj1 = JsonParser.parse(node, descriptor, definition.getTestBox().getcName(), JsonDebugLevel.INFO);
+            obj1 = JsonParser.parse(res, descriptor, definition.getTestBox().getcName(), JsonDebugLevel.INFO);
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
@@ -176,7 +177,7 @@ public class TestBoxNGTest {
 
         TestBox root = null;
         try {
-            final Object buildInstance1 = obj1.buildInstance(definition.getModel());
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (TestBox) buildInstance1);
 

@@ -8,6 +8,7 @@
 package de.jare.jsonpost;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
@@ -68,8 +69,7 @@ public class PostJsonClient {
         } catch (JsonParseException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
-
-        return obj.buildInstance(definition.getModel());
+        return JsonBuilder.buildInstance(definition.getModel(), obj);
     }
 
 }

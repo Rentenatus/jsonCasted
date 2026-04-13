@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
@@ -42,10 +43,11 @@ public class JsonLongObjBuilder implements JsonModellClassBuilder {
      *
      * @param jClass The JSON class.
      * @param jsonItem The JSON item containing the value.
+     * @param builderService
      * @return A Long object representing the JSON value, or null if undefined.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem) {
+    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
         return jsonItem.getLongValue();
     }
 
@@ -53,13 +55,14 @@ public class JsonLongObjBuilder implements JsonModellClassBuilder {
      * Builds a list of Long values from a JSON array.
      *
      * @param jType The JSON type for conversion.
+     * @param builderService
      * @param listIterator Iterator over JSON items.
      * @param size The expected size of the list.
      * @return A list of Long objects.
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public ArrayList<Long> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public ArrayList<Long> buildList(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         ArrayList<Long> ret = new ArrayList<>(size);
         listIterator.forEachRemaining(action -> ret.add(action.getLongValue()));
         return ret;
@@ -69,14 +72,15 @@ public class JsonLongObjBuilder implements JsonModellClassBuilder {
      * Builds an array of Long objects from a JSON array.
      *
      * @param jType The JSON type for conversion.
+     * @param builderService
      * @param listIterator Iterator over JSON items.
      * @param size The expected size of the array.
      * @return An array of Long objects.
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public Object[] buildArray(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
-        return buildList(jType, listIterator, size).toArray(new Long[size]);
+    public Object[] buildArray(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+        return buildList(jType, builderService, listIterator, size).toArray(new Long[size]);
     }
 
     /**

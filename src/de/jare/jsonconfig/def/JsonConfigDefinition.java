@@ -8,6 +8,8 @@
 package de.jare.jsonconfig.def;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
+import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonBuildException;
 import static de.jare.jsoncasted.model.JsonCollectionType.ARRAY;
@@ -64,13 +66,13 @@ public class JsonConfigDefinition implements JsonItemDefinition {
         logging.addField("path", asString);
 
         JsonClass feature = model.newJsonClass(ConfigFeature.class,
-                new JsonReflectBuilder(model, ConfigFeature.class) {
+                new JsonReflectBuilder(ConfigFeature.class) {
             @Override
-            public List<ConfigFeature> buildList(JsonType jType, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+            public List<ConfigFeature> buildList(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
                 ArrayList<ConfigFeature> list = new ArrayList<>(size);
                 while (listIterator.hasNext()) {
                     JsonItem next = listIterator.next();
-                    Object elem = next.buildInstance(model);
+                    Object elem = next.buildInstance(builderService);
                     list.add((ConfigFeature) elem);
                 }
                 return list;

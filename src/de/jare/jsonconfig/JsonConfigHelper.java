@@ -13,6 +13,7 @@ import de.jare.jsonconfig.item.ConfigLogging;
 import de.jare.jsonconfig.item.ConfigProfile;
 import de.jare.jsonconfig.item.ConfigRoot;
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
@@ -49,7 +50,7 @@ public class JsonConfigHelper implements SimpleStringSplitter {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
         try {
-            final Object buildInstance1 = obj1.buildInstance(definition.getModel());
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
             System.out.println(buildInstance1.getClass().getName());
             root = (ConfigRoot) buildInstance1;
         } catch (JsonBuildException | NullPointerException ex) {

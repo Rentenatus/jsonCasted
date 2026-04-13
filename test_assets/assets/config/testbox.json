@@ -5,8 +5,7 @@
       "frage": true
     },
     "one": {
-      "_class": "ValueBoolean",
-      "frage": false
+      "_woodLink": "this::123456" 
     },
     "arr": [
       {
@@ -18,6 +17,7 @@
       },
       {
         "_class": "ValueBoolean",
+        "_woodObjectId": "123456",
         "frage": false
       }
     ],
@@ -27,8 +27,9 @@
         "zahl": 100
       },
       {
-        "_class": "ValueString",
-        "text": "Test Eintrag"
+        "_class": "ValueStringSubSub",
+        "text": "Test Eintrag",
+        "frage": true
       },
       {
         "_class": "ValueBoolean",

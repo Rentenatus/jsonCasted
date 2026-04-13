@@ -7,7 +7,9 @@
  */
 package de.jare.jsonconfig.def;
 
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.JsonBuildException;
@@ -144,7 +146,7 @@ public class JsonConfigFactoryNGTest {
 
         ConfigRoot root = null;
         try {
-            final Object buildInstance1 = obj1.buildInstance(definition.getModel());
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (ConfigRoot) buildInstance1);
 
@@ -175,12 +177,12 @@ public class JsonConfigFactoryNGTest {
         JsonItem obj1 = null;
         JsonNode node = null;
         try {
-            final JsonResource res = JsonParserService.parse(configFile);
+            final JsonResource res = JsonParserService.parse(configFile, JsonDebugLevel.INFO);
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             System.out.println(res.getExpectedBox());
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
-            obj1 = JsonParser.parse(node, definition.getDescriptor(), definition.getConfigRoot().getcName());
+            obj1 = JsonParser.parse(res, definition.getDescriptor(), definition.getConfigRoot().getcName());
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
@@ -194,7 +196,7 @@ public class JsonConfigFactoryNGTest {
 
         ConfigRoot root = null;
         try {
-            final Object buildInstance1 = obj1.buildInstance(definition.getModel());
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (ConfigRoot) buildInstance1);
 

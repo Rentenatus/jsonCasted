@@ -167,13 +167,13 @@ public class JsonModel {
     }
 
     public JsonClass newJsonReflect(Class<?> clazz) {
-        JsonClass ret = new JsonClass(clazz.getTypeName(), new JsonReflectBuilder(this, clazz));
+        JsonClass ret = new JsonClass(clazz.getTypeName(), new JsonReflectBuilder(clazz));
         add(ret);
         return ret;
     }
 
     public JsonClass newJsonReflect(Class<?> clazz, boolean skippingNulls) {
-        JsonClass ret = new JsonClass(clazz.getTypeName(), skippingNulls, new JsonReflectBuilder(this, clazz));
+        JsonClass ret = new JsonClass(clazz.getTypeName(), skippingNulls, new JsonReflectBuilder(clazz));
         add(ret);
         return ret;
     }
@@ -195,20 +195,20 @@ public class JsonModel {
     }
 
     public JsonInter newJsonInterface(Class<?> clazz, JsonClass... jClass) {
-        final JsonInter ret = new JsonInter(clazz.getTypeName(), new JsonReflectBuilder(this, clazz), jClass);
+        final JsonInter ret = new JsonInter(clazz.getTypeName(), new JsonReflectBuilder(clazz), jClass);
         interfaces.put(ret.getcName(), ret);
         return ret;
     }
 
     public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, JsonClass itemClass, JsonCollectionType colType) {
-        JsonMap ret = new JsonMap(this, clazz.getTypeName() + "<" + itemClass.getcName() + ">"
+        JsonMap ret = new JsonMap(clazz.getTypeName() + "<" + itemClass.getcName() + ">"
                 + (colType == JsonCollectionType.NONE ? "" : "[]"), clazz, itemClass, colType);
         add(ret);
         return ret;
     }
 
     public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, boolean skippingNulls, JsonClass itemClass, JsonCollectionType colType) {
-        JsonMap ret = new JsonMap(this, clazz.getTypeName() + "<" + itemClass.getcName() + ">"
+        JsonMap ret = new JsonMap(clazz.getTypeName() + "<" + itemClass.getcName() + ">"
                 + (colType == JsonCollectionType.NONE ? "" : "[]"), skippingNulls, clazz, itemClass, colType);
         add(ret);
         return ret;
