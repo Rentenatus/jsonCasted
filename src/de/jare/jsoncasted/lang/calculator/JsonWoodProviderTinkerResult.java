@@ -25,7 +25,7 @@ public final class JsonWoodProviderTinkerResult {
         if (woodProviderBox == null) {
             woodProviderBox = box;
         } else {
-            woodProviderBox.add(box);
+            woodProviderBox.mergeBox(box);
         }
     }
 

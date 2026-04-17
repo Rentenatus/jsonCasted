@@ -15,30 +15,29 @@ import java.util.List;
 import java.util.Objects;
 
 public final class JsonSystem {
-
+    
     private WoodProvider rootProvider;
     private WoodProviderBox providerBox;
     private JsonResource mainResource;
     private List<JsonResource> resources;
-
+    
     private JsonSystem() {
         this.resources = new ArrayList<>();
     }
-
+    
     public static JsonSystem empty() {
         return new JsonSystem();
     }
-
+    
     public static JsonSystem of(JsonResource mainResource) {
-        JsonSystem system = new JsonSystem();
-        system.setMainResource(mainResource);
-        system.resources.add(mainResource);
-        return system;
+        return of(mainResource.getExpectedBox(), mainResource);
     }
-
-    public static JsonSystem of(WoodProviderBox providerBox, JsonResource mainResource, List<JsonResource> resources) {
+    
+    public static JsonSystem of(WoodProviderBox providerBox, JsonResource mainResource) {
         JsonSystem system = new JsonSystem();
-        system.setProviderBox(providerBox);
+        system.setProviderBox(providerBox != null ? providerBox : new WoodProviderBox(new ArrayList<>()));
+        List<JsonResource> resources = new ArrayList<>();
+        resources.add(mainResource);
         system.setResources(resources);
         system.setMainResource(mainResource);
         if (mainResource != null && !system.resources.contains(mainResource)) {
@@ -46,35 +45,35 @@ public final class JsonSystem {
         }
         return system;
     }
-
+    
     public WoodProvider getRootProvider() {
         return rootProvider;
     }
-
+    
     public void setRootProvider(WoodProvider rootProvider) {
         this.rootProvider = rootProvider;
     }
-
+    
     public WoodProviderBox getProviderBox() {
         return providerBox;
     }
-
+    
     public void setProviderBox(WoodProviderBox providerBox) {
         this.providerBox = providerBox;
     }
-
+    
     public JsonResource getMainResource() {
         return mainResource;
     }
-
+    
     public void setMainResource(JsonResource mainResource) {
         this.mainResource = mainResource;
     }
-
+    
     public List<JsonResource> getResources() {
         return Collections.unmodifiableList(resources);
     }
-
+    
     public void setResources(List<JsonResource> resources) {
         if (resources == null) {
             this.resources = new ArrayList<>();
@@ -82,24 +81,34 @@ public final class JsonSystem {
             this.resources = new ArrayList<>(resources);
         }
     }
-
+    
+    public JsonResource findResourcesBySynonym(String synonym) {
+        for (JsonResource resource : resources) {
+            String provider = resource.getProviderName();
+            if (provider.equals(synonym)) {
+                return resource;
+            }
+        }
+        return null;
+    }
+    
     public void addResource(JsonResource resource) {
         Objects.requireNonNull(resource, "resource must not be null");
         resources.add(resource);
     }
-
+    
     public boolean hasRootProvider() {
         return rootProvider != null;
     }
-
+    
     public boolean hasMainResource() {
         return mainResource != null;
     }
-
+    
     public boolean hasProviderBox() {
         return providerBox != null;
     }
-
+    
     public int size() {
         return resources.size();
     }

@@ -45,6 +45,17 @@ public final class WoodProviderBox {
         return providers.isEmpty();
     }
 
+    public void mergeBox(WoodProviderBox box) {
+        if (box == null || box.isEmpty()) {
+            return;
+        }
+        for (WoodProvider provider : box.providers) {
+            if (!containsSynonym(provider.getSynonym())) {
+                providers.add(provider);
+            }
+        }
+    }
+
     @Override
     public String toString() {
         return "WoodProviderBox{"
@@ -52,10 +63,4 @@ public final class WoodProviderBox {
                 + '}';
     }
 
-    public void add(WoodProviderBox box) {
-        if (box.isEmpty()) {
-            return;
-        }
-        providers.addAll(box.getProviders());
-    }
 }

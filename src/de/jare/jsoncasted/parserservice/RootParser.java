@@ -24,7 +24,7 @@ import java.io.IOException;
  */
 public class RootParser {
 
-    static JsonResource parse(ParseStreamReader psr, JsonResource container, JsonDebugLevel debugLevel) throws IOException, JsonParseException {
+    public static JsonResource parse(ParseStreamReader psr, JsonResource container, JsonDebugLevel debugLevel) throws IOException, JsonParseException {
         final JsonNode rootNode = parseRoot(psr);
         container.setRoot(rootNode);
         JsonWoodProviderScanResult scan = JsonWoodProviderScanner.INSTANCE.scan(rootNode);

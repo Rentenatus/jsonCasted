@@ -10,54 +10,103 @@ import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
+import de.jare.jsoncasted.lang.JsonSystem;
 import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.lang.LinkNodeEntry;
 import de.jare.jsoncasted.lang.LinkingSet;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
+import de.jare.jsoncasted.parserservice.ParseStreamReader;
+import de.jare.jsoncasted.parserservice.RootParser;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
+import de.jare.jsoncasted.wood.WoodProvider;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-public final class WoodConverter {
+public final class WoodResolver {
 
-    public WoodConverter() {
+    public WoodResolver() {
         throw new IllegalStateException("Utility class");
     }
 
-    public static WoodResolution convert(
-            JsonResource container,
+    public static WoodResolution resolve(
+            JsonSystem sys,
             JsonModelDescriptor descriptor,
             JsonDebugLevel debugLevel) {
 
-        Objects.requireNonNull(container, "container must not be null");
+        Objects.requireNonNull(sys, "container must not be null");
         Objects.requireNonNull(descriptor, "descriptor must not be null");
         Objects.requireNonNull(debugLevel, "debugLevel must not be null");
 
-        LinkingSet linkingSet = Objects.requireNonNull(
-                container.getLinkingSet(),
-                "container.linkingSet must not be null");
-
-        WoodResolution resolution = new WoodResolution();
-
-        Set<String> remainingKeys = new LinkedHashSet<>(linkingSet.getObjectIdMap().keySet());
-        boolean progress = true;
-
-        ConvertService service = new ConvertService(container, descriptor, resolution, debugLevel);
-        while (!remainingKeys.isEmpty() && progress) {
-            progress = convertLoop(remainingKeys, linkingSet, service);
+        WoodResolution resolution = attempt(sys, descriptor, debugLevel);
+        if (resolution.hasExceptions()) {
+            return resolution;
+        }
+        if (resolution.isFullyResolved()) {
+            return resolution;
         }
 
-        for (String unresolved : remainingKeys) {
-            resolution.addUnresolvedKey(unresolved);
+        boolean wasSomething = false;
+
+        for (String synonym : resolution.unresolvedProvider()) {
+            WoodProvider provider = sys.getProviderBox().findBySynonym(synonym);
+            if (provider == null) {
+                resolution.addException(new JsonParseException("The provider with the synonym " + synonym + " could not be found."));
+                continue;
+            }
+            JsonResource imp = sys.findResourcesBySynonym(synonym);
+            if (imp == null) {
+                try {
+                    JsonResource loaded = load(provider, debugLevel);
+                    sys.addResource(loaded);
+                    sys.getProviderBox().mergeBox(loaded.getExpectedBox());
+                    wasSomething = true;
+                } catch (FileNotFoundException ex) {
+                    resolution.addException(new JsonParseException("The resource with the synonym " + synonym + " cannot be found.", ex));
+                } catch (IOException | JsonParseException ex) {
+                    resolution.addException(new JsonParseException("The resource with the synonym " + synonym + " cannot be loaded.", ex));
+                }
+            }
+        }
+        if (wasSomething) {
+            return resolve(sys, descriptor, debugLevel);
         }
 
         return resolution;
     }
 
-    private static boolean convertLoop(Set<String> remainingKeys, LinkingSet linkingSet, ConvertService service) {
+    public static JsonResource load(WoodProvider provider, JsonDebugLevel debugLevel) throws FileNotFoundException, IOException, JsonParseException {
+        File file = new File(provider.getFilename());
+        ParseStreamReader psr = new ParseStreamReader(new FileReader(file), debugLevel);
+        JsonResource subContainer = JsonResource.forFile(provider.getFilename());
+        subContainer.setProviderName(provider.getSynonym());
+        return RootParser.parse(psr, subContainer, debugLevel);
+    }
+
+    public static WoodResolution attempt(JsonSystem sys, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) {
+        JsonResource container = sys.getMainResource();
+        LinkingSet linkingSet = Objects.requireNonNull(container.getLinkingSet(),
+                "container.linkingSet must not be null");
+        WoodResolution resolution = new WoodResolution();
+        Set<String> remainingKeys = new LinkedHashSet<>(linkingSet.getObjectIdMap().keySet());
+        boolean progress = true;
+        ConvertService service = new ConvertService(container, descriptor, resolution, debugLevel);
+        while (!remainingKeys.isEmpty() && progress) {
+            progress = resolveLoop(remainingKeys, linkingSet, service);
+        }
+        for (String unresolved : remainingKeys) {
+            resolution.addUnresolvedKey(unresolved);
+        }
+        return resolution;
+    }
+
+    private static boolean resolveLoop(Set<String> remainingKeys, LinkingSet linkingSet, ConvertService service) {
         boolean progress;
         progress = false;
         Set<String> resolvedThisRound = new LinkedHashSet<>();
@@ -116,13 +165,13 @@ public final class WoodConverter {
         try {
             String linkKey = node.getLink(providerName);
             if (linkKey != null) {
-                if ( !resolution.getUnmodifiableResolvedObjects().containsKey(linkKey)) {
+                if (!resolution.getUnmodifiableResolvedObjects().containsKey(linkKey)) {
                     return false;
                 }
             }
             String idKey = node.getObjectId(providerName);
             if (idKey != null) {
-                if ( !resolution.getUnmodifiableResolvedObjects().containsKey(idKey)) {
+                if (!resolution.getUnmodifiableResolvedObjects().containsKey(idKey)) {
                     return isConvertibleBelow(node, linkingSet, resolution);
                 }
             }
