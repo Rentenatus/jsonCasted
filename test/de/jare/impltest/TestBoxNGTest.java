@@ -87,7 +87,7 @@ public class TestBoxNGTest {
         try {
             final JsonResource res = JsonParserService.parse(configFile, JsonDebugLevel.INFO);
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
-            System.out.println(res.getExpectedBox());
+            System.out.println(res.getExpectedBox()); 
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
             final JsonModelDescriptor descriptor = definition.getDescriptor();

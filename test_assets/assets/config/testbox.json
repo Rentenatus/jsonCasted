@@ -1,11 +1,17 @@
 {
+    "_woodProviders": [
+      {
+        "synonym": "save",
+        "filename": "./assets/config/testboxSave.json"
+      }
+    ],
     "subsub": {
       "_class": "ValueStringSubSub",
       "text": "subsub",
       "frage": true
     },
     "one": {
-      "_woodLink": "this::123456" 
+      "_woodLink": "save::123456" 
     },
     "arr": [
       {
@@ -14,12 +20,7 @@
       },
       (ValueString){ 
         "text": "Hallo Welt"
-      },
-      {
-        "_class": "ValueBoolean",
-        "_woodObjectId": "123456",
-        "frage": false
-      }
+      }      
     ],
     "list": [
       {
@@ -41,6 +42,12 @@
       {
         "_class": "ValueString",
         "text": "JSON Test"
+      },
+      {
+        "_woodLink": "save::78" 
+      },
+      {
+        "_woodLink": "save::90" 
       }
     ]
 

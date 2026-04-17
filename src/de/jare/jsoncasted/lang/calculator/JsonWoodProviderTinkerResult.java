@@ -80,10 +80,6 @@ public final class JsonWoodProviderTinkerResult {
             return scanEntry.getOwnerNode();
         }
 
-        public JsonNode getProviderNode() {
-            return scanEntry.getProviderNode();
-        }
-
         public String getPath() {
             return scanEntry.getPath();
         }

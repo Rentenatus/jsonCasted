@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -94,11 +95,15 @@ public final class WoodResolver {
         LinkingSet linkingSet = Objects.requireNonNull(container.getLinkingSet(),
                 "container.linkingSet must not be null");
         WoodResolution resolution = new WoodResolution();
-        Set<String> remainingKeys = new LinkedHashSet<>(linkingSet.getObjectIdMap().keySet());
-        boolean progress = true;
-        ConvertService service = new ConvertService(container, descriptor, resolution, debugLevel);
-        while (!remainingKeys.isEmpty() && progress) {
-            progress = resolveLoop(remainingKeys, linkingSet, service);
+        Set<String> remainingKeys = new LinkedHashSet<>(linkingSet.getLinkMap().keySet());
+        boolean progress = !remainingKeys.isEmpty();
+        final List<JsonResource> resources = sys.getResources();
+        ConvertService[] services = new ConvertService[resources.size()];
+        for (int i = 0; i < resources.size(); i++) {
+            services[i] = new ConvertService(resources.get(i), descriptor, resolution, debugLevel);
+        }
+        while (progress) {
+            progress = resolveLoop(remainingKeys, services);
         }
         for (String unresolved : remainingKeys) {
             resolution.addUnresolvedKey(unresolved);
@@ -106,34 +111,37 @@ public final class WoodResolver {
         return resolution;
     }
 
-    private static boolean resolveLoop(Set<String> remainingKeys, LinkingSet linkingSet, ConvertService service) {
-        boolean progress;
-        progress = false;
+    private static boolean resolveLoop(Set<String> remainingKeys, ConvertService[] services) {
+        boolean progress = false;
         Set<String> resolvedThisRound = new LinkedHashSet<>();
-        for (String key : remainingKeys) {
-            LinkNodeEntry entry = linkingSet.getObjectIdMap().get(key);
-            if (entry == null) {
-                service.getResolution().addUnresolvedKey(key);
-                resolvedThisRound.add(key);
-                continue;
-            }
 
-            final JsonNode node = entry.getNode();
-            if (!isConvertibleNow(node, linkingSet, service.getResolution())) {
-                continue;
-            }
+        int i = services.length;
+        while (--i >= 0) {
+            final ConvertService service = services[i];
+            LinkingSet linkingSet = service.getLinkingSet();
+            for (String key : remainingKeys) {
+                LinkNodeEntry entry = linkingSet.getObjectIdMap().get(key);
+                if (entry == null) {
+                    continue;
+                }
 
-            try {
-                JsonTypeDescriptor typeDescriptor = resolveContextClass(node, service.getDescriptor());
-                JsonItem convertedObject = JsonObjectConverter.convertObject(node, typeDescriptor, service);
-                convertedObject.setWoodKey(key);
-                service.getResolution().putResolvedObject(key, convertedObject);
-                resolvedThisRound.add(key);
-                progress = true;
-            } catch (JsonParseException ex) {
-                service.getResolution().addException(ex);
-                resolvedThisRound.add(key);
-                progress = true;
+                final JsonNode node = entry.getNode();
+                if (!isConvertibleNow(node, linkingSet, service.getResolution())) {
+                    continue;
+                }
+
+                try {
+                    JsonTypeDescriptor typeDescriptor = resolveContextClass(node, service.getDescriptor());
+                    JsonItem convertedObject = JsonObjectConverter.convertObject(node, typeDescriptor, service);
+                    convertedObject.setWoodKey(key);
+                    service.getResolution().putResolvedObject(key, convertedObject);
+                    resolvedThisRound.add(key);
+                    progress = true;
+                } catch (JsonParseException ex) {
+                    service.getResolution().addException(ex);
+                    resolvedThisRound.add(key);
+                    progress = true;
+                }
             }
         }
         remainingKeys.removeAll(resolvedThisRound);

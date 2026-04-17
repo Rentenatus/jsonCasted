@@ -17,8 +17,8 @@ public final class JsonWoodProviderScanResult {
 
     private final List<ProviderNodeEntry> providerNodes = new ArrayList<>();
 
-    void registerProviderNode(JsonNode ownerNode, JsonNode providerNode, String path) {
-        providerNodes.add(new ProviderNodeEntry(ownerNode, providerNode, path));
+    void registerProviderNode(JsonNode ownerNode, String path) {
+        providerNodes.add(new ProviderNodeEntry(ownerNode, path));
     }
 
     public List<ProviderNodeEntry> getProviderNodes() {
@@ -36,21 +36,15 @@ public final class JsonWoodProviderScanResult {
     public static final class ProviderNodeEntry {
 
         private final JsonNode ownerNode;
-        private final JsonNode providerNode;
         private final String path;
 
-        public ProviderNodeEntry(JsonNode ownerNode, JsonNode providerNode, String path) {
+        public ProviderNodeEntry(JsonNode ownerNode, String path) {
             this.ownerNode = Objects.requireNonNull(ownerNode, "ownerNode must not be null");
-            this.providerNode = Objects.requireNonNull(providerNode, "providerNode must not be null");
             this.path = Objects.requireNonNull(path, "path must not be null");
         }
 
         public JsonNode getOwnerNode() {
             return ownerNode;
-        }
-
-        public JsonNode getProviderNode() {
-            return providerNode;
         }
 
         public String getPath() {
