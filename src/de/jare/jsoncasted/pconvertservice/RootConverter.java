@@ -9,6 +9,7 @@ package de.jare.jsoncasted.pconvertservice;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonResource;
+import de.jare.jsoncasted.lang.JsonSystem;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 
@@ -26,7 +27,8 @@ public final class RootConverter {
             return null;
         }
 
-        WoodResolution resolution = WoodConverter.convert(res, descriptor, debugLevel);
+        JsonSystem sys = JsonSystem.of(res);
+        WoodResolution resolution = WoodResolver.resolve(sys, descriptor, debugLevel);
         return JsonNodeConverter.convert(res, cName, descriptor, resolution, debugLevel);
     }
 

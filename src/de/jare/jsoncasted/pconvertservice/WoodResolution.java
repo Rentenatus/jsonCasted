@@ -82,6 +82,17 @@ public class WoodResolution {
         return Collections.unmodifiableList(exceptions);
     }
 
+    public Set<String> unresolvedProvider() {
+        Set<String> unresolvedProvider = new LinkedHashSet<>();
+        for (String un : unresolvedKeys) {
+            int index = un.indexOf("::");
+            if (index > 0) {
+                unresolvedProvider.add(un.substring(0, index));
+            }
+        }
+        return unresolvedProvider;
+    }
+
     @Override
     public String toString() {
         return "WoodResolution{"

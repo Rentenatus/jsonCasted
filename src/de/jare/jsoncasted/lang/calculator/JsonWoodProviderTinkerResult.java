@@ -25,7 +25,7 @@ public final class JsonWoodProviderTinkerResult {
         if (woodProviderBox == null) {
             woodProviderBox = box;
         } else {
-            woodProviderBox.add(box);
+            woodProviderBox.mergeBox(box);
         }
     }
 
@@ -78,10 +78,6 @@ public final class JsonWoodProviderTinkerResult {
 
         public JsonNode getOwnerNode() {
             return scanEntry.getOwnerNode();
-        }
-
-        public JsonNode getProviderNode() {
-            return scanEntry.getProviderNode();
         }
 
         public String getPath() {

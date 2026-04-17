@@ -252,14 +252,18 @@ public class JsonNode {
         if (idNode == null) {
             return null;
         }
-        return providerName + "::" + idNode.toText();
+        final String id = idNode.toText();
+        if (id.contains("::")) {
+            throw new JsonParseException("IDs must not contain a provider name or a :: sign (" + id + ").");
+        }
+        return providerName + "::" + id;
     }
 
     public String getLink(String providerName) throws JsonParseException {
         JsonNode idNode = objectValue.get(JsonTerms.TERM_WOOD_LINK);
         if (idNode == null) {
             return null;
-        } 
+        }
         return normalizeLinkKey(idNode.toText(), providerName);
     }
 

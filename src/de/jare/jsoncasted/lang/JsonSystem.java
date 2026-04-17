@@ -30,15 +30,14 @@ public final class JsonSystem {
     }
 
     public static JsonSystem of(JsonResource mainResource) {
-        JsonSystem system = new JsonSystem();
-        system.setMainResource(mainResource);
-        system.resources.add(mainResource);
-        return system;
+        return of(mainResource.getExpectedBox(), mainResource);
     }
 
-    public static JsonSystem of(WoodProviderBox providerBox, JsonResource mainResource, List<JsonResource> resources) {
+    public static JsonSystem of(WoodProviderBox providerBox, JsonResource mainResource) {
         JsonSystem system = new JsonSystem();
-        system.setProviderBox(providerBox);
+        system.setProviderBox(providerBox != null ? providerBox : new WoodProviderBox(new ArrayList<>()));
+        List<JsonResource> resources = new ArrayList<>();
+        resources.add(mainResource);
         system.setResources(resources);
         system.setMainResource(mainResource);
         if (mainResource != null && !system.resources.contains(mainResource)) {
@@ -81,6 +80,16 @@ public final class JsonSystem {
         } else {
             this.resources = new ArrayList<>(resources);
         }
+    }
+
+    public JsonResource findResourcesBySynonym(String synonym) {
+        for (JsonResource resource : resources) {
+            String provider = resource.getProviderName();
+            if (provider.equals(synonym)) {
+                return resource;
+            }
+        }
+        return null;
     }
 
     public void addResource(JsonResource resource) {
