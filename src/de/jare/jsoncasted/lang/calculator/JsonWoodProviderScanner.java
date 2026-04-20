@@ -46,7 +46,7 @@ public final class JsonWoodProviderScanner {
             String childPath = path + "." + key;
 
             if (TERM_WOOD_PROVIDERS.equals(key)) {
-                result.registerProviderNode(node, path);
+                result.registerProviderNode(childNode, path);
             }
 
             scanNode(childNode, childPath, result);

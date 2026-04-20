@@ -96,8 +96,12 @@ public enum JsonDebugLevel {
         }
         DebugTuple t = block.get(); // Lazy evaluation
         Throwable th = new Throwable();
-        StackTraceElement trace = th.getStackTrace()[1];
-        Logger.getGlobal().log(Level.INFO, t.info() + " At " + trace, t.args());
+        StackTraceElement[] trace = th.getStackTrace();
+        StackTraceElement traceElem = trace[1];
+        if (traceElem.getMethodName().equals("info")) {
+            traceElem = trace[2];
+        }
+        Logger.getGlobal().log(Level.INFO, t.info() + " At " + traceElem, t.args());
     }
 
     /**
@@ -115,8 +119,12 @@ public enum JsonDebugLevel {
         }
         DebugTuple t = block.get(); // Lazy evaluation
         Throwable th = new Throwable();
-        StackTraceElement trace = th.getStackTrace()[1];
-        Logger.getGlobal().log(Level.WARNING, t.info() + " At " + trace, t.args());
+        StackTraceElement[] trace = th.getStackTrace();
+        StackTraceElement traceElem = trace[1];
+        if (traceElem.getMethodName().equals("warning")) {
+            traceElem = trace[2];
+        }
+        Logger.getGlobal().log(Level.WARNING, t.info() + " At " + traceElem, t.args());
     }
 
     /**

@@ -11,6 +11,9 @@ import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.lang.JsonNode;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_LINK;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_OBJECT_ID;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
@@ -141,7 +144,10 @@ public class JsonObjectConverter {
 
         JsonFieldDescriptor field = contextClass.getField(paramName);
         if (field == null) {
-            if (TERM_CLASS.equals(paramName)) {
+            if (TERM_CLASS.equals(paramName)
+                    || TERM_WOOD_PROVIDERS.equals(paramName)
+                    || TERM_WOOD_OBJECT_ID.equals(paramName)
+                    || TERM_WOOD_LINK.equals(paramName)) {
                 return;
             }
             service.info(() -> new DebugTuple("{0}: Field {1} not found.",

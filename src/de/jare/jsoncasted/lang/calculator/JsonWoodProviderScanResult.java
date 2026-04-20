@@ -7,6 +7,7 @@
 package de.jare.jsoncasted.lang.calculator;
 
 import de.jare.jsoncasted.lang.JsonNode;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +18,9 @@ public final class JsonWoodProviderScanResult {
 
     private final List<ProviderNodeEntry> providerNodes = new ArrayList<>();
 
-    void registerProviderNode(JsonNode ownerNode, String path) {
+    void registerProviderNode(JsonNode childNode, String path) {
+        JsonNode ownerNode = JsonNode.objectNode();
+        ownerNode.asObjectValues().put(TERM_WOOD_PROVIDERS, childNode);
         providerNodes.add(new ProviderNodeEntry(ownerNode, path));
     }
 
