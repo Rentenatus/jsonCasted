@@ -9,7 +9,259 @@ The project is focuses on:
 - Controlled object building via whitelists
 - Extensible model structure (Description → JsonNode → JsonClass)
 
-## Features
+
+## Overview and Comparison to EMF ResourceSet
+
+**Wood Json Jack** is a JSON-based object model with extended concepts such as references, external resources, and polymorphic types. It pursues goals similar to the **EMF ResourceSet**, while deliberately staying lightweight and JSON-native.
+
+Full Example:
+
+```json
+{
+    "_woodProviders": [
+      {
+        "synonym": "save",
+        "filename": "./assets/config/testboxSave.json"
+      }
+    ],
+    "subsub": {
+      "_class": "ValueStringSubSub",
+      "text": "subsub",
+      "frage": true
+    },
+    "one": {
+      "_woodLink": "save::123456" 
+    },
+    "arr": [
+      {
+        "_class": "ValueInteger",
+        "zahl": 42
+      },
+      (ValueString){ 
+        "text": "Hallo Welt"
+      }      
+    ],
+    "list": [
+      {
+        "_class": "ValueInteger",
+        "zahl": 100
+      },
+      {
+        "_class": "ValueStringSubSub",
+        "text": "Test Eintrag",
+        "frage": true
+      },
+      {
+        "_class": "ValueBoolean",
+        "frage": true
+      },
+      (ValueInteger){ 
+        "zahl": -17
+      },
+      {
+        "_class": "ValueString",
+        "text": "JSON Test"
+      },
+      {
+        "_woodLink": "save::78" 
+      },
+      {
+        "_woodLink": "save::90" 
+      }
+    ]
+}
+```
+and "./assets/config/testboxSave.json":
+```json
+{
+    "subsub": {
+      "_class": "ValueStringSubSub",
+      "text": "subsub",
+      "frage": true
+    },
+    "one": {
+      "_woodLink": "this::123456" 
+    },
+    "arr": [
+      {
+        "_class": "ValueBoolean",
+        "_woodObjectId": "123456",
+        "frage": true
+      }
+    ],
+    "list": [
+      {
+        "_class": "ValueStringSubSub",
+        "_woodObjectId": "78", 
+        "text": "Test Eintrag 2",
+        "frage": false
+      },
+      (ValueInteger){ 
+        "_woodObjectId": "90",
+        "zahl": -42
+      }
+    ]
+}
+```
+
+### Core Concepts
+
+- JSON as the primary persistence format  
+- Object identity via `_woodObjectId`  
+- References via `_woodLink`  
+- External files via `_woodProviders`  
+- Polymorphism via `_class` or inline type `(Type){...}`  
+
+
+### Example Explained
+
+1. Entry point: `testbox.json`
+
+```json
+"_woodProviders": [
+  {
+    "synonym": "save",
+    "filename": "./assets/config/testboxSave.json"
+  }
+]
+```
+
+Equivalent to loading another `Resource` into an EMF `ResourceSet`.  The alias `"save"` acts as a namespace for references.
+
+***
+
+2. Local objects
+
+```json
+"subsub": {
+  "_class": "ValueStringSubSub",
+  "text": "subsub",
+  "frage": true
+}
+```
+
+A normal object with explicit type.  Comparable to an instantiated `EObject`.
+
+***
+
+3. Cross-resource references
+
+```json
+"one": {
+  "_woodLink": "save::123456"
+}
+```
+
+Reference to object with ID `123456` in the `"save"` resource.
+
+**EMF equivalent:**
+```
+resourceSet.getEObject("testboxSave.json#123456", true)
+```
+
+***
+
+4. Target object in `testboxSave.json`
+
+```json
+{
+  "_class": "ValueBoolean",
+  "_woodObjectId": "123456",
+  "frage": true
+}
+```
+
+Defines the referenced instance.  The ID acts like a URI fragment in EMF.
+
+***
+
+### 5. Self reference (same resource)
+
+```json
+"one": {
+  "_woodLink": "this::123456"
+}
+```
+
+`"this"` means: same file.  Comparable to local URI fragments (`#123456`).
+
+***
+
+6. Lists with mixed types
+
+```json
+"arr": [
+  {
+    "_class": "ValueInteger",
+    "zahl": 42
+  },
+  (ValueString){ 
+    "text": "Hallo Welt"
+  }      
+]
+```
+
+Two ways to define types:
+- explicitly via `_class`
+- compact via `(Type){}`
+
+**EMF comparison:**  
+Equivalent to polymorphic containment references (`EReference`).
+
+***
+
+7. References inside collections
+
+```json
+{
+  "_woodLink": "save::78" 
+}
+```
+
+Lists can contain both real objects **and** references. In EMF, this would correspond to proxy resolution.
+
+***
+
+8. External objects in `testboxSave.json`
+
+```json
+{
+  "_class": "ValueStringSubSub",
+  "_woodObjectId": "78", 
+  "text": "Test Eintrag 2",
+  "frage": false
+}
+```
+
+Can be referenced from any file.  Comparable to globally addressable `EObject`s.
+
+***
+
+9. Conclusion
+
+Wood Json Jack provides:
+
+- EMF-like reference and resource mechanics  
+- without a complex metamodel  
+- directly operating on JSON  
+- with very simple serialization and debugging  
+
+**Mental model:**
+> Wood Json Jack = EMF ResourceSet light + JSON + explicit IDs
+
+***
+
+10. Typical Use Cases
+
+- Editors (e.g. your tree editor)  
+- Game data / configuration systems  
+- Modding-friendly data structures  
+- Lightweight alternative to EMF  
+
+***
+
+
+## Other Features
 
 - **Interface resolution**  
   JSON can reference interfaces that are resolved to concrete implementations based on a known registry.
