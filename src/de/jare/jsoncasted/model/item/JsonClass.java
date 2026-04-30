@@ -12,6 +12,7 @@ import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonCollectionType;
+import de.jare.jsoncasted.model.JsonEnumTemplate;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
@@ -41,6 +42,7 @@ public class JsonClass implements JsonType {
     private boolean skippingNulls;
     private final JsonNodeType nodeType;
     private JsonClass parent;
+    private JsonEnumTemplate[] valuesArray;
 
     public JsonClass(String cName, JsonModellClassBuilder builder) {
         this(cName, JsonNodeType.OBJECT, builder);
@@ -171,6 +173,15 @@ public class JsonClass implements JsonType {
             }
         }
         return ret;
+    }
+
+    public void setValuesArray(JsonEnumTemplate[] valuesArray) {
+        this.valuesArray = valuesArray;
+    }
+
+    @Override
+    public JsonEnumTemplate[] getValuesArray() {
+        return valuesArray;
     }
 
     /**
@@ -398,6 +409,7 @@ public class JsonClass implements JsonType {
     public JsonTypeDescriptor describeHead(JsonModelDescriptor modelDescriptor) {
         return new JsonTypeDescriptor(cName)
                 .withNodeType(nodeType)
+                .withPermittedValues(builder.permittedValues(valuesArray))
                 .withSkippingNulls(skippingNulls);
     }
 

@@ -15,6 +15,10 @@
     },
     "arr": [
       {
+        "_class": "ValueSeason",
+        "season": SPRING
+      },
+      {
         "_class": "ValueInteger",
         "zahl": 42
       },

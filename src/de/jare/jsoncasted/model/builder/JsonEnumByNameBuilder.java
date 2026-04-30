@@ -10,15 +10,19 @@ package de.jare.jsoncasted.model.builder;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
-import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.JsonEnumTemplate;
+import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.tools.SimpleStringSplitter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import de.jare.jsoncasted.model.JsonModellClassBuilder;
-import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,18 +64,20 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
      *
      * @param jClass The JSON class.
      * @param jsonItem The JSON item containing the enum name.
+     * @param builderService
      * @return The enum instance corresponding to the JSON string.
      * @throws JsonBuildException If the enum cannot be retrieved.
      */
     @Override
     public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
-        return buildFromString(jsonItem);
+        return buildFromString(jsonItem, jClass.getValuesArray());
     }
 
     /**
      * Builds a list of enum instances from a JSON array.
      *
      * @param jType The JSON type for conversion.
+     * @param builderService
      * @param listIterator Iterator over JSON items.
      * @param size The expected size of the list.
      * @return A list of enum instances.
@@ -82,7 +88,7 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
         ArrayList<Object> list = new ArrayList<>(size);
         while (listIterator.hasNext()) {
             JsonItem next = listIterator.next();
-            list.add(buildFromString(next));
+            list.add(buildFromString(next, jType.getValuesArray()));
         }
         return list;
     }
@@ -96,7 +102,7 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
      * @throws JsonBuildException If the enum class does not contain
      * getByName(String).
      */
-    private Object buildFromString(JsonItem jsonItem) throws JsonBuildException {
+    private Object buildFromString(JsonItem jsonItem, JsonEnumTemplate[] valuesArray) throws JsonBuildException {
         if (enumClazz == null) {
             return null;
         }
@@ -108,6 +114,17 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
             final String msg = enumClazz.getSimpleName() + ": Value '" + rawValue + "' contains invalid spaces.";
             Logger.getGlobal().log(Level.WARNING, msg);
             rawValue = rawValue.trim();
+        }
+
+        if (valuesArray != null) {
+            for (JsonEnumTemplate val : valuesArray) {
+                if (val.getName().equals(rawValue)) {
+                    return val;
+                }
+                if (val.getLiteral().equals(rawValue)) {
+                    return val;
+                }
+            }
         }
 
         try {
@@ -125,17 +142,36 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
         }
     }
 
+    @Override
+    public Map<String, String> permittedValues(JsonEnumTemplate[] valuesArray) {
+        if (valuesArray != null) {
+            Map<String, String> ret = new LinkedHashMap<>();
+            for (JsonEnumTemplate val : valuesArray) {
+                ret.put(val.getLiteral(), val.getName());
+            }
+            return ret;
+        }
+        try {
+            Method getLiteralToNameMethod = enumClazz.getMethod("getLiteralToName");
+            return (Map<String, String>) getLiteralToNameMethod.invoke(null);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalArgumentException("Method getLiteralToName() in Enum " + enumClazz.getSimpleName() + " not found.");
+        }
+    }
+
     /**
      * Builds an array of enum instances from a JSON array.
      *
      * @param jType The JSON type for conversion.
+     * @param builderService
      * @param listIterator Iterator over JSON items.
      * @param size The expected size of the array.
      * @return An array of enum instances.
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public Object[] buildArray(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+    public Object[] buildArray(JsonType jType, BuilderService builderService,
+            Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
         return buildList(jType, builderService, listIterator, size).toArray();
     }
 

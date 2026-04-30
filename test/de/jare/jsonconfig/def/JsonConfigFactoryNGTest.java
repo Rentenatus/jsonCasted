@@ -146,7 +146,7 @@ public class JsonConfigFactoryNGTest {
 
         ConfigRoot root = null;
         try {
-            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), false, obj1);
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (ConfigRoot) buildInstance1);
 
@@ -196,7 +196,7 @@ public class JsonConfigFactoryNGTest {
 
         ConfigRoot root = null;
         try {
-            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), false, obj1);
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (ConfigRoot) buildInstance1);
 

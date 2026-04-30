@@ -1,6 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+/* <copyright>
+ * Copyright (C) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
  */
 package de.jare.impltest;
 
@@ -87,7 +89,7 @@ public class TestBoxNGTest {
         try {
             final JsonResource res = JsonParserService.parse(configFile, JsonDebugLevel.INFO);
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
-            System.out.println(res.getExpectedBox()); 
+            System.out.println(res.getExpectedBox());
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
             final JsonModelDescriptor descriptor = definition.getDescriptor();
@@ -105,7 +107,7 @@ public class TestBoxNGTest {
 
         TestBox root = null;
         try {
-            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), false, obj1);
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (TestBox) buildInstance1);
 
@@ -177,7 +179,7 @@ public class TestBoxNGTest {
 
         TestBox root = null;
         try {
-            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), false, obj1);
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (TestBox) buildInstance1);
 

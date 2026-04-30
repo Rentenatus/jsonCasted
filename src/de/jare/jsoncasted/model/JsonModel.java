@@ -30,6 +30,7 @@ public class JsonModel {
 
     private final HashMap<String, JsonClass> classes;
     private final HashMap<String, JsonInter> interfaces;
+    private final HashMap<String, JsonClass> enums;
     private final String mName;
     private JsonModelDescriptor descriptor;
 
@@ -43,6 +44,7 @@ public class JsonModel {
         this.descriptor = null;
         this.classes = new HashMap<>();
         this.interfaces = new HashMap<>();
+        this.enums = new HashMap<>();
     }
 
     /**
@@ -59,7 +61,7 @@ public class JsonModel {
      *
      * @param jClass The JSON class to register.
      */
-    public void add(JsonClass jClass) {
+    public void addClass(JsonClass jClass) {
         classes.put(jClass.getcName(), jClass);
     }
 
@@ -109,6 +111,16 @@ public class JsonModel {
     }
 
     /**
+     * Retrieves a JSON enum by its name.
+     *
+     * @param key The name of the JSON enum.
+     * @return The corresponding JsonClass, or null if not found.
+     */
+    public JsonClass getJsonEnum(String key) {
+        return enums.get(key.trim());
+    }
+
+    /**
      * Removes a JSON class from the model registry.
      *
      * @param jClass The JSON class to remove.
@@ -140,41 +152,41 @@ public class JsonModel {
      * Populates the model with basic data types used in JSON processing.
      */
     public void addBasicModel() {
-        add(new JsonClass("String", JsonNodeType.STRING, new JsonStringBuilder()));
-        add(new JsonClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder()));
-        add(new JsonClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder()));
-        add(new JsonClass("Float", JsonNodeType.NUMBER, new JsonFloatObjBuilder()));
-        add(new JsonClass("Double", JsonNodeType.NUMBER, new JsonDoubleObjBuilder()));
-        add(new JsonClass("Boolean", JsonNodeType.BOOLEAN, new JsonBooleanObjBuilder()));
-        add(new JsonClass("int", JsonNodeType.LONG, new JsonIntBuilder()));
-        add(new JsonClass("long", JsonNodeType.LONG, new JsonLongBuilder()));
-        add(new JsonClass("float", JsonNodeType.NUMBER, new JsonFloatBuilder()));
-        add(new JsonClass("double", JsonNodeType.NUMBER, new JsonDoubleBuilder()));
-        add(new JsonClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder()));
+        addClass(new JsonClass("String", JsonNodeType.STRING, new JsonStringBuilder()));
+        addClass(new JsonClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder()));
+        addClass(new JsonClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder()));
+        addClass(new JsonClass("Float", JsonNodeType.NUMBER, new JsonFloatObjBuilder()));
+        addClass(new JsonClass("Double", JsonNodeType.NUMBER, new JsonDoubleObjBuilder()));
+        addClass(new JsonClass("Boolean", JsonNodeType.BOOLEAN, new JsonBooleanObjBuilder()));
+        addClass(new JsonClass("int", JsonNodeType.LONG, new JsonIntBuilder()));
+        addClass(new JsonClass("long", JsonNodeType.LONG, new JsonLongBuilder()));
+        addClass(new JsonClass("float", JsonNodeType.NUMBER, new JsonFloatBuilder()));
+        addClass(new JsonClass("double", JsonNodeType.NUMBER, new JsonDoubleBuilder()));
+        addClass(new JsonClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder()));
     }
 
     // Methods for dynamically creating JSON class definitions
     public JsonClass newJsonClass(Class<?> clazz, JsonModellClassBuilder builder) {
         JsonClass ret = new JsonClass(clazz.getTypeName(), builder);
-        add(ret);
+        addClass(ret);
         return ret;
     }
 
     public JsonClass newJsonClass(Class<?> clazz, JsonNodeType nodeType, JsonModellClassBuilder builder) {
         JsonClass ret = new JsonClass(clazz.getTypeName(), nodeType, builder);
-        add(ret);
+        addClass(ret);
         return ret;
     }
 
     public JsonClass newJsonReflect(Class<?> clazz) {
         JsonClass ret = new JsonClass(clazz.getTypeName(), new JsonReflectBuilder(clazz));
-        add(ret);
+        addClass(ret);
         return ret;
     }
 
     public JsonClass newJsonReflect(Class<?> clazz, boolean skippingNulls) {
         JsonClass ret = new JsonClass(clazz.getTypeName(), skippingNulls, new JsonReflectBuilder(clazz));
-        add(ret);
+        addClass(ret);
         return ret;
     }
 
@@ -190,8 +202,18 @@ public class JsonModel {
         return ret;
     }
 
-    public JsonClass newJsonEnumByName(Class<?> clazz) {
-        return new JsonClass(clazz.getTypeName(), new JsonEnumByNameBuilder(clazz));
+    public JsonClass newJsonEnumByName(Class<?> clazz, JsonEnumTemplate... valuesArray) {
+        final JsonClass ret = new JsonClass(clazz.getTypeName(), JsonNodeType.STRING, new JsonEnumByNameBuilder(clazz));
+        ret.setValuesArray(valuesArray);
+        enums.put(ret.getcName(), ret);
+        return ret;
+    }
+
+    public JsonClass newJsonEnumByName(Class<?> clazz, List<? extends JsonEnumTemplate> valuesList) {
+        final JsonClass ret = new JsonClass(clazz.getTypeName(), JsonNodeType.STRING, new JsonEnumByNameBuilder(clazz));
+        ret.setValuesArray(valuesList.toArray(JsonEnumTemplate[]::new));
+        enums.put(ret.getcName(), ret);
+        return ret;
     }
 
     public JsonInter newJsonInterface(Class<?> clazz, JsonClass... jClass) {
@@ -203,14 +225,14 @@ public class JsonModel {
     public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, JsonClass itemClass, JsonCollectionType colType) {
         JsonMap ret = new JsonMap(clazz.getTypeName() + "<" + itemClass.getcName() + ">"
                 + (colType == JsonCollectionType.NONE ? "" : "[]"), clazz, itemClass, colType);
-        add(ret);
+        addClass(ret);
         return ret;
     }
 
     public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, boolean skippingNulls, JsonClass itemClass, JsonCollectionType colType) {
         JsonMap ret = new JsonMap(clazz.getTypeName() + "<" + itemClass.getcName() + ">"
                 + (colType == JsonCollectionType.NONE ? "" : "[]"), skippingNulls, clazz, itemClass, colType);
-        add(ret);
+        addClass(ret);
         return ret;
     }
 
@@ -259,6 +281,9 @@ public class JsonModel {
         for (JsonClass jsonClass : orderedClasses) {
             context.addType(jsonClass.describeHead(context));
         }
+        for (JsonClass jsonClass : enums.values()) {
+            context.addType(jsonClass.describeHead(context));
+        }
 
         for (JsonInter jsonInter : orderedInterfaces) {
             for (JsonClass next : jsonInter) {
@@ -267,7 +292,7 @@ public class JsonModel {
                     orderedClasses.add(next);
                 }
             }
-            context.addType(jsonInter.describeHead(context));
+            context.addType(jsonInter.describeHeadInterface(context));
         }
 
         for (JsonClass jsonClass : orderedClasses) {

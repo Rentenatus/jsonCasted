@@ -6,21 +6,17 @@
  */
 package de.jare.impltest;
 
-public class ValueBoolean implements ValueInterface {
+public class ValueSeason implements ValueInterface {
 
-    private final Boolean frage;
+    private final EnumSeason season;
 
-    public ValueBoolean(Boolean frage) {
-        this.frage = frage;
-    }
-
-    public Boolean getFrage() {
-        return frage;
+    public ValueSeason(EnumSeason season) {
+        this.season = season;
     }
 
     @Override
     public String getText() {
-        return String.valueOf(frage);
+        return season.getLiteral() + ":'" + season.getName() + "'";
     }
 
 }

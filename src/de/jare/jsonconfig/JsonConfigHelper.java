@@ -7,11 +7,6 @@
  */
 package de.jare.jsonconfig;
 
-import de.jare.jsonconfig.def.JsonConfigDefinition;
-import de.jare.jsonconfig.item.ConfigFeature;
-import de.jare.jsonconfig.item.ConfigLogging;
-import de.jare.jsonconfig.item.ConfigProfile;
-import de.jare.jsonconfig.item.ConfigRoot;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.lang.JsonInstance;
@@ -19,6 +14,11 @@ import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.parserwriter.JsonParser;
 import de.jare.jsoncasted.tools.SimpleStringSplitter;
+import de.jare.jsonconfig.def.JsonConfigDefinition;
+import de.jare.jsonconfig.item.ConfigFeature;
+import de.jare.jsonconfig.item.ConfigLogging;
+import de.jare.jsonconfig.item.ConfigProfile;
+import de.jare.jsonconfig.item.ConfigRoot;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public class JsonConfigHelper implements SimpleStringSplitter {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
         try {
-            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), obj1);
+            final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), true, obj1);
             System.out.println(buildInstance1.getClass().getName());
             root = (ConfigRoot) buildInstance1;
         } catch (JsonBuildException | NullPointerException ex) {

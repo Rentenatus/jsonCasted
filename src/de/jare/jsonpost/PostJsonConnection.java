@@ -18,8 +18,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-/**
- *
+/** 
  * @author Janusch Rentenatus
  */
 public class PostJsonConnection {

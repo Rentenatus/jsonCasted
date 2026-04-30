@@ -11,16 +11,15 @@ import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 import de.jare.jsoncasted.parserwriter.JsonParser;
 import de.jare.jsoncasted.parserwriter.JsonWriter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 
 /**
- *
  * @author Janusch Rentenatus
  */
 public class PostJsonClient {
@@ -69,7 +68,7 @@ public class PostJsonClient {
         } catch (JsonParseException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
-        return JsonBuilder.buildInstance(definition.getModel(), obj);
+        return JsonBuilder.buildInstance(definition.getModel(), true, obj);
     }
 
 }

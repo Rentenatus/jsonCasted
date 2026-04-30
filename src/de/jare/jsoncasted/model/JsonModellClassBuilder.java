@@ -12,6 +12,7 @@ import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  *
@@ -42,5 +43,9 @@ public interface JsonModellClassBuilder {
 
     public default String getterPre() {
         return "get";
+    }
+
+    public default Map<String, String> permittedValues(JsonEnumTemplate[] valuesArray) {
+        return null;
     }
 }

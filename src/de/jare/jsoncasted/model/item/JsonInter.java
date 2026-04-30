@@ -30,7 +30,7 @@ import java.util.Iterator;
 public class JsonInter extends ArrayList<JsonClass> implements JsonType {
 
     private final JsonModellClassBuilder builder;
-    private String cName;
+    private final String cName;
 
     /**
      * Constructs a JsonInter instance with the specified interface name and
@@ -177,7 +177,7 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
         return JsonCastingLevel.ALWAYS_CLASS_DEF == level || JsonCastingLevel.NECESSARY_CLASS_DEF == level;
     }
 
-    public JsonTypeDescriptor describeHead(JsonModelDescriptor context) {
+    public JsonTypeDescriptor describeHeadInterface(JsonModelDescriptor context) {
         final JsonTypeDescriptor ret = new JsonTypeDescriptor(cName)
                 .withNodeType(JsonNodeType.OBJECT);
         for (JsonClass next : this) {

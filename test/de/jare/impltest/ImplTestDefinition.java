@@ -1,6 +1,5 @@
 /* <copyright>
- * Copyright (C) 2022 Janusch Rentenatus & Thomas Weber 
- * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * Copyright (C) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
@@ -54,8 +53,12 @@ public class ImplTestDefinition implements JsonItemDefinition {
         // valueStringSubSub.addCParam("text", asString); // passin on valueStringSub
         valueStringSubSub.addCParam("frage", asBoolean, "getFrage");
 
+        JsonClass enumSeason = model.newJsonEnumByName(EnumSeason.class, EnumSeason.VALUES);
+        JsonClass valueSeason = model.newJsonReflect(ValueSeason.class);
+        valueSeason.addCParam("season", enumSeason);
+
         // ValueStringSub implements ValueInterface, but isn't registered.
-        JsonInter valueIx = model.newJsonInterface(ValueInterface.class, valueBoolean, valueInteger, valueString, valueStringSubSub);
+        JsonInter valueIx = model.newJsonInterface(ValueInterface.class, valueBoolean, valueInteger, valueString, valueStringSubSub, valueSeason);
 
         testBox = model.newJsonReflect(TestBox.class);
         testBox.addField("subsub", valueString);

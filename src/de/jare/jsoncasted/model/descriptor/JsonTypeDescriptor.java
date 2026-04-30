@@ -3,9 +3,11 @@ package de.jare.jsoncasted.model.descriptor;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-
+ 
 /**
  * Allgemeine Beschreibung eines JSON-mapbaren Typs. Kann sowohl für reflektive
  * als auch für rein beschreibende Typen verwendet werden.
@@ -18,6 +20,7 @@ public class JsonTypeDescriptor {
     private final List<JsonTypeDescriptor> implementors = new ArrayList<>();
     private final List<JsonFieldDescriptor> constructorParams = new ArrayList<>();
     private final List<JsonFieldDescriptor> fields = new ArrayList<>();
+    private final Map<String, String> permittedValues = new LinkedHashMap();
 
     private JsonNodeType nodeType;
     private boolean skippingNulls;
@@ -85,6 +88,10 @@ public class JsonTypeDescriptor {
         return Collections.unmodifiableList(fields);
     }
 
+    public Map<String, String> getPermittedValues() {
+        return permittedValues;
+    }
+
     public List<JsonFieldDescriptor> getAllFields() {
         List<JsonFieldDescriptor> all = new ArrayList<>(constructorParams);
         all.addAll(fields);
@@ -148,6 +155,14 @@ public class JsonTypeDescriptor {
 
     public JsonTypeDescriptor withPrimitive(boolean primitive) {
         this.primitive = primitive;
+        return this;
+    }
+
+    public JsonTypeDescriptor withPermittedValues(Map<String, String> withPermittedValues) {
+        if (withPermittedValues == null) {
+            return this;
+        }
+        this.permittedValues.putAll(withPermittedValues);
         return this;
     }
 

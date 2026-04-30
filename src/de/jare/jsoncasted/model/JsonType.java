@@ -46,6 +46,10 @@ public interface JsonType {
 
     public String getcName();
 
+    public default JsonEnumTemplate[] getValuesArray() {
+        return null;
+    }
+
     public JsonNodeType getNodeType();
 
     public Collection<?> asList(Object ob);
