@@ -1,20 +1,30 @@
 # jsonCasted
 
-**jsonCasted** is a flexible JSON deserialization and casting engine for Java, designed to safely and predictably reconstruct complex object graphs from JSON.
+**jsonCasted** is a flexible JSON deserialization and casting engine for Java that safely and predictably reconstructs complex object graphs from JSON.
 
-The project is focuses on:
+The focus is on:
 
 - Type-safe JSON casting
 - Support for interfaces and abstract classes
-- Controlled object building via whitelists
-- Extensible model structure (Description → JsonNode → JsonClass)
+- Controlled object construction via whitelists
+- An explicit model (Description → JsonNode → JsonClass)
+- EMF-like references and resources – but JSON-native
 
+---
 
-## Overview and Comparison to EMF ResourceSet
+## Overview and relation to EMF ResourceSet
 
-**Wood Json Jack** is a JSON-based object model with extended concepts such as references, external resources, and polymorphic types. It pursues goals similar to the **EMF ResourceSet**, while deliberately staying lightweight and JSON-native.
+**Wood Json Jack** is built on top of jsonCasted and provides a JSON-based object model with advanced concepts such as references, external resources, and polymorphic types. It pursues goals similar to an **EMF ResourceSet** while intentionally remaining lightweight and JSON-centric. [web:70][web:71]
 
-Full Example:
+- JSON as the primary persistence format  
+- Object identity via `_woodObjectId`  
+- References via `_woodLink`  
+- External files via `_woodProviders`  
+- Polymorphism via `_class` or inline type `(Type){...}`  
+
+---
+
+## Full example
 
 ```json
 {
@@ -33,6 +43,10 @@ Full Example:
       "_woodLink": "save::123456" 
     },
     "arr": [
+      {
+        "_class": "ValueSeason",
+        "season": SPRING
+      },
       {
         "_class": "ValueInteger",
         "zahl": 42
@@ -69,53 +83,49 @@ Full Example:
         "_woodLink": "save::90" 
       }
     ]
+
 }
 ```
-and "./assets/config/testboxSave.json":
+
+and `./assets/config/testboxSave.json`:
+
 ```json
 {
-    "subsub": {
-      "_class": "ValueStringSubSub",
-      "text": "subsub",
+  "subsub": {
+    "_class": "ValueStringSubSub",
+    "text": "subsub",
+    "frage": true
+  },
+  "one": {
+    "_woodLink": "this::123456"
+  },
+  "arr": [
+    {
+      "_class": "ValueBoolean",
+      "_woodObjectId": "123456",
       "frage": true
+    }
+  ],
+  "list": [
+    {
+      "_class": "ValueStringSubSub",
+      "_woodObjectId": "78",
+      "text": "Test Eintrag 2",
+      "frage": false
     },
-    "one": {
-      "_woodLink": "this::123456" 
-    },
-    "arr": [
-      {
-        "_class": "ValueBoolean",
-        "_woodObjectId": "123456",
-        "frage": true
-      }
-    ],
-    "list": [
-      {
-        "_class": "ValueStringSubSub",
-        "_woodObjectId": "78", 
-        "text": "Test Eintrag 2",
-        "frage": false
-      },
-      (ValueInteger){ 
-        "_woodObjectId": "90",
-        "zahl": -42
-      }
-    ]
+    (ValueInteger){
+      "_woodObjectId": "90",
+      "zahl": -42
+    }
+  ]
 }
 ```
 
-### Core Concepts
+---
 
-- JSON as the primary persistence format  
-- Object identity via `_woodObjectId`  
-- References via `_woodLink`  
-- External files via `_woodProviders`  
-- Polymorphism via `_class` or inline type `(Type){...}`  
+## Example in detail
 
-
-### Example Explained
-
-1. Entry point: `testbox.json`
+### 1. Entry point: `testbox.json`
 
 ```json
 "_woodProviders": [
@@ -126,11 +136,11 @@ and "./assets/config/testboxSave.json":
 ]
 ```
 
-Equivalent to loading another `Resource` into an EMF `ResourceSet`.  The alias `"save"` acts as a namespace for references.
+This is equivalent to loading an additional resource into an EMF `ResourceSet`. The alias `"save"` acts as a namespace for references. [web:70]
 
-***
+---
 
-2. Local objects
+### 2. Local objects
 
 ```json
 "subsub": {
@@ -140,11 +150,11 @@ Equivalent to loading another `Resource` into an EMF `ResourceSet`.  The alias `
 }
 ```
 
-A normal object with explicit type.  Comparable to an instantiated `EObject`.
+A local object with an explicit type, comparable to an instantiated `EObject`. [web:71]
 
-***
+---
 
-3. Cross-resource references
+### 3. Cross-resource references
 
 ```json
 "one": {
@@ -152,16 +162,17 @@ A normal object with explicit type.  Comparable to an instantiated `EObject`.
 }
 ```
 
-Reference to object with ID `123456` in the `"save"` resource.
+Points to the object with ID `123456` in the `"save"` resource.
 
 **EMF equivalent:**
-```
-resourceSet.getEObject("testboxSave.json#123456", true)
+
+```java
+resourceSet.getEObject("testboxSave.json#123456", true);
 ```
 
-***
+---
 
-4. Target object in `testboxSave.json`
+### 4. Target object in `testboxSave.json`
 
 ```json
 {
@@ -171,11 +182,11 @@ resourceSet.getEObject("testboxSave.json#123456", true)
 }
 ```
 
-Defines the referenced instance.  The ID acts like a URI fragment in EMF.
+Defines the referenced instance. The ID behaves like a URI fragment in EMF. [web:70]
 
-***
+---
 
-### 5. Self reference (same resource)
+### 5. Self-reference (same resource)
 
 ```json
 "one": {
@@ -183,11 +194,11 @@ Defines the referenced instance.  The ID acts like a URI fragment in EMF.
 }
 ```
 
-`"this"` means: same file.  Comparable to local URI fragments (`#123456`).
+`"this"` means: same file, functionally similar to local URI fragments (`#123456`).
 
-***
+---
 
-6. Lists with mixed types
+### 6. Lists with mixed types
 
 ```json
 "arr": [
@@ -195,207 +206,157 @@ Defines the referenced instance.  The ID acts like a URI fragment in EMF.
     "_class": "ValueInteger",
     "zahl": 42
   },
-  (ValueString){ 
+  (ValueString){
     "text": "Hallo Welt"
-  }      
+  }
 ]
 ```
 
-Two ways to define types:
+Two options to declare the type:
+
 - explicitly via `_class`
-- compact via `(Type){}`
+- compact via inline notation `(Type){ ... }` (not JSON-compliant but editor-friendly)
 
 **EMF comparison:**  
-Equivalent to polymorphic containment references (`EReference`).
+Equivalent to polymorphic containment references (`EReference`). [web:73]
 
-***
+---
 
-7. References inside collections
+### 7. References inside collections
 
 ```json
 {
-  "_woodLink": "save::78" 
+  "_woodLink": "save::78"
 }
 ```
 
-Lists can contain both real objects **and** references. In EMF, this would correspond to proxy resolution.
+Lists can contain both real objects and references – similar to proxy resolution in EMF. [web:70]
 
-***
+---
 
-8. External objects in `testboxSave.json`
+### 8. External objects in `testboxSave.json`
 
 ```json
 {
   "_class": "ValueStringSubSub",
-  "_woodObjectId": "78", 
+  "_woodObjectId": "78",
   "text": "Test Eintrag 2",
   "frage": false
 }
 ```
 
-Can be referenced from any file.  Comparable to globally addressable `EObject`s.
+Can be referenced from any file, analogous to globally addressable `EObject`s.
 
-***
+---
 
-9. Conclusion
+### 9. Conclusion / mental model
 
 Wood Json Jack provides:
 
 - EMF-like reference and resource mechanics  
-- without a complex metamodel  
+- without a heavyweight metamodel  
 - directly operating on JSON  
-- with very simple serialization and debugging  
+- with simple serialization and debugging  
 
 **Mental model:**
+
 > Wood Json Jack = EMF ResourceSet light + JSON + explicit IDs
 
-***
+---
 
-10. Typical Use Cases
+### 10. Typical use cases
 
-- Editors (e.g. your tree editor)  
-- Game data / configuration systems  
+- Tree editors and inspectors  
+- Game data / configuration  
 - Modding-friendly data structures  
 - Lightweight alternative to EMF  
 
-***
+---
 
+## Additional features of jsonCasted
 
-## Other Features
-
-- **Interface resolution**  
-  JSON can reference interfaces that are resolved to concrete implementations based on a known registry.
+- **Interface and enum resolution**  
+  JSON can reference interfaces and enum types that are mapped to concrete implementations or literal names via a registered model, e.g. via patterns like `JsonEnumTemplate.getByName(...)`. [web:45]
 
 - **Superclass mapping**  
-  Supports abstract base classes that are dynamically resolved to known subclasses at runtime.
+  Abstract base classes are mapped to known subclasses and can be resolved dynamically.
 
-- **Whitelist-based object building**  
-  Only explicitly allowed classes are instantiated, providing protection against unexpected deserialization.
+- **Whitelist-based object construction**  
+  Only explicitly registered classes are instantiated, protecting against unexpected or malicious deserialization. [web:77][web:79]
 
-- **Multi-step model pipeline**  
+- **Multi-stage model pipeline**  
   Clear separation of processing stages:
-  - `Description`: metadata and type description
+  - `Description`: metadata and type specification
   - `JsonNode`: structured intermediate representation
-  - `JsonClass`: concrete type mapping
+  - `JsonClass`: concrete Java class mapping
 
 - **Casting engine**  
-  Converts JSON structures into real Java instances while respecting:
-  - Type rules
-  - Inheritance
-  - Interface mappings
+  Converts JSON structures into real Java objects respecting:
+  - type rules
+  - inheritance
+  - interface and enum mappings
 
-- **Editor-ready design**  
-  Architecture is tailored for integration into UI tools such as tree editors.
+- **Editor-friendly design**  
+  The architecture is designed to be visualized and manipulated in UI tools such as tree editors and property inspectors.
+
+---
 
 ## Architecture
 
 ### 1. Description
 
-Represents the expected structure and type information, such as:
+Represents the expected structure and type information, e.g.:
 
-- Expected root type
-- Allowed subtypes
-- Mapping rules and casting hints
+- expected root type  
+- allowed subtypes  
+- mapping rules and casting hints  
+
+Here you declare, for example, that a node is of interface type `Shape` and which implementations (`Circle`, `Rectangle`) are allowed. [web:72]
+
+---
 
 ### 2. JsonNode
 
-Generic tree structure used as an intermediate format:
+Generic tree structure as an intermediate format:
 
-- Independent from concrete Java classes
-- Well suited for UI editing (e.g. tree views, inspectors)
+- decoupled from concrete Java classes  
+- ideal for UI editing (tree views, inspectors)  
+
+On this level you can see which node is currently bound to which concrete implementation, including discriminators (e.g. `"type": "Circle"`). [web:69]
+
+---
 
 ### 3. JsonClass
 
-Represents a concrete Java class including:
+Describes a concrete Java class including:
 
-- Fields and their types
-- Type metadata
-- Casting rules and constraints
+- fields and field types  
+- type metadata  
+- casting rules and constraints  
+
+Interfaces, abstract classes, and enums are modeled explicitly here, making the polymorphic hierarchy visible in the editor.
+
+---
 
 ### 4. Object building
 
 Final step of the pipeline:
 
-- Validation against the whitelist
-- Instantiation of real Java objects
-- Assignment of field values
+- validation against the whitelist  
+- instantiation of real Java objects  
+- assignment of field values  
 
-## Casting concept
+The engine chooses a concrete class for each node based on:
 
-jsonCasted resolves types not only statically but also dynamically based on rules:
+- declared interface/superclass (Description)  
+- current state/discriminator in JsonNode  
+- allowed implementations in JsonClass and the whitelist  
 
-- Interfaces → concrete implementations
-- Abstract classes → known subclasses
-- Optionally via:
-  - Type fields inside the JSON
-  - External mapping configuration
+---
 
-Example JSON:
+## Whitelist model: `ImplTestDefinition`
 
-```json
-{
-  "_class": "Circle",
-  "radius": 5
-}
-```
-
-or not JSON compliant either:
-
-```json
-(Circle){
-  "radius": 5
-}
-```
-
-Example Java result:
-
-```java
-Shape shape = new Circle(5);
-```
-
-## Model concept: Where interfaces and superclasses are represented
-
-jsonCasted makes interfaces and superclasses explicit in the model so they can be visualized and edited instead of being hidden in ad-hoc deserialization logic.
-
-- **On the Description level**  
-  The `Description` layer carries high-level type metadata.  
-  This is where you declare:
-  - that a node is of an interface type (e.g. `Shape`)
-  - which concrete implementations are allowed (e.g. `Circle`, `Rectangle`)
-  - or that a node is an abstract superclass (e.g. `Animal`) with a known set of subclasses.  
-  In a UI (like Woot JSON Jack), this can be visualized as:
-  - a “declared type” field (interface or abstract base)
-  - plus a list or dropdown of allowed concrete types.
-
-- **On the JsonNode level**  
-  `JsonNode` represents the actual JSON tree as it is being edited.  
-  Here you can see:
-  - which node is currently bound to which concrete implementation
-  - any discriminator fields (e.g. `"type": "Circle"`) that influence type resolution.[web:9][web:10]  
-  In the editor this typically appears as:
-  - a node in the tree with a label like `Shape (Circle)`
-  - or a type selector attached to the node that lets the user switch the concrete implementation while keeping the interface/superclass contract.
-
-- **On the JsonClass level**  
-  `JsonClass` is where the concrete Java class mapping is modeled.  
-  It explicitly links:
-  - interface types to their implementing classes
-  - abstract superclasses to their known subclasses  
-  In a visual representation you can show:
-  - a class node for the interface or superclass
-  - connected child nodes for each registered implementation or subclass
-  - making the polymorphic hierarchy and whitelist visible at a glance.
-
-- **During object building (whitelist resolution)**  
-  In the final object-building step, the engine picks a concrete class for each node based on:
-  - the declared interface or superclass in `Description`
-  - the current discriminator / state in `JsonNode`
-  - the allowed implementations in `JsonClass` and the whitelist.
-  If you visualize this, you can:
-  - highlight which concrete class will be instantiated for a selected node
-  - and show whether a particular implementation is blocked or allowed by the whitelist.
- 
-Whitelist model examle:
+The following example shows how to define a model with an explicit interface, enums, and a whitelist in jsonCasted:
 
 ```java
 public class ImplTestDefinition implements JsonItemDefinition {
@@ -418,7 +379,7 @@ public class ImplTestDefinition implements JsonItemDefinition {
         final JsonClass asInteger = model.getJsonClass("Integer");
 
         JsonClass valueBoolean = model.newJsonReflect(ValueBoolean.class);
-        valueBoolean.addCParam("frage", asBoolean, "getFrage"); // constructor param
+        valueBoolean.addCParam("frage", asBoolean, "getFrage");
 
         JsonClass valueInteger = model.newJsonReflect(ValueInteger.class);
         valueInteger.addCParam("zahl", asInteger);
@@ -427,17 +388,22 @@ public class ImplTestDefinition implements JsonItemDefinition {
         valueString.addCParam("text", asString);
 
         JsonClass valueStringSub = model.newJsonReflect(ValueStringSub.class, valueString);
-        // valueStringSub.addCParam("text", asString); // passin on valueString
+        // valueStringSub.addCParam("text", asString); // passing on valueString
 
         JsonClass valueStringSubSub = model.newJsonReflect(ValueStringSubSub.class, valueStringSub);
-        // valueStringSubSub.addCParam("text", asString); // passin on valueStringSub
+        // valueStringSubSub.addCParam("text", asString); // passing on valueStringSub
         valueStringSubSub.addCParam("frage", asBoolean, "getFrage");
 
+        JsonClass enumSeason = model.newJsonEnumByName(EnumSeason.class, EnumSeason.VALUES);
+        JsonClass valueSeason = model.newJsonReflect(ValueSeason.class);
+        valueSeason.addCParam("season", enumSeason);
+
         // ValueStringSub implements ValueInterface, but isn't registered.
-        JsonInter valueIx = model.newJsonInterface(ValueInterface.class, valueBoolean, valueInteger, valueString, valueStringSubSub);
+        JsonInter valueIx = model.newJsonInterface(ValueInterface.class, valueBoolean, 
+                              valueInteger, valueString, valueStringSubSub, valueSeason);
 
         testBox = model.newJsonReflect(TestBox.class);
-        testBox.addField("subsub", valueString);    // setter- and getter- field.
+        testBox.addField("subsub", valueString);
         testBox.addField("one", valueIx);
         testBox.addField("list", valueIx, LIST);
         testBox.addField("arr", valueIx, ARRAY);
@@ -460,39 +426,152 @@ public class ImplTestDefinition implements JsonItemDefinition {
 }
 ```
 
+This model demonstrates:
+
+- an explicit whitelist for the interface `ValueInterface` (`JsonInter valueIx`)  
+- hierarchical classes (`ValueString` → `ValueStringSub` → `ValueStringSubSub`)  
+- an enum (`EnumSeason`) with JSON mapping via `model.newJsonEnumByName(...)`  
+- collections of interface types (`list`, `arr`) with mixed implementations  
+
+At runtime, only the classes registered in the model are instantiated. [web:77]
+
+---
+
+## Casting concept
+
+jsonCasted resolves types not only statically but also dynamically based on rules:
+
+- Interfaces → concrete implementations  
+- Abstract classes → known subclasses  
+- Enums → literal- or name-based resolution (e.g. `EnumSeason.getByName(...)`) [web:45]  
+- Optionally via:
+  - type fields in JSON (such as `"_class": "Circle"`)  
+  - external mapping configuration  
+
+Example JSON:
+
+```json
+{
+  "_class": "Circle",
+  "radius": 5
+}
+```
+
+or in inline notation (not JSON-compliant but editor-friendly):
+
+```json
+(Circle){
+  "radius": 5
+}
+```
+
+Example Java result:
+
+```java
+Shape shape = new Circle(5);
+```
+
+---
+
+## Where interfaces, superclasses, and enums live in the model
+
+jsonCasted makes interfaces, superclasses, and enums explicit in the model so they can be edited in the editor instead of being hidden in ad-hoc deserialization logic.
+
+- **Description level**  
+  - Declares that a node is of an interface type like `Shape` or an abstract class like `Animal`.  
+  - Lists allowed concrete types (`Circle`, `Rectangle`) or subclasses.  
+  - In the UI, this appears as a “declared type” plus a dropdown of allowed implementations.
+
+- **JsonNode level**  
+  - Represents the actual JSON tree being edited.  
+  - Shows which concrete implementation is currently selected and which discriminator fields (such as `"type": "Circle"`) drive that choice. [web:69]  
+  - In the editor this often appears as a node label like `Shape (Circle)` or a type selector attached to the node.
+
+- **JsonClass level**  
+  - Models the concrete Java class, including mappings from interfaces and abstract classes to their implementations/subclasses and to enum types.  
+  - In a visual representation, this can be shown as a class-diagram-like view with the interface/superclass and all registered implementations.
+
+- **During object building (whitelist resolution)**  
+  - For each node, the engine decides which concrete class to instantiate based on the Description, the JsonNode state, and the JsonClass whitelist.  
+  - An editor can visualize which concrete class will be instantiated for the selected node and whether a particular implementation is blocked by the whitelist.
+
+---
+
+### Enum field `season` as literal
+
+The example additionally binds an enum field via a literal value:
+
+```json
+"arr": [
+  {
+    "_class": "ValueSeason",
+    "season": SPRING
+  }
+]
+```
+
+Here, `season` is an enum literal of type `EnumSeason` (for example `SPRING`).  
+Resolution is handled via the enum registered in the model:
+
+```java
+JsonClass enumSeason = model.newJsonEnumByName(EnumSeason.class, EnumSeason.VALUES);
+JsonClass valueSeason = model.newJsonReflect(ValueSeason.class);
+valueSeason.addCParam("season", enumSeason);
+```
+
+At runtime, the literal value (for example `"SPRING"` in JSON) is resolved via the enum template, using a pattern such as:
+
+```java
+EnumSeason enumValue = EnumSeason.getByName("SPRING");
+```
+
+`EnumSeason` implements the `JsonEnumTemplate` interface, which provides helper methods like `getByName(...)` and `getLiteralToName(...)`.  
+This allows JSON literals to be mapped robustly to enum constants without relying on numeric ordinal values in JSON. [web:45][web:54]
+
+---
 
 ## Security
 
-A key design goal is controlled deserialization:
+A central design goal is controlled deserialization:
 
-- No arbitrary class instantiation
-- Only whitelisted types are allowed
-- Protection against malicious or manipulated JSON payloads
+- No arbitrary class instantiation  
+- Only whitelisted types are created  
+- Protection against manipulated or malicious JSON payloads  
 
-## Typical use cases
+Recommended best practices are aligned with common deserialization security guidelines such as those from OWASP. [web:75][web:79]
 
-- JSON-based configuration systems
-- UI editors (tree editors, property editors)
-- Game object definitions
-- Plugin or modding systems
-- AI-generated JSON → safe Java object reconstruction
+---
+
+## Typical usage scenarios
+
+- JSON-based configuration systems  
+- UI editors (tree editors, property editors)  
+- Game object definitions  
+- Plugin or modding systems  
+- AI-generated JSON → safe reconstruction of Java objects [web:38]  
+
+---
 
 ## Integration
 
 The system is modular and can be used:
 
-- Standalone as a library
-- Integrated into Swing or JavaFX editors
-- Combined with undo/redo systems (e.g. command pattern)
+- Standalone as a library  
+- Integrated into Swing or JavaFX editors  
+- Combined with undo/redo systems (command pattern)  
+
+---
 
 ## Roadmap
 
-- Extended validation rules
-- Annotation-based configuration
-- Integration with AI tools (e.g. JSON generation via LLMs)
-- Performance optimizations for large trees
+- Extended validation rules  
+- Annotation-based configuration  
+- Integration with AI tools (e.g. LLM-generated JSON) [web:41]  
+- Performance optimizations for large trees  
+
+---
 
 ## Status
 
 🚧 Active development  
-jsonCasted is actively developed in the context of the **Woot JSON Jack Editor** and will evolve together with its requirements.
+jsonCasted is actively developed in the context of the **Wood Json Jack Editor** and will evolve together with its requirements.

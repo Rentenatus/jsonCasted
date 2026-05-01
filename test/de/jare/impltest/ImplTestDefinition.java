@@ -47,10 +47,10 @@ public class ImplTestDefinition implements JsonItemDefinition {
         valueString.addCParam("text", asString);
 
         JsonClass valueStringSub = model.newJsonReflect(ValueStringSub.class, valueString);
-        // valueStringSub.addCParam("text", asString); // passin on valueString
+        // valueStringSub.addCParam("text", asString); // passing on valueString
 
         JsonClass valueStringSubSub = model.newJsonReflect(ValueStringSubSub.class, valueStringSub);
-        // valueStringSubSub.addCParam("text", asString); // passin on valueStringSub
+        // valueStringSubSub.addCParam("text", asString); // passing on valueStringSub
         valueStringSubSub.addCParam("frage", asBoolean, "getFrage");
 
         JsonClass enumSeason = model.newJsonEnumByName(EnumSeason.class, EnumSeason.VALUES);
