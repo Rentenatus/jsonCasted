@@ -15,13 +15,24 @@ import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 
 /**
+ * Definition class for implementation tests.
+ * Sets up the JSON model structure for testing various value types and their
+ * inheritance relationships.
  *
  * @author Janusch Rentenatus
  */
 public class ImplTestDefinition implements JsonItemDefinition {
 
+    /**
+     * Singleton instance of ImplTestDefinition.
+     */
     public static final ImplTestDefinition INSTANCE = new ImplTestDefinition();
 
+    /**
+     * Returns the singleton instance.
+     *
+     * @return The singleton ImplTestDefinition instance.
+     */
     public static ImplTestDefinition getInstance() {
         return INSTANCE;
     }
@@ -29,6 +40,10 @@ public class ImplTestDefinition implements JsonItemDefinition {
     private final JsonModel model;
     private final JsonClass testBox;
 
+    /**
+     * Constructs an ImplTestDefinition instance.
+     * Creates the model and defines the structure for all test value classes.
+     */
     public ImplTestDefinition() {
         model = new JsonModel("impltest");
         model.addBasicModel();
@@ -73,6 +88,11 @@ public class ImplTestDefinition implements JsonItemDefinition {
         return model;
     }
 
+    /**
+     * Returns the JsonClass for TestBox.
+     *
+     * @return The JsonClass describing the TestBox structure.
+     */
     public JsonClass getTestBox() {
         return testBox;
     }

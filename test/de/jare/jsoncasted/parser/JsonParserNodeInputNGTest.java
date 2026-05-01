@@ -9,8 +9,20 @@ import java.io.FileReader;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+/**
+ * Test class for JSON parser node input functionality.
+ * Tests parsing of JSON files with casting and type resolution.
+ *
+ * @author Janusch Rentenatus
+ */
 public class JsonParserNodeInputNGTest {
 
+    /**
+     * Tests parsing a JSON node with a casted string value.
+     * Verifies that the _class field is correctly parsed and resolved.
+     *
+     * @throws Exception If parsing fails.
+     */
     @Test
     public void testParseNodeCast1() throws Exception {
         File f = new File("./assets/legacy/config_legacy_string.json");
@@ -25,6 +37,12 @@ public class JsonParserNodeInputNGTest {
         }
     }
 
+    /**
+     * Tests parsing a JSON node with a casted long value.
+     * Verifies that the _class field is correctly parsed and resolved.
+     *
+     * @throws Exception If parsing fails.
+     */
     @Test
     public void testParseNodeCast2() throws Exception {
         File f = new File("./assets/legacy/config_legacy_long.json");

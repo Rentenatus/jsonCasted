@@ -8,10 +8,10 @@
 package de.jare.jsoncasted.parserwriter;
 
 import de.jare.debug.JsonDebugLevel;
-import de.jare.jsoncasted.parserservice.ParseStreamReader;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parser.inner.RootParserBak;
+import de.jare.jsoncasted.parserservice.ParseStreamReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,16 +25,43 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Reference implementation of the JSON parser using the legacy Bak (backup) parser classes.
+ * This class provides parsing methods for various input sources using the deprecated
+ * parser pipeline.
  *
  * @author Janusch Rentenatus
+ * @deprecated Replaced by JsonNode-based parsing pipeline.
  */
+@Deprecated
 public class JsonParserReference {
 
+    /**
+     * Parses JSON from a string using the legacy parser.
+     *
+     * @param s The JSON string to parse.
+     * @param definition The JSON item definition.
+     * @param root The root JSON class.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return The parsed JsonItem.
+     * @throws JsonParseException If parsing fails.
+     * @throws IOException If I/O errors occur.
+     */
     public static JsonItem parse(String s, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
           StringReader in = new StringReader(s);
           return parse(in, definition, root, debugLevel);
       }
 
+    /**
+     * Parses JSON from a file using the legacy parser.
+     *
+     * @param file The file to parse.
+     * @param definition The JSON item definition.
+     * @param root The root JSON class.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return The parsed JsonItem, or null if file not found.
+     * @throws JsonParseException If parsing fails.
+     * @throws IOException If I/O errors occur.
+     */
       public static JsonItem parse(File file, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
           FileReader in;
           try {
@@ -46,6 +73,17 @@ public class JsonParserReference {
           return null;
       }
 
+    /**
+     * Parses JSON from a URL using the legacy parser.
+     *
+     * @param url1 The URL to parse.
+     * @param definition The JSON item definition.
+     * @param root The root JSON class.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return The parsed JsonItem, or null if file not found.
+     * @throws JsonParseException If parsing fails.
+     * @throws IOException If I/O errors occur.
+     */
       public static JsonItem parse(final URL url1, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
           BufferedReader in;
           try {
@@ -58,33 +96,107 @@ public class JsonParserReference {
           return null;
       }
 
+    /**
+     * Parses JSON from a Reader using the legacy parser.
+     *
+     * @param in The Reader to parse from.
+     * @param definition The JSON item definition.
+     * @param root The root JSON class.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return The parsed JsonItem.
+     * @throws IOException If I/O errors occur.
+     * @throws JsonParseException If parsing fails.
+     */
       public static JsonItem parse(Reader in, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws IOException, JsonParseException {
           ParseStreamReader psr = new ParseStreamReader(in, debugLevel);
           return new RootParserBak(definition, root).parse(psr);
       }
 
+    /**
+     * Parses JSON from a file using the legacy parser.
+     * Uses the class name from the specified Class object.
+     *
+     * @param file The file to parse.
+     * @param definition The JSON item definition.
+     * @param aClass The Class whose name will be used as the root.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return The parsed JsonItem, or null if file not found.
+     * @throws JsonParseException If parsing fails.
+     * @throws IOException If I/O errors occur.
+     */
       public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass, JsonDebugLevel debugLevel) throws JsonParseException, IOException {
           JsonClass jClass = definition.getModel().getJsonClass(aClass);
           return parse(file, definition, jClass, debugLevel);
       }
 
-      public static JsonItem parse(String s, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
+    /**
+     * Parses JSON from a string using the legacy parser with default debug level.
+     *
+     * @param s The JSON string to parse.
+     * @param definition The JSON item definition.
+     * @param root The root JSON class.
+     * @return The parsed JsonItem.
+     * @throws JsonParseException If parsing fails.
+     * @throws IOException If I/O errors occur.
+     */
+    public static JsonItem parse(String s, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
           return parse(s, definition, root, JsonDebugLevel.SIMPLE);
       }
 
-      public static JsonItem parse(File file, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
+    /**
+     * Parses JSON from a file using the legacy parser with default debug level.
+     *
+     * @param file The file to parse.
+     * @param definition The JSON item definition.
+     * @param root The root JSON class.
+     * @return The parsed JsonItem.
+     * @throws JsonParseException If parsing fails.
+     * @throws IOException If I/O errors occur.
+     */
+    public static JsonItem parse(File file, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
           return parse(file, definition, root, JsonDebugLevel.SIMPLE);
       }
 
-      public static JsonItem parse(final URL url1, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
+    /**
+     * Parses JSON from a URL using the legacy parser with default debug level.
+     *
+     * @param url1 The URL to parse.
+     * @param definition The JSON item definition.
+     * @param root The root JSON class.
+     * @return The parsed JsonItem.
+     * @throws JsonParseException If parsing fails.
+     * @throws IOException If I/O errors occur.
+     */
+    public static JsonItem parse(final URL url1, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
           return parse(url1, definition, root, JsonDebugLevel.SIMPLE);
       }
 
-      public static JsonItem parse(Reader in, JsonItemDefinition definition, JsonClass root) throws IOException, JsonParseException {
+    /**
+     * Parses JSON from a Reader using the legacy parser with default debug level.
+     *
+     * @param in The Reader to parse from.
+     * @param definition The JSON item definition.
+     * @param root The root JSON class.
+     * @return The parsed JsonItem.
+     * @throws IOException If I/O errors occur.
+     * @throws JsonParseException If parsing fails.
+     */
+    public static JsonItem parse(Reader in, JsonItemDefinition definition, JsonClass root) throws IOException, JsonParseException {
           return parse(in, definition, root, JsonDebugLevel.SIMPLE);
       }
 
-      public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass) throws JsonParseException, IOException {
+    /**
+     * Parses JSON from a file using the legacy parser with default debug level.
+     * Uses the class name from the specified Class object.
+     *
+     * @param file The file to parse.
+     * @param definition The JSON item definition.
+     * @param aClass The Class whose name will be used as the root.
+     * @return The parsed JsonItem.
+     * @throws JsonParseException If parsing fails.
+     * @throws IOException If I/O errors occur.
+     */
+    public static JsonItem parse(File file, JsonItemDefinition definition, Class<?> aClass) throws JsonParseException, IOException {
           return parse(file, definition, aClass, JsonDebugLevel.SIMPLE);
       }
 

@@ -33,37 +33,64 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
+ * Test class for JsonConfigFactory functionality.
+ * Tests parsing and building of JSON configuration files.
  *
  * @author Janusch Rentenatus
  */
 public class JsonConfigFactoryNGTest {
 
+    /**
+     * Default constructor for JsonConfigFactoryNGTest.
+     */
     public JsonConfigFactoryNGTest() {
     }
 
+    /**
+     * Sets up the test class.
+     * Printed to stdout for test tracking.
+     *
+     * @throws Exception If setup fails.
+     */
     @BeforeClass
     public static void setUpClass() throws Exception {
         System.out.println("===============================================");
         System.out.println("## Start JsonConfigFactoryNGTest.");
     }
 
+    /**
+     * Tears down the test class.
+     * Printed to stdout for test tracking.
+     *
+     * @throws Exception If teardown fails.
+     */
     @AfterClass
     public static void tearDownClass() throws Exception {
         System.out.println("## End JsonConfigFactoryNGTest.");
         System.out.println("===============================================");
     }
 
+    /**
+     * Sets up the test method.
+     *
+     * @throws Exception If setup fails.
+     */
     @BeforeMethod
     public void setUpMethod() throws Exception {
     }
 
+    /**
+     * Tears down the test method.
+     *
+     * @throws Exception If teardown fails.
+     */
     @AfterMethod
     public void tearDownMethod() throws Exception {
 
     }
 
     /**
-     * Test of getModel method, of class JsonConfigDefinition.
+     * Test of getModel method with config1.json.
      */
     @Test
     public void testModel1() {
@@ -76,7 +103,8 @@ public class JsonConfigFactoryNGTest {
     }
 
     /**
-     * Test of getModel method, of class JsonConfigDefinition.
+     * Test of getModel method with seedConfigTemplate.json.
+     * Compares reference and new parser implementations.
      */
     @Test
     public void testModelSeed() {
@@ -123,11 +151,11 @@ public class JsonConfigFactoryNGTest {
     }
 
     /**
-     * Reference version.
+     * Reference version using the legacy parser.
      *
-     * @param configFile
-     * @param definition
-     * @return
+     * @param configFile The configuration file to parse.
+     * @param definition The JsonConfigDefinition to use.
+     * @return The JsonConfigHelper for the parsed configuration.
      */
     private JsonConfigHelper testModelReference(File configFile, JsonConfigDefinition definition) {
         System.out.println("Reference=============================================== File");
@@ -164,11 +192,11 @@ public class JsonConfigFactoryNGTest {
     }
 
     /**
-     * Target version.
+     * Target version using the new parser pipeline.
      *
-     * @param configFile
-     * @param definition
-     * @return
+     * @param configFile The configuration file to parse.
+     * @param definition The JsonConfigDefinition to use.
+     * @return The JsonConfigHelper for the parsed configuration.
      */
     private JsonConfigHelper testModel(File configFile, JsonConfigDefinition definition) {
         System.out.println("Target=============================================== File");

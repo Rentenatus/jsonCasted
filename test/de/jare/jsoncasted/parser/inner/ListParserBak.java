@@ -1,5 +1,5 @@
 /* <copyright>
- * Copyright (C) 2022 Janusch Rentenatus & Thomas Weber 
+ * Copyright (C) 2022 Janusch Rentenatus & Thomas Weber
  * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
@@ -19,9 +19,10 @@ import java.util.ArrayList;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 
 /**
+ * Legacy parser for JSON array structures.
+ * Parses JSON arrays and their elements from the stream.
  *
  * @author Janusch Rentenatus
- *
  * @deprecated Replaced by JsonNode-based parsing pipeline.
  */
 @Deprecated
@@ -32,6 +33,12 @@ public class ListParserBak {
     private JsonClass castClass;
     private final ArrayList<JsonItem> list;
 
+    /**
+     * Constructs a ListParserBak instance.
+     *
+     * @param definition The JSON item definition.
+     * @param jType The JSON type for list elements.
+     */
     public ListParserBak(JsonItemDefinition definition, JsonType jType) {
         this.definition = definition;
         this.jType = jType;
@@ -39,6 +46,15 @@ public class ListParserBak {
         this.castClass = null;
     }
 
+    /**
+     * Parses a JSON array from the stream.
+     *
+     * @param psr The ParseStreamReader to read from.
+     * @param asList If true, the result will be treated as a list.
+     * @return The parsed JsonListBak.
+     * @throws IOException If I/O errors occur.
+     * @throws JsonParseException If parsing fails.
+     */
     public JsonItem parse(ParseStreamReader psr, boolean asList) throws IOException, JsonParseException {
         castClass = (jType == null) ? castClass : jType.getDirectClass();
         JsonItem item = null;
@@ -69,6 +85,12 @@ public class ListParserBak {
         throw new JsonParseException("End of file without end of list.");
     }
 
+    /**
+     * Adds an item to the list.
+     *
+     * @param item The JsonItem to add, or null if a primitive value.
+     * @param sb The StringBuilder containing accumulated characters.
+     */
     private void addItem(JsonItem item, StringBuilder sb) {
         if (item != null) {
             list.add(item);

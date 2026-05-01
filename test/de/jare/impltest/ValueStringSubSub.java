@@ -6,15 +6,32 @@
  */
 package de.jare.impltest;
 
+/**
+ * Value class representing a string value with additional boolean field.
+ * Extends ValueStringSub and implements ValueInterface.
+ *
+ * @author Janusch Rentenatus
+ */
 public class ValueStringSubSub extends ValueStringSub implements ValueInterface {
 
     private final Boolean frage;
 
+    /**
+     * Constructs a ValueStringSubSub instance with the specified text and boolean values.
+     *
+     * @param text The string value.
+     * @param frage The boolean value.
+     */
     public ValueStringSubSub(String text, Boolean frage) {
         super(text);
         this.frage = frage;
     }
 
+    /**
+     * Returns the boolean value.
+     *
+     * @return The boolean value.
+     */
     public Boolean getFrage() {
         return frage;
     }

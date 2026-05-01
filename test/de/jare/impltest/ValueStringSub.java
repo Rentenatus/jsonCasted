@@ -6,8 +6,19 @@
  */
 package de.jare.impltest;
 
+/**
+ * Value class representing a string value with extended functionality.
+ * Extends ValueString and implements ValueInterface.
+ *
+ * @author Janusch Rentenatus
+ */
 public class ValueStringSub extends ValueString implements ValueInterface {
 
+    /**
+     * Constructs a ValueStringSub instance with the specified text value.
+     *
+     * @param text The string value.
+     */
     public ValueStringSub(String text) {
         super(text);
     }

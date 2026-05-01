@@ -31,54 +31,69 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.fail;
 
 /**
+ * Test class for the TestBox implementation.
+ * Tests parsing and building of complex JSON structures with the ImplTestDefinition.
  *
  * @author Janusch Rentenatus
  */
 public class TestBoxNGTest {
 
+    /**
+     * Default constructor for TestBoxNGTest.
+     */
     public TestBoxNGTest() {
     }
 
+    /**
+     * Sets up the test class.
+     * Printed to stdout for test tracking.
+     *
+     * @throws Exception If setup fails.
+     */
     @BeforeClass
     public static void setUpClass() throws Exception {
         System.out.println("===============================================");
         System.out.println("## Start TestBoxNGTest.");
     }
 
+    /**
+     * Tears down the test class.
+     * Printed to stdout for test tracking.
+     *
+     * @throws Exception If teardown fails.
+     */
     @AfterClass
     public static void tearDownClass() throws Exception {
         System.out.println("## End TestBoxNGTest.");
         System.out.println("===============================================");
     }
 
+    /**
+     * Sets up the test method.
+     *
+     * @throws Exception If setup fails.
+     */
     @BeforeMethod
     public void setUpMethod() throws Exception {
     }
 
+    /**
+     * Tears down the test method.
+     *
+     * @throws Exception If teardown fails.
+     */
     @AfterMethod
     public void tearDownMethod() throws Exception {
 
     }
 
     /**
-     * Test of getModel method, of class JsonConfigDefinition.
-     */
-    @Test
-    public void testModel1() {
-        System.out.println("===============================================");
-        System.out.println("testModel1");
-        System.out.println("===============================================");
-
-        File configFile = new File("./assets/config/testbox.json");
-        testModel(configFile, ImplTestDefinition.getInstance());
-    }
-
-    /**
-     * Target version.
+     * Tests parsing and building with a valid testbox configuration.
+     * Target version using the new parser pipeline.
      *
-     * @param configFile
-     * @param definition
-     * @return
+     * @param configFile The configuration file to parse.
+     * @param definition The ImplTestDefinition to use.
+     * @return The built TestBox instance.
      */
     private Object testModel(File configFile, ImplTestDefinition definition) {
         System.out.println("Target=============================================== File");
@@ -133,24 +148,25 @@ public class TestBoxNGTest {
     }
 
     /**
-     * Test of getModel method, of class JsonConfigDefinition.
+     * Test of getModel method with valid testbox configuration.
      */
     @Test
-    public void testModel1_error() {
+    public void testModel1() {
         System.out.println("===============================================");
         System.out.println("testModel1");
         System.out.println("===============================================");
 
-        File configFile = new File("./assets/config/testbox_error.json");
-        testModel_error(configFile, ImplTestDefinition.getInstance());
+        File configFile = new File("./assets/config/testbox.json");
+        testModel(configFile, ImplTestDefinition.getInstance());
     }
 
     /**
-     * Target version.
+     * Tests parsing and building with a testbox configuration containing errors.
+     * Target version using the new parser pipeline.
      *
-     * @param configFile
-     * @param definition
-     * @return
+     * @param configFile The configuration file to parse.
+     * @param definition The ImplTestDefinition to use.
+     * @return The built TestBox instance.
      */
     private Object testModel_error(File configFile, ImplTestDefinition definition) {
         System.out.println("Target=============================================== File");
@@ -202,4 +218,18 @@ public class TestBoxNGTest {
         System.out.println(root);
         return root;
     }
+
+    /**
+     * Test of getModel method with testbox configuration containing errors.
+     */
+    @Test
+    public void testModel1_error() {
+        System.out.println("===============================================");
+        System.out.println("testModel1");
+        System.out.println("===============================================");
+
+        File configFile = new File("./assets/config/testbox_error.json");
+        testModel_error(configFile, ImplTestDefinition.getInstance());
+    }
+
 }

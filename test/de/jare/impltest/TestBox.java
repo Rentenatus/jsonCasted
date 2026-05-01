@@ -9,6 +9,8 @@ package de.jare.impltest;
 import java.util.List;
 
 /**
+ * Test container class that holds various value types for testing.
+ * Contains fields for a single value, a list of values, and an array of values.
  *
  * @author Administrator
  */
@@ -19,34 +21,74 @@ public class TestBox {
     private ValueInterface[] arr;
     private List<ValueInterface> list;
 
+    /**
+     * Returns the subsub value.
+     *
+     * @return The ValueString instance.
+     */
     public ValueString getSubsub() {
         return subsub;
     }
 
+    /**
+     * Sets the subsub value.
+     *
+     * @param subsub The ValueString instance to set.
+     */
     public void setSubsub(ValueString subsub) {
         this.subsub = subsub;
     }
 
+    /**
+     * Returns the single value.
+     *
+     * @return The ValueInterface instance.
+     */
     public ValueInterface getOne() {
         return one;
     }
 
+    /**
+     * Sets the single value.
+     *
+     * @param one The ValueInterface instance to set.
+     */
     public void setOne(ValueInterface one) {
         this.one = one;
     }
 
+    /**
+     * Returns the array of values.
+     *
+     * @return The array of ValueInterface instances.
+     */
     public ValueInterface[] getArr() {
         return arr;
     }
 
+    /**
+     * Sets the array of values.
+     *
+     * @param arr The array of ValueInterface instances to set.
+     */
     public void setArr(ValueInterface[] arr) {
         this.arr = arr;
     }
 
+    /**
+     * Returns the list of values.
+     *
+     * @return The list of ValueInterface instances.
+     */
     public List<ValueInterface> getList() {
         return list;
     }
 
+    /**
+     * Sets the list of values.
+     *
+     * @param list The list of ValueInterface instances to set.
+     */
     public void setList(List<ValueInterface> list) {
         this.list = list;
     }

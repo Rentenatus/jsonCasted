@@ -6,14 +6,30 @@
  */
 package de.jare.impltest;
 
+/**
+ * Value class representing an integer value for testing.
+ * Implements ValueInterface to provide text representation.
+ *
+ * @author Janusch Rentenatus
+ */
 public class ValueInteger implements ValueInterface {
 
     private final Integer zahl;
 
+    /**
+     * Constructs a ValueInteger instance with the specified integer value.
+     *
+     * @param zahl The integer value.
+     */
     public ValueInteger(Integer zahl) {
         this.zahl = zahl;
     }
 
+    /**
+     * Returns the integer value.
+     *
+     * @return The integer value.
+     */
     public Integer getZahl() {
         return zahl;
     }

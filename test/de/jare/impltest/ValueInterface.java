@@ -7,11 +7,18 @@
 package de.jare.impltest;
 
 /**
+ * Interface for value objects that can provide text representation.
+ * All test value classes implement this interface.
  *
  * @author Janusch Rentenatus
  */
 public interface ValueInterface {
 
+    /**
+     * Returns the text representation of this value.
+     *
+     * @return The string representation of the value.
+     */
     public String getText();
 
 }
