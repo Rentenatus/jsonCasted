@@ -7,14 +7,14 @@ The focus is on:
 - Type-safe JSON casting
 - Support for interfaces and abstract classes
 - Controlled object construction via whitelists
-- An explicit model (Description → JsonNode → JsonClass)
+- An explicit model (Model → Description) and parsing (JSON → JsonNode → JsonClass via. Description → Java Objects via. Model)
 - EMF-like references and resources – but JSON-native
 
 ---
 
 ## Overview and relation to EMF ResourceSet
 
-**Wood Json Jack** is built on top of jsonCasted and provides a JSON-based object model with advanced concepts such as references, external resources, and polymorphic types. It pursues goals similar to an **EMF ResourceSet** while intentionally remaining lightweight and JSON-centric. [web:70][web:71]
+**Wood Json Jack** is built on top of jsonCasted and provides a JSON-based object model with advanced concepts such as references, external resources, and polymorphic types. It pursues goals similar to an **EMF ResourceSet** while intentionally remaining lightweight and JSON-centric. 
 
 - JSON as the primary persistence format  
 - Object identity via `_woodObjectId`  
@@ -136,7 +136,7 @@ and `./assets/config/testboxSave.json`:
 ]
 ```
 
-This is equivalent to loading an additional resource into an EMF `ResourceSet`. The alias `"save"` acts as a namespace for references. [web:70]
+This is equivalent to loading an additional resource into an EMF `ResourceSet`. The alias `"save"` acts as a namespace for references. 
 
 ---
 
@@ -150,7 +150,7 @@ This is equivalent to loading an additional resource into an EMF `ResourceSet`. 
 }
 ```
 
-A local object with an explicit type, comparable to an instantiated `EObject`. [web:71]
+A local object with an explicit type, comparable to an instantiated `EObject`. 
 
 ---
 
@@ -182,7 +182,7 @@ resourceSet.getEObject("testboxSave.json#123456", true);
 }
 ```
 
-Defines the referenced instance. The ID behaves like a URI fragment in EMF. [web:70]
+Defines the referenced instance. The ID behaves like a URI fragment in EMF. 
 
 ---
 
@@ -218,7 +218,7 @@ Two options to declare the type:
 - compact via inline notation `(Type){ ... }` (not JSON-compliant but editor-friendly)
 
 **EMF comparison:**  
-Equivalent to polymorphic containment references (`EReference`). [web:73]
+Equivalent to polymorphic containment references (`EReference`). 
 
 ---
 
@@ -230,7 +230,7 @@ Equivalent to polymorphic containment references (`EReference`). [web:73]
 }
 ```
 
-Lists can contain both real objects and references – similar to proxy resolution in EMF. [web:70]
+Lists can contain both real objects and references – similar to proxy resolution in EMF. 
 
 ---
 
@@ -276,13 +276,13 @@ Wood Json Jack provides:
 ## Additional features of jsonCasted
 
 - **Interface and enum resolution**  
-  JSON can reference interfaces and enum types that are mapped to concrete implementations or literal names via a registered model, e.g. via patterns like `JsonEnumTemplate.getByName(...)`. [web:45]
+  JSON can reference interfaces and enum types that are mapped to concrete implementations or literal names via a registered model, e.g. via patterns like `JsonEnumTemplate.getByName(...)`.
 
 - **Superclass mapping**  
   Abstract base classes are mapped to known subclasses and can be resolved dynamically.
 
 - **Whitelist-based object construction**  
-  Only explicitly registered classes are instantiated, protecting against unexpected or malicious deserialization. [web:77][web:79]
+  Only explicitly registered classes are instantiated, protecting against unexpected or malicious deserialization. 
 
 - **Multi-stage model pipeline**  
   Clear separation of processing stages:
@@ -311,7 +311,7 @@ Represents the expected structure and type information, e.g.:
 - allowed subtypes  
 - mapping rules and casting hints  
 
-Here you declare, for example, that a node is of interface type `Shape` and which implementations (`Circle`, `Rectangle`) are allowed. [web:72]
+Here you declare, for example, that a node is of interface type `Shape` and which implementations (`Circle`, `Rectangle`) are allowed. 
 
 ---
 
@@ -322,7 +322,7 @@ Generic tree structure as an intermediate format:
 - decoupled from concrete Java classes  
 - ideal for UI editing (tree views, inspectors)  
 
-On this level you can see which node is currently bound to which concrete implementation, including discriminators (e.g. `"type": "Circle"`). [web:69]
+On this level you can see which node is currently bound to which concrete implementation, including discriminators (e.g. `"type": "Circle"`).
 
 ---
 
@@ -433,7 +433,7 @@ This model demonstrates:
 - an enum (`EnumSeason`) with JSON mapping via `model.newJsonEnumByName(...)`  
 - collections of interface types (`list`, `arr`) with mixed implementations  
 
-At runtime, only the classes registered in the model are instantiated. [web:77]
+At runtime, only the classes registered in the model are instantiated. 
 
 ---
 
@@ -443,7 +443,7 @@ jsonCasted resolves types not only statically but also dynamically based on rule
 
 - Interfaces → concrete implementations  
 - Abstract classes → known subclasses  
-- Enums → literal- or name-based resolution (e.g. `EnumSeason.getByName(...)`) [web:45]  
+- Enums → literal- or name-based resolution (e.g. `EnumSeason.getByName(...)`)  
 - Optionally via:
   - type fields in JSON (such as `"_class": "Circle"`)  
   - external mapping configuration  
@@ -484,7 +484,7 @@ jsonCasted makes interfaces, superclasses, and enums explicit in the model so th
 
 - **JsonNode level**  
   - Represents the actual JSON tree being edited.  
-  - Shows which concrete implementation is currently selected and which discriminator fields (such as `"type": "Circle"`) drive that choice. [web:69]  
+  - Shows which concrete implementation is currently selected and which discriminator fields (such as `"type": "Circle"`) drive that choice. 
   - In the editor this often appears as a node label like `Shape (Circle)` or a type selector attached to the node.
 
 - **JsonClass level**  
@@ -526,7 +526,7 @@ EnumSeason enumValue = EnumSeason.getByName("SPRING");
 ```
 
 `EnumSeason` implements the `JsonEnumTemplate` interface, which provides helper methods like `getByName(...)` and `getLiteralToName(...)`.  
-This allows JSON literals to be mapped robustly to enum constants without relying on numeric ordinal values in JSON. [web:45][web:54]
+This allows JSON literals to be mapped robustly to enum constants without relying on numeric ordinal values in JSON.
 
 ---
 
@@ -538,7 +538,7 @@ A central design goal is controlled deserialization:
 - Only whitelisted types are created  
 - Protection against manipulated or malicious JSON payloads  
 
-Recommended best practices are aligned with common deserialization security guidelines such as those from OWASP. [web:75][web:79]
+Recommended best practices are aligned with common deserialization security guidelines such as those from OWASP. 
 
 ---
 
@@ -548,7 +548,7 @@ Recommended best practices are aligned with common deserialization security guid
 - UI editors (tree editors, property editors)  
 - Game object definitions  
 - Plugin or modding systems  
-- AI-generated JSON → safe reconstruction of Java objects [web:38]  
+- AI-generated JSON → safe reconstruction of Java objects  
 
 ---
 
@@ -566,7 +566,7 @@ The system is modular and can be used:
 
 - Extended validation rules  
 - Annotation-based configuration  
-- Integration with AI tools (e.g. LLM-generated JSON) [web:41]  
+- Integration with AI tools (e.g. LLM-generated JSON)  
 - Performance optimizations for large trees  
 
 ---
