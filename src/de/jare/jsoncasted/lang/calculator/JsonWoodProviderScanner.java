@@ -12,10 +12,27 @@ import java.util.Map;
 import java.util.Objects;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 
+/**
+ * The JsonWoodProviderScanner class scans JSON node trees for wood provider definitions.
+ * It traverses the entire JSON structure and collects all nodes that contain wood provider
+ * information, returning them in a scan result object.
+ *
+ * @author Janusch Rentenatus
+ */
 public final class JsonWoodProviderScanner {
 
+    /**
+     * Singleton instance of JsonWoodProviderScanner.
+     */
     public final static JsonWoodProviderScanner INSTANCE = new JsonWoodProviderScanner();
 
+    /**
+     * Scans a JSON node tree for wood provider definitions.
+     *
+     * @param root The root JSON node to start scanning from.
+     * @return A scan result containing all found provider nodes.
+     * @throws NullPointerException If root is null.
+     */
     public JsonWoodProviderScanResult scan(JsonNode root) {
         Objects.requireNonNull(root, "root must not be null");
 
@@ -24,6 +41,13 @@ public final class JsonWoodProviderScanner {
         return result;
     }
 
+    /**
+     * Recursively scans a JSON node.
+     *
+     * @param node The JSON node to scan.
+     * @param path The path to the node (used for identification).
+     * @param result The scan result to add findings to.
+     */
     private void scanNode(JsonNode node, String path, JsonWoodProviderScanResult result) {
         if (node == null) {
             return;
@@ -36,6 +60,13 @@ public final class JsonWoodProviderScanner {
         }
     }
 
+    /**
+     * Scans a JSON object node for provider definitions.
+     *
+     * @param node The JSON object node to scan.
+     * @param path The path to the node.
+     * @param result The scan result to add findings to.
+     */
     private void scanObject(JsonNode node, String path, JsonWoodProviderScanResult result) {
         Map<String, JsonNode> children = node.asObjectValues();
         if (children == null || children.isEmpty()) {
@@ -53,6 +84,13 @@ public final class JsonWoodProviderScanner {
         });
     }
 
+    /**
+     * Scans a JSON array node for provider definitions.
+     *
+     * @param node The JSON array node to scan.
+     * @param path The path to the node.
+     * @param result The scan result to add findings to.
+     */
     private void scanArray(JsonNode node, String path, JsonWoodProviderScanResult result) {
         List<JsonNode> array = node.asArray();
         if (array == null || array.isEmpty()) {

@@ -10,9 +10,19 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Beschreibung eines kompletten JsonModel.
+ * Description of a complete JsonModel.
  *
- * Diese Klasse ist zugleich die Registry aller bereits beschriebenen Typen.
+ * <p>This class serves as the registry of all described types in a model.
+ * It provides methods for adding, looking up, and managing type descriptors,
+ * as well as validation of the complete model structure.</p>
+ *
+ * <p>Key features:</p>
+ * <ul>
+ *   <li>Type registration and lookup by name</li>
+ *   <li>Support for perceptual type matching (handling simple vs. qualified names)</li>
+ *   <li>Validation of type consistency</li>
+ *   <li>Unmodifiable views of all registered types</li>
+ * </ul>
  *
  * @author Janusch Rentenatus
  */
@@ -21,25 +31,51 @@ public class JsonModelDescriptor {
     private final String modelName;
     private final Map<String, JsonTypeDescriptor> describedTypes = new LinkedHashMap<>();
 
+    /**
+     * Constructs a model descriptor with the specified model name.
+     *
+     * @param modelName the name of the model (must not be null).
+     */
     public JsonModelDescriptor(String modelName) {
         this.modelName = Objects.requireNonNull(modelName, "modelName");
     }
 
     // -------------------------------------------------------------------------
-    // Basisdaten
+    // Base data
     // -------------------------------------------------------------------------
+
+    /**
+     * Returns the model name.
+     *
+     * @return the model name.
+     */
     public String getModelName() {
         return modelName;
     }
 
+    /**
+     * Returns the number of described types.
+     *
+     * @return the type count.
+     */
     public int size() {
         return describedTypes.size();
     }
 
+    /**
+     * Checks if this model has no described types.
+     *
+     * @return {@code true} if empty.
+     */
     public boolean isEmpty() {
         return describedTypes.isEmpty();
     }
 
+    /**
+     * Checks if this model has at least one described type.
+     *
+     * @return {@code true} if not empty.
+     */
     public boolean isNotEmpty() {
         return !describedTypes.isEmpty();
     }
@@ -47,14 +83,33 @@ public class JsonModelDescriptor {
     // -------------------------------------------------------------------------
     // Query / Lookup
     // -------------------------------------------------------------------------
+
+    /**
+     * Checks if a type with the specified name is registered.
+     *
+     * @param typeName the type name to check.
+     * @return {@code true} if the type is registered.
+     */
     public boolean containsType(String typeName) {
         return typeName != null && describedTypes.containsKey(typeName);
     }
 
+    /**
+     * Checks if a type with the specified name is described.
+     *
+     * @param typeName the type name to check.
+     * @return {@code true} if the type is described.
+     */
     public boolean isDescribed(String typeName) {
         return containsType(typeName);
     }
 
+    /**
+     * Returns the type descriptor for the specified type name.
+     *
+     * @param typeName the type name to look up.
+     * @return the type descriptor, or {@code null} if not found.
+     */
     public JsonTypeDescriptor getType(String typeName) {
         if (typeName == null) {
             return null;
@@ -62,6 +117,15 @@ public class JsonModelDescriptor {
         return describedTypes.get(typeName);
     }
 
+    /**
+     * Returns the type descriptor for the specified type name with perceptual matching.
+     *
+     * <p>Perceptual matching attempts to find types even if the name doesn't match exactly,
+     * for example by matching simple names against fully qualified names.</p>
+     *
+     * @param typeName the type name to look up.
+     * @return the type descriptor, or {@code null} if not found.
+     */
     public JsonTypeDescriptor getTypePerceptive(String typeName) {
         if (typeName == null) {
             return null;
@@ -82,6 +146,13 @@ public class JsonModelDescriptor {
         return null;
     }
 
+    /**
+     * Returns the type descriptor for the specified type name.
+     *
+     * @param typeName the type name to look up.
+     * @return the type descriptor.
+     * @throws IllegalStateException if the type is not found.
+     */
     public JsonTypeDescriptor requireType(String typeName) {
         JsonTypeDescriptor type = describedTypes.get(typeName);
         if (type == null) {
@@ -90,19 +161,26 @@ public class JsonModelDescriptor {
         return type;
     }
 
+    /**
+     * Returns the type descriptor for the specified type name, or a fallback if not found.
+     *
+     * @param typeName the type name to look up.
+     * @param fallback the fallback descriptor to return if not found.
+     * @return the type descriptor or fallback.
+     */
     public JsonTypeDescriptor getOrDefault(String typeName, JsonTypeDescriptor fallback) {
         return describedTypes.getOrDefault(typeName, fallback);
     }
 
     // -------------------------------------------------------------------------
-    // Registrierung
+    // Registration
     // -------------------------------------------------------------------------
+
     /**
-     * Fügt einen Typ hinzu, falls der Name noch nicht registriert ist. Bereits
-     * vorhandene Typen bleiben unverändert.
+     * Adds a type if the name is not already registered.
      *
-     * @param type
-     * @return
+     * @param type the type descriptor to add.
+     * @return this model descriptor.
      */
     public JsonModelDescriptor addType(JsonTypeDescriptor type) {
         Objects.requireNonNull(type, "type");
@@ -111,11 +189,10 @@ public class JsonModelDescriptor {
     }
 
     /**
-     * Registriert den Typ und liefert den tatsächlich gespeicherten Eintrag
-     * zurück.
+     * Registers the type and returns the actually stored entry.
      *
-     * @param type
-     * @return
+     * @param type the type descriptor to register.
+     * @return the stored type descriptor.
      */
     public JsonTypeDescriptor registerAndGet(JsonTypeDescriptor type) {
         Objects.requireNonNull(type, "type");
@@ -124,10 +201,10 @@ public class JsonModelDescriptor {
     }
 
     /**
-     * Fügt alle Typen hinzu, bestehende bleiben erhalten.
+     * Adds all types, existing ones remain unchanged.
      *
-     * @param types
-     * @return
+     * @param types the collection of type descriptors to add.
+     * @return this model descriptor.
      */
     public JsonModelDescriptor addAll(Collection<JsonTypeDescriptor> types) {
         Objects.requireNonNull(types, "types");
@@ -138,12 +215,11 @@ public class JsonModelDescriptor {
     }
 
     /**
-     * Erzeugt einen Typ über die Factory nur dann, wenn er noch nicht
-     * existiert.
+     * Creates a type via the factory only if it doesn't exist yet.
      *
-     * @param typeName
-     * @param supplier
-     * @return
+     * @param typeName the name of the type.
+     * @param supplier the supplier to create the type descriptor.
+     * @return the type descriptor (existing or newly created).
      */
     public JsonTypeDescriptor computeIfAbsent(String typeName,
             java.util.function.Supplier<JsonTypeDescriptor> supplier) {
@@ -166,8 +242,15 @@ public class JsonModelDescriptor {
     }
 
     // -------------------------------------------------------------------------
-    // Entfernen / Leeren
+    // Remove / Clear
     // -------------------------------------------------------------------------
+
+    /**
+     * Removes a type by its name.
+     *
+     * @param typeName the name of the type to remove.
+     * @return the removed type descriptor, or {@code null} if not found.
+     */
     public JsonTypeDescriptor removeType(String typeName) {
         if (typeName == null) {
             return null;
@@ -175,6 +258,12 @@ public class JsonModelDescriptor {
         return describedTypes.remove(typeName);
     }
 
+    /**
+     * Removes a type descriptor.
+     *
+     * @param type the type descriptor to remove.
+     * @return {@code true} if the type was removed.
+     */
     public boolean removeType(JsonTypeDescriptor type) {
         if (type == null) {
             return false;
@@ -182,6 +271,9 @@ public class JsonModelDescriptor {
         return describedTypes.remove(type.getTypeName(), type);
     }
 
+    /**
+     * Removes all types.
+     */
     public void clear() {
         describedTypes.clear();
     }
@@ -189,29 +281,61 @@ public class JsonModelDescriptor {
     // -------------------------------------------------------------------------
     // Views
     // -------------------------------------------------------------------------
+
+    /**
+     * Returns an unmodifiable list of all type descriptors.
+     *
+     * @return list of all types.
+     */
     public List<JsonTypeDescriptor> getTypes() {
         return Collections.unmodifiableList(new ArrayList<>(describedTypes.values()));
     }
 
+    /**
+     * Returns an unmodifiable collection of all type descriptors.
+     *
+     * @return collection of all types.
+     */
     public Collection<JsonTypeDescriptor> values() {
         return Collections.unmodifiableCollection(describedTypes.values());
     }
 
+    /**
+     * Returns an unmodifiable set of all type names.
+     *
+     * @return set of type names.
+     */
     public Set<String> keySet() {
         return Collections.unmodifiableSet(describedTypes.keySet());
     }
 
+    /**
+     * Returns an unmodifiable set of type entries.
+     *
+     * @return set of entries.
+     */
     public Set<Map.Entry<String, JsonTypeDescriptor>> entrySet() {
         return Collections.unmodifiableSet(describedTypes.entrySet());
     }
 
+    /**
+     * Returns an unmodifiable map of all types.
+     *
+     * @return map of type names to descriptors.
+     */
     public Map<String, JsonTypeDescriptor> getTypeMap() {
         return Collections.unmodifiableMap(describedTypes);
     }
 
     // -------------------------------------------------------------------------
-    // Validierung
+    // Validation
     // -------------------------------------------------------------------------
+
+    /**
+     * Validates this model descriptor.
+     *
+     * @throws IllegalStateException if validation fails.
+     */
     public void validate() {
         if (modelName.isBlank()) {
             throw new IllegalStateException("modelName is blank");
@@ -235,12 +359,24 @@ public class JsonModelDescriptor {
     }
 
     // -------------------------------------------------------------------------
-    // Hilfsmethoden
+    // Helper methods
     // -------------------------------------------------------------------------
+
+    /**
+     * Returns an unmodifiable list of all type names.
+     *
+     * @return list of type names.
+     */
     public List<String> getTypeNames() {
         return Collections.unmodifiableList(new ArrayList<>(describedTypes.keySet()));
     }
 
+    /**
+     * Checks if all specified type names are contained in this model.
+     *
+     * @param typeNames the collection of type names to check.
+     * @return {@code true} if all type names are present.
+     */
     public boolean containsAllTypeNames(Collection<String> typeNames) {
         if (typeNames == null) {
             return false;

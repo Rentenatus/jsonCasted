@@ -20,15 +20,34 @@ import java.util.ArrayList;
 
 /**
  * Converter to transform a JsonNode tree into the library's JsonItem model.
+ * This class provides the core conversion logic for converting JSON node structures
+ * into JsonItem instances that can be processed by the builder services.
  *
  * @author Janusch Rentenatus
  */
 public class JsonNodeConverter {
 
+    /**
+     * Private constructor to prevent instantiation of this utility class.
+     *
+     * @throws IllegalStateException Always thrown as this is a utility class.
+     */
     public JsonNodeConverter() {
         throw new IllegalStateException("Utility class");
     }
 
+    /**
+     * Converts a JSON resource into a JsonItem using the specified context class and service.
+     * This is the main entry point for converting JSON resources.
+     *
+     * @param res The JSON resource to convert.
+     * @param cName The name of the context class for type resolution.
+     * @param descriptor The model descriptor containing type definitions.
+     * @param resolution The wood resolution for handling object references.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return The converted JsonItem, or null if input is null or empty.
+     * @throws JsonParseException If conversion fails.
+     */
     public static JsonItem convert(JsonResource res, String cName, JsonModelDescriptor descriptor, WoodResolution resolution, JsonDebugLevel debugLevel) throws JsonParseException {
         if (res == null) {
             return null;
@@ -44,6 +63,16 @@ public class JsonNodeConverter {
         return convert(res.getRoot(), contextClass, service);
     }
 
+    /**
+     * Converts a JsonNode into a JsonItem using the specified context class and service.
+     * This method dispatches to type-specific conversion methods based on the node type.
+     *
+     * @param node The JSON node to convert.
+     * @param contextClass The context class for type resolution.
+     * @param service The convert service providing access to resources and descriptors.
+     * @return The converted JsonItem, or null if the node is null.
+     * @throws JsonParseException If conversion fails or node type is unsupported.
+     */
     public static JsonItem convert(JsonNode node, JsonTypeDescriptor contextClass, ConvertService service) throws JsonParseException {
         if (node == null) {
             return null;
@@ -68,6 +97,16 @@ public class JsonNodeConverter {
         }
     }
 
+    /**
+     * Converts a JsonNode array into a JsonList.
+     *
+     * @param node The JSON node containing the array.
+     * @param contextClass The context class for type resolution.
+     * @param asList If true, the result will be treated as a list.
+     * @param service The convert service for accessing resources.
+     * @return A JsonList containing the converted items.
+     * @throws JsonParseException If conversion fails.
+     */
     protected static JsonItem convertArray(JsonNode node, JsonTypeDescriptor contextClass, boolean asList, ConvertService service) throws JsonParseException {
         ArrayList<JsonItem> list = new ArrayList<>();
         for (JsonNode child : node.asArray()) {
@@ -76,10 +115,29 @@ public class JsonNodeConverter {
         return new JsonList(list, asList, contextClass);
     }
 
+    /**
+     * Converts a JsonNode with string type into a JsonValue.
+     *
+     * @param node The JSON node containing the string value.
+     * @param contextClass The context class for type resolution.
+     * @param service The convert service for accessing resources.
+     * @return A JsonValue containing the string.
+     * @throws JsonParseException If conversion fails.
+     */
     private static JsonItem convertString(JsonNode node, JsonTypeDescriptor contextClass, ConvertService service) throws JsonParseException {
         return new JsonValue(node.toText(), contextClass);
     }
 
+    /**
+     * Converts a JsonNode with number type into a JsonValue.
+     * If the context class expects a string, converts to string representation.
+     *
+     * @param node The JSON node containing the number value.
+     * @param contextClass The context class for type resolution.
+     * @param service The convert service for accessing resources.
+     * @return A JsonValue containing the number.
+     * @throws JsonParseException If type check fails.
+     */
     private static JsonItem convertNumber(JsonNode node, JsonTypeDescriptor contextClass, ConvertService service) throws JsonParseException {
         if (contextClass.getNodeType() == JsonNodeType.STRING) {
             return new JsonValue(node.toText(), contextClass);
@@ -88,6 +146,16 @@ public class JsonNodeConverter {
         return new JsonValue(node.asNumber(), contextClass);
     }
 
+    /**
+     * Converts a JsonNode with long number type into a JsonValue.
+     * Handles type coercion between LONG and NUMBER types.
+     *
+     * @param node The JSON node containing the long value.
+     * @param contextClass The context class for type resolution.
+     * @param service The convert service for accessing resources.
+     * @return A JsonValue containing the long or number.
+     * @throws JsonParseException If type check fails.
+     */
     private static JsonItem convertLongNumber(JsonNode node, JsonTypeDescriptor contextClass, ConvertService service) throws JsonParseException {
         if (contextClass.getNodeType() == JsonNodeType.STRING) {
             return new JsonValue(node.toText(), contextClass);
@@ -99,6 +167,15 @@ public class JsonNodeConverter {
         return new JsonValue(node.asLong(), contextClass);
     }
 
+    /**
+     * Converts a JsonNode with boolean type into a JsonValue.
+     *
+     * @param node The JSON node containing the boolean value.
+     * @param contextClass The context class for type resolution.
+     * @param service The convert service for accessing resources.
+     * @return A JsonValue containing the boolean.
+     * @throws JsonParseException If type check fails.
+     */
     private static JsonItem convertBoolean(JsonNode node, JsonTypeDescriptor contextClass, ConvertService service) throws JsonParseException {
         if (contextClass.getNodeType() == JsonNodeType.STRING) {
             return new JsonValue(node.toText(), contextClass);
@@ -107,10 +184,27 @@ public class JsonNodeConverter {
         return new JsonValue(node.asBoolean(), contextClass);
     }
 
+    /**
+     * Converts a JsonNode with null type into a JsonValue.
+     *
+     * @param node The JSON node containing null.
+     * @param contextClass The context class for type resolution.
+     * @param service The convert service for accessing resources.
+     * @return A JsonValue with null value.
+     * @throws JsonParseException If conversion fails.
+     */
     private static JsonItem convertNull(JsonNode node, JsonTypeDescriptor contextClass, ConvertService service) throws JsonParseException {
         return new JsonValue(contextClass);
     }
 
+    /**
+     * Checks if the node type matches the expected context class type.
+     * Allows LONG where NUMBER is expected for compatibility.
+     *
+     * @param node The JSON node to check.
+     * @param contextClass The context class defining the expected type.
+     * @throws JsonParseException If types do not match.
+     */
     private static void checkType(JsonNode node, JsonTypeDescriptor contextClass) throws JsonParseException {
         if (node.getType() != contextClass.getNodeType()) {
             // allow LONG where NUMBER is expected

@@ -21,12 +21,35 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * The WoodConverter class handles the conversion of JSON resources with wood (object
+ * reference) support. It resolves object references and converts linked JSON nodes
+ * into JsonItem instances, managing the resolution state throughout the process.
+ *
+ * @author Janusch Rentenatus
+ */
 public final class WoodConverter {
 
+    /**
+     * Private constructor to prevent instantiation of this utility class.
+     *
+     * @throws IllegalStateException Always thrown as this is a utility class.
+     */
     public WoodConverter() {
         throw new IllegalStateException("Utility class");
     }
 
+    /**
+     * Converts a JSON resource with wood support into a WoodResolution.
+     * This method manages the iterative resolution of object references,
+     * processing nodes in batches until all references are resolved or no more
+     * progress can be made.
+     *
+     * @param container The JSON resource container to convert.
+     * @param descriptor The model descriptor containing type definitions.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return The WoodResolution containing resolved objects, unresolved keys, and exceptions.
+     */
     public static WoodResolution convert(
             JsonResource container,
             JsonModelDescriptor descriptor,
@@ -57,6 +80,14 @@ public final class WoodConverter {
         return resolution;
     }
 
+    /**
+     * Performs one iteration of the conversion loop, processing all convertible nodes.
+     *
+     * @param remainingKeys The set of keys that still need to be resolved.
+     * @param linkingSet The linking set containing object ID mappings.
+     * @param service The convert service for accessing resources.
+     * @return true if any progress was made (objects were resolved), false otherwise.
+     */
     private static boolean convertLoop(Set<String> remainingKeys, LinkingSet linkingSet, ConvertService service) {
         boolean progress;
         progress = false;
@@ -91,6 +122,14 @@ public final class WoodConverter {
         return progress;
     }
 
+    /**
+     * Checks if a JSON node can be converted now, i.e., all its dependencies are resolved.
+     *
+     * @param node The JSON node to check.
+     * @param linkingSet The linking set for resolving object references.
+     * @param resolution The current resolution state.
+     * @return true if the node can be converted, false otherwise.
+     */
     private static boolean isConvertibleNow(JsonNode node,
             LinkingSet linkingSet,
             WoodResolution resolution) {
@@ -135,6 +174,14 @@ public final class WoodConverter {
 
     }
 
+    /**
+     * Checks if all children of a JSON node can be converted now.
+     *
+     * @param node The JSON node whose children to check.
+     * @param linkingSet The linking set for resolving object references.
+     * @param resolution The current resolution state.
+     * @return true if all children can be converted, false otherwise.
+     */
     public static boolean isConvertibleBelow(JsonNode node,
             LinkingSet linkingSet,
             WoodResolution resolution) {
@@ -151,6 +198,14 @@ public final class WoodConverter {
         return true;
     }
 
+    /**
+     * Resolves the context class for a JSON node by extracting the _class field.
+     *
+     * @param node The JSON node to resolve the class for.
+     * @param descriptor The model descriptor for type lookup.
+     * @return The resolved type descriptor.
+     * @throws JsonParseException If the node is not an object, missing _class, or type not found.
+     */
     private static JsonTypeDescriptor resolveContextClass(JsonNode node, JsonModelDescriptor descriptor)
             throws JsonParseException {
 

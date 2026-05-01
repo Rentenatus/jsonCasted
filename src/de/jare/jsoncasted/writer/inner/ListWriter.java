@@ -134,8 +134,7 @@ class ListWriter {
     }
 
     /**
-     * Schreibt eine JsonNode-ARRAY oder ein einzelnes JsonNode-Element als
-     * Liste.
+     * Writes a JsonNode array or a single JsonNode element as a list.
      */
     public void writeNode(PrintWriter out, JsonNode node) {
         out.print('[');

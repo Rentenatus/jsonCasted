@@ -20,6 +20,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
+ * Represents a JSON map/collection type that wraps a singular class with collection semantics.
+ *
+ * <p>A JsonMap extends {@link JsonClass} to provide map-like behavior where keys map to
+ * instances of a specified item class. This is used for representing JSON objects
+ * that function as maps or dictionaries with homogeneous value types.</p>
+ *
+ * <p>This class handles special behavior for map types including:</p>
+ * <ul>
+ *   <li>Dynamic field access by key</li>
+ *   <li>Collection type semantics (LIST, ARRAY, or NONE)</li>
+ *   <li>Empty map detection</li>
+ * </ul>
  *
  * @author Janusch Rentenatus
  */
@@ -28,6 +40,14 @@ public class JsonMap extends JsonClass implements JsonType {
     private final JsonClass itemClass;
     private final JsonCollectionType colType;
 
+    /**
+     * Constructs a JsonMap with the specified parameters.
+     *
+     * @param cName the canonical name for this map type.
+     * @param singular the singular class type for map entries.
+     * @param itemClass the JsonClass for map values.
+     * @param colType the collection type (LIST, ARRAY, or NONE).
+     */
     public JsonMap(String cName, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
         super(cName, new JsonMapBuilder(singular, itemClass));
         this.itemClass = itemClass;
@@ -35,6 +55,15 @@ public class JsonMap extends JsonClass implements JsonType {
 
     }
 
+    /**
+     * Constructs a JsonMap with skipping nulls configuration.
+     *
+     * @param cName the canonical name for this map type.
+     * @param skippingNulls if {@code true}, null values will be skipped during serialization.
+     * @param singular the singular class type for map entries.
+     * @param itemClass the JsonClass for map values.
+     * @param colType the collection type (LIST, ARRAY, or NONE).
+     */
     public JsonMap(String cName, boolean skippingNulls, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
         super(cName, skippingNulls, new JsonMapBuilder(singular, itemClass));
         this.itemClass = itemClass;
@@ -51,16 +80,19 @@ public class JsonMap extends JsonClass implements JsonType {
         return "";
     }
 
+    /**
+     * Returns the JsonClass for the map's values.
+     *
+     * @return the item class.
+     */
     public JsonClass getItemClass() {
         return itemClass;
     }
 
     /**
-     * Wenn keine geschweifte Klammern fuer ein Objekt gefunden wurden, dann
-     * wird das Feld direkt vorgegeben. Eigentlich knn es sich dann nur um ein
-     * Primitiv handeln.
+     * Returns this JsonMap as the direct class representation.
      *
-     * @return diese JsonClass der Items.
+     * @return this JsonMap instance.
      */
     @Override
     public JsonClass getDirectClass() {
@@ -73,10 +105,10 @@ public class JsonMap extends JsonClass implements JsonType {
     }
 
     /**
-     * Iteration über die Feldnamen.
+     * Returns an iterator over the field names (keys) for writing.
      *
-     * @param ob Das Objekt.
-     * @return Iterator.
+     * @param ob the JsonInstance object.
+     * @return an iterator over the key set.
      */
     @Override
     public Iterator<String> keysForWriteIterator(Object ob) {
@@ -85,10 +117,10 @@ public class JsonMap extends JsonClass implements JsonType {
     }
 
     /**
-     * Gibt das Feld zum Feldnamen .
+     * Creates a JsonField for the given key with the map's item class and collection type.
      *
-     * @param key Name.
-     * @return Feld.
+     * @param key the field name/key.
+     * @return a new JsonField configured for this map.
      */
     @Override
     public JsonField get(String key) {
@@ -96,10 +128,10 @@ public class JsonMap extends JsonClass implements JsonType {
     }
 
     /**
-     * Gibt es keine Felder.
+     * Checks if the map has any fields (is not empty).
      *
-     * @param ob Das Objekt.
-     * @return unmodifiableCollection der Feldnamen.
+     * @param ob the JsonInstance object.
+     * @return {@code true} if the map has entries, {@code false} otherwise.
      */
     @Override
     public boolean hasFieldKeys(Object ob) {
@@ -137,7 +169,7 @@ public class JsonMap extends JsonClass implements JsonType {
 
         JsonTypeDescriptor target = context.requireType(getcName());
 
-        // Wenn dieses Feld auf eine JsonClass verweist, Abhängigkeit sicherstellen
+        // Ensure dependency if this field references a JsonClass
         JsonClass depClass = itemClass;
         if (depClass != null && !context.isDescribed(depClass.getcName())) {
             JsonTypeDescriptor depHead = depClass.describeHead(context);

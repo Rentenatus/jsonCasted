@@ -1,5 +1,5 @@
 /* <copyright>
- * Copyright (C) 2022 Janusch Rentenatus & Thomas Weber 
+ * Copyright (C) 2022 Janusch Rentenatus & Thomas Weber  
  * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
@@ -13,12 +13,35 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
+ * Parser for JSON array structures (ordered lists of values enclosed in square brackets).
+ *
+ * <p>This class handles the parsing of JSON arrays with the following syntax:</p>
+ * <pre>{@code [value1, value2, ...]}</pre>
+ *
+ * <p>Supported element types:</p>
+ * <ul>
+ *   <li>Strings (double or single quoted)</li>
+ *   <li>Numbers</li>
+ *   <li>Booleans</li>
+ *   <li>Null</li>
+ *   <li>Nested objects</li>
+ *   <li>Nested arrays</li>
+ *   <li>Type-cast expressions (in parentheses)</li>
+ * </ul>
  *
  * @author Janusch Rentenatus
  *
  */
 public class ListParser {
 
+    /**
+     * Parses a JSON array from the stream reader.
+     *
+     * @param psr the ParseStreamReader providing character input.
+     * @return a JsonNode representing the parsed array.
+     * @throws IOException if an I/O error occurs.
+     * @throws JsonParseException if parsing fails (e.g., end of file without closing bracket).
+     */
     static JsonNode parse(ParseStreamReader psr) throws IOException, JsonParseException {
         ArrayList<JsonNode> list = new ArrayList<>();
         JsonNode item = null;
@@ -48,6 +71,20 @@ public class ListParser {
         throw new JsonParseException("End of file without end of list.");
     }
 
+    /**
+     * Adds an item to the array list.
+     *
+     * <p>Handles the following cases:</p>
+     * <ul>
+     *   <li>If item is not null, adds it directly</li>
+     *   <li>If sb is not empty, parses it as a variable value (string, number, boolean, null)</li>
+     *   <li>Empty values are ignored</li>
+     * </ul>
+     *
+     * @param list the array list to add to.
+     * @param item the parsed JsonNode item (may be null).
+     * @param sb the string builder containing accumulated characters (may be empty).
+     */
     private static void addItem(ArrayList<JsonNode> list, JsonNode item, StringBuilder sb) {
         if (item != null) {
             list.add(item);

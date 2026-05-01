@@ -20,21 +20,25 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * The JsonWriter class provides utility methods for serializing Java objects
+ * into JSON format. It supports writing to strings, files, and output streams
+ * with configurable character encoding.
  *
  * @author Janusch Rentenatus
  */
 public class JsonWriter {
 
     /**
+     * Serializes an object to a JSON string using the specified character encoding.
      *
-     * @param ob das Objekt.
-     * @param definition
-     * @param root
+     * @param ob The object to serialize.
+     * @param definition The JSON item definition containing model information.
+     * @param root The root JSON class for the object.
      * @param charsetName The name of a supported {@linkplain java.nio.charset.Charset
-     *         charset}. Zum Beispiel "UTF-8".
-     * @return Json String.
-     * @throws JsonParseException
-     * @throws IOException
+     *         charset}, for example "UTF-8".
+     * @return JSON string representation of the object.
+     * @throws JsonParseException If parsing fails during serialization.
+     * @throws IOException If an I/O error occurs during writing.
      */
     public static String writeToString(Object ob, JsonItemDefinition definition, JsonClass root, String charsetName) throws JsonParseException, IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -42,12 +46,32 @@ public class JsonWriter {
         return new String(out.toByteArray(), charsetName);
     }
 
+    /**
+     * Serializes an object to a JSON string using the default character encoding.
+     *
+     * @param ob The object to serialize.
+     * @param definition The JSON item definition containing model information.
+     * @param root The root JSON class for the object.
+     * @return JSON string representation of the object.
+     * @throws JsonParseException If parsing fails during serialization.
+     * @throws IOException If an I/O error occurs during writing.
+     */
     public static String writeToString(Object ob, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(ob, out, definition, root);
         return new String(out.toByteArray());
     }
 
+    /**
+     * Serializes an object and writes it to a file.
+     *
+     * @param ob The object to serialize.
+     * @param file The target file to write the JSON output.
+     * @param definition The JSON item definition containing model information.
+     * @param root The root JSON class for the object.
+     * @throws JsonParseException If parsing fails during serialization.
+     * @throws IOException If an I/O error occurs during writing.
+     */
     public static void write(Object ob, File file, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
         FileOutputStream out;
         try {
@@ -58,18 +82,49 @@ public class JsonWriter {
         }
     }
 
+    /**
+     * Serializes an object to a JSON string using the specified character encoding.
+     * Uses the default root class from the definition.
+     *
+     * @param ob The object to serialize.
+     * @param definition The JSON item definition containing model information.
+     * @param charsetName The name of a supported charset, for example "UTF-8".
+     * @return JSON string representation of the object.
+     * @throws JsonParseException If parsing fails during serialization.
+     * @throws IOException If an I/O error occurs during writing.
+     */
     public static String writeToString(Object ob, JsonItemDefinition definition, String charsetName) throws JsonParseException, IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(ob, out, definition, null);
         return new String(out.toByteArray(), charsetName);
     }
 
+    /**
+     * Serializes an object to a JSON string using the default character encoding.
+     * Uses the default root class from the definition.
+     *
+     * @param ob The object to serialize.
+     * @param definition The JSON item definition containing model information.
+     * @return JSON string representation of the object.
+     * @throws JsonParseException If parsing fails during serialization.
+     * @throws IOException If an I/O error occurs during writing.
+     */
     public static String writeToString(Object ob, JsonItemDefinition definition) throws JsonParseException, IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(ob, out, definition, null);
         return new String(out.toByteArray());
     }
 
+    /**
+     * Serializes an object and writes it to a file.
+     * Uses the default root class from the definition.
+     *
+     * @param ob The object to serialize.
+     * @param file The target file to write the JSON output.
+     * @param definition The JSON item definition containing model information.
+     * @throws JsonParseException If parsing fails during serialization.
+     * @throws IOException If an I/O error occurs during writing.
+     */
     public static void write(Object ob, File file, JsonItemDefinition definition) throws JsonParseException, IOException {
         FileOutputStream out;
         try {
@@ -80,6 +135,16 @@ public class JsonWriter {
         }
     }
 
+    /**
+     * Serializes an object to an output stream.
+     *
+     * @param ob The object to serialize.
+     * @param out The output stream to write the JSON output.
+     * @param definition The JSON item definition containing model information.
+     * @param root The root JSON class for the object.
+     * @throws IOException If an I/O error occurs during writing.
+     * @throws JsonParseException If parsing fails during serialization.
+     */
     public static void write(Object ob, OutputStream out, JsonItemDefinition definition, JsonClass root) throws IOException, JsonParseException {
         try (PrintWriter prn = new PrintWriter(out)) {
             new RootObjectWriter(definition, root).write(prn, ob);

@@ -30,12 +30,34 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * The WoodResolver class handles the resolution of wood (object reference) structures
+ * in JSON resources. It manages the loading of external resources referenced via wood
+ * providers and coordinates the resolution process across multiple resources.
+ *
+ * @author Janusch Rentenatus
+ */
 public final class WoodResolver {
 
+    /**
+     * Private constructor to prevent instantiation of this utility class.
+     *
+     * @throws IllegalStateException Always thrown as this is a utility class.
+     */
     public WoodResolver() {
         throw new IllegalStateException("Utility class");
     }
 
+    /**
+     * Resolves all wood references in a JsonSystem.
+     * This method attempts to resolve all object references within the system,
+     * loading external resources as needed when providers are not found.
+     *
+     * @param sys The JsonSystem containing resources to resolve.
+     * @param descriptor The model descriptor containing type definitions.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return The WoodResolution containing resolved objects, unresolved keys, and exceptions.
+     */
     public static WoodResolution resolve(
             JsonSystem sys,
             JsonModelDescriptor descriptor,
@@ -82,6 +104,16 @@ public final class WoodResolver {
         return resolution;
     }
 
+    /**
+     * Loads a JSON resource from a wood provider.
+     *
+     * @param provider The wood provider containing the file information.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return The loaded JSON resource.
+     * @throws FileNotFoundException If the provider file cannot be found.
+     * @throws IOException If I/O errors occur during loading.
+     * @throws JsonParseException If parsing fails.
+     */
     public static JsonResource load(WoodProvider provider, JsonDebugLevel debugLevel) throws FileNotFoundException, IOException, JsonParseException {
         File file = new File(provider.getFilename());
         ParseStreamReader psr = new ParseStreamReader(new FileReader(file), debugLevel);
@@ -90,6 +122,16 @@ public final class WoodResolver {
         return RootParser.parse(psr, subContainer, debugLevel);
     }
 
+    /**
+     * Attempts to resolve all wood references in a JsonSystem.
+     * This method processes the main resource and all registered resources,
+     * resolving object references in an iterative manner.
+     *
+     * @param sys The JsonSystem containing resources to resolve.
+     * @param descriptor The model descriptor containing type definitions.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return The WoodResolution containing resolved objects, unresolved keys, and exceptions.
+     */
     public static WoodResolution attempt(JsonSystem sys, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) {
         JsonResource container = sys.getMainResource();
         LinkingSet linkingSet = Objects.requireNonNull(container.getLinkingSet(),
@@ -111,6 +153,13 @@ public final class WoodResolver {
         return resolution;
     }
 
+    /**
+     * Performs one iteration of the resolution loop across all resources.
+     *
+     * @param remainingKeys The set of keys that still need to be resolved.
+     * @param services The array of convert services for each resource.
+     * @return true if any progress was made (objects were resolved), false otherwise.
+     */
     private static boolean resolveLoop(Set<String> remainingKeys, ConvertService[] services) {
         boolean progress = false;
         Set<String> resolvedThisRound = new LinkedHashSet<>();
@@ -148,6 +197,14 @@ public final class WoodResolver {
         return progress;
     }
 
+    /**
+     * Checks if a JSON node can be converted now, i.e., all its dependencies are resolved.
+     *
+     * @param node The JSON node to check.
+     * @param linkingSet The linking set for resolving object references.
+     * @param resolution The current resolution state.
+     * @return true if the node can be converted, false otherwise.
+     */
     private static boolean isConvertibleNow(JsonNode node,
             LinkingSet linkingSet,
             WoodResolution resolution) {
@@ -189,9 +246,16 @@ public final class WoodResolver {
         }
 
         return true;
-
     }
 
+    /**
+     * Checks if all children of a JSON node can be converted now.
+     *
+     * @param node The JSON node whose children to check.
+     * @param linkingSet The linking set for resolving object references.
+     * @param resolution The current resolution state.
+     * @return true if all children can be converted, false otherwise.
+     */
     public static boolean isConvertibleBelow(JsonNode node,
             LinkingSet linkingSet,
             WoodResolution resolution) {
@@ -208,6 +272,14 @@ public final class WoodResolver {
         return true;
     }
 
+    /**
+     * Resolves the context class for a JSON node by extracting the _class field.
+     *
+     * @param node The JSON node to resolve the class for.
+     * @param descriptor The model descriptor for type lookup.
+     * @return The resolved type descriptor.
+     * @throws JsonParseException If the node is not an object, missing _class, or type not found.
+     */
     private static JsonTypeDescriptor resolveContextClass(JsonNode node, JsonModelDescriptor descriptor)
             throws JsonParseException {
 

@@ -96,7 +96,7 @@ public interface JsonItem {
     /**
      * Builds an instance of an object based on the JSON item's structure.
      *
-     * @param builderService
+     * @param builderService the builder service used for object construction.
      * @return The constructed object.
      * @throws JsonBuildException If the instance creation fails.
      */

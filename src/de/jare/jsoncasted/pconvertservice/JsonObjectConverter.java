@@ -25,15 +25,34 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Converter for transforming JsonNode objects into JsonItem instances.
+ * This class handles the conversion of JSON object structures, including
+ * field resolution, type casting, and caching of already converted objects.
  *
  * @author Janusch Rentenatus
  */
 public class JsonObjectConverter {
 
+    /**
+     * Private constructor to prevent instantiation of this utility class.
+     *
+     * @throws IllegalStateException Always thrown as this is a utility class.
+     */
     public JsonObjectConverter() {
         throw new IllegalStateException("Utility class");
     }
 
+    /**
+     * Converts a JSON object node into a JsonItem.
+     * This is the main entry point for object conversion, handling caching
+     * and type casting.
+     *
+     * @param node The JSON node to convert.
+     * @param contextClass The context class for type resolution.
+     * @param service The convert service providing access to resources.
+     * @return The converted JsonItem.
+     * @throws JsonParseException If conversion fails.
+     */
     public static JsonItem convertObject(JsonNode node, JsonTypeDescriptor contextClass,
             ConvertService service) throws JsonParseException {
 
@@ -52,6 +71,14 @@ public class JsonObjectConverter {
         return converter.convertObject();
     }
 
+    /**
+     * Attempts to find a cached object for the given node.
+     *
+     * @param node The JSON node to look up.
+     * @param service The convert service for accessing the resolution cache.
+     * @return The cached JsonItem, or null if not found.
+     * @throws JsonParseException If cache lookup fails.
+     */
     private static JsonItem findCachedObject(JsonNode node, ConvertService service) throws JsonParseException {
         String key = findResolvedKey(node, service);
         if (key == null) {
@@ -60,6 +87,14 @@ public class JsonObjectConverter {
         return service.getResolvedObject(key);
     }
 
+    /**
+     * Finds the resolved key for a JSON node by checking its object ID and link properties.
+     *
+     * @param node The JSON node to find the key for.
+     * @param service The convert service for accessing the linking set.
+     * @return The resolved key, or null if not found.
+     * @throws JsonParseException If key lookup fails.
+     */
     private static String findResolvedKey(JsonNode node, ConvertService service) throws JsonParseException {
         if (node == null || !node.isObject()) {
             return null;
@@ -83,6 +118,14 @@ public class JsonObjectConverter {
     private JsonTypeDescriptor contextClass;
     final ConvertService service;
 
+    /**
+     * Constructs a JsonObjectConverter instance for converting a specific JSON node.
+     *
+     * @param node The JSON node to convert.
+     * @param contextClass The context class for type resolution.
+     * @param service The convert service for accessing resources.
+     * @throws JsonParseException If node conversion setup fails.
+     */
     JsonObjectConverter(JsonNode node, JsonTypeDescriptor contextClass,
             ConvertService service) throws JsonParseException {
 
@@ -102,11 +145,23 @@ public class JsonObjectConverter {
         this.service = service;
     }
 
+    /**
+     * Updates the context class for this converter after type casting.
+     *
+     * @param castedChildType The new context class to use.
+     */
     private void setCastedContext(JsonTypeDescriptor castedChildType) {
         this.contextClass = castedChildType;
         this.myObject = new JsonObject(castedChildType);
     }
 
+    /**
+     * Converts the JSON object into a JsonItem.
+     * Processes all fields, handles exceptions, and aggregates any conversion errors.
+     *
+     * @return The converted JsonObject.
+     * @throws JsonParseException If conversion fails for any field.
+     */
     public JsonItem convertObject() throws JsonParseException {
         ArrayList<JsonParseException> exList = new ArrayList<>();
         values.forEach((paramName, childNode) -> {
@@ -135,6 +190,14 @@ public class JsonObjectConverter {
         throw new JsonParseException(joiner.toString(), exList.get(0));
     }
 
+    /**
+     * Calculates and adds a parameter to the object being built.
+     * Handles field resolution, type casting, and value conversion.
+     *
+     * @param paramName The name of the parameter/field.
+     * @param childNode The JSON node containing the parameter value.
+     * @throws JsonParseException If parameter conversion fails.
+     */
     protected void calculateParam(String paramName, JsonNode childNode) throws JsonParseException {
         // Map object:
         if (contextClass.getMappingAllFields() != null) {
@@ -169,6 +232,15 @@ public class JsonObjectConverter {
 
     }
 
+    /**
+     * Attempts to cast or retrieve the type for a child node.
+     * Handles type inheritance and implementation checking for polymorphic types.
+     *
+     * @param suspectedType The initially suspected type.
+     * @param childValues The child node's object values.
+     * @param paramName The parameter name for logging.
+     * @return The resolved type descriptor, or null if casting fails.
+     */
     public JsonTypeDescriptor castOrGet(JsonTypeDescriptor suspectedType, Map<String, JsonNode> childValues, String paramName) {
         JsonTypeDescriptor castedChildType = suspectedType;
         final JsonNode cast = childValues == null ? null : childValues.get(TERM_CLASS);
@@ -213,8 +285,8 @@ public class JsonObjectConverter {
                                 contextClass.getTypeName(),
                                 paramName,
                                 candidate.getTypeName(),
-                                suspectedType.getTypeName())
-                        );
+                                suspectedType.getTypeName()
+                        ));
                         break;
                     }
                 }
@@ -229,6 +301,14 @@ public class JsonObjectConverter {
         return castedChildType;
     }
 
+    /**
+     * Calculates a map entry parameter.
+     * Used when the context class has a mappingAllFields descriptor.
+     *
+     * @param paramName The name of the parameter.
+     * @param childNode The JSON node containing the value.
+     * @throws JsonParseException If conversion fails.
+     */
     protected void calculateMapEntry(String paramName, JsonNode childNode) throws JsonParseException {
         JsonFieldDescriptor field = contextClass.getMappingAllFields();
         JsonTypeDescriptor childType = service.getType(field.getTypeName());

@@ -30,6 +30,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Represents a JSON class definition within the jsonCasted model system.
+ *
+ * <p>A JsonClass describes a concrete Java class with its fields, type metadata,
+ * and casting rules. It serves as a central component in the model pipeline,
+ * connecting the JSON structure with actual Java object instantiation.</p>
+ *
+ * <p>Key responsibilities include:</p>
+ * <ul>
+ *   <li>Managing field definitions and their types</li>
+ *   <li>Handling inheritance through parent class references</li>
+ *   <li>Supporting enum value arrays for enum types</li>
+ *   <li>Providing build methods for object construction</li>
+ *   <li>Generating type descriptors for model introspection</li>
+ * </ul>
  *
  * @author Janusch Rentenatus
  */
@@ -101,11 +115,12 @@ public class JsonClass implements JsonType {
     }
 
     /**
-     * Wenn keine geschweifte Klammern fuer ein Objekt gefunden wurden, dann
-     * wird das Feld direkt vorgegeben. Eigentlich knn es sich dann nur um ein
-     * Primitiv handeln.
+     * Returns this JsonClass as the direct class representation.
      *
-     * @return diese JsonClass (this).
+     * <p>When no curly braces are found for an object during parsing,
+     * the field is provided directly. In this case, it can only be a primitive type.</p>
+     *
+     * @return this JsonClass instance.
      */
     @Override
     public JsonClass getDirectClass() {
@@ -185,9 +200,12 @@ public class JsonClass implements JsonType {
     }
 
     /**
-     * Fuegt ein Feld ein und setzt es in der Reihenfolge ans Ende.
+     * Adds a field to this class and places it at the end of the field order.
      *
-     * @param jField das Feld.
+     * <p>If a field with the same name already exists, it is removed first to maintain
+     * uniqueness. The field is then added to the keys list to preserve order.</p>
+     *
+     * @param jField the field to add.
      */
     public void add(JsonField jField) {
         String key = jField.getfName();
@@ -271,20 +289,20 @@ public class JsonClass implements JsonType {
     }
 
     /**
-     * Gibt das Feld zum Feldnamen.
+     * Retrieves a field by its name.
      *
-     * @param key Name.
-     * @return Feld.
+     * @param key the field name.
+     * @return the JsonField with the given name, or {@code null} if not found.
      */
     public JsonField get(String key) {
         return fields.get(key);
     }
 
     /**
-     * Loescht das Feld .
+     * Removes a field from this class.
      *
-     * @param jField das Feld.
-     * @return das geloescht Feld oder {@code null}.
+     * @param jField the field to remove.
+     * @return the removed field, or {@code null} if not found.
      */
     public JsonField remove(JsonField jField) {
         String key = jField.getfName();
@@ -293,10 +311,10 @@ public class JsonClass implements JsonType {
     }
 
     /**
-     * Loescht das Feld zum Feldnamen.
+     * Removes a field by its name.
      *
-     * @param key Name.
-     * @return das geloescht Feld oder {@code null}.
+     * @param key the field name to remove.
+     * @return the removed field, or {@code null} if not found.
      */
     public JsonField remove(String key) {
         keys.remove(key);
@@ -304,38 +322,38 @@ public class JsonClass implements JsonType {
     }
 
     /**
-     * Iteration über die Felder ohne Einhaltung der Reihenfolge.
+     * Returns an iterator over all fields without preserving order.
      *
-     * @return Iterator.
+     * @return an iterator over the fields.
      */
     public Iterator<JsonField> fieldsIterator() {
         return fields.values().iterator();
     }
 
     /**
-     * Iteration über die Feldnamen mit Einhaltung der Reihenfolge.
+     * Returns an iterator over field names in order.
      *
-     * @return Iterator.
+     * @return an iterator over field names.
      */
     public Iterator<String> keysForBuildIterator() {
         return keys.iterator();
     }
 
     /**
-     * Iteration über die Feldnamen mit Einhaltung der Reihenfolge.
+     * Returns an iterator over field names in order for writing.
      *
-     * @param ob Das Objekt.
-     * @return Iterator.
+     * @param ob the object being processed.
+     * @return an iterator over field names.
      */
     public Iterator<String> keysForWriteIterator(Object ob) {
         return keys.iterator();
     }
 
     /**
-     * Gibt es keine Felder.
+     * Checks if this class has any field keys defined.
      *
-     * @param ob Das Objekt.
-     * @return unmodifiableCollection der Feldnamen.
+     * @param ob the object being processed.
+     * @return {@code true} if there are field keys, {@code false} otherwise.
      */
     public boolean hasFieldKeys(Object ob) {
         return !keys.isEmpty();
@@ -429,7 +447,7 @@ public class JsonClass implements JsonType {
             JsonType jType = jf.getjType();
             String targetTypeName = jType.getcName();
 
-            // Wenn dieses Feld auf eine JsonClass verweist, Abhängigkeit sicherstellen
+            // Ensure dependency if this field references a JsonClass
             JsonClass depClass = jType.getDirectClass();
             if (depClass != null && !context.isDescribed(depClass.getcName())) {
                 JsonTypeDescriptor depHead = depClass.describeHead(context);

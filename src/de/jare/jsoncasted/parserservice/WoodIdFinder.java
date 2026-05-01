@@ -17,6 +17,18 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Utility class for building linking sets from JSON node trees.
+ *
+ * <p>This class traverses a JSON node tree and builds a {@link LinkingSet} that tracks:
+ * <ul>
+ *   <li>All nodes with {@code _woodObjectId} (object identity)</li>
+ *   <li>All nodes with {@code _woodLink} (cross-resource references)</li>
+ * </ul>
+ *
+ * <p>The linking set can then be used to resolve cross-resource references
+ * in the Wood Json Jack system.</p>
+ */
 public final class WoodIdFinder {
 
     private static final Logger LOG = Logger.getLogger(WoodIdFinder.class.getName());
@@ -25,6 +37,18 @@ public final class WoodIdFinder {
         throw new IllegalStateException("Utility class");
     }
 
+    /**
+     * Builds a linking set from the specified root node.
+     *
+     * <p>Traverses the entire node tree recursively and collects all object IDs
+     * and link references into a LinkingSet.</p>
+     *
+     * @param root the root JsonNode to traverse (must not be null).
+     * @param providerName the provider name for this resource (must not be null).
+     * @param debugLevel the debug level for logging.
+     * @return a LinkingSet containing all object IDs and links found.
+     * @throws NullPointerException if root or providerName is null.
+     */
     public static LinkingSet buildLinkingSet(JsonNode root, String providerName, JsonDebugLevel debugLevel) {
         Objects.requireNonNull(root, "root must not be null");
         Objects.requireNonNull(providerName, "providerName must not be null");
@@ -34,6 +58,15 @@ public final class WoodIdFinder {
         return result;
     }
 
+    /**
+     * Recursively traverses a JSON node tree and populates the linking set.
+     *
+     * @param path the current path in the tree (for error reporting).
+     * @param node the current node to process.
+     * @param providerName the provider name for object ID normalization.
+     * @param result the LinkingSet to populate.
+     * @param debugLevel the debug level for logging.
+     */
     private static void traverse(String path, JsonNode node,
             String providerName, LinkingSet result, JsonDebugLevel debugLevel) {
         if (node == null) {

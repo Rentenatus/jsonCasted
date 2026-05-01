@@ -203,6 +203,11 @@ public class ObjectWriter {
 
     /**
      * Writes a primitive JSON value.
+     *
+     * @param out The PrintWriter for output.
+     * @param jTypePrim The JSON type of the primitive.
+     * @param attr The primitive value to serialize.
+     * @param iString The indentation string for formatted output.
      */
     protected void writePrimitive(PrintWriter out, JsonType jTypePrim, Object attr, String iString) {
         out.print(jTypePrim.toString(attr));
@@ -210,6 +215,11 @@ public class ObjectWriter {
 
     /**
      * Writes a JSON list representation.
+     *
+     * @param out The PrintWriter for output.
+     * @param jTypeItem The JSON type of list items.
+     * @param attr The list to serialize.
+     * @param iString The indentation string for formatted output.
      */
     protected void writeList(PrintWriter out, JsonType jTypeItem, Object attr, String iString) {
         ListWriter reWriter = new ListWriter(definition, jTypeItem, iString);
@@ -218,6 +228,11 @@ public class ObjectWriter {
 
     /**
      * Writes a JSON object representation.
+     *
+     * @param out The PrintWriter for output.
+     * @param jTypeItem The JSON type of the object.
+     * @param attr The object to serialize.
+     * @param iString The indentation string for formatted output.
      */
     protected void writeObject(PrintWriter out, JsonType jTypeItem, Object attr, String iString) {
         ObjectWriter reWriter = new ObjectWriter(definition, jTypeItem, iString);
@@ -225,14 +240,20 @@ public class ObjectWriter {
     }
 
     /**
-     * Schreibt eine JsonNode-Struktur als JSON.
+     * Writes a JsonNode structure as JSON.
+     *
+     * @param out The PrintStream for output.
+     * @param node The JsonNode to write.
      */
     public void writeNode(PrintStream out, JsonNode node) {
         writeNode(new PrintWriter(out), node, intentString);
     }
 
     /**
-     * Schreibt eine JsonNode-Struktur als JSON.
+     * Writes a JsonNode structure as JSON.
+     *
+     * @param out The PrintWriter for output.
+     * @param node The JsonNode to write.
      */
     public void writeNode(PrintWriter out, JsonNode node) {
         writeNode(out, node, intentString);
@@ -305,7 +326,7 @@ public class ObjectWriter {
         reWriter.writeNode(out, node);
     }
 
-    // einfacher Escape-Helper, analog zu JsonNode.toString()
+    // Simple escape helper, analogous to JsonNode.toString()
     private static String escape(String s) {
         if (s == null) {
             return null;

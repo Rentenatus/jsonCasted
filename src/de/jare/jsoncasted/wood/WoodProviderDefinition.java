@@ -14,13 +14,24 @@ import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 
 /**
+ * The WoodProviderDefinition class defines the JSON model structure for wood providers.
+ * It creates a singleton instance that describes how WoodProvider and WoodProviderBox
+ * classes should be parsed from JSON data.
  *
  * @author Janusch Rentenatus
  */
 public class WoodProviderDefinition implements JsonItemDefinition {
 
+    /**
+     * Singleton instance of WoodProviderDefinition.
+     */
     public static final WoodProviderDefinition INSTANCE = new WoodProviderDefinition();
 
+    /**
+     * Returns the singleton instance.
+     *
+     * @return The singleton WoodProviderDefinition instance.
+     */
     public static WoodProviderDefinition getInstance() {
         return INSTANCE;
     }
@@ -28,6 +39,10 @@ public class WoodProviderDefinition implements JsonItemDefinition {
     private final JsonModel model;
     private final JsonClass woodProviderBox;
 
+    /**
+     * Constructs a WoodProviderDefinition instance.
+     * Creates the model and defines the structure for WoodProvider and WoodProviderBox classes.
+     */
     public WoodProviderDefinition() {
         model = new JsonModel("WoodJson");
         model.addBasicModel();
@@ -47,6 +62,11 @@ public class WoodProviderDefinition implements JsonItemDefinition {
         return model;
     }
 
+    /**
+     * Returns the JsonClass for WoodProviderBox.
+     *
+     * @return The JsonClass describing the WoodProviderBox structure.
+     */
     public JsonClass getWoodProviderBox() {
         return woodProviderBox;
     }
