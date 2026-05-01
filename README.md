@@ -311,7 +311,6 @@ Represents the expected structure and type information, e.g.:
 - allowed subtypes  
 - mapping rules and casting hints  
 
-Here you declare, for example, that a node is of interface type `Shape` and which implementations (`Circle`, `Rectangle`) are allowed. 
 
 ---
 
@@ -322,7 +321,6 @@ Generic tree structure as an intermediate format:
 - decoupled from concrete Java classes  
 - ideal for UI editing (tree views, inspectors)  
 
-On this level you can see which node is currently bound to which concrete implementation, including discriminators (e.g. `"type": "Circle"`).
 
 ---
 
@@ -434,42 +432,6 @@ This model demonstrates:
 - collections of interface types (`list`, `arr`) with mixed implementations  
 
 At runtime, only the classes registered in the model are instantiated. 
-
----
-
-## Casting concept
-
-jsonCasted resolves types not only statically but also dynamically based on rules:
-
-- Interfaces → concrete implementations  
-- Abstract classes → known subclasses  
-- Enums → literal- or name-based resolution (e.g. `EnumSeason.getByName(...)`)  
-- Optionally via:
-  - type fields in JSON (such as `"_class": "Circle"`)  
-  - external mapping configuration  
-
-Example JSON:
-
-```json
-{
-  "_class": "Circle",
-  "radius": 5
-}
-```
-
-or in inline notation (not JSON-compliant but editor-friendly):
-
-```json
-(Circle){
-  "radius": 5
-}
-```
-
-Example Java result:
-
-```java
-Shape shape = new Circle(5);
-```
 
 ---
 
