@@ -22,6 +22,7 @@ import java.util.Set;
  *   <li>Support for perceptual type matching (handling simple vs. qualified names)</li>
  *   <li>Validation of type consistency</li>
  *   <li>Unmodifiable views of all registered types</li>
+ *   <li>Repository descriptor registry for external resource models</li>
  * </ul>
  *
  * @author Janusch Rentenatus
@@ -30,6 +31,7 @@ public class JsonModelDescriptor {
 
     private final String modelName;
     private final Map<String, JsonTypeDescriptor> describedTypes = new LinkedHashMap<>();
+    private final Map<String, JsonModelDescriptor> repoDescriptors = new LinkedHashMap<>();
 
     /**
      * Constructs a model descriptor with the specified model name.
@@ -173,6 +175,48 @@ public class JsonModelDescriptor {
     }
 
     // -------------------------------------------------------------------------
+    // Repository descriptor lookup
+    // -------------------------------------------------------------------------
+
+    /**
+     * Checks if a repository descriptor with the specified synonym is registered.
+     *
+     * @param synonym the repository synonym to check.
+     * @return {@code true} if the repository descriptor is registered.
+     */
+    public boolean containsRepoDescriptor(String synonym) {
+        return synonym != null && repoDescriptors.containsKey(synonym);
+    }
+
+    /**
+     * Returns the repository descriptor for the specified synonym.
+     *
+     * @param synonym the repository synonym to look up.
+     * @return the repository descriptor, or {@code null} if not found.
+     */
+    public JsonModelDescriptor getRepoDescriptor(String synonym) {
+        if (synonym == null) {
+            return null;
+        }
+        return repoDescriptors.get(synonym);
+    }
+
+    /**
+     * Returns the repository descriptor for the specified synonym.
+     *
+     * @param synonym the repository synonym to look up.
+     * @return the repository descriptor.
+     * @throws IllegalStateException if the repository descriptor is not found.
+     */
+    public JsonModelDescriptor requireRepoDescriptor(String synonym) {
+        JsonModelDescriptor descriptor = repoDescriptors.get(synonym);
+        if (descriptor == null) {
+            throw new IllegalStateException("Unknown repository descriptor for synonym: " + synonym);
+        }
+        return descriptor;
+    }
+
+    // -------------------------------------------------------------------------
     // Registration
     // -------------------------------------------------------------------------
 
@@ -185,6 +229,20 @@ public class JsonModelDescriptor {
     public JsonModelDescriptor addType(JsonTypeDescriptor type) {
         Objects.requireNonNull(type, "type");
         describedTypes.putIfAbsent(type.getTypeName(), type);
+        return this;
+    }
+
+    /**
+     * Adds a repository descriptor for the specified synonym.
+     *
+     * @param synonym the repository synonym.
+     * @param descriptor the repository descriptor to add.
+     * @return this model descriptor.
+     */
+    public JsonModelDescriptor addRepoDescriptor(String synonym, JsonModelDescriptor descriptor) {
+        Objects.requireNonNull(synonym, "synonym");
+        Objects.requireNonNull(descriptor, "descriptor");
+        repoDescriptors.putIfAbsent(synonym, descriptor);
         return this;
     }
 
@@ -327,6 +385,15 @@ public class JsonModelDescriptor {
         return Collections.unmodifiableMap(describedTypes);
     }
 
+    /**
+     * Returns an unmodifiable map of all repository descriptors.
+     *
+     * @return map of synonyms to repository descriptors.
+     */
+    public Map<String, JsonModelDescriptor> getRepoDescriptorMap() {
+        return Collections.unmodifiableMap(repoDescriptors);
+    }
+
     // -------------------------------------------------------------------------
     // Validation
     // -------------------------------------------------------------------------
@@ -355,6 +422,17 @@ public class JsonModelDescriptor {
             }
 
             type.validate();
+        }
+
+        for (Map.Entry<String, JsonModelDescriptor> entry : repoDescriptors.entrySet()) {
+            String key = entry.getKey();
+            JsonModelDescriptor descriptor = entry.getValue();
+
+            if (descriptor == null) {
+                throw new IllegalStateException("Repository descriptor is null for key: " + key);
+            }
+
+            descriptor.validate();
         }
     }
 
@@ -387,6 +465,7 @@ public class JsonModelDescriptor {
     @Override
     public String toString() {
         return "JsonModelDescriptor[modelName=" + modelName
-                + ", types=" + describedTypes.size() + "]";
+                + ", types=" + describedTypes.size()
+                + ", repoDescriptors=" + repoDescriptors.size() + "]";
     }
 }

@@ -552,7 +552,7 @@ public class JsonModel {
 
         repoModels.forEach((synonym, repoModel) -> {
             JsonModelDescriptor repoDescriptor = repoModel.getOrCreateDescriptor();
-            // todo context....
+            context.addRepoDescriptor(synonym, repoDescriptor);
         });
 
         descriptor = context;
