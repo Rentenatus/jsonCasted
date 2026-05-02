@@ -26,12 +26,12 @@ import java.util.Set;
  *
  * @author Janusch Rentenatus
  */
-public class JsonModel implements JsonModell {
+public class JsonModel {
 
     private final HashMap<String, JsonClass> classes;
     private final HashMap<String, JsonInter> interfaces;
     private final HashMap<String, JsonClass> enums;
-    private final HashMap<String, JsonModell> repoModels;
+    private final HashMap<String, JsonRepoModel> repoModels;
     private final String mName;
     private JsonModelDescriptor descriptor;
 
@@ -156,7 +156,7 @@ public class JsonModel implements JsonModell {
      * @param synonym The synonym/identifier for the repository model.
      * @param providerModel The JsonModell instance representing the repository.
      */
-    public void addRepoModel(String synonym, JsonModell providerModel) {
+    public void addRepoModel(String synonym, JsonRepoModel providerModel) {
         repoModels.put(synonym, providerModel);
     }
 
@@ -166,7 +166,7 @@ public class JsonModel implements JsonModell {
      * @param synonym The synonym/identifier of the repository model.
      * @return The JsonModell instance, or null if not found.
      */
-    public JsonModell getRepoModel(String synonym) {
+    public JsonRepoModel getRepoModel(String synonym) {
         return repoModels.get(synonym);
     }
 
@@ -175,7 +175,7 @@ public class JsonModel implements JsonModell {
      *
      * @return An iterator over JsonModell objects.
      */
-    public Iterator<JsonModell> repoModelsIterator() {
+    public Iterator<JsonRepoModel> repoModelsIterator() {
         return repoModels.values().iterator();
     }
 

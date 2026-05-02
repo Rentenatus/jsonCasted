@@ -7,10 +7,9 @@
 package de.jare.jsoncasted.model;
 
 /**
- * Interface for JSON model classes, including main models and repository models.
- * This allows repository models to be stored and managed alongside the main model.
  *
  * @author Janusch Rentenatus
  */
-public interface JsonModell {
+public interface JsonRepoEntity {
+
 }
