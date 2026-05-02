@@ -180,6 +180,19 @@ public class JsonModel {
     }
 
     /**
+     * Returns the appropriate model for a given provider synonym.
+     * If a repository model is registered for the synonym, it is returned.
+     * Otherwise, this main model is returned as fallback.
+     *
+     * @param synonym The provider synonym to look up.
+     * @return The JsonModel for the synonym, or this main model if not found.
+     */
+    public JsonModel getModelForSynonym(String synonym) {
+        JsonRepoModel repoModel = repoModels.get(synonym);
+        return repoModel != null ? repoModel : this;
+    }
+
+    /**
      * Populates the model with basic data types used in JSON processing.
      */
     public void addBasicModel() {
