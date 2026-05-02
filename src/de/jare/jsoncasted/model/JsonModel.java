@@ -550,6 +550,11 @@ public class JsonModel {
             jsonClass.describeDependencies(context);
         }
 
+        repoModels.forEach((synonym, repoModel) -> {
+            JsonModelDescriptor repoDescriptor = repoModel.getOrCreateDescriptor();
+            // todo context....
+        });
+
         descriptor = context;
         return context;
     }

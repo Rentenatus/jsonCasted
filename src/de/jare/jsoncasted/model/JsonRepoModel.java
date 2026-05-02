@@ -7,6 +7,7 @@
 package de.jare.jsoncasted.model;
 
 import de.jare.jsoncasted.lang.JsonNodeType;
+import static de.jare.jsoncasted.model.JsonCollectionType.LIST;
 import de.jare.jsoncasted.model.builder.JsonBooleanBuilder;
 import de.jare.jsoncasted.model.builder.JsonBooleanObjBuilder;
 import de.jare.jsoncasted.model.builder.JsonDoubleBuilder;
@@ -17,6 +18,7 @@ import de.jare.jsoncasted.model.builder.JsonIntBuilder;
 import de.jare.jsoncasted.model.builder.JsonIntegerObjBuilder;
 import de.jare.jsoncasted.model.builder.JsonLongBuilder;
 import de.jare.jsoncasted.model.builder.JsonLongObjBuilder;
+import de.jare.jsoncasted.model.builder.JsonReflectBuilder;
 import de.jare.jsoncasted.model.builder.JsonStringBuilder;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
@@ -144,5 +146,12 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
         super.addClass(new JsonClass("float", JsonNodeType.NUMBER, new JsonFloatBuilder()));
         super.addClass(new JsonClass("double", JsonNodeType.NUMBER, new JsonDoubleBuilder()));
         super.addClass(new JsonClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder()));
+    }
+
+    public JsonClass newJsonRepo(JsonInter repoContent) {
+        JsonClass repo = newJsonReflect(JsonRepo.class);
+        repo.addCParam("repoName", getJsonClass("String"));
+        repo.addField("contents", repoContent, LIST);
+        return repo;
     }
 }
