@@ -25,10 +25,21 @@ import de.jare.jsoncasted.model.item.JsonClass;
  * classes that represent JsonRepoEntity implementations can be added to this
  * model.
  *
+ * <p>This model is used for managing types from external JSON resources, ensuring
+ * that all registered classes implement the JsonRepoEntity interface for cross-resource
+ * referencing support.</p>
+ *
  * @author Janusch Rentenatus
  */
 public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
 
+    /**
+     * Constructs a JsonRepoModel with the specified model name.
+     * Creates a repository model that can only contain JsonClass instances
+     * whose underlying classes implement JsonRepoEntity.
+     *
+     * @param mName The name of the repository model.
+     */
     public JsonRepoModel(String mName) {
         super(mName);
     }
@@ -62,6 +73,10 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
 
     /**
      * Populates the model with basic data types used in JSON processing.
+     * <p>This override adds the same basic types as {@link JsonModel#addBasicModel()}
+     * but uses super.addClass() to bypass the JsonRepoEntity validation.</p>
+     * <p>Registers primitive wrapper types (String, Integer, Long, Float, Double, Boolean)
+     * and their primitive counterparts (int, long, float, double, boolean).</p>
      */
     @Override
     public void addBasicModel() {

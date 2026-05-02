@@ -25,6 +25,11 @@ import java.util.Iterator;
  * It extends ArrayList<JsonClass> and implements JsonType, allowing multiple
  * class associations.
  *
+ * <p>An interface in jsonCasted can have multiple concrete implementations.
+ * When parsing JSON that matches an interface type, the system will attempt to
+ * determine the correct implementation based on the JSON structure and registered
+ * type information.</p>
+ *
  * @author Janusch Rentenatus
  */
 public class JsonInter extends ArrayList<JsonClass> implements JsonType {
@@ -83,6 +88,12 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
         return cName;
     }
 
+    /**
+     * Returns the node type for this interface.
+     * Interfaces are always represented as OBJECT nodes in JSON.
+     *
+     * @return JsonNodeType.OBJECT always.
+     */
     @Override
     public JsonNodeType getNodeType() {
         return JsonNodeType.OBJECT;
@@ -177,6 +188,13 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
         return JsonCastingLevel.ALWAYS_CLASS_DEF == level || JsonCastingLevel.NECESSARY_CLASS_DEF == level;
     }
 
+    /**
+     * Creates a type descriptor header for this interface for model introspection.
+     * Includes the interface name and all its implementing classes.
+     *
+     * @param context The model descriptor context.
+     * @return A JsonTypeDescriptor for this interface with all implementors registered.
+     */
     public JsonTypeDescriptor describeHeadInterface(JsonModelDescriptor context) {
         final JsonTypeDescriptor ret = new JsonTypeDescriptor(cName)
                 .withNodeType(JsonNodeType.OBJECT);
