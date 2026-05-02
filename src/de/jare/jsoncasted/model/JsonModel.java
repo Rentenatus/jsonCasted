@@ -24,26 +24,28 @@ import java.util.Set;
  * provides methods for managing JSON class definitions, including retrieval,
  * creation, and deletion.
  *
- * <p>This class is the central type registry in the jsonCasted system, maintaining
+ * <p>
+ * This class is the central type registry in the jsonCasted system, maintaining
  * mappings for:</p>
  * <ul>
- *   <li>Concrete classes ({@link JsonClass})</li>
- *   <li>Interfaces ({@link JsonInter}) with their implementations</li>
- *   <li>Enum types (stored as JsonClass in the enums map)</li>
- *   <li>Repository models ({@link JsonRepoModel}) for external resources</li>
+ * <li>Concrete classes ({@link JsonClass})</li>
+ * <li>Interfaces ({@link JsonInter}) with their implementations</li>
+ * <li>Enum types (stored as JsonClass in the enums map)</li>
+ * <li>Repository models ({@link JsonRepoModel}) for external resources</li>
  * </ul>
  *
- * <p>Note: This class does NOT automatically register field types. If a class has
- * fields with types that need to be deserialized, those types must be explicitly
- * registered in the model before use.</p>
+ * <p>
+ * Note: This class does NOT automatically register field types. If a class has
+ * fields with types that need to be deserialized, those types must be
+ * explicitly registered in the model before use.</p>
  *
  * @author Janusch Rentenatus
  */
 public class JsonModel {
 
-    private final HashMap<String, JsonClass> classes;
-    private final HashMap<String, JsonInter> interfaces;
-    private final HashMap<String, JsonClass> enums;
+    final HashMap<String, JsonClass> classes;
+    final HashMap<String, JsonInter> interfaces;
+    final HashMap<String, JsonClass> enums;
     private final HashMap<String, JsonRepoModel> repoModels;
     private final String mName;
     private JsonModelDescriptor descriptor;
@@ -73,7 +75,8 @@ public class JsonModel {
 
     /**
      * Adds a JSON class to the model registry.
-     * <p>Note: This method only registers the class itself. Field types must be
+     * <p>
+     * Note: This method only registers the class itself. Field types must be
      * registered separately. Unlike previous versions, there is no automatic
      * recursive registration of field types.</p>
      *
@@ -84,8 +87,9 @@ public class JsonModel {
     }
 
     /**
-     * Adds a JSON interface to the model registry along with all its implementations.
-     * The interface and all its concrete implementations are registered in the model.
+     * Adds a JSON interface to the model registry along with all its
+     * implementations. The interface and all its concrete implementations are
+     * registered in the model.
      *
      * @param inter The JSON interface to register.
      */
@@ -111,8 +115,8 @@ public class JsonModel {
     }
 
     /**
-     * Finds a JSON class whose name ends with the specified string.
-     * Useful for finding classes by simple name when the full qualified name is unknown.
+     * Finds a JSON class whose name ends with the specified string. Useful for
+     * finding classes by simple name when the full qualified name is unknown.
      *
      * @param cNameEnding The suffix to match.
      * @return The matching JsonClass, or null if none found.
@@ -185,11 +189,12 @@ public class JsonModel {
     }
 
     /**
-     * Adds a repository model with a given synonym.
-     * Repository models allow referencing types from external JSON resources.
+     * Adds a repository model with a given synonym. Repository models allow
+     * referencing types from external JSON resources.
      *
      * @param synonym The synonym/identifier for the repository model.
-     * @param providerModel The JsonRepoModel instance representing the repository.
+     * @param providerModel The JsonRepoModel instance representing the
+     * repository.
      */
     public void addRepoModel(String synonym, JsonRepoModel providerModel) {
         repoModels.put(synonym, providerModel);
@@ -229,8 +234,9 @@ public class JsonModel {
 
     /**
      * Populates the model with basic data types used in JSON processing.
-     * Registers primitive wrapper types (String, Integer, Long, Float, Double, Boolean)
-     * and their primitive counterparts (int, long, float, double, boolean).
+     * Registers primitive wrapper types (String, Integer, Long, Float, Double,
+     * Boolean) and their primitive counterparts (int, long, float, double,
+     * boolean).
      */
     public void addBasicModel() {
         addClass(new JsonClass("String", JsonNodeType.STRING, new JsonStringBuilder()));
@@ -247,10 +253,9 @@ public class JsonModel {
     }
 
     // Methods for dynamically creating JSON class definitions
-
     /**
-     * Creates a new JSON class with the specified Java class and builder.
-     * The class is automatically registered in this model.
+     * Creates a new JSON class with the specified Java class and builder. The
+     * class is automatically registered in this model.
      *
      * @param clazz The Java class to model.
      * @param builder The builder for creating instances.
@@ -263,8 +268,8 @@ public class JsonModel {
     }
 
     /**
-     * Creates a new JSON class with the specified Java class, node type, and builder.
-     * The class is automatically registered in this model.
+     * Creates a new JSON class with the specified Java class, node type, and
+     * builder. The class is automatically registered in this model.
      *
      * @param clazz The Java class to model.
      * @param nodeType The JSON node type for this class.
@@ -279,8 +284,8 @@ public class JsonModel {
 
     /**
      * Creates a new JSON class using reflection for the specified Java class.
-     * Uses the default JsonReflectBuilder for instantiation.
-     * The class is automatically registered in this model.
+     * Uses the default JsonReflectBuilder for instantiation. The class is
+     * automatically registered in this model.
      *
      * @param clazz The Java class to model.
      * @return The newly created JsonClass, already registered in this model.
@@ -293,8 +298,8 @@ public class JsonModel {
 
     /**
      * Creates a new JSON class using reflection for the specified Java class.
-     * Uses the default JsonReflectBuilder for instantiation.
-     * The class is automatically registered in this model.
+     * Uses the default JsonReflectBuilder for instantiation. The class is
+     * automatically registered in this model.
      *
      * @param clazz The Java class to model.
      * @param skippingNulls Whether to skip null values when building.
@@ -308,8 +313,8 @@ public class JsonModel {
 
     /**
      * Creates a new JSON class using reflection for the specified Java class,
-     * inheriting fields from the specified parent class.
-     * The class is automatically registered in this model.
+     * inheriting fields from the specified parent class. The class is
+     * automatically registered in this model.
      *
      * @param clazz The Java class to model.
      * @param parent The parent JsonClass to inherit fields from.
@@ -323,8 +328,8 @@ public class JsonModel {
 
     /**
      * Creates a new JSON class using reflection for the specified Java class,
-     * inheriting fields from the specified parent class.
-     * The class is automatically registered in this model.
+     * inheriting fields from the specified parent class. The class is
+     * automatically registered in this model.
      *
      * @param clazz The Java class to model.
      * @param parent The parent JsonClass to inherit fields from.
@@ -339,8 +344,9 @@ public class JsonModel {
 
     /**
      * Creates a new JSON class for an enum type using name-based resolution.
-     * Enum values are resolved by calling the static getByName method on the enum.
-     * The class is automatically registered in this model's enum registry.
+     * Enum values are resolved by calling the static getByName method on the
+     * enum. The class is automatically registered in this model's enum
+     * registry.
      *
      * @param clazz The Java enum class to model.
      * @param valuesArray The array of enum templates for name-based lookup.
@@ -355,8 +361,9 @@ public class JsonModel {
 
     /**
      * Creates a new JSON class for an enum type using name-based resolution.
-     * Enum values are resolved by calling the static getByName method on the enum.
-     * The class is automatically registered in this model's enum registry.
+     * Enum values are resolved by calling the static getByName method on the
+     * enum. The class is automatically registered in this model's enum
+     * registry.
      *
      * @param clazz The Java enum class to model.
      * @param valuesList The list of enum templates for name-based lookup.
@@ -370,9 +377,9 @@ public class JsonModel {
     }
 
     /**
-     * Creates a new JSON interface with the specified Java interface type
-     * and its allowed implementations.
-     * The interface is automatically registered in this model.
+     * Creates a new JSON interface with the specified Java interface type and
+     * its allowed implementations. The interface is automatically registered in
+     * this model.
      *
      * @param clazz The Java interface class to model.
      * @param jClass The allowed implementations of this interface.
@@ -385,9 +392,9 @@ public class JsonModel {
     }
 
     /**
-     * Creates a new JSON map class for the specified Map implementation.
-     * Map types represent JSON objects with dynamic keys mapping to values of a specific type.
-     * The map is automatically registered in this model.
+     * Creates a new JSON map class for the specified Map implementation. Map
+     * types represent JSON objects with dynamic keys mapping to values of a
+     * specific type. The map is automatically registered in this model.
      *
      * @param clazz The Java Map class to model.
      * @param itemClass The JsonClass for the map values.
@@ -402,9 +409,10 @@ public class JsonModel {
     }
 
     /**
-     * Creates a new JSON map class for the specified Map implementation with skipping nulls configuration.
-     * Map types represent JSON objects with dynamic keys mapping to values of a specific type.
-     * The map is automatically registered in this model.
+     * Creates a new JSON map class for the specified Map implementation with
+     * skipping nulls configuration. Map types represent JSON objects with
+     * dynamic keys mapping to values of a specific type. The map is
+     * automatically registered in this model.
      *
      * @param clazz The Java Map class to model.
      * @param skippingNulls Whether to skip null values when building.
@@ -420,8 +428,9 @@ public class JsonModel {
     }
 
     /**
-     * Creates a new raw JSON map class (without collection type suffix) using the raw JsonInstance type.
-     * The map is automatically registered in this model.
+     * Creates a new raw JSON map class (without collection type suffix) using
+     * the raw JsonInstance type. The map is automatically registered in this
+     * model.
      *
      * @param clazz The raw JsonInstance class to model.
      * @param itemClass The JsonClass for the map values.
@@ -432,8 +441,9 @@ public class JsonModel {
     }
 
     /**
-     * Creates a new raw JSON map class (without collection type suffix) using the raw JsonInstance type.
-     * The map is automatically registered in this model.
+     * Creates a new raw JSON map class (without collection type suffix) using
+     * the raw JsonInstance type. The map is automatically registered in this
+     * model.
      *
      * @param clazz The raw JsonInstance class to model.
      * @param skippingNulls Whether to skip null values when building.
@@ -445,8 +455,9 @@ public class JsonModel {
     }
 
     /**
-     * Creates a new raw JSON map class with the specified collection type using the raw JsonInstance type.
-     * The map is automatically registered in this model.
+     * Creates a new raw JSON map class with the specified collection type using
+     * the raw JsonInstance type. The map is automatically registered in this
+     * model.
      *
      * @param clazz The raw JsonInstance class to model.
      * @param itemClass The JsonClass for the map values.
@@ -458,8 +469,9 @@ public class JsonModel {
     }
 
     /**
-     * Creates a new raw JSON map class with the specified collection type using the raw JsonInstance type.
-     * The map is automatically registered in this model.
+     * Creates a new raw JSON map class with the specified collection type using
+     * the raw JsonInstance type. The map is automatically registered in this
+     * model.
      *
      * @param clazz The raw JsonInstance class to model.
      * @param skippingNulls Whether to skip null values when building.
@@ -472,9 +484,9 @@ public class JsonModel {
     }
 
     /**
-     * Returns a list of all registered classes, with simple-named classes first,
-     * followed by fully-qualified class names.
-     * This ordering prioritizes more commonly used simple names.
+     * Returns a list of all registered classes, with simple-named classes
+     * first, followed by fully-qualified class names. This ordering prioritizes
+     * more commonly used simple names.
      *
      * @return An ordered list of JsonClass instances.
      */
@@ -494,8 +506,8 @@ public class JsonModel {
     }
 
     /**
-     * Returns a sorted list of all registered interfaces.
-     * Interfaces are sorted alphabetically by their class name.
+     * Returns a sorted list of all registered interfaces. Interfaces are sorted
+     * alphabetically by their class name.
      *
      * @return An ordered list of JsonInter instances, sorted by class name.
      */
@@ -507,8 +519,8 @@ public class JsonModel {
 
     /**
      * Creates a complete descriptor of this model for introspection purposes.
-     * The descriptor includes all types, their fields, dependencies, and relationships.
-     * This is useful for editor tools and debugging.
+     * The descriptor includes all types, their fields, dependencies, and
+     * relationships. This is useful for editor tools and debugging.
      *
      * @return A JsonModelDescriptor containing the complete model structure.
      */
@@ -544,7 +556,8 @@ public class JsonModel {
 
     /**
      * Returns the cached model descriptor, or creates one if not yet generated.
-     * The descriptor is cached for performance, so subsequent calls return the same instance.
+     * The descriptor is cached for performance, so subsequent calls return the
+     * same instance.
      *
      * @return The JsonModelDescriptor for this model.
      */

@@ -19,24 +19,28 @@ import de.jare.jsoncasted.model.builder.JsonLongBuilder;
 import de.jare.jsoncasted.model.builder.JsonLongObjBuilder;
 import de.jare.jsoncasted.model.builder.JsonStringBuilder;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.item.JsonField;
+import de.jare.jsoncasted.model.item.JsonInter;
+import java.util.Iterator;
 
 /**
  * Repository model that extends JsonModel and implements JsonRepoEntity. Only
  * classes that represent JsonRepoEntity implementations can be added to this
  * model.
  *
- * <p>This model is used for managing types from external JSON resources, ensuring
- * that all registered classes implement the JsonRepoEntity interface for cross-resource
- * referencing support.</p>
+ * <p>
+ * This model is used for managing types from external JSON resources, ensuring
+ * that all registered classes implement the JsonRepoEntity interface for
+ * cross-resource referencing support.</p>
  *
  * @author Janusch Rentenatus
  */
 public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
 
     /**
-     * Constructs a JsonRepoModel with the specified model name.
-     * Creates a repository model that can only contain JsonClass instances
-     * whose underlying classes implement JsonRepoEntity.
+     * Constructs a JsonRepoModel with the specified model name. Creates a
+     * repository model that can only contain JsonClass instances whose
+     * underlying classes implement JsonRepoEntity.
      *
      * @param mName The name of the repository model.
      */
@@ -72,11 +76,60 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
     }
 
     /**
+     * Recursively adds a JSON type and all its referenced types to the
+     * model.Handles JsonEnum, JsonInter, and JsonClass types appropriately.
+     *
+     * @param parent parent model, that knows recursive JsonType.
+     * @param jType The JSON type to add recursively.
+     */
+    public void addRecursive(JsonModel parent, final JsonType jType) {
+        final String cName = jType.getcName();
+
+        final JsonClass parentClass = parent.getJsonClass(cName);
+        if (parentClass != null) {
+            if (getJsonClass(cName) == null) {
+                addClass(parentClass);
+            }
+            Iterator<JsonField> it = parentClass.fieldsIterator();
+            while (it.hasNext()) {
+                JsonField next = it.next();
+                JsonType jt = next.getjType();
+                if (jt != null) {
+                    addRecursive(parent, jt);
+                }
+            }
+            return;
+        }
+
+        final JsonClass parentEnum = parent.getJsonEnum(cName);
+        if (parentEnum != null) {
+            if (getJsonEnum(cName) == null) {
+                enums.put(cName, parentEnum);
+            }
+            return;
+        }
+
+        final JsonInter parentInter = parent.getJsonInter(cName);
+        if (parentInter != null) {
+            if (getJsonInter(cName) == null) {
+                addInterface(parentInter);
+            }
+            for (JsonClass jt : parentInter) {
+                addRecursive(parent, jt);
+            }
+        }
+    }
+
+    /**
      * Populates the model with basic data types used in JSON processing.
-     * <p>This override adds the same basic types as {@link JsonModel#addBasicModel()}
-     * but uses super.addClass() to bypass the JsonRepoEntity validation.</p>
-     * <p>Registers primitive wrapper types (String, Integer, Long, Float, Double, Boolean)
-     * and their primitive counterparts (int, long, float, double, boolean).</p>
+     * <p>
+     * This override adds the same basic types as
+     * {@link JsonModel#addBasicModel()} but uses super.addClass() to bypass the
+     * JsonRepoEntity validation.</p>
+     * <p>
+     * Registers primitive wrapper types (String, Integer, Long, Float, Double,
+     * Boolean) and their primitive counterparts (int, long, float, double,
+     * boolean).</p>
      */
     @Override
     public void addBasicModel() {
