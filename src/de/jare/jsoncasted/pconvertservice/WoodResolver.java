@@ -14,6 +14,7 @@ import de.jare.jsoncasted.lang.JsonSystem;
 import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.lang.LinkNodeEntry;
 import de.jare.jsoncasted.lang.LinkingSet;
+import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.parserservice.ParseStreamReader;
@@ -142,7 +143,11 @@ public final class WoodResolver {
         final List<JsonResource> resources = sys.getResources();
         ConvertService[] services = new ConvertService[resources.size()];
         for (int i = 0; i < resources.size(); i++) {
-            services[i] = new ConvertService(resources.get(i), descriptor, resolution, debugLevel);
+            JsonResource resource = resources.get(i);
+            String providerSynonym = resource.getProviderName();
+            JsonModel modelForSynonym = sys.getModelForSynonym(providerSynonym);
+            JsonModelDescriptor resourceDescriptor = modelForSynonym != null ? modelForSynonym.getOrCreateDescriptor() : descriptor;
+            services[i] = new ConvertService(resource, resourceDescriptor, resolution, debugLevel);
         }
         while (progress) {
             progress = resolveLoop(remainingKeys, services);

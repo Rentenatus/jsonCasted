@@ -31,6 +31,7 @@ public class JsonModel {
     private final HashMap<String, JsonClass> classes;
     private final HashMap<String, JsonInter> interfaces;
     private final HashMap<String, JsonClass> enums;
+    private final HashMap<String, JsonRepoModel> repoModels;
     private final String mName;
     private JsonModelDescriptor descriptor;
 
@@ -45,6 +46,7 @@ public class JsonModel {
         this.classes = new HashMap<>();
         this.interfaces = new HashMap<>();
         this.enums = new HashMap<>();
+        this.repoModels = new HashMap<>();
     }
 
     /**
@@ -63,6 +65,21 @@ public class JsonModel {
      */
     public void addClass(JsonClass jClass) {
         classes.put(jClass.getcName(), jClass);
+    }
+
+    /**
+     *
+     * @param inter
+     */
+    public void addInterface(JsonInter inter) {
+        for (JsonClass jc : inter) {
+            if (classes.containsKey(jc.getcName())) {
+                continue;
+            }
+            addClass(jc);
+        }
+        interfaces.put(inter.getcName(), inter);
+
     }
 
     /**
@@ -146,6 +163,48 @@ public class JsonModel {
      */
     public Set<String> classesKeySet() {
         return classes.keySet();
+    }
+
+    /**
+     * Adds a repository model with a given synonym.
+     *
+     * @param synonym The synonym/identifier for the repository model.
+     * @param providerModel The JsonModell instance representing the repository.
+     */
+    public void addRepoModel(String synonym, JsonRepoModel providerModel) {
+        repoModels.put(synonym, providerModel);
+    }
+
+    /**
+     * Retrieves a repository model by its synonym.
+     *
+     * @param synonym The synonym/identifier of the repository model.
+     * @return The JsonModell instance, or null if not found.
+     */
+    public JsonRepoModel getRepoModel(String synonym) {
+        return repoModels.get(synonym);
+    }
+
+    /**
+     * Returns an iterator over the registered repository models.
+     *
+     * @return An iterator over JsonModell objects.
+     */
+    public Iterator<JsonRepoModel> repoModelsIterator() {
+        return repoModels.values().iterator();
+    }
+
+    /**
+     * Returns the appropriate model for a given provider synonym. If a
+     * repository model is registered for the synonym, it is returned.
+     * Otherwise, this main model is returned as fallback.
+     *
+     * @param synonym The provider synonym to look up.
+     * @return The JsonModel for the synonym, or this main model if not found.
+     */
+    public JsonModel getModelForSynonym(String synonym) {
+        JsonRepoModel repoModel = repoModels.get(synonym);
+        return repoModel != null ? repoModel : this;
     }
 
     /**
