@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="All Tests" parallel="none">
+    <test name="JsonCasted Tests">
+        <classes>
+            <class name="de.jare.impltest.TestBoxNGTest"/>
+            <class name="de.jare.jsoncasted.parser.JsonParserNodeInputNGTest"/>
+            <class name="de.jare.jsonconfig.def.JsonConfigFactoryNGTest"/>
+        </classes>
+    </test>
+</suite>
