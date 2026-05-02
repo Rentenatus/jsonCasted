@@ -11,10 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Technical Documentation**: Comprehensive `JSON_CASTED.md` documentation file with detailed architecture, API reference, usage guides, and advanced features. (Commit: 7709ccf, 2026-05-02)
+- **Repository Descriptors in JsonModelDescriptor**: Added `repoDescriptors` map to `JsonModelDescriptor` for storing repository descriptors by synonym, enabling descriptor-level lookup without requiring JsonModel instances. Includes methods: `addRepoDescriptor()`, `getRepoDescriptor()`, `requireRepoDescriptor()`, `containsRepoDescriptor()`, `getRepoDescriptorMap()`. (Commit: 0a3c74d, 2026-05-02)
 
 ### Changed
 - **Java Version**: Updated from Java 21 to Java 17 for broader compatibility, then back to Java 21 with comprehensive Javadoc. (Commits: 56d87cb, e9ba140, 2026-05-01-02)
 - **Test Configuration**: Added explicit test suite configuration in `pom.xml`. (Commit: 56d87cb, 2026-05-02)
+- **WoodResolver**: Refactored to use repository descriptors directly from `JsonModelDescriptor` via `getRepoDescriptor()` instead of accessing `JsonModel` through `JsonSystem.getModelForSynonym()`. Removed dependency on `JsonModel` class. (Commit: current, 2026-05-02)
+- **JsonModel.describe()**: Updated to populate repository descriptors in the main descriptor via `context.addRepoDescriptor(synonym, repoDescriptor)`, replacing the TODO comment. (Commit: 0a3c74d, 2026-05-02)
 
 ### Fixed
 - **Provider Model Lookup**: Implemented provider model lookup by synonym for proper resource resolution. (Commit: cd1f8d5, 2026-05-02)
@@ -136,83 +139,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Initial Commit**: Project initialization with basic structure. (Commit: 8f2ea7e, 2025-06-01)
 - **Start Repo**: Initial repository setup. (Commit: 45857b3, 2025-06-01)
 - **Review**: Initial code review. (Commit: 305627c, 2025-06-01)
-
----
-
-## Branch Development Summary
-
-### Active Development Branches
-
-| Branch | Purpose | Status |
-|--------|---------|--------|
-| `main` | Main development line | ✅ Active |
-| `re/repo` | Repository model enhancements | ✅ Merged (2026-05-02) |
-| `re/resolver` | Reference resolver improvements | ✅ Merged (2026-04-18) |
-| `re/provider` | Provider system implementation | ✅ Merged (2026-04-13) |
-| `re/gh2` | General enhancements (GH2) | 🔄 In Progress |
-| `re/gh1` | Bug fixes and improvements (GH1) | 🔄 In Progress |
-
-### Merged Feature Branches
-
-#### re/repo (Merged 2026-05-02)
-- **Technical Documentation**: Added comprehensive documentation
-- **Repository Model**: Enhanced JsonModel with repository support
-- **Provider Lookup**: Implemented provider model lookup by synonym
-- **Validation**: Added JsonRepoModel validation with English error messages
-
-#### re/resolver (Merged 2026-04-18)
-- **WoodResolver**: Complete reference resolution system
-- **ConvertService**: Conversion context management
-- **LinkingSet**: Object ID and link tracking
-- **JsonObjectConverter**: Enhanced object conversion with type casting
-
-#### re/provider (Merged 2026-04-13)
-- **WoodProvider**: External resource provider system
-- **WoodProviderBox**: Container for multiple providers
-- **JsonSystem**: Multi-resource management
-- **BuilderService**: Object building with caching
-
----
-
-## Development Timeline
-
-### 2026
-
-#### May
-- **May 2**: Version 0.1.0-SNAPSHOT released with technical documentation
-- **May 1-2**: Java version updates (21 → 17 → 21), Javadoc enhancements, README improvements
-
-#### April
-- **April 30**: Enum handling fixes
-- **April 20**: README updates
-- **April 18**: Resolver review and improvements
-- **April 13**: Provider merge, BuilderService, WoodResolution fixes
-- **April 12**: ConvertService implementation
-- **April 11**: LinkingSet implementation
-- **April 10**: Debug support, test assets restoration
-- **April 8-9**: Multiple fixes and test additions
-- **April 7**: JsonMap fixes
-- **April 6**: JsonModelDescriptor enhancements
-- **April 5**: JsonRessource, provider infrastructure
-- **April 4**: Provider improvements
-
-#### March
-- **March 30**: Code cleanup
-- **March 27-29**: Review and fixes
-- **March 24-26**: Work in progress, long support, writer implementation
-- **March 23**: JsonNodeType enhancements
-- **March 22**: Parse fixes, JsonNodeType implementation
-- **March 21**: Major restart of implementation (Neuimplementierung)
-  - New architecture
-  - JsonNode pipeline integration
-  - JsonConverter implementation
-- **March 20**: Author attribution, test assets
-- **March 3-19**: Initial development phase
-
-### 2025
-
-#### June
-- **June 1**: Project initialization
 
 ---
 
