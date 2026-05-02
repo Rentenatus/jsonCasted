@@ -16,6 +16,7 @@ import java.util.List;
 public class JsonRepo implements JsonRepoEntity {
 
     private List<JsonRepoEntity> contents;
+    private String repoName;
 
     public static JsonRepo emptyRepo() {
         JsonRepo ret = new JsonRepo();
@@ -29,12 +30,30 @@ public class JsonRepo implements JsonRepoEntity {
         return ret;
     }
 
+    public JsonRepo() {
+        this.contents = new ArrayList<>();
+        this.repoName = "";
+    }
+
+    public JsonRepo(String repoName) {
+        this.contents = new ArrayList<>();
+        this.repoName = repoName;
+    }
+
     public List<JsonRepoEntity> getContents() {
         return contents;
     }
 
     public void setContents(List<JsonRepoEntity> contents) {
         this.contents = contents;
+    }
+
+    public String getRepoName() {
+        return repoName;
+    }
+
+    public void setRepoName(String repoName) {
+        this.repoName = repoName;
     }
 
 }

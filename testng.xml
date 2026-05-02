@@ -4,6 +4,7 @@
     <test name="JsonCasted Tests">
         <classes>
             <class name="de.jare.impltest.TestBoxNGTest"/>
+            <class name="de.jare.impltest.TestBoxNGTest2"/>
             <class name="de.jare.jsoncasted.parser.JsonParserNodeInputNGTest"/>
             <class name="de.jare.jsonconfig.def.JsonConfigFactoryNGTest"/>
         </classes>

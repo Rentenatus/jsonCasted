@@ -68,6 +68,21 @@ public class JsonModel {
     }
 
     /**
+     *
+     * @param inter
+     */
+    public void addInterface(JsonInter inter) {
+        for (JsonClass jc : inter) {
+            if (classes.containsKey(jc.getcName())) {
+                continue;
+            }
+            addClass(jc);
+        }
+        interfaces.put(inter.getcName(), inter);
+
+    }
+
+    /**
      * Retrieves a JSON class by its name.
      *
      * @param key The name of the JSON class.
@@ -180,8 +195,8 @@ public class JsonModel {
     }
 
     /**
-     * Returns the appropriate model for a given provider synonym.
-     * If a repository model is registered for the synonym, it is returned.
+     * Returns the appropriate model for a given provider synonym. If a
+     * repository model is registered for the synonym, it is returned.
      * Otherwise, this main model is returned as fallback.
      *
      * @param synonym The provider synonym to look up.
