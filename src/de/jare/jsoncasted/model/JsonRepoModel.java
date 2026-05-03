@@ -26,7 +26,7 @@ import de.jare.jsoncasted.model.item.JsonInter;
 import java.util.Iterator;
 
 /**
- * Repository model that extends JsonModel and implements JsonRepoEntity. 
+ * Repository model that extends JsonModel and implements JsonRepoEntity.
  *
  * <p>
  * This model is used for managing types from external JSON resources, ensuring
@@ -49,10 +49,10 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
     }
 
     /**
-     * Recursively adds a JSON type and all its referenced types to the
-     * model.Handles JsonEnum, JsonInter, and JsonClass types appropriately.
+     * Recursively adds a JSON type and all its referenced types to the model.
+     * Handles JsonEnum, JsonInter, and JsonClass types appropriately.
      *
-     * @param parent parent model, that knows recursive JsonType.
+     * @param parent Parent model that knows recursive JsonType.
      * @param jType The JSON type to add recursively.
      */
     public void addRecursive(JsonModel parent, final JsonType jType) {
@@ -119,6 +119,14 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
         super.addClass(new JsonClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder()));
     }
 
+    /**
+     * Creates a new JsonClass for representing a JsonRepo with the specified
+     * content type.
+     *
+     * @param repoName Name of this repo.
+     * @param repoContent The interface type for the repository contents.
+     * @return A JsonClass configured for JsonRepo serialization.
+     */
     public JsonClass newJsonRepo(String repoName, JsonInter repoContent) {
         JsonClass repo = newJsonReflect(JsonRepo.class, "JsonRepo'" + repoName + "'");
         repo.addCParam("repoName", getJsonClass("String"));
