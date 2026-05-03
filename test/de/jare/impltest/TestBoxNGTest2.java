@@ -195,7 +195,7 @@ public class TestBoxNGTest2 {
             fail(ex.getMessage(), ex);
         }
         System.out.println("Target=============================================== Print object");
-        writer.write(System.out, definition.getTestBox(), root);
+        writer.write(System.out, definition.getRepo(), root);
 
         System.out.println("Target=============================================== Comment");
         for (JsonRepoEntity elem : root.getContents()) {
