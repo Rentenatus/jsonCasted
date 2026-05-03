@@ -106,6 +106,7 @@ public class JsonMap extends JsonClass implements JsonType {
 
     /**
      * Returns an iterator over the field names (keys) for writing.
+     * For JsonMap, this returns the keys from the underlying JsonInstance object.
      *
      * @param ob the JsonInstance object.
      * @return an iterator over the key set.
@@ -156,6 +157,13 @@ public class JsonMap extends JsonClass implements JsonType {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    /**
+     * Creates a type descriptor header for this map for model introspection.
+     * Ensures the item class is also described in the context.
+     *
+     * @param context The model descriptor context.
+     * @return A JsonTypeDescriptor for this map.
+     */
     @Override
     public JsonTypeDescriptor describeHead(JsonModelDescriptor context) {
         if (context.getType(itemClass.getcName()) == null) {
@@ -164,6 +172,12 @@ public class JsonMap extends JsonClass implements JsonType {
         return super.describeHead(context);
     }
 
+    /**
+     * Describes all dependencies of this map for model introspection.
+     * This includes the item class dependency and the mapping field descriptor.
+     *
+     * @param context The model descriptor context to add dependencies to.
+     */
     @Override
     public void describeDependencies(JsonModelDescriptor context) {
 

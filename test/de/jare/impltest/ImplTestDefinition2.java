@@ -85,11 +85,9 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
         testBox.addField("list", valueIx, LIST);
         testBox.addField("arr", valueIx, ARRAY);
 
-        repoModel.addInterface(valueIx);
-        JsonClass repo = model.newJsonReflect(JsonRepo.class);
-        repo.addCParam("repoName", asString);
-        repo.addField("contents", valueIx, LIST);
-        model.addRepoModel("ssss", repoModel);
+        repoModel.addRecursive(model, valueIx);
+        repoModel.newJsonRepo(valueIx);
+        model.addRepoModel("save", repoModel);
 
     }
 

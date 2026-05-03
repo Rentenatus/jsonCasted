@@ -14,7 +14,6 @@ import de.jare.jsoncasted.lang.JsonSystem;
 import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.lang.LinkNodeEntry;
 import de.jare.jsoncasted.lang.LinkingSet;
-import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.parserservice.ParseStreamReader;
@@ -35,6 +34,9 @@ import java.util.Set;
  * The WoodResolver class handles the resolution of wood (object reference) structures
  * in JSON resources. It manages the loading of external resources referenced via wood
  * providers and coordinates the resolution process across multiple resources.
+ *
+ * <p>This class uses repository descriptors from the main descriptor to resolve types
+ * for external resources, without requiring direct access to the JsonModel instances.</p>
  *
  * @author Janusch Rentenatus
  */
@@ -128,6 +130,9 @@ public final class WoodResolver {
      * This method processes the main resource and all registered resources,
      * resolving object references in an iterative manner.
      *
+     * <p>Repository descriptors are retrieved directly from the main descriptor's
+     * repoDescriptor map, without accessing the JsonModel instances.</p>
+     *
      * @param sys The JsonSystem containing resources to resolve.
      * @param descriptor The model descriptor containing type definitions.
      * @param debugLevel The debug level for controlling debug output.
@@ -145,8 +150,10 @@ public final class WoodResolver {
         for (int i = 0; i < resources.size(); i++) {
             JsonResource resource = resources.get(i);
             String providerSynonym = resource.getProviderName();
-            JsonModel modelForSynonym = sys.getModelForSynonym(providerSynonym);
-            JsonModelDescriptor resourceDescriptor = modelForSynonym != null ? modelForSynonym.getOrCreateDescriptor() : descriptor;
+            JsonModelDescriptor resourceDescriptor = descriptor.getRepoDescriptor(providerSynonym);
+            if (resourceDescriptor == null) {
+                resourceDescriptor = descriptor;
+            }
             services[i] = new ConvertService(resource, resourceDescriptor, resolution, debugLevel);
         }
         while (progress) {

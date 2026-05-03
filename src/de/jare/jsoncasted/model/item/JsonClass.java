@@ -58,10 +58,24 @@ public class JsonClass implements JsonType {
     private JsonClass parent;
     private JsonEnumTemplate[] valuesArray;
 
+    /**
+     * Constructs a JsonClass with the specified class name and builder.
+     * Uses OBJECT as the default node type.
+     *
+     * @param cName The canonical name of the class.
+     * @param builder The builder responsible for instance creation.
+     */
     public JsonClass(String cName, JsonModellClassBuilder builder) {
         this(cName, JsonNodeType.OBJECT, builder);
     }
 
+    /**
+     * Constructs a JsonClass with the specified class name, node type, and builder.
+     *
+     * @param cName The canonical name of the class.
+     * @param nodeType The JSON node type for this class.
+     * @param builder The builder responsible for instance creation.
+     */
     public JsonClass(String cName, JsonNodeType nodeType, JsonModellClassBuilder builder) {
         this.cName = cName;
         this.nodeType = nodeType;
@@ -72,10 +86,26 @@ public class JsonClass implements JsonType {
         parent = null;
     }
 
+    /**
+     * Constructs a JsonClass with the specified class name and builder, with skipping nulls configuration.
+     * Uses OBJECT as the default node type.
+     *
+     * @param cName The canonical name of the class.
+     * @param skippingNulls If true, null values will be skipped during serialization.
+     * @param builder The builder responsible for instance creation.
+     */
     public JsonClass(String cName, boolean skippingNulls, JsonModellClassBuilder builder) {
         this(cName, JsonNodeType.OBJECT, skippingNulls, builder);
     }
 
+    /**
+     * Constructs a JsonClass with full configuration.
+     *
+     * @param cName The canonical name of the class.
+     * @param nodeType The JSON node type for this class.
+     * @param skippingNulls If true, null values will be skipped during serialization.
+     * @param builder The builder responsible for instance creation.
+     */
     public JsonClass(String cName, JsonNodeType nodeType, boolean skippingNulls, JsonModellClassBuilder builder) {
         this.cName = cName;
         this.nodeType = nodeType;
@@ -106,10 +136,20 @@ public class JsonClass implements JsonType {
         return builder.getterPre();
     }
 
+    /**
+     * Returns whether this class skips null values during serialization.
+     *
+     * @return true if null values are skipped, false otherwise.
+     */
     public boolean isSkippingNulls() {
         return skippingNulls;
     }
 
+    /**
+     * Sets whether this class should skip null values during serialization.
+     *
+     * @param skippingNulls If true, null values will be skipped.
+     */
     public void setSkippingNulls(boolean skippingNulls) {
         this.skippingNulls = skippingNulls;
     }
@@ -127,10 +167,22 @@ public class JsonClass implements JsonType {
         return this;
     }
 
+    /**
+     * Returns the parent class for inheritance purposes.
+     *
+     * @return The parent JsonClass, or null if this class has no parent.
+     */
     public JsonClass getParent() {
         return parent;
     }
 
+    /**
+     * Checks if this class is a subtype of the given type.
+     * This includes checking the type itself, direct equality, and the parent hierarchy.
+     *
+     * @param check The type to check against.
+     * @return true if this class is a subtype of check, false otherwise.
+     */
     public boolean isSubOf(JsonType check) {
         if (check == null) {
             return false;
@@ -164,6 +216,14 @@ public class JsonClass implements JsonType {
         return check.getcName().equals(this.getcName()) && check.getNodeType() == this.getNodeType();
     }
 
+    /**
+     * Builds an object instance from a JSON item using the configured builder.
+     *
+     * @param jsonItem The JSON item to build from.
+     * @param builderService The builder service for managing object construction.
+     * @return The constructed object, or null if builder is not configured.
+     * @throws JsonBuildException If object construction fails.
+     */
     public Object build(JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
         return builder == null ? null : builder.build(this, jsonItem, builderService);
     }
@@ -175,6 +235,14 @@ public class JsonClass implements JsonType {
                 : builder.buildArray(this, builderService, listIterator, size));
     }
 
+    /**
+     * Retrieves an attribute value from an object using reflection.
+     * Invokes the getter method matching the field's getter name on the object.
+     *
+     * @param next The field whose value to retrieve.
+     * @param ob The object to retrieve the attribute from.
+     * @return The attribute value, or null if the getter cannot be invoked.
+     */
     public Object getAttr(JsonField next, Object ob) {
         Object ret = null;
         for (Method meth : ob.getClass().getMethods()) {
@@ -190,6 +258,12 @@ public class JsonClass implements JsonType {
         return ret;
     }
 
+    /**
+     * Sets the array of enum templates for this class.
+     * Used for enum types that need name-based resolution.
+     *
+     * @param valuesArray The array of enum templates.
+     */
     public void setValuesArray(JsonEnumTemplate[] valuesArray) {
         this.valuesArray = valuesArray;
     }
@@ -216,72 +290,172 @@ public class JsonClass implements JsonType {
         fields.put(key, jField);
     }
 
+    /**
+     * Adds a field to this class with the specified name and type.
+     *
+     * @param fName The field name.
+     * @param jType The JSON type of the field.
+     * @return The newly created and added JsonField.
+     */
     public JsonField addField(String fName, JsonType jType) {
         final JsonField jsonField = new JsonField(this, fName, jType, JsonValidationMethod.NONE);
         add(jsonField);
         return jsonField;
     }
 
+    /**
+     * Adds a field to this class with the specified name, type, and getter/setter normalization.
+     *
+     * @param fName The field name.
+     * @param jType The JSON type of the field.
+     * @param getterSetterNorm The normalized getter/setter name root.
+     * @return The newly created and added JsonField.
+     */
     public JsonField addField(String fName, JsonType jType, String getterSetterNorm) {
         final JsonField jsonField = new JsonField(this, fName, jType, getterSetterNorm, JsonValidationMethod.NONE);
         add(jsonField);
         return jsonField;
     }
 
+    /**
+     * Adds a field to this class with the specified name, type, and collection type.
+     *
+     * @param fName The field name.
+     * @param jType The JSON type of the field.
+     * @param colType The collection type (LIST, ARRAY, or NONE).
+     * @return The newly created and added JsonField.
+     */
     public JsonField addField(String fName, JsonType jType, JsonCollectionType colType) {
         final JsonField jsonField = new JsonField(this, fName, jType, colType, JsonValidationMethod.NONE);
         add(jsonField);
         return jsonField;
     }
 
+    /**
+     * Adds a field to this class with the specified name, type, and explicit getter/setter method names.
+     *
+     * @param fName The field name.
+     * @param jType The JSON type of the field.
+     * @param getter The getter method name.
+     * @param setter The setter method name.
+     * @return The newly created and added JsonField.
+     */
     public JsonField addField(String fName, JsonType jType, String getter, String setter) {
         final JsonField jsonField = new JsonField(fName, jType, getter, setter, JsonValidationMethod.NONE);
         add(jsonField);
         return jsonField;
     }
 
+    /**
+     * Adds a field to this class with the specified name, type, and validation method.
+     *
+     * @param fName The field name.
+     * @param jType The JSON type of the field.
+     * @param jsonValidationMethod The validation method for the field.
+     * @return The newly created and added JsonField.
+     */
     public JsonField addField(String fName, JsonType jType, JsonValidationMethod jsonValidationMethod) {
         final JsonField jsonField = new JsonField(this, fName, jType, jsonValidationMethod);
         add(jsonField);
         return jsonField;
     }
 
+    /**
+     * Adds a field to this class with the specified name, type, getter/setter normalization, and validation method.
+     *
+     * @param fName The field name.
+     * @param jType The JSON type of the field.
+     * @param getterSetterNorm The normalized getter/setter name root.
+     * @param jsonValidationMethod The validation method for the field.
+     * @return The newly created and added JsonField.
+     */
     public JsonField addField(String fName, JsonType jType, String getterSetterNorm, JsonValidationMethod jsonValidationMethod) {
         final JsonField jsonField = new JsonField(this, fName, jType, getterSetterNorm, jsonValidationMethod);
         add(jsonField);
         return jsonField;
     }
 
+    /**
+     * Adds a field to this class with the specified name, type, collection type, and validation method.
+     *
+     * @param fName The field name.
+     * @param jType The JSON type of the field.
+     * @param colType The collection type (LIST, ARRAY, or NONE).
+     * @param jsonValidationMethod The validation method for the field.
+     * @return The newly created and added JsonField.
+     */
     public JsonField addField(String fName, JsonType jType, JsonCollectionType colType, JsonValidationMethod jsonValidationMethod) {
         final JsonField jsonField = new JsonField(this, fName, jType, colType, jsonValidationMethod);
         add(jsonField);
         return jsonField;
     }
 
+    /**
+     * Adds a field to this class with full configuration.
+     *
+     * @param fName The field name.
+     * @param jType The JSON type of the field.
+     * @param getter The getter method name.
+     * @param setter The setter method name.
+     * @param jsonValidationMethod The validation method for the field.
+     * @return The newly created and added JsonField.
+     */
     public JsonField addField(String fName, JsonType jType, String getter, String setter, JsonValidationMethod jsonValidationMethod) {
         final JsonField jsonField = new JsonField(fName, jType, getter, setter, jsonValidationMethod);
         add(jsonField);
         return jsonField;
     }
 
+    /**
+     * Adds a constructor parameter field to this class.
+     *
+     * @param paramName The parameter name.
+     * @param jType The JSON type of the parameter.
+     * @return The newly created and added JsonCParam.
+     */
     public JsonCParam addCParam(String paramName, JsonType jType) {
         final JsonCParam jsonCParam = new JsonCParam(this, paramName, jType);
         add(jsonCParam);
         return jsonCParam;
     }
 
+    /**
+     * Adds a constructor parameter field to this class with collection type.
+     *
+     * @param paramName The parameter name.
+     * @param jType The JSON type of the parameter.
+     * @param colType The collection type (LIST, ARRAY, or NONE).
+     * @return The newly created and added JsonCParam.
+     */
     public JsonCParam addCParam(String paramName, JsonType jType, JsonCollectionType colType) {
         final JsonCParam jsonCParam = new JsonCParam(this, paramName, jType, colType);
         add(jsonCParam);
         return jsonCParam;
     }
 
+    /**
+     * Adds a constructor parameter field to this class with explicit getter.
+     *
+     * @param paramName The parameter name.
+     * @param jType The JSON type of the parameter.
+     * @param getter The getter method name.
+     * @return The newly created and added JsonCParam.
+     */
     public JsonCParam addCParam(String paramName, JsonType jType, String getter) {
         final JsonCParam jsonCParam = new JsonCParam(paramName, jType, getter, null);
         add(jsonCParam);
         return jsonCParam;
     }
 
+    /**
+     * Adds a constructor parameter field to this class with collection type and explicit getter.
+     *
+     * @param paramName The parameter name.
+     * @param jType The JSON type of the parameter.
+     * @param getter The getter method name.
+     * @param colType The collection type (LIST, ARRAY, or NONE).
+     * @return The newly created and added JsonCParam.
+     */
     public JsonCParam addCParam(String paramName, JsonType jType, String getter, JsonCollectionType colType) {
         final JsonCParam jsonCParam = new JsonCParam(paramName, jType, colType, getter, null);
         add(jsonCParam);
@@ -359,6 +533,14 @@ public class JsonClass implements JsonType {
         return !keys.isEmpty();
     }
 
+    /**
+     * Creates or retrieves the singular class for this JsonClass.
+     * Attempts to get the singular class from the builder, or falls back to
+     * loading the class by name using Class.forName.
+     *
+     * @return The Class object for this JsonClass.
+     * @throws JsonBuildException If the class cannot be loaded.
+     */
     public Class<?> createOrGetSing() throws JsonBuildException {
         Class<?> ret = builder == null ? null : builder.getSingularClass();
         if (ret == null) {
@@ -409,6 +591,14 @@ public class JsonClass implements JsonType {
         return parent != null;
     }
 
+    /**
+     * Adds all fields from a parent class to this class, establishing inheritance.
+     * This method recursively processes the parent hierarchy.
+     *
+     * @param parent The parent JsonClass to inherit fields from.
+     * @throws IllegalArgumentException If the parent would create a circular dependency
+     *         or if the class attempts to be its own parent.
+     */
     public void addFromSuperclass(JsonClass parent) {
         if (parent.getParent() != null) {
             if (parent.getcName().equals(cName)) {
@@ -424,6 +614,13 @@ public class JsonClass implements JsonType {
         this.parent = parent;
     }
 
+    /**
+     * Creates a type descriptor header for this class for model introspection.
+     * Includes the class name, node type, permitted values (for enums), and skipping nulls configuration.
+     *
+     * @param modelDescriptor The model descriptor context.
+     * @return A JsonTypeDescriptor for this class.
+     */
     public JsonTypeDescriptor describeHead(JsonModelDescriptor modelDescriptor) {
         return new JsonTypeDescriptor(cName)
                 .withNodeType(nodeType)
@@ -431,6 +628,12 @@ public class JsonClass implements JsonType {
                 .withSkippingNulls(skippingNulls);
     }
 
+    /**
+     * Describes all dependencies of this class for model introspection.
+     * This includes parent class relationships, field types, and their dependencies.
+     *
+     * @param context The model descriptor context to add dependencies to.
+     */
     public void describeDependencies(JsonModelDescriptor context) {
         JsonTypeDescriptor target = context.requireType(cName);
         if (parent != null) {
