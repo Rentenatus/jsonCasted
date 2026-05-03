@@ -499,7 +499,9 @@ public static JsonResource parse(Reader reader, JsonDebugLevel debugLevel)
 
 ### Stage 2: Reference Resolution (pconvertservice/WoodResolver)
 
-Loads **external resources** and resolves **cross-reference links**.
+Loads **external resources** and resolves **cross-reference links**. This stage uses
+a **descriptor-level repository lookup** approach, where repository descriptors are retrieved
+directly from the main `JsonModelDescriptor` without requiring access to `JsonModel` instances.
 
 ```java
 public static WoodResolution resolve(
@@ -518,6 +520,12 @@ public static WoodResolution resolve(
    - Merge provider boxes
 3. **Retry Resolution**: Attempt resolution again with newly loaded resources
 4. **Iterate**: Repeat until all references resolved or no progress
+
+**Descriptor-Level Lookup:**
+When processing resources, the WoodResolver retrieves the appropriate repository descriptor
+using `descriptor.getRepoDescriptor(providerSynonym)`. If no specific descriptor exists for
+a synonym, it falls back to the main descriptor. This enables clean separation between the
+type registry (`JsonModel`) and the introspection layer (`JsonModelDescriptor`).
 
 **WoodResolution Output:**
 - `resolvedObjects`: Map of woodKey → JsonItem (cached resolved objects)
@@ -748,8 +756,19 @@ private static WoodResolution attempt(JsonSystem sys, JsonModelDescriptor descri
     Set<String> remainingKeys = new LinkedHashSet<>(linkingSet.getLinkMap().keySet());
     boolean progress = !remainingKeys.isEmpty();
     
-    // Process all resources
-    ConvertService[] services = createServices(sys, descriptor, resolution, debugLevel);
+    // Process all resources with descriptor-level repository lookup
+    final List<JsonResource> resources = sys.getResources();
+    ConvertService[] services = new ConvertService[resources.size()];
+    for (int i = 0; i < resources.size(); i++) {
+        JsonResource resource = resources.get(i);
+        String providerSynonym = resource.getProviderName();
+        // Repository descriptors are retrieved directly from the main descriptor
+        JsonModelDescriptor resourceDescriptor = descriptor.getRepoDescriptor(providerSynonym);
+        if (resourceDescriptor == null) {
+            resourceDescriptor = descriptor;
+        }
+        services[i] = new ConvertService(resource, resourceDescriptor, resolution, debugLevel);
+    }
     
     while (progress) {
         progress = resolveLoop(remainingKeys, services);
@@ -1716,6 +1735,93 @@ public class JsonInter implements JsonType, Iterable<JsonClass> {
 }
 ```
 
+
+#### JsonModelDescriptor
+
+The **complete type registry and introspection layer** for a JsonModel. This class serves as
+a descriptor-level registry that enables type lookup and model introspection without requiring
+access to the mutable JsonModel instances.
+
+```java
+public class JsonModelDescriptor {
+    // Construction
+    public JsonModelDescriptor(String modelName)
+    
+    // Base data
+    public String getModelName()
+    public int size()
+    public boolean isEmpty()
+    public boolean isNotEmpty()
+    
+    // Type query / lookup
+    public boolean containsType(String typeName)
+    public boolean isDescribed(String typeName)
+    public JsonTypeDescriptor getType(String typeName)
+    public JsonTypeDescriptor getTypePerceptive(String typeName)  // Perceptual matching
+    public JsonTypeDescriptor requireType(String typeName)         // Throws if not found
+    public JsonTypeDescriptor getOrDefault(String typeName, JsonTypeDescriptor fallback)
+    
+    // Repository descriptor lookup
+    public boolean containsRepoDescriptor(String synonym)
+    public JsonModelDescriptor getRepoDescriptor(String synonym)
+    public JsonModelDescriptor requireRepoDescriptor(String synonym)  // Throws if not found
+    
+    // Type registration
+    public JsonModelDescriptor addType(JsonTypeDescriptor type)
+    public JsonTypeDescriptor registerAndGet(JsonTypeDescriptor type)
+    public JsonModelDescriptor addAll(Collection<JsonTypeDescriptor> types)
+    public JsonTypeDescriptor computeIfAbsent(String typeName, Supplier<JsonTypeDescriptor> supplier)
+    
+    // Repository descriptor registration
+    public JsonModelDescriptor addRepoDescriptor(String synonym, JsonModelDescriptor descriptor)
+    
+    // Remove / Clear
+    public JsonTypeDescriptor removeType(String typeName)
+    public boolean removeType(JsonTypeDescriptor type)
+    public void clear()
+    
+    // Views (unmodifiable)
+    public List<JsonTypeDescriptor> getTypes()
+    public Collection<JsonTypeDescriptor> values()
+    public Set<String> keySet()
+    public Set<Map.Entry<String, JsonTypeDescriptor>> entrySet()
+    public Map<String, JsonTypeDescriptor> getTypeMap()
+    public Map<String, JsonModelDescriptor> getRepoDescriptorMap()
+    
+    // Validation
+    public void validate()
+    
+    // Helper methods
+    public List<String> getTypeNames()
+    public boolean containsAllTypeNames(Collection<String> typeNames)
+}
+```
+
+**Key Features:**
+- **Type registry**: Maintains a complete map of all type descriptors in the model
+- **Perceptual matching**: `getTypePerceptive()` can match simple type names against fully qualified names
+- **Repository descriptor registry**: Stores `JsonModelDescriptor` instances for external resource models, enabling descriptor-level lookup without `JsonModel` access
+- **Validation**: Validates both type descriptors and repository descriptors
+- **Unmodifiable views**: Provides safe, read-only access to internal maps
+- **Fluent API**: Most registration methods return `this` for method chaining
+
+**Repository Descriptor Usage:**
+```java
+// In JsonModel.describe(), repository descriptors are automatically populated:
+JsonModelDescriptor descriptor = model.describe();
+
+// Access repository descriptor by synonym
+JsonModelDescriptor repoDescriptor = descriptor.getRepoDescriptor("save");
+
+// Check if repository descriptor exists
+if (descriptor.containsRepoDescriptor("config")) {
+    JsonModelDescriptor configDescriptor = descriptor.requireRepoDescriptor("config");
+    // Use configDescriptor for type lookups
+}
+
+// Get all repository descriptors
+Map<String, JsonModelDescriptor> allRepos = descriptor.getRepoDescriptorMap();
+```
 ---
 
 ### Utility Classes
