@@ -7,6 +7,11 @@
 package de.jare.jsoncasted.model;
 
 /**
+ * Marker interface for repository entities.
+ * <p>
+ * Classes implementing this interface can be stored in and managed by
+ * {@link JsonRepoModel} instances for cross-resource referencing support.
+ * </p>
  *
  * @author Janusch Rentenatus
  */

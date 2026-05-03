@@ -15,9 +15,8 @@ import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 
 /**
- * Definition class for implementation tests.
- * Sets up the JSON model structure for testing various value types and their
- * inheritance relationships.
+ * Definition class for implementation tests. Sets up the JSON model structure
+ * for testing various value types and their inheritance relationships.
  *
  * @author Janusch Rentenatus
  */
@@ -41,8 +40,8 @@ public class ImplTestDefinition implements JsonItemDefinition {
     private final JsonClass testBox;
 
     /**
-     * Constructs an ImplTestDefinition instance.
-     * Creates the model and defines the structure for all test value classes.
+     * Constructs an ImplTestDefinition instance. Creates the model and defines
+     * the structure for all test value classes.
      */
     public ImplTestDefinition() {
         model = new JsonModel("impltest");
@@ -52,30 +51,30 @@ public class ImplTestDefinition implements JsonItemDefinition {
         final JsonClass asBoolean = model.getJsonClass("Boolean");
         final JsonClass asInteger = model.getJsonClass("Integer");
 
-        JsonClass valueBoolean = model.newJsonReflect(ValueBoolean.class);
+        JsonClass valueBoolean = model.newJsonReflect(ValueBoolean.class, null);
         valueBoolean.addCParam("frage", asBoolean, "getFrage");
 
-        JsonClass valueInteger = model.newJsonReflect(ValueInteger.class);
+        JsonClass valueInteger = model.newJsonReflect(ValueInteger.class, null);
         valueInteger.addCParam("zahl", asInteger);
 
-        JsonClass valueString = model.newJsonReflect(ValueString.class);
+        JsonClass valueString = model.newJsonReflect(ValueString.class, null);
         valueString.addCParam("text", asString);
 
-        JsonClass valueStringSub = model.newJsonReflect(ValueStringSub.class, valueString);
+        JsonClass valueStringSub = model.newJsonReflect(ValueStringSub.class, null, valueString);
         // valueStringSub.addCParam("text", asString); // passing on valueString
 
-        JsonClass valueStringSubSub = model.newJsonReflect(ValueStringSubSub.class, valueStringSub);
+        JsonClass valueStringSubSub = model.newJsonReflect(ValueStringSubSub.class, null, valueStringSub);
         // valueStringSubSub.addCParam("text", asString); // passing on valueStringSub
         valueStringSubSub.addCParam("frage", asBoolean, "getFrage");
 
-        JsonClass enumSeason = model.newJsonEnumByName(EnumSeason.class, EnumSeason.VALUES);
-        JsonClass valueSeason = model.newJsonReflect(ValueSeason.class);
+        JsonClass enumSeason = model.newJsonEnumByName(EnumSeason.class, null, EnumSeason.VALUES);
+        JsonClass valueSeason = model.newJsonReflect(ValueSeason.class, null);
         valueSeason.addCParam("season", enumSeason);
 
         // ValueStringSub implements ValueInterface, but isn't registered.
-        JsonInter valueIx = model.newJsonInterface(ValueInterface.class, valueBoolean, valueInteger, valueString, valueStringSubSub, valueSeason);
+        JsonInter valueIx = model.newJsonInterface(ValueInterface.class, null, valueBoolean, valueInteger, valueString, valueStringSubSub, valueSeason);
 
-        testBox = model.newJsonReflect(TestBox.class);
+        testBox = model.newJsonReflect(TestBox.class, null);
         testBox.addField("subsub", valueString);
         testBox.addField("one", valueIx);
         testBox.addField("list", valueIx, LIST);

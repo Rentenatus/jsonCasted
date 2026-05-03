@@ -15,7 +15,6 @@ import static de.jare.jsoncasted.lang.JsonNodeType.OBJECT;
 import static de.jare.jsoncasted.lang.JsonNodeType.STRING;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.*;
-import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
 
 /**

@@ -18,7 +18,6 @@ import de.jare.jsoncasted.model.builder.JsonIntBuilder;
 import de.jare.jsoncasted.model.builder.JsonIntegerObjBuilder;
 import de.jare.jsoncasted.model.builder.JsonLongBuilder;
 import de.jare.jsoncasted.model.builder.JsonLongObjBuilder;
-import de.jare.jsoncasted.model.builder.JsonReflectBuilder;
 import de.jare.jsoncasted.model.builder.JsonStringBuilder;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
@@ -26,9 +25,7 @@ import de.jare.jsoncasted.model.item.JsonInter;
 import java.util.Iterator;
 
 /**
- * Repository model that extends JsonModel and implements JsonRepoEntity. Only
- * classes that represent JsonRepoEntity implementations can be added to this
- * model.
+ * Repository model that extends JsonModel and implements JsonRepoEntity.
  *
  * <p>
  * This model is used for managing types from external JSON resources, ensuring
@@ -51,37 +48,10 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
     }
 
     /**
-     * Masks the addClass method from JsonModel. Only JsonClass instances whose
-     * underlying class implements JsonRepoEntity are allowed.
+     * Recursively adds a JSON type and all its referenced types to the model.
+     * Handles JsonEnum, JsonInter, and JsonClass types appropriately.
      *
-     * @param jClass The JsonClass to add to the repository model.
-     * @throws IllegalArgumentException If the class does not implement
-     * JsonRepoEntity.
-     */
-    @Override
-    public void addClass(JsonClass jClass) {
-        if (jClass != null) {
-            String className = jClass.getcName();
-            try {
-                Class<?> clazz = Class.forName(className);
-                if (!JsonRepoEntity.class.isAssignableFrom(clazz)) {
-                    throw new IllegalArgumentException(
-                            "Only classes implementing JsonRepoEntity are allowed in repository model. "
-                            + "Class '" + className + "' does not implement JsonRepoEntity.");
-                }
-            } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException(
-                        "Cannot verify class for repository model: " + className, e);
-            }
-        }
-        super.addClass(jClass);
-    }
-
-    /**
-     * Recursively adds a JSON type and all its referenced types to the
-     * model.Handles JsonEnum, JsonInter, and JsonClass types appropriately.
-     *
-     * @param parent parent model, that knows recursive JsonType.
+     * @param parent Parent model that knows recursive JsonType.
      * @param jType The JSON type to add recursively.
      */
     public void addRecursive(JsonModel parent, final JsonType jType) {
@@ -148,8 +118,16 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
         super.addClass(new JsonClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder()));
     }
 
-    public JsonClass newJsonRepo(JsonInter repoContent) {
-        JsonClass repo = newJsonReflect(JsonRepo.class);
+    /**
+     * Creates a new JsonClass for representing a JsonRepo with the specified
+     * content type.
+     *
+     * @param repoName Name of this repo.
+     * @param repoContent The interface type for the repository contents.
+     * @return A JsonClass configured for JsonRepo serialization.
+     */
+    public JsonClass newJsonRepo(String repoName, JsonInter repoContent) {
+        JsonClass repo = newJsonReflect(JsonRepo.class, "JsonRepo'" + repoName + "'");
         repo.addCParam("repoName", getJsonClass("String"));
         repo.addField("contents", repoContent, LIST);
         return repo;

@@ -6,7 +6,6 @@
  */
 package de.jare.jsoncasted.lang;
 
-import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.wood.WoodProvider;
 import de.jare.jsoncasted.wood.WoodProviderBox;
 
@@ -18,15 +17,17 @@ import java.util.Objects;
 /**
  * Represents a complete JSON system with multiple resources and providers.
  *
- * <p>A JsonSystem manages a collection of {@link JsonResource} instances along with
- * their associated provider configurations. It serves as the top-level container for
- * JSON-based object graphs with cross-resource references.</p>
+ * <p>
+ * A JsonSystem manages a collection of {@link JsonResource} instances along
+ * with their associated provider configurations. It serves as the top-level
+ * container for JSON-based object graphs with cross-resource references.</p>
  *
- * <p>Key features:</p>
+ * <p>
+ * Key features:</p>
  * <ul>
- *   <li>Manages a main resource and additional imported resources</li>
- *   <li>Tracks root provider and provider box for resource resolution</li>
- *   <li>Provides lookup and management of resources by synonym</li>
+ * <li>Manages a main resource and additional imported resources</li>
+ * <li>Tracks root provider and provider box for resource resolution</li>
+ * <li>Provides lookup and management of resources by synonym</li>
  * </ul>
  */
 public final class JsonSystem {
@@ -35,7 +36,6 @@ public final class JsonSystem {
     private WoodProviderBox providerBox;
     private JsonResource mainResource;
     private List<JsonResource> resources;
-    private JsonModel mainModel;
 
     private JsonSystem() {
         this.resources = new ArrayList<>();
@@ -217,39 +217,6 @@ public final class JsonSystem {
      */
     public int size() {
         return resources.size();
-    }
-
-    /**
-     * Returns the main JsonModel for this system.
-     *
-     * @return the main model, or {@code null} if not set.
-     */
-    public JsonModel getMainModel() {
-        return mainModel;
-    }
-
-    /**
-     * Sets the main JsonModel for this system.
-     *
-     * @param mainModel the main model to set.
-     */
-    public void setMainModel(JsonModel mainModel) {
-        this.mainModel = mainModel;
-    }
-
-    /**
-     * Returns the appropriate model for a given provider synonym.
-     * If a repository model is registered for the synonym, it is returned.
-     * Otherwise, the main model is returned as fallback.
-     *
-     * @param synonym the provider synonym to look up.
-     * @return the JsonModel for the synonym, or the main model if not found.
-     */
-    public JsonModel getModelForSynonym(String synonym) {
-        if (mainModel == null) {
-            return null;
-        }
-        return mainModel.getModelForSynonym(synonym);
     }
 
 }
