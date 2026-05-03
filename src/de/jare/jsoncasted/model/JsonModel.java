@@ -261,8 +261,11 @@ public class JsonModel {
      * @param builder The builder for creating instances.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonClass(Class<?> clazz, JsonModellClassBuilder builder) {
-        JsonClass ret = new JsonClass(clazz.getTypeName(), builder);
+    public JsonClass newJsonClass(Class<?> clazz, String cNameOrNull, JsonModellClassBuilder builder) {
+        if (cNameOrNull == null) {
+            cNameOrNull = clazz.getTypeName();
+        }
+        JsonClass ret = new JsonClass(cNameOrNull, builder);
         addClass(ret);
         return ret;
     }
@@ -276,8 +279,11 @@ public class JsonModel {
      * @param builder The builder for creating instances.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonClass(Class<?> clazz, JsonNodeType nodeType, JsonModellClassBuilder builder) {
-        JsonClass ret = new JsonClass(clazz.getTypeName(), nodeType, builder);
+    public JsonClass newJsonClass(Class<?> clazz, String cNameOrNull, JsonNodeType nodeType, JsonModellClassBuilder builder) {
+        if (cNameOrNull == null) {
+            cNameOrNull = clazz.getTypeName();
+        }
+        JsonClass ret = new JsonClass(cNameOrNull, nodeType, builder);
         addClass(ret);
         return ret;
     }
@@ -290,8 +296,11 @@ public class JsonModel {
      * @param clazz The Java class to model.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonReflect(Class<?> clazz) {
-        JsonClass ret = new JsonClass(clazz.getTypeName(), new JsonReflectBuilder(clazz));
+    public JsonClass newJsonReflect(Class<?> clazz, String cNameOrNull) {
+        if (cNameOrNull == null) {
+            cNameOrNull = clazz.getTypeName();
+        }
+        JsonClass ret = new JsonClass(cNameOrNull, new JsonReflectBuilder(clazz));
         addClass(ret);
         return ret;
     }
@@ -305,8 +314,11 @@ public class JsonModel {
      * @param skippingNulls Whether to skip null values when building.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonReflect(Class<?> clazz, boolean skippingNulls) {
-        JsonClass ret = new JsonClass(clazz.getTypeName(), skippingNulls, new JsonReflectBuilder(clazz));
+    public JsonClass newJsonReflect(Class<?> clazz, String cNameOrNull, boolean skippingNulls) {
+        if (cNameOrNull == null) {
+            cNameOrNull = clazz.getTypeName();
+        }
+        JsonClass ret = new JsonClass(cNameOrNull, skippingNulls, new JsonReflectBuilder(clazz));
         addClass(ret);
         return ret;
     }
@@ -320,8 +332,8 @@ public class JsonModel {
      * @param parent The parent JsonClass to inherit fields from.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonReflect(Class<?> clazz, JsonClass parent) {
-        JsonClass ret = newJsonReflect(clazz);
+    public JsonClass newJsonReflect(Class<?> clazz, String cNameOrNull, JsonClass parent) {
+        JsonClass ret = newJsonReflect(clazz, cNameOrNull);
         ret.addFromSuperclass(parent);
         return ret;
     }
@@ -336,8 +348,8 @@ public class JsonModel {
      * @param skippingNulls Whether to skip null values when building.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonReflect(Class<?> clazz, JsonClass parent, boolean skippingNulls) {
-        JsonClass ret = newJsonReflect(clazz, skippingNulls);
+    public JsonClass newJsonReflect(Class<?> clazz, String cNameOrNull, JsonClass parent, boolean skippingNulls) {
+        JsonClass ret = newJsonReflect(clazz, cNameOrNull, skippingNulls);
         ret.addFromSuperclass(parent);
         return ret;
     }
@@ -352,8 +364,11 @@ public class JsonModel {
      * @param valuesArray The array of enum templates for name-based lookup.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonEnumByName(Class<?> clazz, JsonEnumTemplate... valuesArray) {
-        final JsonClass ret = new JsonClass(clazz.getTypeName(), JsonNodeType.STRING, new JsonEnumByNameBuilder(clazz));
+    public JsonClass newJsonEnumByName(Class<?> clazz, String cNameOrNull, JsonEnumTemplate... valuesArray) {
+        if (cNameOrNull == null) {
+            cNameOrNull = clazz.getTypeName();
+        }
+        final JsonClass ret = new JsonClass(cNameOrNull, JsonNodeType.STRING, new JsonEnumByNameBuilder(clazz));
         ret.setValuesArray(valuesArray);
         enums.put(ret.getcName(), ret);
         return ret;
@@ -369,8 +384,11 @@ public class JsonModel {
      * @param valuesList The list of enum templates for name-based lookup.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonEnumByName(Class<?> clazz, List<? extends JsonEnumTemplate> valuesList) {
-        final JsonClass ret = new JsonClass(clazz.getTypeName(), JsonNodeType.STRING, new JsonEnumByNameBuilder(clazz));
+    public JsonClass newJsonEnumByName(Class<?> clazz, String cNameOrNull, List<? extends JsonEnumTemplate> valuesList) {
+        if (cNameOrNull == null) {
+            cNameOrNull = clazz.getTypeName();
+        }
+        final JsonClass ret = new JsonClass(cNameOrNull, JsonNodeType.STRING, new JsonEnumByNameBuilder(clazz));
         ret.setValuesArray(valuesList.toArray(JsonEnumTemplate[]::new));
         enums.put(ret.getcName(), ret);
         return ret;
@@ -385,8 +403,11 @@ public class JsonModel {
      * @param jClass The allowed implementations of this interface.
      * @return The newly created JsonInter, already registered in this model.
      */
-    public JsonInter newJsonInterface(Class<?> clazz, JsonClass... jClass) {
-        final JsonInter ret = new JsonInter(clazz.getTypeName(), new JsonReflectBuilder(clazz), jClass);
+    public JsonInter newJsonInterface(Class<?> clazz, String cNameOrNull, JsonClass... jClass) {
+        if (cNameOrNull == null) {
+            cNameOrNull = clazz.getTypeName();
+        }
+        final JsonInter ret = new JsonInter(cNameOrNull, new JsonReflectBuilder(clazz), jClass);
         interfaces.put(ret.getcName(), ret);
         return ret;
     }
@@ -401,9 +422,12 @@ public class JsonModel {
      * @param colType The collection type (NONE, LIST, ARRAY).
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, JsonClass itemClass, JsonCollectionType colType) {
-        JsonMap ret = new JsonMap(clazz.getTypeName() + "<" + itemClass.getcName() + ">"
-                + (colType == JsonCollectionType.NONE ? "" : "[]"), clazz, itemClass, colType);
+    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, String cNameOrNull, JsonClass itemClass, JsonCollectionType colType) {
+        if (cNameOrNull == null) {
+            cNameOrNull = clazz.getTypeName() + "<" + itemClass.getcName() + ">"
+                    + (colType == JsonCollectionType.NONE ? "" : "[]");
+        }
+        JsonMap ret = new JsonMap(cNameOrNull, clazz, itemClass, colType);
         addClass(ret);
         return ret;
     }
@@ -420,9 +444,12 @@ public class JsonModel {
      * @param colType The collection type (NONE, LIST, ARRAY).
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, boolean skippingNulls, JsonClass itemClass, JsonCollectionType colType) {
-        JsonMap ret = new JsonMap(clazz.getTypeName() + "<" + itemClass.getcName() + ">"
-                + (colType == JsonCollectionType.NONE ? "" : "[]"), skippingNulls, clazz, itemClass, colType);
+    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, String cNameOrNull, boolean skippingNulls, JsonClass itemClass, JsonCollectionType colType) {
+        if (cNameOrNull == null) {
+            cNameOrNull = clazz.getTypeName() + "<" + itemClass.getcName() + ">"
+                    + (colType == JsonCollectionType.NONE ? "" : "[]");
+        }
+        JsonMap ret = new JsonMap(cNameOrNull, skippingNulls, clazz, itemClass, colType);
         addClass(ret);
         return ret;
     }
@@ -436,8 +463,8 @@ public class JsonModel {
      * @param itemClass The JsonClass for the map values.
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newRawJsonMap(Class<? extends JsonInstance> clazz, JsonClass itemClass) {
-        return newJsonMap((Class<? extends JsonInstance<?>>) clazz, itemClass, JsonCollectionType.NONE);
+    public JsonMap newRawJsonMap(Class<? extends JsonInstance> clazz, String cNameOrNull, JsonClass itemClass) {
+        return newJsonMap((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, itemClass, JsonCollectionType.NONE);
     }
 
     /**
@@ -450,8 +477,8 @@ public class JsonModel {
      * @param itemClass The JsonClass for the map values.
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newRawJsonMap(Class<? extends JsonInstance> clazz, boolean skippingNulls, JsonClass itemClass) {
-        return newJsonMap((Class<? extends JsonInstance<?>>) clazz, skippingNulls, itemClass, JsonCollectionType.NONE);
+    public JsonMap newRawJsonMap(Class<? extends JsonInstance> clazz, String cNameOrNull, boolean skippingNulls, JsonClass itemClass) {
+        return newJsonMap((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, skippingNulls, itemClass, JsonCollectionType.NONE);
     }
 
     /**
@@ -464,8 +491,8 @@ public class JsonModel {
      * @param type The collection type.
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newRawJsonMap(Class<? extends JsonInstance> clazz, JsonClass itemClass, JsonCollectionType type) {
-        return newJsonMap((Class<? extends JsonInstance<?>>) clazz, itemClass, type);
+    public JsonMap newRawJsonMap(Class<? extends JsonInstance> clazz, String cNameOrNull, JsonClass itemClass, JsonCollectionType type) {
+        return newJsonMap((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, itemClass, type);
     }
 
     /**
@@ -479,8 +506,8 @@ public class JsonModel {
      * @param type The collection type.
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newRawJsonMap(Class<? extends JsonInstance> clazz, boolean skippingNulls, JsonClass itemClass, JsonCollectionType type) {
-        return newJsonMap((Class<? extends JsonInstance<?>>) clazz, skippingNulls, itemClass, type);
+    public JsonMap newRawJsonMap(Class<? extends JsonInstance> clazz, String cNameOrNull, boolean skippingNulls, JsonClass itemClass, JsonCollectionType type) {
+        return newJsonMap((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, skippingNulls, itemClass, type);
     }
 
     /**

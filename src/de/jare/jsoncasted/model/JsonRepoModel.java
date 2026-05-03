@@ -26,9 +26,7 @@ import de.jare.jsoncasted.model.item.JsonInter;
 import java.util.Iterator;
 
 /**
- * Repository model that extends JsonModel and implements JsonRepoEntity. Only
- * classes that represent JsonRepoEntity implementations can be added to this
- * model.
+ * Repository model that extends JsonModel and implements JsonRepoEntity. 
  *
  * <p>
  * This model is used for managing types from external JSON resources, ensuring
@@ -48,33 +46,6 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
      */
     public JsonRepoModel(String mName) {
         super(mName);
-    }
-
-    /**
-     * Masks the addClass method from JsonModel. Only JsonClass instances whose
-     * underlying class implements JsonRepoEntity are allowed.
-     *
-     * @param jClass The JsonClass to add to the repository model.
-     * @throws IllegalArgumentException If the class does not implement
-     * JsonRepoEntity.
-     */
-    @Override
-    public void addClass(JsonClass jClass) {
-        if (jClass != null) {
-            String className = jClass.getcName();
-            try {
-                Class<?> clazz = Class.forName(className);
-                if (!JsonRepoEntity.class.isAssignableFrom(clazz)) {
-                    throw new IllegalArgumentException(
-                            "Only classes implementing JsonRepoEntity are allowed in repository model. "
-                            + "Class '" + className + "' does not implement JsonRepoEntity.");
-                }
-            } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException(
-                        "Cannot verify class for repository model: " + className, e);
-            }
-        }
-        super.addClass(jClass);
     }
 
     /**
@@ -148,8 +119,8 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
         super.addClass(new JsonClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder()));
     }
 
-    public JsonClass newJsonRepo(JsonInter repoContent) {
-        JsonClass repo = newJsonReflect(JsonRepo.class);
+    public JsonClass newJsonRepo(String repoName, JsonInter repoContent) {
+        JsonClass repo = newJsonReflect(JsonRepo.class, "JsonRepo'" + repoName + "'");
         repo.addCParam("repoName", getJsonClass("String"));
         repo.addField("contents", repoContent, LIST);
         return repo;

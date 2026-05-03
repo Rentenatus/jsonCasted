@@ -54,18 +54,18 @@ public class JsonConfigDefinition implements JsonItemDefinition {
         final JsonClass asString = model.getJsonClass("String");
         final JsonClass asBoolean = model.getJsonClass("Boolean");
 
-        JsonClass profileType = model.newJsonEnumByName(ConfigProfileType.class);
+        JsonClass profileType = model.newJsonEnumByName(ConfigProfileType.class, null);
 
-        JsonMap stringMap = model.newRawJsonMap(JsonInstance.class, asString);
-        JsonMap stringArrayMap = model.newRawJsonMap(JsonInstance.class, asString, ARRAY);
-        JsonMap booleanMap = model.newRawJsonMap(JsonInstance.class, asBoolean);
+        JsonMap stringMap = model.newRawJsonMap(JsonInstance.class, null, asString);
+        JsonMap stringArrayMap = model.newRawJsonMap(JsonInstance.class, null, asString, ARRAY);
+        JsonMap booleanMap = model.newRawJsonMap(JsonInstance.class, null, asBoolean);
 
-        JsonClass logging = model.newJsonReflect(ConfigLogging.class);
+        JsonClass logging = model.newJsonReflect(ConfigLogging.class, null);
 
         logging.addField("level", asString);
         logging.addField("path", asString);
 
-        JsonClass feature = model.newJsonClass(ConfigFeature.class,
+        JsonClass feature = model.newJsonClass(ConfigFeature.class, null,
                 new JsonReflectBuilder(ConfigFeature.class) {
             @Override
             public List<ConfigFeature> buildList(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
@@ -86,7 +86,7 @@ public class JsonConfigDefinition implements JsonItemDefinition {
         feature.addField("labels", stringArrayMap);
         feature.addField("enablements", booleanMap);
 
-        JsonClass profile = model.newJsonReflect(ConfigProfile.class);
+        JsonClass profile = model.newJsonReflect(ConfigProfile.class, null);
 
         profile.addField("profileLogging", logging);
         profile.addField("profile", asString, EQUALS);
@@ -94,7 +94,7 @@ public class JsonConfigDefinition implements JsonItemDefinition {
         profile.addField("comments", asString, ARRAY);
         profile.addField("features", feature, LIST);
 
-        configRoot = model.newJsonReflect(ConfigRoot.class);
+        configRoot = model.newJsonReflect(ConfigRoot.class, null);
 
         configRoot.addField("mainLogging", logging);
         configRoot.addField("comments", asString, ARRAY);
