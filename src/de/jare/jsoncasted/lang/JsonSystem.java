@@ -6,7 +6,6 @@
  */
 package de.jare.jsoncasted.lang;
 
-import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.wood.WoodProvider;
 import de.jare.jsoncasted.wood.WoodProviderBox;
 

@@ -18,7 +18,6 @@ import de.jare.jsoncasted.model.builder.JsonIntBuilder;
 import de.jare.jsoncasted.model.builder.JsonIntegerObjBuilder;
 import de.jare.jsoncasted.model.builder.JsonLongBuilder;
 import de.jare.jsoncasted.model.builder.JsonLongObjBuilder;
-import de.jare.jsoncasted.model.builder.JsonReflectBuilder;
 import de.jare.jsoncasted.model.builder.JsonStringBuilder;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;

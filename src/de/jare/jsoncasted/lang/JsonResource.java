@@ -14,16 +14,19 @@ import java.util.List;
 /**
  * Represents a JSON resource containing parsed content and metadata.
  *
- * <p>A JsonResource encapsulates:</p>
+ * <p>
+ * A JsonResource encapsulates:</p>
  * <ul>
- *   <li>The source file path (if loaded from file)</li>
- *   <li>The root {@link JsonNode} of the parsed JSON structure</li>
- *   <li>Provider information and imported provider synonyms</li>
- *   <li>Linking information for cross-resource references</li>
- *   <li>Exception tracking during parsing</li>
+ * <li>The source file path (if loaded from file)</li>
+ * <li>The root {@link JsonNode} of the parsed JSON structure</li>
+ * <li>Provider information and imported provider synonyms</li>
+ * <li>Linking information for cross-resource references</li>
+ * <li>Exception tracking during parsing</li>
  * </ul>
  *
- * <p>Resources can be created empty, from files, or with pre-parsed JSON nodes.</p>
+ * <p>
+ * Resources can be created empty, from files, or with pre-parsed JSON
+ * nodes.</p>
  */
 public final class JsonResource {
 
@@ -89,7 +92,8 @@ public final class JsonResource {
     }
 
     /**
-     * Creates a JsonResource with file path, root node, and imported provider synonyms.
+     * Creates a JsonResource with file path, root node, and imported provider
+     * synonyms.
      *
      * @param resourceFile the path to the JSON file.
      * @param root the root JsonNode of the parsed structure.
@@ -188,7 +192,8 @@ public final class JsonResource {
     /**
      * Sets the list of imported provider synonyms.
      *
-     * @param importedProviderSynonyms the list of synonyms to set, or {@code null} to clear.
+     * @param importedProviderSynonyms the list of synonyms to set, or
+     * {@code null} to clear.
      */
     public void setImportedProviderSynonyms(List<String> importedProviderSynonyms) {
         if (importedProviderSynonyms == null) {
@@ -201,7 +206,8 @@ public final class JsonResource {
     /**
      * Adds a single imported provider synonym.
      *
-     * @param importedProviderSynonym the synonym to add (ignored if null or blank).
+     * @param importedProviderSynonym the synonym to add (ignored if null or
+     * blank).
      */
     public void addImportedProviderSynonym(String importedProviderSynonym) {
         if (importedProviderSynonym == null || importedProviderSynonym.isBlank()) {
@@ -213,7 +219,8 @@ public final class JsonResource {
     /**
      * Checks if this resource has any imported provider synonyms.
      *
-     * @return {@code true} if there are imported synonyms, {@code false} otherwise.
+     * @return {@code true} if there are imported synonyms, {@code false}
+     * otherwise.
      */
     public boolean hasImportedProviderSynonyms() {
         return importedProviderSynonyms != null && !importedProviderSynonyms.isEmpty();
@@ -249,7 +256,8 @@ public final class JsonResource {
     /**
      * Checks if this resource is unsaved (has root but no file).
      *
-     * @return {@code true} if has root but no resource file, {@code false} otherwise.
+     * @return {@code true} if has root but no resource file, {@code false}
+     * otherwise.
      */
     public boolean isUnsaved() {
         return root != null && (resourceFile == null || resourceFile.isBlank());
@@ -284,7 +292,7 @@ public final class JsonResource {
 
     @Override
     public String toString() {
-        return "JsonResource{" 
+        return "JsonResource{"
                 + "resourceFile='" + resourceFile + '\''
                 + ", hasRoot=" + (root != null)
                 + ", importedProviderSynonyms=" + importedProviderSynonyms
