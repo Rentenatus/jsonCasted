@@ -67,8 +67,8 @@ public class ObjectWriter {
     /**
      * Constructs an ObjectWriter instance with default indentation.
      *
-     * @param castingLevel
-     * @param model The JSON model .
+     * @param castingLevel the casting level for serialization
+     * @param model The JSON model.
      * @param jType The JSON type used for serialization.
      */
     public ObjectWriter(JsonModel model, JsonType jType, JsonCastingLevel castingLevel) {
@@ -81,7 +81,7 @@ public class ObjectWriter {
     /**
      * Constructs an ObjectWriter instance with a specified indentation string.
      *
-     * @param castingLevel
+     * @param castingLevel the casting level for serialization
      * @param model The JSON model.
      * @param jType The JSON type used for serialization.
      * @param intentString The indentation string for formatted output.
@@ -270,7 +270,7 @@ public class ObjectWriter {
      */
     protected void writeObject(PrintWriter out, JsonType jTypeItem, Object attr, String iString) {
         ObjectWriter reWriter = new ObjectWriter(model, jTypeItem, iString, castingLevel);
-        reWriter.write(out, attr);
+        reWriter.write(out, reWriter.calculateJsonClass(attr), attr);
     }
 
     /**
@@ -293,6 +293,13 @@ public class ObjectWriter {
         writeNode(out, node, intentString);
     }
 
+    /**
+     * Writes a JsonNode structure as JSON with a specified indentation.
+     *
+     * @param out The PrintWriter for output.
+     * @param node The JsonNode to write.
+     * @param iString The indentation string for formatted output.
+     */
     protected void writeNode(PrintWriter out, JsonNode node, String iString) {
         if (node == null) {
             out.print("null");
@@ -328,6 +335,13 @@ public class ObjectWriter {
         out.flush();
     }
 
+    /**
+     * Writes a JsonNode object as JSON.
+     *
+     * @param out The PrintWriter for output.
+     * @param node The JsonNode object to write.
+     * @param iString The indentation string for formatted output.
+     */
     protected void writeNodeObject(PrintWriter out, JsonNode node, String iString) {
         out.print('{');
         Map<String, JsonNode> map = node.asObjectValues();
@@ -355,12 +369,25 @@ public class ObjectWriter {
         out.flush();
     }
 
+    /**
+     * Writes a JsonNode array as JSON.
+     *
+     * @param out The PrintWriter for output.
+     * @param node The JsonNode array to write.
+     * @param iString The indentation string for formatted output.
+     */
     protected void writeNodeArray(PrintWriter out, JsonNode node, String iString) {
         ListWriter reWriter = new ListWriter(model, null, iString, castingLevel);
         reWriter.writeNode(out, node);
     }
 
-    // Simple escape helper, analogous to JsonNode.toString()
+    /**
+     * Escapes special characters in a string for JSON output.
+     * Handles backslash, quote, newline, carriage return, and tab characters.
+     *
+     * @param s The string to escape.
+     * @return The escaped string safe for JSON output.
+     */
     private static String escape(String s) {
         if (s == null) {
             return null;

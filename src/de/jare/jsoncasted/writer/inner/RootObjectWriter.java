@@ -48,10 +48,10 @@ public class RootObjectWriter extends ObjectWriter {
     }
 
     /**
-     * Constructs an RootObjectWriter instance with default indentation.
+     * Constructs a RootObjectWriter instance with default indentation.
      *
-     * @param castingLevel
-     * @param model The JSON model .
+     * @param castingLevel the casting level for serialization
+     * @param model The JSON model.
      * @param jType The JSON type used for serialization.
      */
     public RootObjectWriter(JsonModel model, JsonType jType, JsonCastingLevel castingLevel) {
@@ -59,10 +59,10 @@ public class RootObjectWriter extends ObjectWriter {
     }
 
     /**
-     * Constructs an RootObjectWriter instance with a specified indentation
+     * Constructs a RootObjectWriter instance with a specified indentation
      * string.
      *
-     * @param castingLevel
+     * @param castingLevel the casting level for serialization
      * @param model The JSON model.
      * @param jType The JSON type used for serialization.
      * @param intentString The indentation string for formatted output.

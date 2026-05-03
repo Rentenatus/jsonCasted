@@ -60,10 +60,10 @@ class ListWriter {
     }
 
     /**
-     * Constructs an ListWriter instance with default indentation.
+     * Constructs a ListWriter instance with default indentation.
      *
-     * @param castingLevel
-     * @param model The JSON model .
+     * @param castingLevel the casting level for serialization
+     * @param model The JSON model.
      * @param jType The JSON type used for serialization.
      */
     public ListWriter(JsonModel model, JsonType jType, JsonCastingLevel castingLevel) {
@@ -74,9 +74,9 @@ class ListWriter {
     }
 
     /**
-     * Constructs an ListWriter instance with a specified indentation string.
+     * Constructs a ListWriter instance with a specified indentation string.
      *
-     * @param castingLevel
+     * @param castingLevel the casting level for serialization
      * @param model The JSON model.
      * @param jType The JSON type used for serialization.
      * @param intentString The indentation string for formatted output.
@@ -169,6 +169,9 @@ class ListWriter {
 
     /**
      * Writes a JsonNode array or a single JsonNode element as a list.
+     *
+     * @param out The PrintWriter to write the JSON output.
+     * @param node The JsonNode to serialize.
      */
     public void writeNode(PrintWriter out, JsonNode node) {
         out.print('[');
@@ -183,6 +186,13 @@ class ListWriter {
         out.flush();
     }
 
+    /**
+     * Writes the array items of a JsonNode array.
+     *
+     * @param out The PrintWriter to write the JSON output.
+     * @param node The JsonNode array to serialize.
+     * @param iString The indentation string for formatted output.
+     */
     protected void writeNodeArrayItems(PrintWriter out, JsonNode node, String iString) {
         ObjectWriter reWriter = new ObjectWriter(model, null, iString + "  ", castingLevel);
         List<JsonNode> list = node.asArray();
