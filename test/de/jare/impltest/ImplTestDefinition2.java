@@ -41,6 +41,7 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
     private final JsonModel model;
     private final JsonRepoModel repoModel;
     private final JsonClass testBox;
+    private final JsonClass repo;
 
     /**
      * Constructs an ImplTestDefinition instance. Creates the model and defines
@@ -86,7 +87,7 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
         testBox.addField("arr", valueIx, ARRAY);
 
         repoModel.addRecursive(model, valueIx);
-        repoModel.newJsonRepo(valueIx);
+        repo = repoModel.newJsonRepo(valueIx);
         model.addRepoModel("save", repoModel);
 
     }
@@ -103,6 +104,10 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
      */
     public JsonClass getTestBox() {
         return testBox;
+    }
+
+    public JsonClass getRepo() {
+        return repo;
     }
 
     @Override

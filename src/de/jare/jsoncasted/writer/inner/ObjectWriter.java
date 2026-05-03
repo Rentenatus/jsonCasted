@@ -9,10 +9,12 @@ package de.jare.jsoncasted.writer.inner;
 
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
+import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -30,9 +32,10 @@ import java.util.logging.Logger;
  */
 public class ObjectWriter {
 
-    private final JsonItemDefinition definition;
     private final JsonType jType;
     String intentString;
+    private final JsonCastingLevel castingLevel;
+    private final JsonModel model;
 
     /**
      * Constructs an ObjectWriter instance with default indentation.
@@ -41,7 +44,8 @@ public class ObjectWriter {
      * @param jType The JSON type used for serialization.
      */
     public ObjectWriter(JsonItemDefinition definition, JsonType jType) {
-        this.definition = definition;
+        this.castingLevel = definition.getCastingLevel();
+        this.model = definition.getModel();
         this.jType = jType;
         this.intentString = "";
     }
@@ -54,7 +58,37 @@ public class ObjectWriter {
      * @param intentString The indentation string for formatted output.
      */
     public ObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString) {
-        this.definition = definition;
+        this.castingLevel = definition.getCastingLevel();
+        this.model = definition.getModel();
+        this.jType = jType;
+        this.intentString = intentString;
+    }
+
+    /**
+     * Constructs an ObjectWriter instance with default indentation.
+     *
+     * @param castingLevel the casting level for serialization
+     * @param model The JSON model.
+     * @param jType The JSON type used for serialization.
+     */
+    public ObjectWriter(JsonModel model, JsonType jType, JsonCastingLevel castingLevel) {
+        this.castingLevel = castingLevel;
+        this.model = model;
+        this.jType = jType;
+        this.intentString = "";
+    }
+
+    /**
+     * Constructs an ObjectWriter instance with a specified indentation string.
+     *
+     * @param castingLevel the casting level for serialization
+     * @param model The JSON model.
+     * @param jType The JSON type used for serialization.
+     * @param intentString The indentation string for formatted output.
+     */
+    public ObjectWriter(JsonModel model, JsonType jType, String intentString, JsonCastingLevel castingLevel) {
+        this.castingLevel = castingLevel;
+        this.model = model;
         this.jType = jType;
         this.intentString = intentString;
     }
@@ -88,7 +122,7 @@ public class ObjectWriter {
             JsonClass itemClass = jMap.getItemClass();
             return itemClass;
         }
-        JsonClass jClass = definition.getModel().getJsonClass(ob.getClass());
+        JsonClass jClass = model.getJsonClass(ob.getClass());
         if (jClass == null) {
             final String msg = "No description found for " + ob.getClass().getTypeName() + ".";
             final NullPointerException ex = new NullPointerException(msg);
@@ -124,16 +158,16 @@ public class ObjectWriter {
      * @param ob The object to serialize.
      */
     public void write(PrintWriter out, JsonClass jClass, Object ob) {
-        if (jType != null && jType.needCast(definition.getCastingLevel())
-                || jClass.needCast(definition.getCastingLevel())) {
+        if (jType != null && jType.needCast(castingLevel)
+                || jClass.needCast(castingLevel)) {
             out.print('(');
             out.print(jClass.getcName());
             out.print(')');
         }
         out.print('{');
         String iString = intentString + "  ";
-        if (jType != null && jType.needClassDef(definition.getCastingLevel())
-                || jClass.needClassDef(definition.getCastingLevel())) {
+        if (jType != null && jType.needClassDef(castingLevel)
+                || jClass.needClassDef(castingLevel)) {
             out.println();
             out.print(iString);
             out.print("\"_class\": \"");
@@ -222,7 +256,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeList(PrintWriter out, JsonType jTypeItem, Object attr, String iString) {
-        ListWriter reWriter = new ListWriter(definition, jTypeItem, iString);
+        ListWriter reWriter = new ListWriter(model, jTypeItem, iString, castingLevel);
         reWriter.write(out, attr);
     }
 
@@ -235,8 +269,8 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeObject(PrintWriter out, JsonType jTypeItem, Object attr, String iString) {
-        ObjectWriter reWriter = new ObjectWriter(definition, jTypeItem, iString);
-        reWriter.write(out, attr);
+        ObjectWriter reWriter = new ObjectWriter(model, jTypeItem, iString, castingLevel);
+        reWriter.write(out, reWriter.calculateJsonClass(attr), attr);
     }
 
     /**
@@ -259,6 +293,13 @@ public class ObjectWriter {
         writeNode(out, node, intentString);
     }
 
+    /**
+     * Writes a JsonNode structure as JSON with a specified indentation.
+     *
+     * @param out The PrintWriter for output.
+     * @param node The JsonNode to write.
+     * @param iString The indentation string for formatted output.
+     */
     protected void writeNode(PrintWriter out, JsonNode node, String iString) {
         if (node == null) {
             out.print("null");
@@ -294,6 +335,13 @@ public class ObjectWriter {
         out.flush();
     }
 
+    /**
+     * Writes a JsonNode object as JSON.
+     *
+     * @param out The PrintWriter for output.
+     * @param node The JsonNode object to write.
+     * @param iString The indentation string for formatted output.
+     */
     protected void writeNodeObject(PrintWriter out, JsonNode node, String iString) {
         out.print('{');
         Map<String, JsonNode> map = node.asObjectValues();
@@ -321,12 +369,25 @@ public class ObjectWriter {
         out.flush();
     }
 
+    /**
+     * Writes a JsonNode array as JSON.
+     *
+     * @param out The PrintWriter for output.
+     * @param node The JsonNode array to write.
+     * @param iString The indentation string for formatted output.
+     */
     protected void writeNodeArray(PrintWriter out, JsonNode node, String iString) {
-        ListWriter reWriter = new ListWriter(definition, null, iString);
+        ListWriter reWriter = new ListWriter(model, null, iString, castingLevel);
         reWriter.writeNode(out, node);
     }
 
-    // Simple escape helper, analogous to JsonNode.toString()
+    /**
+     * Escapes special characters in a string for JSON output.
+     * Handles backslash, quote, newline, carriage return, and tab characters.
+     *
+     * @param s The string to escape.
+     * @return The escaped string safe for JSON output.
+     */
     private static String escape(String s) {
         if (s == null) {
             return null;

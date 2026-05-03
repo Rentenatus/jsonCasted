@@ -7,8 +7,10 @@
  */
 package de.jare.jsoncasted.writer.inner;
 
+import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
 import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import java.io.PrintWriter;
 import java.util.Iterator;
@@ -43,6 +45,30 @@ public class RootObjectWriter extends ObjectWriter {
      */
     public RootObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString) {
         super(definition, jType, intentString);
+    }
+
+    /**
+     * Constructs a RootObjectWriter instance with default indentation.
+     *
+     * @param castingLevel the casting level for serialization
+     * @param model The JSON model.
+     * @param jType The JSON type used for serialization.
+     */
+    public RootObjectWriter(JsonModel model, JsonType jType, JsonCastingLevel castingLevel) {
+        super(model, jType, castingLevel);
+    }
+
+    /**
+     * Constructs a RootObjectWriter instance with a specified indentation
+     * string.
+     *
+     * @param castingLevel the casting level for serialization
+     * @param model The JSON model.
+     * @param jType The JSON type used for serialization.
+     * @param intentString The indentation string for formatted output.
+     */
+    public RootObjectWriter(JsonModel model, JsonType jType, String intentString, JsonCastingLevel castingLevel) {
+        super(model, jType, intentString, castingLevel);
     }
 
     /**
