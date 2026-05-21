@@ -58,19 +58,24 @@ public class Orator<T> {
         return false;
     }
 
-    public void removeListener(final T listener) {
+    public boolean removeListener(final T listener) {
         List<WeakReference<T>> hits = new ArrayList<>();
+        boolean removed = false;
         synchronized (listenerRefMap) {
             for (List<WeakReference<T>> listenerRefList : listenerRefMap.values()) {
                 for (WeakReference<T> ref : listenerRefList) {
                     T candidate = ref.get();
                     if (candidate == listener || candidate == null) {
                         hits.add(ref);
+                        if (candidate == listener) {
+                            removed = true;
+                        }
                     }
                 }
                 listenerRefList.removeAll(hits);
             }
         }
+        return removed;
     }
 
     public void clear() {
@@ -94,5 +99,24 @@ public class Orator<T> {
                 consumer.accept(hit);
             }
         }
+    }
+
+    public int getListenerCount() {
+        List<WeakReference<T>> hits = new ArrayList<>();
+        int found = 0;
+        synchronized (listenerRefMap) {
+            for (List<WeakReference<T>> listenerRefList : listenerRefMap.values()) {
+                for (WeakReference<T> ref : listenerRefList) {
+                    T candidate = ref.get();
+                    if (candidate == null) {
+                        hits.add(ref);
+                    } else {
+                        found++;
+                    }
+                }
+                listenerRefList.removeAll(hits);
+            }
+        }
+        return found;
     }
 }
