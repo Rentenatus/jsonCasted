@@ -48,11 +48,11 @@ public class WoodProviderDefinition implements JsonItemDefinition {
         model.addBasicModel();
         final JsonClass asString = model.getJsonClass("String");
 
-        JsonClass provider = model.newJsonReflect(WoodProvider.class, null);
+        JsonClass provider = model.newJsonReflect(WoodProvider.class);
         provider.addCParam("synonym", asString);
         provider.addCParam("filename", asString);
 
-        woodProviderBox = model.newJsonReflect(WoodProviderBox.class, null);
+        woodProviderBox = model.newJsonReflect(WoodProviderBox.class);
         woodProviderBox.addCParam(TERM_WOOD_PROVIDERS, provider, "getProvider", LIST);
 
     }

@@ -261,7 +261,21 @@ public class JsonModel {
      * @param builder The builder for creating instances.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonClass(Class<?> clazz, String cNameOrNull, JsonModellClassBuilder builder) {
+    public JsonClass newJsonClass(Class<?> clazz, JsonModellClassBuilder builder) {
+
+        return JsonModel.this.newJsonClassIndividually(clazz, clazz.getTypeName(), builder);
+    }
+
+    /**
+     * Creates a new JSON class with the specified Java class and builder.The
+     * class is automatically registered in this model.
+     *
+     * @param clazz The Java class to model.
+     * @param cNameOrNull
+     * @param builder The builder for creating instances.
+     * @return The newly created JsonClass, already registered in this model.
+     */
+    public JsonClass newJsonClassIndividually(Class<?> clazz, String cNameOrNull, JsonModellClassBuilder builder) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName();
         }
@@ -279,7 +293,21 @@ public class JsonModel {
      * @param builder The builder for creating instances.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonClass(Class<?> clazz, String cNameOrNull, JsonNodeType nodeType, JsonModellClassBuilder builder) {
+    public JsonClass newJsonClass(Class<?> clazz, JsonNodeType nodeType, JsonModellClassBuilder builder) {
+        return newJsonClassIndividually(clazz, clazz.getTypeName(), nodeType, builder);
+    }
+
+    /**
+     * Creates a new JSON class with the specified Java class, node type, and
+     * builder.The class is automatically registered in this model.
+     *
+     * @param clazz The Java class to model.
+     * @param cNameOrNull
+     * @param nodeType The JSON node type for this class.
+     * @param builder The builder for creating instances.
+     * @return The newly created JsonClass, already registered in this model.
+     */
+    public JsonClass newJsonClassIndividually(Class<?> clazz, String cNameOrNull, JsonNodeType nodeType, JsonModellClassBuilder builder) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName();
         }
@@ -296,7 +324,23 @@ public class JsonModel {
      * @param clazz The Java class to model.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonReflect(Class<?> clazz, String cNameOrNull) {
+    public JsonClass newJsonReflect(Class<?> clazz) {
+        return JsonModel.this.newJsonReflectIndividually(clazz, clazz.getTypeName());
+    }
+
+    /**
+     * Creates a new JSON class using reflection for the specified Java
+     * class.Uses the default JsonReflectBuilder for instantiation.Uses theThe
+     * class is automatically registered in this model.* @param clazz The Java
+     * class to model.
+     *
+     *
+     * @param clazz
+     * @param cNameOrNull@return The newly created JsonClass, already registered
+     * in this model.
+     * @return
+     */
+    public JsonClass newJsonReflectIndividually(Class<?> clazz, String cNameOrNull) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName();
         }
@@ -314,7 +358,21 @@ public class JsonModel {
      * @param skippingNulls Whether to skip null values when building.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonReflect(Class<?> clazz, String cNameOrNull, boolean skippingNulls) {
+    public JsonClass newJsonReflect(Class<?> clazz, boolean skippingNulls) {
+        return JsonModel.this.newJsonReflectIndividually(clazz, clazz.getTypeName(), skippingNulls);
+    }
+
+    /**
+     * Creates a new JSON class using reflection for the specified Java claUses
+     * the default JsonReflectBuilder for instantiation.ss. The class is
+     * automatically registered in this model.el.
+     *
+     * @param clazz The Java class to model
+     * @param cNameOrNull
+     * @param skippingNulls Whether to skip null values when building.
+     * @return The newly created JsonClass, already registered in this model.
+     */
+    public JsonClass newJsonReflectIndividually(Class<?> clazz, String cNameOrNull, boolean skippingNulls) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName();
         }
@@ -332,8 +390,22 @@ public class JsonModel {
      * @param parent The parent JsonClass to inherit fields from.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonReflect(Class<?> clazz, String cNameOrNull, JsonClass parent) {
-        JsonClass ret = newJsonReflect(clazz, cNameOrNull);
+    public JsonClass newJsonReflect(Class<?> clazz, JsonClass parent) {
+        return JsonModel.this.newJsonReflectIndividually(clazz, clazz.getTypeName(), parent);
+    }
+
+    /**
+     * Creates a new JSON class using reflection for the specified Java class,
+     * inheriting fields from the specified parent class.The class is
+     * automatically registered in this model.
+     *
+     * @param clazz The Java class to model.
+     * @param cNameOrNull
+     * @param parent The parent JsonClass to inherit fields from.
+     * @return The newly created JsonClass, already registered in this model.
+     */
+    public JsonClass newJsonReflectIndividually(Class<?> clazz, String cNameOrNull, JsonClass parent) {
+        JsonClass ret = JsonModel.this.newJsonReflectIndividually(clazz, cNameOrNull);
         ret.addFromSuperclass(parent);
         return ret;
     }
@@ -348,8 +420,23 @@ public class JsonModel {
      * @param skippingNulls Whether to skip null values when building.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonReflect(Class<?> clazz, String cNameOrNull, JsonClass parent, boolean skippingNulls) {
-        JsonClass ret = newJsonReflect(clazz, cNameOrNull, skippingNulls);
+    public JsonClass newJsonReflect(Class<?> clazz, JsonClass parent, boolean skippingNulls) {
+        return newJsonReflectIndividually(clazz, clazz.getTypeName(), parent, skippingNulls);
+    }
+
+    /**
+     * Creates a new JSON class using reflection for the specified Java class,
+     * inheriting fields from the specified parent class.The class is
+     * automatically registered in this model.
+     *
+     * @param clazz The Java class to model.
+     * @param cNameOrNull
+     * @param parent The parent JsonClass to inherit fields from.
+     * @param skippingNulls Whether to skip null values when building.
+     * @return The newly created JsonClass, already registered in this model.
+     */
+    public JsonClass newJsonReflectIndividually(Class<?> clazz, String cNameOrNull, JsonClass parent, boolean skippingNulls) {
+        JsonClass ret = JsonModel.this.newJsonReflectIndividually(clazz, cNameOrNull, skippingNulls);
         ret.addFromSuperclass(parent);
         return ret;
     }
@@ -364,7 +451,22 @@ public class JsonModel {
      * @param valuesArray The array of enum templates for name-based lookup.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonEnumByName(Class<?> clazz, String cNameOrNull, JsonEnumTemplate... valuesArray) {
+    public JsonClass newJsonEnumByName(Class<?> clazz, JsonEnumTemplate... valuesArray) {
+        return JsonModel.this.newJsonEnumByNameIndividually(clazz, clazz.getTypeName(), valuesArray);
+    }
+
+    /**
+     * Creates a new JSON class for an enum type using name-based
+     * resolution.Enum values are resolved by calling the static getByName
+     * method on the enum. The class is automatically registered in this model's
+     * enum registry.
+     *
+     * @param clazz The Java enum class to model.
+     * @param cNameOrNull
+     * @param valuesArray The array of enum templates for name-based lookup.
+     * @return The newly created JsonClass, already registered in this model.
+     */
+    public JsonClass newJsonEnumByNameIndividually(Class<?> clazz, String cNameOrNull, JsonEnumTemplate... valuesArray) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName();
         }
@@ -384,7 +486,24 @@ public class JsonModel {
      * @param valuesList The list of enum templates for name-based lookup.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonEnumByName(Class<?> clazz, String cNameOrNull, List<? extends JsonEnumTemplate> valuesList) {
+    public JsonClass newJsonEnumByName(Class<?> clazz, List<? extends JsonEnumTemplate> valuesList) {
+        return newJsonEnumByNameIndividually(clazz, clazz.getTypeName(), valuesList);
+    }
+
+    /**
+     * Creates a new JSON class for an enum type using name-based
+     * resolution.Enum values are resolved by calling the static getByName
+     * method on the enum. * EnuThe class is automatically registered in this
+     * model's enum registry.
+     *
+     *
+     * @param clazz The Java enum class to model.
+     * @param cNameOrNull * @param valuesList The list of enum templates for
+     * name-based lookup.
+     * @param valuesList
+     * @return The newly created JsonClass, already registered in this model.
+     */
+    public JsonClass newJsonEnumByNameIndividually(Class<?> clazz, String cNameOrNull, List<? extends JsonEnumTemplate> valuesList) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName();
         }
@@ -403,7 +522,21 @@ public class JsonModel {
      * @param jClass The allowed implementations of this interface.
      * @return The newly created JsonInter, already registered in this model.
      */
-    public JsonInter newJsonInterface(Class<?> clazz, String cNameOrNull, JsonClass... jClass) {
+    public JsonInter newJsonInterface(Class<?> clazz, JsonClass... jClass) {
+        return newJsonInterfaceIndividually(clazz, clazz.getTypeName(), jClass);
+    }
+
+    /**
+     * Creates a new JSON interface with the specified Java interface type and
+     * its allowed implementations.The interface is automatically registered in
+     * this model.
+     *
+     * @param clazz The Java interface class to model.
+     * @param cNameOrNull
+     * @param jClass The allowed implementations of this interface.
+     * @return The newly created JsonInter, already registered in this model.
+     */
+    public JsonInter newJsonInterfaceIndividually(Class<?> clazz, String cNameOrNull, JsonClass... jClass) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName();
         }
@@ -422,7 +555,23 @@ public class JsonModel {
      * @param colType The collection type (NONE, LIST, ARRAY).
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, String cNameOrNull, JsonClass itemClass, JsonCollectionType colType) {
+    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, JsonClass itemClass, JsonCollectionType colType) {
+        return JsonModel.this.newJsonMapIndividually(clazz, clazz.getTypeName(), itemClass, colType);
+    }
+
+    /**
+     * Creates a new JSON map class for the specified Map implementation.Map
+     * types represent JSON objects with dynamic keys mapping to values of a
+     * specific type.MThe map is automatically registered in this model.
+     *
+     *
+     * @param clazz The Java Map class to model.
+     * @param cNameOrNull * @param itemClass The JsonClass for the map values.
+     * @param itemClass
+     * @param colType The collection type (NONE, LIST, ARRAY).
+     * @return The newly created JsonMap, already registered in this model.
+     */
+    public JsonMap newJsonMapIndividually(Class<? extends JsonInstance<?>> clazz, String cNameOrNull, JsonClass itemClass, JsonCollectionType colType) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName() + "<" + itemClass.getcName() + ">"
                     + (colType == JsonCollectionType.NONE ? "" : "[]");
@@ -444,7 +593,26 @@ public class JsonModel {
      * @param colType The collection type (NONE, LIST, ARRAY).
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, String cNameOrNull, boolean skippingNulls, JsonClass itemClass, JsonCollectionType colType) {
+    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, boolean skippingNulls, JsonClass itemClass, JsonCollectionType colType) {
+        return newJsonMapIndividually(clazz, clazz.getTypeName(), skippingNulls, itemClass, colType);
+    }
+
+    /**
+     * Creates a new JSON map class for the specified Map implementation with
+     * skipping nulls configuration.Map types represent JSON objects with
+     * dynamic keys mapping to values of a specific type.MThe map is
+     * automatically registered in this model.
+     *
+     *
+     * @param clazz The Java Map class to model.
+     * @param cNameOrNull * @param skippingNulls Whether to skip null values
+     * when building.
+     * @param skippingNulls
+     * @param itemClass The JsonClass for the map values.
+     * @param colType The collection type (NONE, LIST, ARRAY).
+     * @return The newly created JsonMap, already registered in this model.
+     */
+    public JsonMap newJsonMapIndividually(Class<? extends JsonInstance<?>> clazz, String cNameOrNull, boolean skippingNulls, JsonClass itemClass, JsonCollectionType colType) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName() + "<" + itemClass.getcName() + ">"
                     + (colType == JsonCollectionType.NONE ? "" : "[]");
@@ -456,58 +624,62 @@ public class JsonModel {
 
     /**
      * Creates a new raw JSON map class (without collection type suffix) using
-     * the raw JsonInstance type. The map is automatically registered in this
+     * the raw JsonInstance type.The map is automatically registered in this
      * model.
      *
      * @param clazz The raw JsonInstance class to model.
+     * @param cNameOrNull
      * @param itemClass The JsonClass for the map values.
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newRawJsonMap(Class<? extends JsonInstance> clazz, String cNameOrNull, JsonClass itemClass) {
-        return newJsonMap((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, itemClass, JsonCollectionType.NONE);
+    public JsonMap newRawJsonMapIndividually(Class<? extends JsonInstance> clazz, String cNameOrNull, JsonClass itemClass) {
+        return JsonModel.this.newJsonMapIndividually((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, itemClass, JsonCollectionType.NONE);
     }
 
     /**
      * Creates a new raw JSON map class (without collection type suffix) using
-     * the raw JsonInstance type. The map is automatically registered in this
+     * the raw JsonInstance type.The map is automatically registered in this
      * model.
      *
      * @param clazz The raw JsonInstance class to model.
+     * @param cNameOrNull
      * @param skippingNulls Whether to skip null values when building.
      * @param itemClass The JsonClass for the map values.
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newRawJsonMap(Class<? extends JsonInstance> clazz, String cNameOrNull, boolean skippingNulls, JsonClass itemClass) {
-        return newJsonMap((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, skippingNulls, itemClass, JsonCollectionType.NONE);
+    public JsonMap newRawJsonMapIndividually(Class<? extends JsonInstance> clazz, String cNameOrNull, boolean skippingNulls, JsonClass itemClass) {
+        return newJsonMapIndividually((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, skippingNulls, itemClass, JsonCollectionType.NONE);
     }
 
     /**
      * Creates a new raw JSON map class with the specified collection type using
-     * the raw JsonInstance type. The map is automatically registered in this
+     * the raw JsonInstance type.The map is automatically registered in this
      * model.
      *
      * @param clazz The raw JsonInstance class to model.
+     * @param cNameOrNull
      * @param itemClass The JsonClass for the map values.
      * @param type The collection type.
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newRawJsonMap(Class<? extends JsonInstance> clazz, String cNameOrNull, JsonClass itemClass, JsonCollectionType type) {
-        return newJsonMap((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, itemClass, type);
+    public JsonMap newRawJsonMapIndividually(Class<? extends JsonInstance> clazz, String cNameOrNull, JsonClass itemClass, JsonCollectionType type) {
+        return JsonModel.this.newJsonMapIndividually((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, itemClass, type);
     }
 
     /**
      * Creates a new raw JSON map class with the specified collection type using
-     * the raw JsonInstance type. The map is automatically registered in this
+     * the raw JsonInstance type.The map is automatically registered in this
      * model.
      *
      * @param clazz The raw JsonInstance class to model.
+     * @param cNameOrNull
      * @param skippingNulls Whether to skip null values when building.
      * @param itemClass The JsonClass for the map values.
      * @param type The collection type.
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newRawJsonMap(Class<? extends JsonInstance> clazz, String cNameOrNull, boolean skippingNulls, JsonClass itemClass, JsonCollectionType type) {
-        return newJsonMap((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, skippingNulls, itemClass, type);
+    public JsonMap newRawJsonMapIndividually(Class<? extends JsonInstance> clazz, String cNameOrNull, boolean skippingNulls, JsonClass itemClass, JsonCollectionType type) {
+        return newJsonMapIndividually((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, skippingNulls, itemClass, type);
     }
 
     /**

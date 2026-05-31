@@ -57,30 +57,30 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
         final JsonClass asBoolean = model.getJsonClass("Boolean");
         final JsonClass asInteger = model.getJsonClass("Integer");
 
-        JsonClass valueBoolean = model.newJsonReflect(ValueBoolean.class, null);
+        JsonClass valueBoolean = model.newJsonReflectIndividually(ValueBoolean.class, (String) null);
         valueBoolean.addCParam("frage", asBoolean, "getFrage");
 
-        JsonClass valueInteger = model.newJsonReflect(ValueInteger.class, null);
+        JsonClass valueInteger = model.newJsonReflectIndividually(ValueInteger.class, (String) null);
         valueInteger.addCParam("zahl", asInteger);
 
-        JsonClass valueString = model.newJsonReflect(ValueString.class, null);
+        JsonClass valueString = model.newJsonReflectIndividually(ValueString.class, (String) null);
         valueString.addCParam("text", asString);
 
-        JsonClass valueStringSub = model.newJsonReflect(ValueStringSub.class, null, valueString);
+        JsonClass valueStringSub = model.newJsonReflectIndividually(ValueStringSub.class, null, valueString);
         // valueStringSub.addCParam("text", asString); // passing on valueString
 
-        JsonClass valueStringSubSub = model.newJsonReflect(ValueStringSubSub.class, null, valueStringSub);
+        JsonClass valueStringSubSub = model.newJsonReflectIndividually(ValueStringSubSub.class, null, valueStringSub);
         // valueStringSubSub.addCParam("text", asString); // passing on valueStringSub
         valueStringSubSub.addCParam("frage", asBoolean, "getFrage");
 
-        JsonClass enumSeason = model.newJsonEnumByName(EnumSeason.class, null, EnumSeason.VALUES);
-        JsonClass valueSeason = model.newJsonReflect(ValueSeason.class, null);
+        JsonClass enumSeason = model.newJsonEnumByNameIndividually(EnumSeason.class, null, EnumSeason.VALUES);
+        JsonClass valueSeason = model.newJsonReflectIndividually(ValueSeason.class, (String) null);
         valueSeason.addCParam("season", enumSeason);
 
         // ValueStringSub implements ValueInterface, but isn't registered.
-        JsonInter valueIx = model.newJsonInterface(ValueInterface.class, null, valueBoolean, valueInteger, valueString, valueStringSubSub, valueSeason);
+        JsonInter valueIx = model.newJsonInterfaceIndividually(ValueInterface.class, (String) null, valueBoolean, valueInteger, valueString, valueStringSubSub, valueSeason);
 
-        testBox = model.newJsonReflect(TestBox.class, null);
+        testBox = model.newJsonReflectIndividually(TestBox.class, (String) null);
         testBox.addField("subsub", valueString);
         testBox.addField("one", valueIx);
         testBox.addField("list", valueIx, LIST);

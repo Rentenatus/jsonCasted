@@ -51,30 +51,30 @@ public class ImplTestDefinition implements JsonItemDefinition {
         final JsonClass asBoolean = model.getJsonClass("Boolean");
         final JsonClass asInteger = model.getJsonClass("Integer");
 
-        JsonClass valueBoolean = model.newJsonReflect(ValueBoolean.class, null);
+        JsonClass valueBoolean = model.newJsonReflect(ValueBoolean.class);
         valueBoolean.addCParam("frage", asBoolean, "getFrage");
 
-        JsonClass valueInteger = model.newJsonReflect(ValueInteger.class, null);
+        JsonClass valueInteger = model.newJsonReflect(ValueInteger.class);
         valueInteger.addCParam("zahl", asInteger);
 
-        JsonClass valueString = model.newJsonReflect(ValueString.class, null);
+        JsonClass valueString = model.newJsonReflect(ValueString.class);
         valueString.addCParam("text", asString);
 
-        JsonClass valueStringSub = model.newJsonReflect(ValueStringSub.class, null, valueString);
+        JsonClass valueStringSub = model.newJsonReflect(ValueStringSub.class, valueString);
         // valueStringSub.addCParam("text", asString); // passing on valueString
 
-        JsonClass valueStringSubSub = model.newJsonReflect(ValueStringSubSub.class, null, valueStringSub);
+        JsonClass valueStringSubSub = model.newJsonReflect(ValueStringSubSub.class, valueStringSub);
         // valueStringSubSub.addCParam("text", asString); // passing on valueStringSub
         valueStringSubSub.addCParam("frage", asBoolean, "getFrage");
 
-        JsonClass enumSeason = model.newJsonEnumByName(EnumSeason.class, null, EnumSeason.VALUES);
-        JsonClass valueSeason = model.newJsonReflect(ValueSeason.class, null);
+        JsonClass enumSeason = model.newJsonEnumByName(EnumSeason.class, EnumSeason.VALUES);
+        JsonClass valueSeason = model.newJsonReflect(ValueSeason.class);
         valueSeason.addCParam("season", enumSeason);
 
         // ValueStringSub implements ValueInterface, but isn't registered.
-        JsonInter valueIx = model.newJsonInterface(ValueInterface.class, null, valueBoolean, valueInteger, valueString, valueStringSubSub, valueSeason);
+        JsonInter valueIx = model.newJsonInterface(ValueInterface.class, valueBoolean, valueInteger, valueString, valueStringSubSub, valueSeason);
 
-        testBox = model.newJsonReflect(TestBox.class, null);
+        testBox = model.newJsonReflect(TestBox.class);
         testBox.addField("subsub", valueString);
         testBox.addField("one", valueIx);
         testBox.addField("list", valueIx, LIST);

@@ -19,9 +19,10 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- * The JsonParser class provides static methods for parsing JSON data from various sources
- * (strings, files, URLs) and converting it into JsonItem instances. It serves as a high-level
- * entry point for JSON parsing and conversion to the internal model.
+ * The JsonParser class provides static methods for parsing JSON data from
+ * various sources (strings, files, URLs) and converting it into JsonItem
+ * instances. It serves as a high-level entry point for JSON parsing and
+ * conversion to the internal model.
  *
  * @author Janusch Rentenatus
  */
@@ -91,8 +92,8 @@ public class JsonParser {
     }
 
     /**
-     * Parses JSON from a file and converts it to a JsonItem.
-     * Uses the class name from the specified Class object as the root.
+     * Parses JSON from a file and converts it to a JsonItem. Uses the class
+     * name from the specified Class object as the root.
      *
      * @param file The file containing JSON data to parse.
      * @param descriptor The model descriptor containing type definitions.
@@ -107,8 +108,8 @@ public class JsonParser {
     }
 
     /**
-     * Parses JSON from a string and converts it to a JsonItem.
-     * Uses the default debug level (SIMPLE).
+     * Parses JSON from a string and converts it to a JsonItem. Uses the default
+     * debug level (SIMPLE).
      *
      * @param s The JSON string to parse.
      * @param descriptor The model descriptor containing type definitions.
@@ -122,8 +123,8 @@ public class JsonParser {
     }
 
     /**
-     * Parses JSON from a file and converts it to a JsonItem.
-     * Uses the default debug level (SIMPLE).
+     * Parses JSON from a file and converts it to a JsonItem. Uses the default
+     * debug level (SIMPLE).
      *
      * @param file The file containing JSON data to parse.
      * @param descriptor The model descriptor containing type definitions.
@@ -137,8 +138,8 @@ public class JsonParser {
     }
 
     /**
-     * Parses JSON from a URL and converts it to a JsonItem.
-     * Uses the default debug level (SIMPLE).
+     * Parses JSON from a URL and converts it to a JsonItem. Uses the default
+     * debug level (SIMPLE).
      *
      * @param url1 The URL pointing to JSON data to parse.
      * @param descriptor The model descriptor containing type definitions.
@@ -152,8 +153,8 @@ public class JsonParser {
     }
 
     /**
-     * Parses JSON from a file and converts it to a JsonItem.
-     * Uses the class name from the specified Class object as the root and default debug level.
+     * Parses JSON from a file and converts it to a JsonItem. Uses the class
+     * name from the specified Class object as the root and default debug level.
      *
      * @param file The file containing JSON data to parse.
      * @param descriptor The model descriptor containing type definitions.
@@ -167,8 +168,8 @@ public class JsonParser {
     }
 
     /**
-     * Parses a JSON resource and converts it to a JsonItem.
-     * Uses the default debug level (SIMPLE).
+     * Parses a JSON resource and converts it to a JsonItem. Uses the default
+     * debug level (SIMPLE).
      *
      * @param res The JSON resource to parse.
      * @param descriptor The model descriptor containing type definitions.
@@ -182,8 +183,8 @@ public class JsonParser {
     }
 
     /**
-     * Parses JSON from a file and converts it to a JsonItem.
-     * Uses the definition's descriptor and the specified JsonClass as root.
+     * Parses JSON from a file and converts it to a JsonItem. Uses the
+     * definition's descriptor and the specified JsonClass as root.
      *
      * @param file The file containing JSON data to parse.
      * @param definition The item definition containing model and descriptor.
@@ -195,4 +196,5 @@ public class JsonParser {
     public static JsonItem parse(File file, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
         return parse(file, definition.getDescriptor(), root.getcName());
     }
+
 }

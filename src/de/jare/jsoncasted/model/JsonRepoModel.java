@@ -127,7 +127,7 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
      * @return A JsonClass configured for JsonRepo serialization.
      */
     public JsonClass newJsonRepo(String repoName, JsonInter repoContent) {
-        JsonClass repo = newJsonReflect(JsonRepo.class, "JsonRepo'" + repoName + "'");
+        JsonClass repo = newJsonReflectIndividually(JsonRepo.class, "JsonRepo'" + repoName + "'");
         repo.addCParam("repoName", getJsonClass("String"));
         repo.addField("contents", repoContent, LIST);
         return repo;
