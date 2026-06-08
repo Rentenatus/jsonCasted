@@ -10,6 +10,10 @@ The focus is on:
 - An explicit model (Model → Description) and parsing (JSON → JsonNode → JsonClass via. Description → Java Objects via. Model)
 - EMF-like references and resources – but JSON-native
 
+
+## Support 🐾
+If you like my projects, consider supporting my work (and feeding Mistral 🐱) via [GitHub Sponsors](https://github.com)!
+
 ---
 
 ## Overview and relation to EMF ResourceSet
