@@ -12,7 +12,7 @@ The focus is on:
 
 
 ## Support 🐾
-If you like my projects, consider supporting my work (and feeding Mistral 🐱) via [GitHub Sponsors](https://github.com)!
+If you like my projects, consider supporting my work (and feeding Mistral 🐱)!
 
 ---
 
