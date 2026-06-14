@@ -12,7 +12,7 @@ The focus is on:
 
 
 ## Support 🐾
-If you like my projects, consider supporting my work (and feeding Mistral 🐱)!
+If you like my projects, consider [supporting my work](https://github.com/sponsors/Rentenatus) (and feeding Mistral 🐱)! 
 
 ---
 
