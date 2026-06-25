@@ -15,18 +15,20 @@ import java.util.ArrayList;
 /**
  * Parser for JSON array structures (ordered lists of values enclosed in square brackets).
  *
- * <p>This class handles the parsing of JSON arrays with the following syntax:</p>
+ * <p>
+ * This class handles the parsing of JSON arrays with the following syntax:</p>
  * <pre>{@code [value1, value2, ...]}</pre>
  *
- * <p>Supported element types:</p>
+ * <p>
+ * Supported element types:</p>
  * <ul>
- *   <li>Strings (double or single quoted)</li>
- *   <li>Numbers</li>
- *   <li>Booleans</li>
- *   <li>Null</li>
- *   <li>Nested objects</li>
- *   <li>Nested arrays</li>
- *   <li>Type-cast expressions (in parentheses)</li>
+ * <li>Strings (double or single quoted)</li>
+ * <li>Numbers</li>
+ * <li>Booleans</li>
+ * <li>Null</li>
+ * <li>Nested objects</li>
+ * <li>Nested arrays</li>
+ * <li>Type-cast expressions (in parentheses)</li>
  * </ul>
  *
  * @author Janusch Rentenatus
@@ -48,17 +50,37 @@ public class ListParser {
         StringBuilder sb = new StringBuilder();
         while (psr.hasNext()) {
             char c = psr.next();
+            if (c == ' ') {
+                continue;
+            }
             if (c == ']') {
                 addItem(list, item, sb);
                 return JsonNode.arrayNode(list);
             }
             if (c == '(') {
+                if (item != null) {
+                    throw new JsonParseException(psr.getZeile(), "Unexpected character '('");
+                }
                 item = CastingParser.parse(psr);
             } else if (c == '{') {
+                if (item != null) {
+                    throw new JsonParseException(psr.getZeile(), "Unexpected character '{'");
+                }
                 item = ObjectParser.parse(psr);
+            } else if (c == '[') {
+                if (item != null) {
+                    throw new JsonParseException(psr.getZeile(), "Unexpected character '['");
+                }
+                item = ListParser.parse(psr);
             } else if (c == '"') {
+                if (item != null) {
+                    throw new JsonParseException(psr.getZeile(), "Unexpected character '\"'");
+                }
                 item = JsonNode.stringNode(StringParser.parse(psr, '"'));
             } else if (c == '\'') {
+                if (item != null) {
+                    throw new JsonParseException(psr.getZeile(), "Unexpected character '\''");
+                }
                 item = JsonNode.stringNode(StringParser.parse(psr, '\''));
             } else if (c == ',') {
                 addItem(list, item, sb);
@@ -74,11 +96,12 @@ public class ListParser {
     /**
      * Adds an item to the array list.
      *
-     * <p>Handles the following cases:</p>
+     * <p>
+     * Handles the following cases:</p>
      * <ul>
-     *   <li>If item is not null, adds it directly</li>
-     *   <li>If sb is not empty, parses it as a variable value (string, number, boolean, null)</li>
-     *   <li>Empty values are ignored</li>
+     * <li>If item is not null, adds it directly</li>
+     * <li>If sb is not empty, parses it as a variable value (string, number, boolean, null)</li>
+     * <li>Empty values are ignored</li>
      * </ul>
      *
      * @param list the array list to add to.

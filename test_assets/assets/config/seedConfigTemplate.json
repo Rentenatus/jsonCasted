@@ -55,7 +55,7 @@
 "The description consists of one or more scenes. Each scene consists of several steps or actions.\n",
 "The first step of a scenario consists of a specification of the initial state 'given' and the last is an expectation 'then'. ",
 "If an initial state follows the expectation again, then this is the next scenario.\n",
-"\n"
+"\n",
 "If the user numbers the scenarios sequentially, adopt their numbering.\n",
 "If the user doesn’t count themselves, determine the number of scenarios yourself. ",
 "But if the description only contains steps of the test, i.e. it is exactly one scenario, then answer '1'. \n",

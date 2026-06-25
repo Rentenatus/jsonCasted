@@ -102,7 +102,7 @@ public class ObjectParserBak {
                 } else if (c == '[') {
                     checkDoubleParam(paramValue, paramName, psr.getZeile());
                     if (field != null && !field.isAsListOrArray()) {
-                        throw new JsonParseException("Field " + field.getfName() + " is not a list nor array. (:" + psr.getZeile() + ")");
+                        throw new JsonParseException(psr.getZeile(),"Field " + field.getfName() + " is not a list nor array. (:" + psr.getZeile() + ")");
                     }
                     paramValue = new ListParserBak(definition, paramType(field)).parse(psr, field == null || field.isAsList());
                 } else if (c == '(') {

@@ -10,8 +10,9 @@ package de.jare.jsoncasted.parserwriter;
 /**
  * Exception thrown when JSON parsing fails.
  *
- * <p>This exception is used to signal errors during JSON parsing, including:
- * syntax errors, type mismatches, missing required fields, and invalid JSON structures.</p>
+ * <p>
+ * This exception is used to signal errors during JSON parsing, including: syntax errors, type mismatches, missing
+ * required fields, and invalid JSON structures.</p>
  *
  * @author Janusch Rentenatus
  */
@@ -24,6 +25,16 @@ public class JsonParseException extends Exception {
      */
     public JsonParseException(String message) {
         super(message);
+    }
+
+    /**
+     * Constructs a JsonParseException with a specified error message.
+     *
+     * @param lineNumber line number
+     * @param message the error message describing the parsing failure.
+     */
+    public JsonParseException(int lineNumber, String message) {
+        super("[" + lineNumber + "] " + message);
     }
 
     /**

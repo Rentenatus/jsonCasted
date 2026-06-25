@@ -15,16 +15,17 @@ import java.io.IOException;
 /**
  * Parser for type-cast syntax in JSON (e.g., `(TypeName){...}`).
  *
- * <p>This class handles the Wood Json Jack extension syntax for explicit type
- * declarations. The syntax allows specifying the concrete type for polymorphic
- * objects:</p>
+ * <p>
+ * This class handles the Wood Json Jack extension syntax for explicit type declarations. The syntax allows specifying
+ * the concrete type for polymorphic objects:</p>
  * <pre>{@code (ValueStringSubSub){"text": "hello", "frage": true}}</pre>
  *
- * <p>The parser:</p>
+ * <p>
+ * The parser:</p>
  * <ol>
- *   <li>Reads the type name from within parentheses</li>
- *   <li>Expects an object definition (curly braces) to follow</li>
- *   <li>Adds a {@code _class} field to the parsed object with the type name</li>
+ * <li>Reads the type name from within parentheses</li>
+ * <li>Expects an object definition (curly braces) to follow</li>
+ * <li>Adds a {@code _class} field to the parsed object with the type name</li>
  * </ol>
  *
  * @author Janusch Rentenatus
@@ -35,7 +36,8 @@ public class CastingParser {
     /**
      * Parses a type-cast expression from the stream reader.
      *
-     * <p>Example input: {@code (com.example.MyClass){...}}</p>
+     * <p>
+     * Example input: {@code (com.example.MyClass){...}}</p>
      *
      * @param psr the ParseStreamReader providing character input.
      * @return a JsonNode representing the object with the type information added.
@@ -59,7 +61,7 @@ public class CastingParser {
                         if (c == ' ' || c == '\n' || c == '\t') {
                             continue;
                         }
-                        throw new JsonParseException("After the end of the cast, '{' must follow for the object definition.");
+                        throw new JsonParseException(psr.getZeile(), "After the end of the cast, '{' must follow for the object definition.");
                     }
                 }
                 sb.append(c);
@@ -67,6 +69,5 @@ public class CastingParser {
         }
         throw new JsonParseException("End of file without end of cast.");
     }
-    
 
 }

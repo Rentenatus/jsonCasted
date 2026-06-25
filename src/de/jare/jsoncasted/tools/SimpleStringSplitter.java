@@ -13,17 +13,15 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * The SimpleStringSplitter interface provides utility methods for splitting,
- * replacing, and manipulating strings. It supports basic tokenization using
- * characters, substrings, or lists of delimiters.
+ * The SimpleStringSplitter interface provides utility methods for splitting, replacing, and manipulating strings. It
+ * supports basic tokenization using characters, substrings, or lists of delimiters.
  *
  * @author Janusch Rentenatus
  */
 public interface SimpleStringSplitter {
 
     /**
-     * Splits a string into a list of substrings using a single character
-     * delimiter.
+     * Splits a string into a list of substrings using a single character delimiter.
      *
      * @param src The source string to split.
      * @param ch The delimiter character.
@@ -44,14 +42,12 @@ public interface SimpleStringSplitter {
     }
 
     /**
-     * Splits a string into a list of substrings using a specific substring as
-     * the delimiter.
+     * Splits a string into a list of substrings using a specific substring as the delimiter.
      *
      * @param src The source string to split.
      * @param splitter The substring delimiter.
      * @return A list of substrings split by the specified delimiter.
-     * @param caseSens The search might be case-sensitive? False == src and
-     * splitter are converted to lowercase first.
+     * @param caseSens The search might be case-sensitive? False == src and splitter are converted to lowercase first.
      */
     public default List<String> simpleSplit(String src, String splitter, boolean caseSens) {
         ArrayList<String> list = new ArrayList<>();
@@ -60,8 +56,7 @@ public interface SimpleStringSplitter {
     }
 
     /**
-     * Splits a string into a list of substrings using a specific substring as
-     * the delimiter (case sensitive).
+     * Splits a string into a list of substrings using a specific substring as the delimiter (case sensitive).
      *
      * @param src The source string to split.
      * @param splitter The substring delimiter.
@@ -79,8 +74,7 @@ public interface SimpleStringSplitter {
      * @param srcList The list of strings to process.
      * @param splitter The substring delimiter.
      * @return A new list containing the split values.
-     * @param caseSens The search might be case-sensitive? False == src and
-     * splitter are converted to lowercase first.
+     * @param caseSens The search might be case-sensitive? False == src and splitter are converted to lowercase first.
      */
     public default List<String> simpleSplit(List<String> srcList, String splitter, boolean caseSens) {
         ArrayList<String> list = new ArrayList<>();
@@ -94,8 +88,7 @@ public interface SimpleStringSplitter {
     }
 
     /**
-     * Splits a list of strings using a specific substring delimiter (case
-     * sensitive).
+     * Splits a list of strings using a specific substring delimiter (case sensitive).
      *
      * @param srcList The list of strings to process.
      * @param splitter The substring delimiter.
@@ -110,10 +103,8 @@ public interface SimpleStringSplitter {
      *
      * @param src The source string to split.
      * @param splitterList A list of delimiter substrings.
-     * @return A list of substrings obtained after applying each delimiter
-     * sequentially.
-     * @param caseSens The search might be case-sensitive? False == src and
-     * splitter are converted to lowercase first.
+     * @return A list of substrings obtained after applying each delimiter sequentially.
+     * @param caseSens The search might be case-sensitive? False == src and splitter are converted to lowercase first.
      */
     public default List<String> simpleSplit(String src, List<String> splitterList, boolean caseSens) {
         Iterator<String> it = splitterList.iterator();
@@ -130,13 +121,11 @@ public interface SimpleStringSplitter {
     }
 
     /**
-     * Splits a string using multiple delimiters from a provided list (case
-     * sensitive).
+     * Splits a string using multiple delimiters from a provided list (case sensitive).
      *
      * @param src The source string to split.
      * @param splitterList A list of delimiter substrings.
-     * @return A list of substrings obtained after applying each delimiter
-     * sequentially.
+     * @return A list of substrings obtained after applying each delimiter sequentially.
      */
     public default List<String> simpleSplit(String src, List<String> splitterList) {
         return simpleSplit(src, splitterList, true);
@@ -148,8 +137,7 @@ public interface SimpleStringSplitter {
      * @param src The source string.
      * @param splitter The substring delimiter.
      * @param list The list where split values will be stored.
-     * @param caseSens The search might be case-sensitive? False == src and
-     * splitter are converted to lowercase first.
+     * @param caseSens The search might be case-sensitive? False == src and splitter are converted to lowercase first.
      */
     default void simpleSplitInto(String src, String splitter,
             ArrayList<String> list, boolean caseSens) {
@@ -177,8 +165,7 @@ public interface SimpleStringSplitter {
     }
 
     /**
-     * Splits a string into a provided list using a substring delimiter (case
-     * sensitive).
+     * Splits a string into a provided list using a substring delimiter (case sensitive).
      *
      * @param src The source string.
      * @param splitter The substring delimiter.
@@ -210,14 +197,12 @@ public interface SimpleStringSplitter {
     }
 
     /**
-     * Replaces occurrences of a specified character in a string with a given
-     * replacement string.
+     * Replaces occurrences of a specified character in a string with a given replacement string.
      *
      * @param src The source string to process.
      * @param ch The character to replace.
      * @param wish The replacement string.
-     * @return The modified string with replacements applied, or null if the
-     * source string is null.
+     * @return The modified string with replacements applied, or null if the source string is null.
      */
     public default String simpleReplace(String src, char ch, String wish) {
         if (src == null) {
@@ -228,14 +213,12 @@ public interface SimpleStringSplitter {
     }
 
     /**
-     * Replaces occurrences of a specified substring in a string with a given
-     * replacement string.
+     * Replaces occurrences of a specified substring in a string with a given replacement string.
      *
      * @param src The source string to process.
      * @param splitter The substring to replace.
      * @param wish The replacement string.
-     * @return The modified string with replacements applied, or null if the
-     * source string is null.
+     * @return The modified string with replacements applied, or null if the source string is null.
      */
     public default String simpleReplace(String src, String splitter, String wish, boolean caseSens) {
         if (src == null) {
@@ -246,14 +229,12 @@ public interface SimpleStringSplitter {
     }
 
     /**
-     * Replaces occurrences of a specified substring in a string with a given
-     * replacement string.
+     * Replaces occurrences of a specified substring in a string with a given replacement string.
      *
      * @param src The source string to process.
      * @param splitter The substring to replace.
      * @param wish The replacement string.
-     * @return The modified string with replacements applied, or null if the
-     * source string is null.
+     * @return The modified string with replacements applied, or null if the source string is null.
      */
     public default String simpleReplace(String src, String splitter, String wish) {
         if (src == null) {
@@ -264,14 +245,43 @@ public interface SimpleStringSplitter {
     }
 
     /**
-     * Replaces occurrences of multiple specified substrings in a string with a
-     * given replacement string (case sensitive).
+     * Converts a string value into a properly escaped string.
+     *
+     * @param attr The string attribute.
+     * @return The formatted string.
+     */
+    public default String maskEscapes(Object attr) {
+        String roh = simpleReplace(String.valueOf(attr), "\"", "\\\"");
+        roh = simpleReplace(roh, "\r", "\\r");
+        roh = simpleReplace(roh, "\t", "\\t");
+        roh = simpleReplace(roh, "\b", "\\b");
+        roh = simpleReplace(roh, "\f", "\\f");
+        return simpleReplace(roh, "\n", "\\n");
+    }
+
+    /**
+     * Processes a JSON string by replacing escape sequences with their respective characters.
+     *
+     * @param attr The string attribute.
+     * @return The processed string value.
+     */
+    public default String buildEscapes(Object attr) {
+        String roh = simpleReplace(String.valueOf(attr), "\\\"", "\"");
+        roh = simpleReplace(roh, "\\r", "\r");
+        roh = simpleReplace(roh, "\\t", "\t");
+        roh = simpleReplace(roh, "\\b", "\b");
+        roh = simpleReplace(roh, "\\f", "\f");
+        return simpleReplace(roh, "\\n", "\n");
+    }
+
+    /**
+     * Replaces occurrences of multiple specified substrings in a string with a given replacement string (case
+     * sensitive).
      *
      * @param src The source string to process.
      * @param splitterList A list of substrings to replace.
      * @param wish The replacement string.
-     * @return The modified string with replacements applied, or null if the
-     * source string is null.
+     * @return The modified string with replacements applied, or null if the source string is null.
      */
     public default String simpleReplace(String src, List<String> splitterList, String wish) {
         if (src == null) {
@@ -313,9 +323,8 @@ public interface SimpleStringSplitter {
     }
 
     /**
-     * Formats a string into multiple lines, ensuring that each line does not
-     * exceed the specified width. The method attempts to break lines at spaces
-     * when possible.
+     * Formats a string into multiple lines, ensuring that each line does not exceed the specified width. The method
+     * attempts to break lines at spaces when possible.
      *
      * @param substring The input string to format.
      * @param width The maximum width of each line.

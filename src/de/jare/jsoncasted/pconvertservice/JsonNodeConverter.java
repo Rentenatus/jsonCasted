@@ -19,9 +19,8 @@ import de.jare.jsoncasted.parserwriter.JsonParseException;
 import java.util.ArrayList;
 
 /**
- * Converter to transform a JsonNode tree into the library's JsonItem model.
- * This class provides the core conversion logic for converting JSON node structures
- * into JsonItem instances that can be processed by the builder services.
+ * Converter to transform a JsonNode tree into the library's JsonItem model. This class provides the core conversion
+ * logic for converting JSON node structures into JsonItem instances that can be processed by the builder services.
  *
  * @author Janusch Rentenatus
  */
@@ -37,8 +36,8 @@ public class JsonNodeConverter {
     }
 
     /**
-     * Converts a JSON resource into a JsonItem using the specified context class and service.
-     * This is the main entry point for converting JSON resources.
+     * Converts a JSON resource into a JsonItem using the specified context class and service. This is the main entry
+     * point for converting JSON resources.
      *
      * @param res The JSON resource to convert.
      * @param cName The name of the context class for type resolution.
@@ -64,8 +63,8 @@ public class JsonNodeConverter {
     }
 
     /**
-     * Converts a JsonNode into a JsonItem using the specified context class and service.
-     * This method dispatches to type-specific conversion methods based on the node type.
+     * Converts a JsonNode into a JsonItem using the specified context class and service. This method dispatches to
+     * type-specific conversion methods based on the node type.
      *
      * @param node The JSON node to convert.
      * @param contextClass The context class for type resolution.
@@ -129,8 +128,8 @@ public class JsonNodeConverter {
     }
 
     /**
-     * Converts a JsonNode with number type into a JsonValue.
-     * If the context class expects a string, converts to string representation.
+     * Converts a JsonNode with number type into a JsonValue. If the context class expects a string, converts to string
+     * representation.
      *
      * @param node The JSON node containing the number value.
      * @param contextClass The context class for type resolution.
@@ -147,8 +146,7 @@ public class JsonNodeConverter {
     }
 
     /**
-     * Converts a JsonNode with long number type into a JsonValue.
-     * Handles type coercion between LONG and NUMBER types.
+     * Converts a JsonNode with long number type into a JsonValue. Handles type coercion between LONG and NUMBER types.
      *
      * @param node The JSON node containing the long value.
      * @param contextClass The context class for type resolution.
@@ -198,8 +196,8 @@ public class JsonNodeConverter {
     }
 
     /**
-     * Checks if the node type matches the expected context class type.
-     * Allows LONG where NUMBER is expected for compatibility.
+     * Checks if the node type matches the expected context class type. Allows LONG where NUMBER is expected for
+     * compatibility.
      *
      * @param node The JSON node to check.
      * @param contextClass The context class defining the expected type.

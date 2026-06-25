@@ -75,12 +75,7 @@ public class JsonStringBuilder implements JsonModellClassBuilder, SimpleStringSp
      * @return The processed string value.
      */
     private String buildString(JsonItem jsonItem) {
-        String roh = simpleReplace(jsonItem.getStringValue(), "\\\"", "\"");
-        roh = simpleReplace(roh, "\\r", "\r");
-        roh = simpleReplace(roh, "\\t", "\t");
-        roh = simpleReplace(roh, "\\b", "\b");
-        roh = simpleReplace(roh, "\\f", "\f");
-        return simpleReplace(roh, "\\n", "\n");
+        return buildEscapes(jsonItem.getStringValue());
     }
 
     /**
@@ -106,12 +101,7 @@ public class JsonStringBuilder implements JsonModellClassBuilder, SimpleStringSp
      */
     @Override
     public String toString(Object attr) {
-        String roh = simpleReplace(attr.toString(), "\"", "\\\"");
-        roh = simpleReplace(roh, "\r", "\\r");
-        roh = simpleReplace(roh, "\t", "\\t");
-        roh = simpleReplace(roh, "\b", "\\b");
-        roh = simpleReplace(roh, "\f", "\\f");
-        return '"' + simpleReplace(roh, "\n", "\\n") + '"';
+        return '"' + maskEscapes(attr) + '"';
     }
 
     /**

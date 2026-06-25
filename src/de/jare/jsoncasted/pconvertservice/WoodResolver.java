@@ -31,12 +31,13 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * The WoodResolver class handles the resolution of wood (object reference) structures
- * in JSON resources. It manages the loading of external resources referenced via wood
- * providers and coordinates the resolution process across multiple resources.
+ * The WoodResolver class handles the resolution of wood (object reference) structures in JSON resources. It manages the
+ * loading of external resources referenced via wood providers and coordinates the resolution process across multiple
+ * resources.
  *
- * <p>This class uses repository descriptors from the main descriptor to resolve types
- * for external resources, without requiring direct access to the JsonModel instances.</p>
+ * <p>
+ * This class uses repository descriptors from the main descriptor to resolve types for external resources, without
+ * requiring direct access to the JsonModel instances.</p>
  *
  * @author Janusch Rentenatus
  */
@@ -52,9 +53,8 @@ public final class WoodResolver {
     }
 
     /**
-     * Resolves all wood references in a JsonSystem.
-     * This method attempts to resolve all object references within the system,
-     * loading external resources as needed when providers are not found.
+     * Resolves all wood references in a JsonSystem. This method attempts to resolve all object references within the
+     * system, loading external resources as needed when providers are not found.
      *
      * @param sys The JsonSystem containing resources to resolve.
      * @param descriptor The model descriptor containing type definitions.
@@ -126,12 +126,12 @@ public final class WoodResolver {
     }
 
     /**
-     * Attempts to resolve all wood references in a JsonSystem.
-     * This method processes the main resource and all registered resources,
-     * resolving object references in an iterative manner.
+     * Attempts to resolve all wood references in a JsonSystem. This method processes the main resource and all
+     * registered resources, resolving object references in an iterative manner.
      *
-     * <p>Repository descriptors are retrieved directly from the main descriptor's
-     * repoDescriptor map, without accessing the JsonModel instances.</p>
+     * <p>
+     * Repository descriptors are retrieved directly from the main descriptor's repoDescriptor map, without accessing
+     * the JsonModel instances.</p>
      *
      * @param sys The JsonSystem containing resources to resolve.
      * @param descriptor The model descriptor containing type definitions.

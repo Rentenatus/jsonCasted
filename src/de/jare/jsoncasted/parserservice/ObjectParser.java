@@ -14,24 +14,27 @@ import java.io.IOException;
 /**
  * Parser for JSON object structures (key-value pairs enclosed in curly braces).
  *
- * <p>This class handles the parsing of JSON objects with the following syntax:</p>
+ * <p>
+ * This class handles the parsing of JSON objects with the following syntax:</p>
  * <pre>{@code { "key": value, "key2": value2 }}</pre>
  *
- * <p>Supported value types:</p>
+ * <p>
+ * Supported value types:</p>
  * <ul>
- *   <li>Strings (double or single quoted)</li>
- *   <li>Numbers</li>
- *   <li>Booleans</li>
- *   <li>Null</li>
- *   <li>Nested objects</li>
- *   <li>Arrays</li>
- *   <li>Type-cast expressions (in parentheses)</li>
+ * <li>Strings (double or single quoted)</li>
+ * <li>Numbers</li>
+ * <li>Booleans</li>
+ * <li>Null</li>
+ * <li>Nested objects</li>
+ * <li>Arrays</li>
+ * <li>Type-cast expressions (in parentheses)</li>
  * </ul>
  *
- * <p>Keys can be:</p>
+ * <p>
+ * Keys can be:</p>
  * <ul>
- *   <li>Quoted strings (double or single quotes)</li>
- *   <li>Unquoted identifiers (accumulated until colon)</li>
+ * <li>Quoted strings (double or single quotes)</li>
+ * <li>Unquoted identifiers (accumulated until colon)</li>
  * </ul>
  *
  * @author Janusch Rentenatus
@@ -55,8 +58,30 @@ public class ObjectParser {
             StringBuilder sb = new StringBuilder();
             while (psr.hasNext()) {
                 char c = psr.next();
+                if (c == ' ') {
+                    continue;
+                }
                 if (c == '}') {
                     return myObject;
+                }
+                if (c == '[') {
+                    if (!sb.toString().trim().isEmpty()) {
+                        throw new JsonParseException(psr.getZeile(), "Unexpected characters before an array bracket: '" + sb + "'");
+                    }
+                    if (paramName != null && !paramName.trim().isEmpty()) {
+                        throw new JsonParseException(psr.getZeile(), "Unexpected characters before an array bracket: '" + paramName + "'");
+                    }
+                    if (myObject.asObjectValues() != null && !myObject.asObjectValues().isEmpty()) {
+                        throw new JsonParseException(psr.getZeile(), "Unexpected characters before an array bracket: '" + paramName + "'");
+                    }
+                    JsonNode internArr = ListParser.parse(psr);
+                    while (psr.hasNext()) {
+                        c = psr.next();
+                        if (c == ',') {
+                            return internArr;
+                        }
+                    }
+                    throw new JsonParseException("End of file without end of list.");
                 }
                 if (c == '"') {
                     paramName = StringParser.parse(psr, '"');
@@ -80,6 +105,9 @@ public class ObjectParser {
             sb = new StringBuilder();
             while (psr.hasNext()) {
                 char c = psr.next();
+                if (c == ' ') {
+                    continue;
+                }
                 if (c == '}') {
                     appendParam(myObject, paramName, paramValue, sb.toString());
                     return myObject;
@@ -89,7 +117,6 @@ public class ObjectParser {
                 } else if (c == '\'') {
                     paramValue = JsonNode.stringNode(StringParser.parse(psr, '\''));
                 } else if (c == '[') {
-
                     paramValue = ListParser.parse(psr);
                 } else if (c == '(') {
                     paramValue = CastingParser.parse(psr);
