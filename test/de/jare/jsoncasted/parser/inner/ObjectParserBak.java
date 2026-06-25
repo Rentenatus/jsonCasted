@@ -97,18 +97,18 @@ public class ObjectParserBak {
                     return myObject;
                 }
                 if (c == '"') {
-                    checkDoubleParam(paramValue, paramName, psr.getZeile());
+                    checkDoubleParam(paramValue, paramName, psr.getRow());
                     paramValue = new StringParserBak(definition, paramClass(field, null)).parse(psr);
                 } else if (c == '[') {
-                    checkDoubleParam(paramValue, paramName, psr.getZeile());
+                    checkDoubleParam(paramValue, paramName, psr.getRow());
                     if (field != null && !field.isAsListOrArray()) {
-                        throw new JsonParseException(psr.getZeile(),"Field " + field.getfName() + " is not a list nor array. (:" + psr.getZeile() + ")");
+                        throw new JsonParseException(psr.getRow(),"Field " + field.getfName() + " is not a list nor array. (:" + psr.getRow() + ")");
                     }
                     paramValue = new ListParserBak(definition, paramType(field)).parse(psr, field == null || field.isAsList());
                 } else if (c == '(') {
                     castClass = new CastingParserBak(definition, paramType(field)).parse(psr);
                 } else if (c == '{') {
-                    checkDoubleParam(paramValue, paramName, psr.getZeile());
+                    checkDoubleParam(paramValue, paramName, psr.getRow());
                     paramValue = new ObjectParserBak(definition, paramClass(field, castClass)).parse(psr);
                 } else if (c == ',') {
                     appendParam(myObject, paramName, paramValue, sb.toString(), psr.getDebugLevel());

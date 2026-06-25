@@ -61,7 +61,7 @@ public class CastingParser {
                         if (c == ' ' || c == '\n' || c == '\t') {
                             continue;
                         }
-                        throw new JsonParseException(psr.getZeile(), "After the end of the cast, '{' must follow for the object definition.");
+                        throw new JsonParseException(psr.getRow(), "After the end of the cast, '{' must follow for the object definition.");
                     }
                 }
                 sb.append(c);

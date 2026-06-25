@@ -42,7 +42,7 @@ public class ParseStreamReader implements SimpleStringSplitter {
     private String line;
     private boolean end;
     private int pos;
-    private int zeile;
+    private int row;
 
     /**
      * Constructs a ParseStreamReader with the specified input reader and debug level.
@@ -55,7 +55,7 @@ public class ParseStreamReader implements SimpleStringSplitter {
         this.line = null;
         this.end = false;
         this.pos = 0;
-        this.zeile = 0;
+        this.row = 0;
         this.debugLevel = debugLevel == null ? JsonDebugLevel.SIMPLE : debugLevel;
     }
 
@@ -75,7 +75,7 @@ public class ParseStreamReader implements SimpleStringSplitter {
             line = "";
             while (line.isEmpty()) {
                 line = in.readLine();
-                zeile++;
+                row++;
                 pos = 0;
                 if (line == null) {
                     end = true;
@@ -83,7 +83,7 @@ public class ParseStreamReader implements SimpleStringSplitter {
                 }
                 final int simpleCount = simpleCount(line, "\"");
                 if ((simpleCount & 1) == 1 && debugLevel.satisfyWarning()) {
-                    Logger.getGlobal().log(Level.WARNING, "Line {0} has {1} quotation '\"'.", new Object[]{zeile, simpleCount});
+                    Logger.getGlobal().log(Level.WARNING, "Line {0} has {1} quotation '\"'.", new Object[]{row, simpleCount});
                 }
             }
         }
@@ -95,8 +95,8 @@ public class ParseStreamReader implements SimpleStringSplitter {
      *
      * @return the 1-based line number.
      */
-    public int getZeile() {
-        return zeile;
+    public int getRow() {
+        return row;
     }
 
     /**

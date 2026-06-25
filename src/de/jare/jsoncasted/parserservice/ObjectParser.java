@@ -66,13 +66,13 @@ public class ObjectParser {
                 }
                 if (c == '[') {
                     if (!sb.toString().trim().isEmpty()) {
-                        throw new JsonParseException(psr.getZeile(), "Unexpected characters before an array bracket: '" + sb + "'");
+                        throw new JsonParseException(psr.getRow(), "Unexpected characters before an array bracket: '" + sb + "'");
                     }
                     if (paramName != null && !paramName.trim().isEmpty()) {
-                        throw new JsonParseException(psr.getZeile(), "Unexpected characters before an array bracket: '" + paramName + "'");
+                        throw new JsonParseException(psr.getRow(), "Unexpected characters before an array bracket: '" + paramName + "'");
                     }
                     if (myObject.asObjectValues() != null && !myObject.asObjectValues().isEmpty()) {
-                        throw new JsonParseException(psr.getZeile(), "Unexpected characters before an array bracket: '" + paramName + "'");
+                        throw new JsonParseException(psr.getRow(), "Unexpected characters before an array bracket: '" + paramName + "'");
                     }
                     JsonNode internArr = ListParser.parse(psr);
                     while (psr.hasNext()) {

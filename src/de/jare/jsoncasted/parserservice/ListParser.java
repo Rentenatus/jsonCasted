@@ -59,27 +59,27 @@ public class ListParser {
             }
             if (c == '(') {
                 if (item != null) {
-                    throw new JsonParseException(psr.getZeile(), "Unexpected character '('");
+                    throw new JsonParseException(psr.getRow(), "Unexpected character '('");
                 }
                 item = CastingParser.parse(psr);
             } else if (c == '{') {
                 if (item != null) {
-                    throw new JsonParseException(psr.getZeile(), "Unexpected character '{'");
+                    throw new JsonParseException(psr.getRow(), "Unexpected character '{'");
                 }
                 item = ObjectParser.parse(psr);
             } else if (c == '[') {
                 if (item != null) {
-                    throw new JsonParseException(psr.getZeile(), "Unexpected character '['");
+                    throw new JsonParseException(psr.getRow(), "Unexpected character '['");
                 }
                 item = ListParser.parse(psr);
             } else if (c == '"') {
                 if (item != null) {
-                    throw new JsonParseException(psr.getZeile(), "Unexpected character '\"'");
+                    throw new JsonParseException(psr.getRow(), "Unexpected character '\"'");
                 }
                 item = JsonNode.stringNode(StringParser.parse(psr, '"'));
             } else if (c == '\'') {
                 if (item != null) {
-                    throw new JsonParseException(psr.getZeile(), "Unexpected character '\''");
+                    throw new JsonParseException(psr.getRow(), "Unexpected character '\''");
                 }
                 item = JsonNode.stringNode(StringParser.parse(psr, '\''));
             } else if (c == ',') {
