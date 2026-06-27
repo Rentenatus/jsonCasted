@@ -32,17 +32,18 @@ import java.util.logging.Logger;
 /**
  * Represents a JSON class definition within the jsonCasted model system.
  *
- * <p>A JsonClass describes a concrete Java class with its fields, type metadata,
- * and casting rules. It serves as a central component in the model pipeline,
- * connecting the JSON structure with actual Java object instantiation.</p>
+ * <p>
+ * A JsonClass describes a concrete Java class with its fields, type metadata, and casting rules. It serves as a central
+ * component in the model pipeline, connecting the JSON structure with actual Java object instantiation.</p>
  *
- * <p>Key responsibilities include:</p>
+ * <p>
+ * Key responsibilities include:</p>
  * <ul>
- *   <li>Managing field definitions and their types</li>
- *   <li>Handling inheritance through parent class references</li>
- *   <li>Supporting enum value arrays for enum types</li>
- *   <li>Providing build methods for object construction</li>
- *   <li>Generating type descriptors for model introspection</li>
+ * <li>Managing field definitions and their types</li>
+ * <li>Handling inheritance through parent class references</li>
+ * <li>Supporting enum value arrays for enum types</li>
+ * <li>Providing build methods for object construction</li>
+ * <li>Generating type descriptors for model introspection</li>
  * </ul>
  *
  * @author Janusch Rentenatus
@@ -57,10 +58,10 @@ public class JsonClass implements JsonType {
     private final JsonNodeType nodeType;
     private JsonClass parent;
     private JsonEnumTemplate[] valuesArray;
+    private boolean reflective;
 
     /**
-     * Constructs a JsonClass with the specified class name and builder.
-     * Uses OBJECT as the default node type.
+     * Constructs a JsonClass with the specified class name and builder. Uses OBJECT as the default node type.
      *
      * @param cName The canonical name of the class.
      * @param builder The builder responsible for instance creation.
@@ -80,15 +81,16 @@ public class JsonClass implements JsonType {
         this.cName = cName;
         this.nodeType = nodeType;
         this.builder = builder;
-        fields = new HashMap<>();
-        keys = new ArrayList<>();
-        skippingNulls = false;
-        parent = null;
+        this.fields = new HashMap<>();
+        this.keys = new ArrayList<>();
+        this.skippingNulls = false;
+        this.parent = null;
+        this.reflective = false;
     }
 
     /**
-     * Constructs a JsonClass with the specified class name and builder, with skipping nulls configuration.
-     * Uses OBJECT as the default node type.
+     * Constructs a JsonClass with the specified class name and builder, with skipping nulls configuration. Uses OBJECT
+     * as the default node type.
      *
      * @param cName The canonical name of the class.
      * @param skippingNulls If true, null values will be skipped during serialization.
@@ -111,9 +113,10 @@ public class JsonClass implements JsonType {
         this.nodeType = nodeType;
         this.builder = builder;
         this.skippingNulls = skippingNulls;
-        fields = new HashMap<>();
-        keys = new ArrayList<>();
-        parent = null;
+        this.fields = new HashMap<>();
+        this.keys = new ArrayList<>();
+        this.parent = null;
+        this.reflective = false;
     }
 
     @Override
@@ -154,11 +157,20 @@ public class JsonClass implements JsonType {
         this.skippingNulls = skippingNulls;
     }
 
+    public boolean isReflective() {
+        return reflective;
+    }
+
+    public void setReflective(boolean reflective) {
+        this.reflective = reflective;
+    }
+
     /**
      * Returns this JsonClass as the direct class representation.
      *
-     * <p>When no curly braces are found for an object during parsing,
-     * the field is provided directly. In this case, it can only be a primitive type.</p>
+     * <p>
+     * When no curly braces are found for an object during parsing, the field is provided directly. In this case, it can
+     * only be a primitive type.</p>
      *
      * @return this JsonClass instance.
      */
@@ -177,8 +189,8 @@ public class JsonClass implements JsonType {
     }
 
     /**
-     * Checks if this class is a subtype of the given type.
-     * This includes checking the type itself, direct equality, and the parent hierarchy.
+     * Checks if this class is a subtype of the given type. This includes checking the type itself, direct equality, and
+     * the parent hierarchy.
      *
      * @param check The type to check against.
      * @return true if this class is a subtype of check, false otherwise.
@@ -236,8 +248,8 @@ public class JsonClass implements JsonType {
     }
 
     /**
-     * Retrieves an attribute value from an object using reflection.
-     * Invokes the getter method matching the field's getter name on the object.
+     * Retrieves an attribute value from an object using reflection. Invokes the getter method matching the field's
+     * getter name on the object.
      *
      * @param next The field whose value to retrieve.
      * @param ob The object to retrieve the attribute from.
@@ -259,8 +271,7 @@ public class JsonClass implements JsonType {
     }
 
     /**
-     * Sets the array of enum templates for this class.
-     * Used for enum types that need name-based resolution.
+     * Sets the array of enum templates for this class. Used for enum types that need name-based resolution.
      *
      * @param valuesArray The array of enum templates.
      */
@@ -276,8 +287,9 @@ public class JsonClass implements JsonType {
     /**
      * Adds a field to this class and places it at the end of the field order.
      *
-     * <p>If a field with the same name already exists, it is removed first to maintain
-     * uniqueness. The field is then added to the keys list to preserve order.</p>
+     * <p>
+     * If a field with the same name already exists, it is removed first to maintain uniqueness. The field is then added
+     * to the keys list to preserve order.</p>
      *
      * @param jField the field to add.
      */
@@ -534,9 +546,8 @@ public class JsonClass implements JsonType {
     }
 
     /**
-     * Creates or retrieves the singular class for this JsonClass.
-     * Attempts to get the singular class from the builder, or falls back to
-     * loading the class by name using Class.forName.
+     * Creates or retrieves the singular class for this JsonClass. Attempts to get the singular class from the builder,
+     * or falls back to loading the class by name using Class.forName.
      *
      * @return The Class object for this JsonClass.
      * @throws JsonBuildException If the class cannot be loaded.
@@ -592,12 +603,12 @@ public class JsonClass implements JsonType {
     }
 
     /**
-     * Adds all fields from a parent class to this class, establishing inheritance.
-     * This method recursively processes the parent hierarchy.
+     * Adds all fields from a parent class to this class, establishing inheritance. This method recursively processes
+     * the parent hierarchy.
      *
      * @param parent The parent JsonClass to inherit fields from.
-     * @throws IllegalArgumentException If the parent would create a circular dependency
-     *         or if the class attempts to be its own parent.
+     * @throws IllegalArgumentException If the parent would create a circular dependency or if the class attempts to be
+     * its own parent.
      */
     public void addFromSuperclass(JsonClass parent) {
         if (parent.getParent() != null) {
@@ -615,22 +626,24 @@ public class JsonClass implements JsonType {
     }
 
     /**
-     * Creates a type descriptor header for this class for model introspection.
-     * Includes the class name, node type, permitted values (for enums), and skipping nulls configuration.
+     * Creates a type descriptor header for this class for model introspection. Includes the class name, node type,
+     * permitted values (for enums), and skipping nulls configuration.
      *
      * @param modelDescriptor The model descriptor context.
      * @return A JsonTypeDescriptor for this class.
      */
     public JsonTypeDescriptor describeHead(JsonModelDescriptor modelDescriptor) {
         return new JsonTypeDescriptor(cName)
-                .withNodeType(nodeType)
-                .withPermittedValues(builder.permittedValues(valuesArray))
-                .withSkippingNulls(skippingNulls);
+                .withNodeType(getNodeType())
+                .withPermittedValues(builder.permittedValues(getValuesArray()))
+                .withSkippingNulls(isSkippingNulls())
+                .withPrimitive(isPrimitive())
+                .withReflective(isReflective());
     }
 
     /**
-     * Describes all dependencies of this class for model introspection.
-     * This includes parent class relationships, field types, and their dependencies.
+     * Describes all dependencies of this class for model introspection. This includes parent class relationships, field
+     * types, and their dependencies.
      *
      * @param context The model descriptor context to add dependencies to.
      */

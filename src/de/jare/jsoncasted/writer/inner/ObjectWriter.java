@@ -119,8 +119,8 @@ public class ObjectWriter {
      */
     protected JsonClass calculateJsonClass(Object ob) throws NullPointerException, ClassCastException {
         if (jType instanceof JsonMap jMap) {
-            JsonClass itemClass = jMap.getItemClass();
-            return itemClass;
+            JsonClass keyClass = jMap.getItemClass();
+            return keyClass;
         }
         JsonClass jClass = model.getJsonClass(ob.getClass());
         if (jClass == null) {

@@ -11,18 +11,19 @@ import java.util.Objects;
 /**
  * General description of a JSON-mappable type.
  *
- * <p>This class can be used for both reflective types (discovered via reflection)
- * and purely descriptive types (defined programmatically). It captures all metadata
- * needed to serialize and deserialize objects of this type.</p>
+ * <p>
+ * This class can be used for both reflective types (discovered via reflection) and purely descriptive types (defined
+ * programmatically). It captures all metadata needed to serialize and deserialize objects of this type.</p>
  *
- * <p>A type descriptor contains:</p>
+ * <p>
+ * A type descriptor contains:</p>
  * <ul>
- *   <li>Type name and node type (OBJECT, ARRAY, STRING, etc.)</li>
- *   <li>Parent type for inheritance</li>
- *   <li>List of implementors (for interfaces)</li>
- *   <li>Constructor parameters and regular fields</li>
- *   <li>Permitted values (for enums)</li>
- *   <li>Flags for skipping nulls, primitives, reflective types</li>
+ * <li>Type name and node type (OBJECT, ARRAY, STRING, etc.)</li>
+ * <li>Parent type for inheritance</li>
+ * <li>List of implementors (for interfaces)</li>
+ * <li>Constructor parameters and regular fields</li>
+ * <li>Permitted values (for enums)</li>
+ * <li>Flags for skipping nulls, primitives, reflective types</li>
  * </ul>
  *
  * @author Janusch Rentenatus
@@ -39,6 +40,12 @@ public class JsonTypeDescriptor {
     private boolean skippingNulls;
     private boolean primitive;
     private boolean reflective;
+    /**
+     * A mask for all fields, that contains this class.
+     *
+     * e.g. "*:de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor[]" for an Araay of this class.
+     */
+
     private JsonFieldDescriptor mappingAllFields;
     private JsonTypeDescriptor parent;
 
@@ -297,6 +304,17 @@ public class JsonTypeDescriptor {
      */
     public JsonTypeDescriptor withPrimitive(boolean primitive) {
         this.primitive = primitive;
+        return this;
+    }
+
+    /**
+     * Sets whether this is a reflective type and returns this descriptor for chaining.
+     *
+     * @param reflective whether this is reflective.
+     * @return this type descriptor.
+     */
+    public JsonTypeDescriptor withReflective(boolean reflective) {
+        this.reflective = reflective;
         return this;
     }
 

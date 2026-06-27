@@ -48,7 +48,7 @@ public final class WoodResolver {
      *
      * @throws IllegalStateException Always thrown as this is a utility class.
      */
-    public WoodResolver() {
+    private WoodResolver() {
         throw new IllegalStateException("Utility class");
     }
 

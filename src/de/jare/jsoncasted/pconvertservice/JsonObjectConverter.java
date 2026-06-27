@@ -38,7 +38,7 @@ public class JsonObjectConverter {
      *
      * @throws IllegalStateException Always thrown as this is a utility class.
      */
-    public JsonObjectConverter() {
+    private JsonObjectConverter() {
         throw new IllegalStateException("Utility class");
     }
 
