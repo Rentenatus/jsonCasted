@@ -8,6 +8,7 @@
 package de.jare.jsoncasted.model.validation;
 
 import de.jare.jsoncasted.model.JsonModel;
+import de.jare.jsoncasted.model.JsonModelTypeTraverser;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonDefinitions;
@@ -15,6 +16,7 @@ import de.jare.jsoncasted.model.item.JsonField;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Central validator that traverses the entire JsonModel and executes all registered validators.
@@ -97,30 +99,28 @@ public class JsonModelValidator {
 
     /**
      * Traverses all types in the model and executes type and field validators.
+     * This method processes ALL registered type categories: JsonClass, JsonInter, and JsonEnum.
+     * Uses JsonModelTypeTraverser to access all types including those in package-private maps.
      * 
      * @param model the model to traverse
      * @param registry the validator registry
      * @param context the validation context
      */
     protected void validateTypes(JsonModel model, ValidatorRegistry registry, ValidationContext context) {
-        Iterator<JsonClass> typeIt = model.classesIterator();
-        while (typeIt.hasNext()) {
-            JsonClass type = typeIt.next();
-            
-            // Execute type validators
+        // Use the type traverser to visit all types (JsonClass, JsonInter, JsonEnum)
+        Consumer<JsonType> typeValidator = (type) -> {
             for (TypeValidator validator : registry.getTypeValidators()) {
                 validator.validate(type, context);
             }
-
-            // Execute field validators for each field in the type
-            Iterator<JsonField> fieldIt = type.fieldsIterator();
-            while (fieldIt.hasNext()) {
-                JsonField field = fieldIt.next();
-                for (FieldValidator validator : registry.getFieldValidators()) {
-                    validator.validate(field, context);
-                }
+        };
+        
+        Consumer<JsonField> fieldValidator = (field) -> {
+            for (FieldValidator validator : registry.getFieldValidators()) {
+                validator.validate(field, context);
             }
-        }
+        };
+        
+        JsonModelTypeTraverser.traverseAllTypes(model, typeValidator, fieldValidator);
     }
 
     /**
