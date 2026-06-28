@@ -9,6 +9,7 @@ package de.jare.jsoncasted.model;
 
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.builder.*;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.item.*;
@@ -24,7 +25,8 @@ import java.util.Set;
  * definitions, including retrieval, creation, and deletion.
  *
  * <p>
- * This class is the central type registry in the jsonCasted system, maintaining mappings for:</p>
+ * This class is the central type registry in the jsonCasted system, maintaining mappings for:
+ * </p>
  * <ul>
  * <li>Concrete classes ({@link JsonClass})</li>
  * <li>Interfaces ({@link JsonInter}) with their implementations</li>
@@ -34,7 +36,8 @@ import java.util.Set;
  *
  * <p>
  * Note: This class does NOT automatically register field types. If a class has fields with types that need to be
- * deserialized, those types must be explicitly registered in the model before use.</p>
+ * deserialized, those types must be explicitly registered in the model before use.
+ * </p>
  *
  * @author Janusch Rentenatus
  */
@@ -43,6 +46,7 @@ public class JsonModel {
     final HashMap<String, JsonClass> classes;
     final HashMap<String, JsonInter> interfaces;
     final HashMap<String, JsonClass> enums;
+    final JsonDefinitions definitionsRoot;
     private final HashMap<String, JsonRepoModel> repoModels;
     private final String mName;
     private JsonModelDescriptor descriptor;
@@ -59,6 +63,7 @@ public class JsonModel {
         this.interfaces = new HashMap<>();
         this.enums = new HashMap<>();
         this.repoModels = new HashMap<>();
+        this.definitionsRoot = new JsonDefinitions(mName + JsonTerms.DEFINITIONS_SUFFIX);
     }
 
     /**
@@ -70,11 +75,164 @@ public class JsonModel {
         return mName;
     }
 
+    public JsonDefinitions getDefinitionsRoot() {
+        return definitionsRoot;
+    }
+
+    /**
+     * Returns whether the root definitions contain any local types.
+     *
+     * @return {@code true} if root definitions contain types.
+     */
+    public boolean hasDefinitions() {
+        return definitionsRoot.hasTypes();
+    }
+
+    /**
+     * Returns whether the root definitions contain child definition scopes.
+     *
+     * @return {@code true} if child definition scopes exist.
+     */
+    public boolean hasDefinitionChildren() {
+        return definitionsRoot.hasChildren();
+    }
+
+    /**
+     * Returns whether the root definitions are empty.
+     *
+     * @return {@code true} if no types and no child definition scopes exist.
+     */
+    public boolean isDefinitionsEmpty() {
+        return definitionsRoot.isEmpty();
+    }
+
+    /**
+     * Adds a type to the root definitions.
+     *
+     * @param type The type to add.
+     */
+    public void addDefinitionType(JsonType type) {
+        definitionsRoot.addType(type);
+    }
+
+    /**
+     * Adds a type to the root definitions if absent.
+     *
+     * @param type The type to add.
+     * @return {@code true} if the type was added.
+     */
+    public boolean addDefinitionTypeIfAbsent(JsonType type) {
+        return definitionsRoot.addTypeIfAbsent(type);
+    }
+
+    /**
+     * Adds a child definitions scope to the root definitions.
+     *
+     * @param child The child definitions scope.
+     */
+    public void addDefinitionsChild(JsonDefinitions child) {
+        definitionsRoot.addChild(child);
+    }
+
+    /**
+     * Returns whether the root definitions contain the given type locally.
+     *
+     * @param cName The canonical type name.
+     * @return {@code true} if found locally.
+     */
+    public boolean containsLocalDefinitionType(String cName) {
+        return definitionsRoot.containsLocalType(cName);
+    }
+
+    /**
+     * Returns the local type from the root definitions.
+     *
+     * @param cName The canonical type name.
+     * @return The type, or {@code null} if not found.
+     */
+    public JsonType getLocalDefinitionType(String cName) {
+        return definitionsRoot.getLocalType(cName);
+    }
+
+    /**
+     * Finds a type in the definitions tree.
+     *
+     * @param cName The canonical type name.
+     * @return The type, or {@code null} if not found.
+     */
+    public JsonType findDefinitionType(String cName) {
+        return definitionsRoot.findType(cName);
+    }
+
+    /**
+     * Finds a definitions scope in the definitions tree.
+     *
+     * @param name The definitions scope name.
+     * @return The definitions scope, or {@code null} if not found.
+     */
+    public JsonDefinitions findDefinitions(String name) {
+        return definitionsRoot.findDefinitions(name);
+    }
+
+    /**
+     * Returns an iterator over the root-local definition types.
+     *
+     * @return Iterator over local definition types.
+     */
+    public Iterator<JsonType> definitionTypesIterator() {
+        return definitionsRoot.typesIterator();
+    }
+
+    /**
+     * Returns an iterator over all definition types in the tree.
+     *
+     * @return Iterator over all definition types.
+     */
+    public Iterator<JsonType> definitionTypesDeepIterator() {
+        return definitionsRoot.typesDeepIterator();
+    }
+
+    /**
+     * Returns an iterator over the direct child definitions of the root.
+     *
+     * @return Iterator over child definitions.
+     */
+    public Iterator<JsonDefinitions> definitionChildrenIterator() {
+        return definitionsRoot.childrenIterator();
+    }
+
+    /**
+     * Returns an iterator over all child definitions in the tree.
+     *
+     * @return Iterator over all nested child definitions.
+     */
+    public Iterator<JsonDefinitions> definitionChildrenDeepIterator() {
+        return definitionsRoot.childrenDeepIterator();
+    }
+
+    /**
+     * Removes a local type from the root definitions by name.
+     *
+     * @param cName The canonical type name.
+     * @return The removed type, or {@code null} if not found.
+     */
+    public JsonType removeLocalDefinitionType(String cName) {
+        return definitionsRoot.removeType(cName);
+    }
+
+    /**
+     * Clears the complete definitions tree.
+     */
+    public void clearDefinitions() {
+        definitionsRoot.clear();
+    }
+
     /**
      * Adds a JSON class to the model registry.
      * <p>
      * Note: This method only registers the class itself. Field types must be registered separately. Unlike previous
-     * versions, there is no automatic recursive registration of field types.</p>
+     * versions, there is no automatic recursive registration of field types.
+     * </p>
      *
      * @param jClass The JSON class to register.
      */
@@ -298,7 +456,8 @@ public class JsonModel {
      * @param builder The builder for creating instances.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonClassIndividually(Class<?> clazz, String cNameOrNull, JsonNodeType nodeType, JsonModellClassBuilder builder) {
+    public JsonClass newJsonClassIndividually(Class<?> clazz, String cNameOrNull, JsonNodeType nodeType,
+            JsonModellClassBuilder builder) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName();
         }
@@ -416,7 +575,8 @@ public class JsonModel {
      * @param skippingNulls Whether to skip null values when building.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonReflectIndividually(Class<?> clazz, String cNameOrNull, JsonClass parent, boolean skippingNulls) {
+    public JsonClass newJsonReflectIndividually(Class<?> clazz, String cNameOrNull, JsonClass parent,
+            boolean skippingNulls) {
         JsonClass ret = newJsonReflectIndividually(clazz, cNameOrNull, skippingNulls);
         ret.addFromSuperclass(parent);
         return ret;
@@ -443,7 +603,8 @@ public class JsonModel {
      * @param valuesArray The array of enum templates for name-based lookup.
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonEnumByNameIndividually(Class<?> clazz, String cNameOrNull, JsonEnumTemplate... valuesArray) {
+    public JsonClass newJsonEnumByNameIndividually(Class<?> clazz, String cNameOrNull,
+            JsonEnumTemplate... valuesArray) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName();
         }
@@ -475,7 +636,8 @@ public class JsonModel {
      * @param valuesList
      * @return The newly created JsonClass, already registered in this model.
      */
-    public JsonClass newJsonEnumByNameIndividually(Class<?> clazz, String cNameOrNull, List<? extends JsonEnumTemplate> valuesList) {
+    public JsonClass newJsonEnumByNameIndividually(Class<?> clazz, String cNameOrNull,
+            List<? extends JsonEnumTemplate> valuesList) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName();
         }
@@ -539,7 +701,8 @@ public class JsonModel {
      * @param colType The collection type (NONE, LIST, ARRAY).
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newJsonMapIndividually(Class<? extends JsonInstance<?>> clazz, String cNameOrNull, JsonClass itemClass, JsonCollectionType colType) {
+    public JsonMap newJsonMapIndividually(Class<? extends JsonInstance<?>> clazz, String cNameOrNull,
+            JsonClass itemClass, JsonCollectionType colType) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName() + "<" + itemClass.getcName() + ">"
                     + (colType == JsonCollectionType.NONE ? "" : "[]");
@@ -560,7 +723,8 @@ public class JsonModel {
      * @param colType The collection type (NONE, LIST, ARRAY).
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, boolean skippingNulls, JsonClass itemClass, JsonCollectionType colType) {
+    public JsonMap newJsonMap(Class<? extends JsonInstance<?>> clazz, boolean skippingNulls, JsonClass itemClass,
+            JsonCollectionType colType) {
         return newJsonMapIndividually(clazz, clazz.getTypeName(), skippingNulls, itemClass, colType);
     }
 
@@ -577,7 +741,8 @@ public class JsonModel {
      * @param colType The collection type (NONE, LIST, ARRAY).
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newJsonMapIndividually(Class<? extends JsonInstance<?>> clazz, String cNameOrNull, boolean skippingNulls, JsonClass itemClass, JsonCollectionType colType) {
+    public JsonMap newJsonMapIndividually(Class<? extends JsonInstance<?>> clazz, String cNameOrNull,
+            boolean skippingNulls, JsonClass itemClass, JsonCollectionType colType) {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName() + "<" + itemClass.getcName() + ">"
                     + (colType == JsonCollectionType.NONE ? "" : "[]");
@@ -596,8 +761,10 @@ public class JsonModel {
      * @param itemClass The JsonClass for the map values.
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newRawJsonMapIndividually(Class<? extends JsonInstance> clazz, String cNameOrNull, JsonClass itemClass) {
-        return newJsonMapIndividually((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, itemClass, JsonCollectionType.NONE);
+    public JsonMap newRawJsonMapIndividually(Class<? extends JsonInstance> clazz, String cNameOrNull,
+            JsonClass itemClass) {
+        return newJsonMapIndividually((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, itemClass,
+                JsonCollectionType.NONE);
     }
 
     /**
@@ -610,8 +777,10 @@ public class JsonModel {
      * @param itemClass The JsonClass for the map values.
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newRawJsonMapIndividually(Class<? extends JsonInstance> clazz, String cNameOrNull, boolean skippingNulls, JsonClass itemClass) {
-        return newJsonMapIndividually((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, skippingNulls, itemClass, JsonCollectionType.NONE);
+    public JsonMap newRawJsonMapIndividually(Class<? extends JsonInstance> clazz, String cNameOrNull,
+            boolean skippingNulls, JsonClass itemClass) {
+        return newJsonMapIndividually((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, skippingNulls, itemClass,
+                JsonCollectionType.NONE);
     }
 
     /**
@@ -624,7 +793,8 @@ public class JsonModel {
      * @param type The collection type.
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newRawJsonMapIndividually(Class<? extends JsonInstance> clazz, String cNameOrNull, JsonClass itemClass, JsonCollectionType type) {
+    public JsonMap newRawJsonMapIndividually(Class<? extends JsonInstance> clazz, String cNameOrNull,
+            JsonClass itemClass, JsonCollectionType type) {
         return newJsonMapIndividually((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, itemClass, type);
     }
 
@@ -639,8 +809,10 @@ public class JsonModel {
      * @param type The collection type.
      * @return The newly created JsonMap, already registered in this model.
      */
-    public JsonMap newRawJsonMapIndividually(Class<? extends JsonInstance> clazz, String cNameOrNull, boolean skippingNulls, JsonClass itemClass, JsonCollectionType type) {
-        return newJsonMapIndividually((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, skippingNulls, itemClass, type);
+    public JsonMap newRawJsonMapIndividually(Class<? extends JsonInstance> clazz, String cNameOrNull,
+            boolean skippingNulls, JsonClass itemClass, JsonCollectionType type) {
+        return newJsonMapIndividually((Class<? extends JsonInstance<?>>) clazz, cNameOrNull, skippingNulls, itemClass,
+                type);
     }
 
     /**
@@ -711,6 +883,10 @@ public class JsonModel {
             JsonModelDescriptor repoDescriptor = repoModel.getOrCreateDescriptor();
             context.addRepoDescriptor(synonym, repoDescriptor);
         });
+
+        if (definitionsRoot != null && !definitionsRoot.isEmpty()) {
+            context.setDefinitionsRoot(definitionsRoot.describe());
+        }
 
         descriptor = context;
         return context;

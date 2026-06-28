@@ -61,12 +61,12 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
         descriptField.addCParam("setter", asString);
         
         descriptType = model.newJsonReflect(JsonTypeDescriptor.class);
-        descriptType.setReflective(true);
+        descriptType.setRecursive(true);
         descriptType.addCParam("typeName", asString);
         descriptType.addField("nodeType", nodeTypeEnum, "getNodeType", "withNodeType");
         descriptType.addField("skippingNulls", asBoolean, "isSkippingNulls", "withSkippingNulls");
         descriptType.addField("primitive", asBoolean, "isPrimitive", "withPrimitive");
-        descriptType.addField("reflective", asBoolean, "isReflective", "withReflective");
+        descriptType.addField("recursive", asBoolean, "isRecursive", "withRecursive");
         descriptType.addField("mappingAllFields", descriptField);
         descriptType.addField("parent", descriptType);
         

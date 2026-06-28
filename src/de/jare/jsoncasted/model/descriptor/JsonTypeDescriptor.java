@@ -23,7 +23,7 @@ import java.util.Objects;
  * <li>List of implementors (for interfaces)</li>
  * <li>Constructor parameters and regular fields</li>
  * <li>Permitted values (for enums)</li>
- * <li>Flags for skipping nulls, primitives, reflective types</li>
+ * <li>Flags for skipping nulls, primitives, recursive types</li>
  * </ul>
  *
  * @author Janusch Rentenatus
@@ -39,7 +39,7 @@ public class JsonTypeDescriptor {
     private JsonNodeType nodeType;
     private boolean skippingNulls;
     private boolean primitive;
-    private boolean reflective;
+    private boolean recursive;
     /**
      * A mask for all fields, that contains this class.
      *
@@ -233,12 +233,12 @@ public class JsonTypeDescriptor {
     }
 
     /**
-     * Checks if this type was discovered via reflection.
+     * Checks if this type will be recursive build.
      *
-     * @return {@code true} if reflective.
+     * @return {@code true} if recursive.
      */
-    public boolean isReflective() {
-        return reflective;
+    public boolean isRecursive() {
+        return recursive;
     }
 
     /**
@@ -308,13 +308,13 @@ public class JsonTypeDescriptor {
     }
 
     /**
-     * Sets whether this is a reflective type and returns this descriptor for chaining.
+     * Sets whether this is a recursive for chaining.
      *
-     * @param reflective whether this is reflective.
+     * @param recursive whether this is recursive.
      * @return this type descriptor.
      */
-    public JsonTypeDescriptor withReflective(boolean reflective) {
-        this.reflective = reflective;
+    public JsonTypeDescriptor withRecursive(boolean recursive) {
+        this.recursive = recursive;
         return this;
     }
 
@@ -377,7 +377,7 @@ public class JsonTypeDescriptor {
                 + "typeName=" + typeName
                 + ", nodeType=" + nodeType
                 + ", primitive=" + primitive
-                + ", reflective=" + reflective
+                + ", recursive=" + recursive
                 + ", ctor=" + constructorParams.size()
                 + ", fields=" + fields.size()
                 + "]";

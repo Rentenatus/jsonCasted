@@ -58,7 +58,7 @@ public class JsonClass implements JsonType {
     private final JsonNodeType nodeType;
     private JsonClass parent;
     private JsonEnumTemplate[] valuesArray;
-    private boolean reflective;
+    private boolean recursive;
 
     /**
      * Constructs a JsonClass with the specified class name and builder. Uses OBJECT as the default node type.
@@ -85,7 +85,7 @@ public class JsonClass implements JsonType {
         this.keys = new ArrayList<>();
         this.skippingNulls = false;
         this.parent = null;
-        this.reflective = false;
+        this.recursive = false;
     }
 
     /**
@@ -116,7 +116,7 @@ public class JsonClass implements JsonType {
         this.fields = new HashMap<>();
         this.keys = new ArrayList<>();
         this.parent = null;
-        this.reflective = false;
+        this.recursive = false;
     }
 
     @Override
@@ -157,12 +157,12 @@ public class JsonClass implements JsonType {
         this.skippingNulls = skippingNulls;
     }
 
-    public boolean isReflective() {
-        return reflective;
+    public boolean isRecursive() {
+        return recursive;
     }
 
-    public void setReflective(boolean reflective) {
-        this.reflective = reflective;
+    public void setRecursive(boolean recursive) {
+        this.recursive = recursive;
     }
 
     /**
@@ -638,7 +638,7 @@ public class JsonClass implements JsonType {
                 .withPermittedValues(builder.permittedValues(getValuesArray()))
                 .withSkippingNulls(isSkippingNulls())
                 .withPrimitive(isPrimitive())
-                .withReflective(isReflective());
+                .withRecursive(isRecursive());
     }
 
     /**

@@ -33,6 +33,7 @@ public class JsonModelDescriptor {
     private final String modelName;
     private final Map<String, JsonTypeDescriptor> describedTypes = new LinkedHashMap<>();
     private final Map<String, JsonModelDescriptor> repoDescriptors = new LinkedHashMap<>();
+    private JsonDefinitionsDescriptor definitionsRoot;
 
     /**
      * Constructs a model descriptor with the specified model name.
@@ -53,6 +54,14 @@ public class JsonModelDescriptor {
      */
     public String getModelName() {
         return modelName;
+    }
+
+    public JsonDefinitionsDescriptor getDefinitionsRoot() {
+        return definitionsRoot;
+    }
+
+    public void setDefinitionsRoot(JsonDefinitionsDescriptor definitionsRoot) {
+        this.definitionsRoot = definitionsRoot;
     }
 
     /**
