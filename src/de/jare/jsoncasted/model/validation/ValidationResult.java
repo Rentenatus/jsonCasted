@@ -80,11 +80,22 @@ public class ValidationResult {
     }
 
     /**
-     * Checks if this result is completely valid (no errors or warnings).
+     * Checks if this result is valid (no errors).
+     * Warnings are allowed and do not prevent a result from being valid.
+     * 
+     * @return true if there are no errors (warnings may still exist)
+     */
+    public boolean isValid() {
+        return !hasErrors();
+    }
+
+    /**
+     * Checks if this result is clean (no errors and no warnings).
+     * This is a stricter check than {@link #isValid()}.
      * 
      * @return true if there are no errors and no warnings
      */
-    public boolean isValid() {
+    public boolean isClean() {
         return !hasErrors() && !hasWarnings();
     }
 
