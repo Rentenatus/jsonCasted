@@ -1,6 +1,5 @@
 /* <copyright>
- * Copyright (C) 2022 Janusch Rentenatus & Thomas Weber 
- * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * Copyright (C) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
@@ -13,9 +12,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Collects all validation diagnostics from the validation process.
- * Provides methods to check for errors and retrieve diagnostics.
- * 
+ * Collects all validation diagnostics from the validation process. Provides methods to check for errors and retrieve
+ * diagnostics.
+ *
  * @author Janusch Rentenatus
  */
 public class ValidationResult {
@@ -24,7 +23,7 @@ public class ValidationResult {
 
     /**
      * Adds a diagnostic to this result.
-     * 
+     *
      * @param diagnostic the diagnostic to add
      */
     public void add(ValidationDiagnostic diagnostic) {
@@ -33,7 +32,7 @@ public class ValidationResult {
 
     /**
      * Returns an unmodifiable list of all diagnostics.
-     * 
+     *
      * @return the list of diagnostics
      */
     public List<ValidationDiagnostic> getDiagnostics() {
@@ -42,7 +41,7 @@ public class ValidationResult {
 
     /**
      * Returns all diagnostics filtered by severity.
-     * 
+     *
      * @param severity the severity to filter by
      * @return list of diagnostics with the specified severity
      */
@@ -54,7 +53,7 @@ public class ValidationResult {
 
     /**
      * Checks if this result contains any errors.
-     * 
+     *
      * @return true if there are any diagnostics with ERROR severity
      */
     public boolean hasErrors() {
@@ -63,7 +62,7 @@ public class ValidationResult {
 
     /**
      * Checks if this result contains any warnings.
-     * 
+     *
      * @return true if there are any diagnostics with WARNING severity
      */
     public boolean hasWarnings() {
@@ -72,7 +71,7 @@ public class ValidationResult {
 
     /**
      * Checks if this result contains any infos.
-     * 
+     *
      * @return true if there are any diagnostics with INFO severity
      */
     public boolean hasInfos() {
@@ -80,9 +79,8 @@ public class ValidationResult {
     }
 
     /**
-     * Checks if this result is valid (no errors).
-     * Warnings are allowed and do not prevent a result from being valid.
-     * 
+     * Checks if this result is valid (no errors). Warnings are allowed and do not prevent a result from being valid.
+     *
      * @return true if there are no errors (warnings may still exist)
      */
     public boolean isValid() {
@@ -90,9 +88,8 @@ public class ValidationResult {
     }
 
     /**
-     * Checks if this result is clean (no errors and no warnings).
-     * This is a stricter check than {@link #isValid()}.
-     * 
+     * Checks if this result is clean (no errors and no warnings). This is a stricter check than {@link #isValid()}.
+     *
      * @return true if there are no errors and no warnings
      */
     public boolean isClean() {
@@ -101,7 +98,7 @@ public class ValidationResult {
 
     /**
      * Returns the total count of diagnostics.
-     * 
+     *
      * @return the count of diagnostics
      */
     public int getDiagnosticCount() {
@@ -110,7 +107,7 @@ public class ValidationResult {
 
     /**
      * Returns the count of errors.
-     * 
+     *
      * @return the count of errors
      */
     public int getErrorCount() {
@@ -119,7 +116,7 @@ public class ValidationResult {
 
     /**
      * Returns the count of warnings.
-     * 
+     *
      * @return the count of warnings
      */
     public int getWarningCount() {
@@ -135,11 +132,11 @@ public class ValidationResult {
 
     @Override
     public String toString() {
-        return "ValidationResult{" +
-                "errorCount=" + getErrorCount() +
-                ", warningCount=" + getWarningCount() +
-                ", infoCount=" + (getDiagnosticCount() - getErrorCount() - getWarningCount()) +
-                ", total=" + getDiagnosticCount() +
-                '}';
+        return "ValidationResult{"
+                + "errorCount=" + getErrorCount()
+                + ", warningCount=" + getWarningCount()
+                + ", infoCount=" + (getDiagnosticCount() - getErrorCount() - getWarningCount())
+                + ", total=" + getDiagnosticCount()
+                + '}';
     }
 }

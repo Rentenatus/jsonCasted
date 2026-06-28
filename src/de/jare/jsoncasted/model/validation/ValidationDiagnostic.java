@@ -1,6 +1,5 @@
 /* <copyright>
- * Copyright (C) 2022 Janusch Rentenatus & Thomas Weber 
- * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * Copyright (C) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
@@ -9,7 +8,7 @@ package de.jare.jsoncasted.model.validation;
 
 /**
  * Represents a single validation diagnostic message with severity, code, message, and source.
- * 
+ *
  * @author Janusch Rentenatus
  */
 public class ValidationDiagnostic {
@@ -21,7 +20,7 @@ public class ValidationDiagnostic {
 
     /**
      * Creates a new validation diagnostic.
-     * 
+     *
      * @param severity the severity level
      * @param code the diagnostic code
      * @param message the diagnostic message
@@ -36,7 +35,7 @@ public class ValidationDiagnostic {
 
     /**
      * Returns the severity level of this diagnostic.
-     * 
+     *
      * @return the severity
      */
     public Severity getSeverity() {
@@ -45,7 +44,7 @@ public class ValidationDiagnostic {
 
     /**
      * Returns the diagnostic code.
-     * 
+     *
      * @return the code
      */
     public String getCode() {
@@ -54,7 +53,7 @@ public class ValidationDiagnostic {
 
     /**
      * Returns the diagnostic message.
-     * 
+     *
      * @return the message
      */
     public String getMessage() {
@@ -63,7 +62,7 @@ public class ValidationDiagnostic {
 
     /**
      * Returns the source object that caused this diagnostic.
-     * 
+     *
      * @return the source object
      */
     public Object getSource() {

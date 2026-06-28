@@ -1,11 +1,10 @@
 /* <copyright>
- * Copyright (C) 2022 Janusch Rentenatus & Thomas Weber 
- * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * Copyright (C) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.model.validation.def;
+package de.jare.jsoncasted.model.validation.modeldefault;
 
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.item.JsonClass;
@@ -15,9 +14,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Validator that checks for duplicate class names in the model.
- * If multiple classes have the same canonical name, an error diagnostic is reported.
- * 
+ * Validator that checks for duplicate class names in the model. If multiple classes have the same canonical name, an
+ * error diagnostic is reported.
+ *
  * @author Janusch Rentenatus
  */
 public class DuplicateClassNameValidator implements ModelValidator {

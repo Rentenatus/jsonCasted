@@ -1,6 +1,5 @@
 /* <copyright>
- * Copyright (C) 2022 Janusch Rentenatus & Thomas Weber 
- * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * Copyright (C) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
@@ -10,7 +9,6 @@ package de.jare.jsoncasted.model.validation;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonModelTypeTraverser;
 import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonDefinitions;
 import de.jare.jsoncasted.model.item.JsonField;
 import java.util.ArrayList;
@@ -36,14 +34,14 @@ import java.util.function.Consumer;
  * 
  * @author Janusch Rentenatus
  */
-public class JsonModelValidator {
+public class ValidationRunner {
 
     private final List<ValidatorContributor> contributors = new ArrayList<>();
 
     /**
      * Creates a new JsonModelValidator with no contributors.
      */
-    public JsonModelValidator() {
+    public ValidationRunner() {
     }
 
     /**
@@ -52,7 +50,7 @@ public class JsonModelValidator {
      * @param contributor the contributor to add
      * @return this validator for method chaining
      */
-    public JsonModelValidator addContributor(ValidatorContributor contributor) {
+    public ValidationRunner addContributor(ValidatorContributor contributor) {
         contributors.add(contributor);
         return this;
     }

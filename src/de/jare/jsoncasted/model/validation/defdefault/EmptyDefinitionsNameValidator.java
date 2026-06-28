@@ -1,20 +1,19 @@
 /* <copyright>
- * Copyright (C) 2022 Janusch Rentenatus & Thomas Weber 
- * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * Copyright (C) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.model.validation.def;
+package de.jare.jsoncasted.model.validation.defdefault;
 
 import de.jare.jsoncasted.model.item.JsonDefinitions;
 import de.jare.jsoncasted.model.validation.DefinitionsValidator;
 import de.jare.jsoncasted.model.validation.ValidationContext;
 
 /**
- * Validator that checks if a definitions node has an empty or blank name.
- * Definitions without proper names cannot be properly identified in the hierarchy.
- * 
+ * Validator that checks if a definitions node has an empty or blank name. Definitions without proper names cannot be
+ * properly identified in the hierarchy.
+ *
  * @author Janusch Rentenatus
  */
 public class EmptyDefinitionsNameValidator implements DefinitionsValidator {
