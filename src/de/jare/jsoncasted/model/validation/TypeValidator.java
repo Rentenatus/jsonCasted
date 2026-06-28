@@ -1,0 +1,28 @@
+/* <copyright>
+ * Copyright (C) 2022 Janusch Rentenatus & Thomas Weber 
+ * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
+ */
+package de.jare.jsoncasted.model.validation;
+
+import de.jare.jsoncasted.model.JsonType;
+
+/**
+ * Functional interface for validators that validate JsonType instances
+ * (JsonClass, JsonInter, JsonMap, etc.).
+ * 
+ * @author Janusch Rentenatus
+ */
+@FunctionalInterface
+public interface TypeValidator {
+
+    /**
+     * Validates the given JsonType.
+     * 
+     * @param type the type to validate
+     * @param context the validation context for reporting diagnostics
+     */
+    void validate(JsonType type, ValidationContext context);
+}
