@@ -7,15 +7,9 @@
  */
 package de.jare.jsoncasted.model.validation;
 
-import de.jare.jsoncasted.model.FieldKind;
-import de.jare.jsoncasted.model.JsonModel;
-import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.model.item.JsonDefinitions;
-import de.jare.jsoncasted.model.item.JsonField;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import de.jare.jsoncasted.model.validation.def.DuplicateChildNameValidator;
+import de.jare.jsoncasted.model.validation.def.EmptyDefinitionsNameValidator;
+import de.jare.jsoncasted.model.validation.def.UnregisteredReferenceTypeValidator;
 
 /**
  * Contributor that registers validation rules for JsonDefinitions.
@@ -23,8 +17,7 @@ import java.util.Set;
  * <ul>
  * <li>Empty definitions names</li>
  * <li>Duplicate child names in the same scope</li>
- * <li>Types in definitions not registered in the model</li>
- * <li>Empty definition scopes that are being used</li>
+ * <li>Reference fields targeting unregistered types</li>
  * </ul>
  * 
  * @author Janusch Rentenatus
@@ -34,60 +27,10 @@ public class DefinitionsValidatorContributor implements ValidatorContributor {
     @Override
     public void contribute(ValidatorRegistry registry) {
         // Definitions-level validators
-        registry.addDefinitionsValidator((definitions, ctx) -> {
-            // Check for empty definitions name
-            if (definitions.getName() == null || definitions.getName().isBlank()) {
-                ctx.error("definitions.name.blank", "Definitions name must not be blank.", definitions);
-            }
-
-            // Check for duplicate child names in this scope
-            checkDuplicateChildNames(definitions, ctx);
-        });
+        registry.addDefinitionsValidator(new EmptyDefinitionsNameValidator());
+        registry.addDefinitionsValidator(new DuplicateChildNameValidator());
 
         // Field-level validators related to definitions
-        registry.addFieldValidator((field, ctx) -> {
-            // Check if reference field's type is registered in the model
-            if (field.getKind() == FieldKind.REFERENCE && field.getjType() != null) {
-                JsonModel model = ctx.getModel();
-                String targetTypeName = field.getjType().getcName();
-                
-                if (targetTypeName != null && model.getJsonClass(targetTypeName) == null && 
-                    model.getJsonInter(targetTypeName) == null && model.getJsonEnum(targetTypeName) == null) {
-                    ctx.warning("field.reference.type.unregistered", 
-                            "Reference field targets unregistered type: " + targetTypeName, 
-                            field);
-                }
-            }
-        });
-    }
-
-    /**
-     * Checks for duplicate child names within a definitions scope.
-     * 
-     * @param definitions the definitions to check
-     * @param ctx the validation context
-     */
-    private void checkDuplicateChildNames(JsonDefinitions definitions, ValidationContext ctx) {
-        Set<String> childNames = new HashSet<>();
-        Set<String> duplicateNames = new HashSet<>();
-
-        Iterator<JsonDefinitions> children = definitions.childrenIterator();
-        while (children.hasNext()) {
-            JsonDefinitions child = children.next();
-            String name = child.getName();
-            if (name != null && !name.isBlank()) {
-                if (childNames.contains(name)) {
-                    duplicateNames.add(name);
-                } else {
-                    childNames.add(name);
-                }
-            }
-        }
-
-        for (String duplicateName : duplicateNames) {
-            ctx.error("definitions.child.name.duplicate", 
-                    "Duplicate child name in definitions scope: " + duplicateName, 
-                    definitions);
-        }
+        registry.addFieldValidator(new UnregisteredReferenceTypeValidator());
     }
 }
