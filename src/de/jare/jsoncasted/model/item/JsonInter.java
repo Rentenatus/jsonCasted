@@ -21,14 +21,13 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * The JsonInter class represents an interface definition in a JSON structure.
- * It extends ArrayList<JsonClass> and implements JsonType, allowing multiple
- * class associations.
+ * The JsonInter class represents an interface definition in a JSON structure. It extends ArrayList<JsonClass> and
+ * implements JsonType, allowing multiple class associations.
  *
- * <p>An interface in jsonCasted can have multiple concrete implementations.
- * When parsing JSON that matches an interface type, the system will attempt to
- * determine the correct implementation based on the JSON structure and registered
- * type information.</p>
+ * <p>
+ * An interface in jsonCasted can have multiple concrete implementations. When parsing JSON that matches an interface
+ * type, the system will attempt to determine the correct implementation based on the JSON structure and registered type
+ * information.</p>
  *
  * @author Janusch Rentenatus
  */
@@ -38,8 +37,7 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
     private final String cName;
 
     /**
-     * Constructs a JsonInter instance with the specified interface name and
-     * builder.
+     * Constructs a JsonInter instance with the specified interface name and builder.
      *
      * @param cName The name of the interface.
      * @param builder The builder responsible for instance creation.
@@ -51,16 +49,15 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
     }
 
     /**
-     * Constructs a JsonInter instance with a predefined set of associated
-     * classes.
+     * Constructs a JsonInter instance with a predefined set of associated classes.
      *
      * @param cName The name of the interface.
      * @param builder The builder responsible for instance creation.
-     * @param jClass The associated JSON classes.
+     * @param jClasses The associated JSON classes.
      */
-    public JsonInter(String cName, JsonModellClassBuilder builder, JsonClass... jClass) {
-        super(jClass.length);
-        for (JsonClass jc : jClass) {
+    public JsonInter(String cName, JsonModellClassBuilder builder, JsonClass... jClasses) {
+        super(jClasses.length);
+        for (JsonClass jc : jClasses) {
             add(jc);
         }
         this.builder = builder;
@@ -70,12 +67,17 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
     /**
      * Adds multiple JSON classes to the interface definition.
      *
-     * @param jClass The JSON classes to associate with the interface.
+     * @param jClasses The JSON classes to associate with the interface.
      */
-    public void addAll(JsonClass... jClass) {
-        for (JsonClass jc : jClass) {
+    public void addAll(JsonClass... jClasses) {
+        for (JsonClass jc : jClasses) {
             add(jc);
         }
+    }
+
+    public boolean add(JsonClass jClass) {
+        jClass.setDefinitional(true);
+        return super.add(jClass);
     }
 
     /**
@@ -89,8 +91,7 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
     }
 
     /**
-     * Returns the node type for this interface.
-     * Interfaces are always represented as OBJECT nodes in JSON.
+     * Returns the node type for this interface. Interfaces are always represented as OBJECT nodes in JSON.
      *
      * @return JsonNodeType.OBJECT always.
      */
@@ -100,8 +101,7 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
     }
 
     /**
-     * Returns the direct JSON class. Since this represents an interface, it
-     * does not have a direct class.
+     * Returns the direct JSON class. Since this represents an interface, it does not have a direct class.
      *
      * @return null, as interfaces do not directly represent a singular class.
      */
@@ -132,6 +132,11 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
     @Override
     public boolean isPrimitive() {
         return false;
+    }
+
+    @Override
+    public boolean isDefinitional() {
+        return true;
     }
 
     /**
@@ -189,8 +194,8 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
     }
 
     /**
-     * Creates a type descriptor header for this interface for model introspection.
-     * Includes the interface name and all its implementing classes.
+     * Creates a type descriptor header for this interface for model introspection. Includes the interface name and all
+     * its implementing classes.
      *
      * @param context The model descriptor context.
      * @return A JsonTypeDescriptor for this interface with all implementors registered.

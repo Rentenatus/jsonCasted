@@ -58,7 +58,7 @@ public class JsonClass implements JsonType {
     private final JsonNodeType nodeType;
     private JsonClass parent;
     private JsonEnumTemplate[] valuesArray;
-    private boolean recursive;
+    private boolean definitional;
 
     /**
      * Constructs a JsonClass with the specified class name and builder. Uses OBJECT as the default node type.
@@ -85,7 +85,7 @@ public class JsonClass implements JsonType {
         this.keys = new ArrayList<>();
         this.skippingNulls = false;
         this.parent = null;
-        this.recursive = false;
+        this.definitional = false;
     }
 
     /**
@@ -116,7 +116,7 @@ public class JsonClass implements JsonType {
         this.fields = new HashMap<>();
         this.keys = new ArrayList<>();
         this.parent = null;
-        this.recursive = false;
+        this.definitional = false;
     }
 
     @Override
@@ -157,12 +157,16 @@ public class JsonClass implements JsonType {
         this.skippingNulls = skippingNulls;
     }
 
-    public boolean isRecursive() {
-        return recursive;
+    @Override
+    public boolean isDefinitional() {
+        return definitional;
     }
 
-    public void setRecursive(boolean recursive) {
-        this.recursive = recursive;
+    public void setDefinitional(boolean definitional) {
+        if (isPrimitive() && definitional) {
+            throw new IllegalArgumentException("A class cannot be both primitive and definitional at the same time.");
+        }
+        this.definitional = definitional;
     }
 
     /**
@@ -638,7 +642,7 @@ public class JsonClass implements JsonType {
                 .withPermittedValues(builder.permittedValues(getValuesArray()))
                 .withSkippingNulls(isSkippingNulls())
                 .withPrimitive(isPrimitive())
-                .withRecursive(isRecursive());
+                .withRecursive(isDefinitional());
     }
 
     /**

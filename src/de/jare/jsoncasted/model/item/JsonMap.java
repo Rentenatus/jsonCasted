@@ -22,15 +22,17 @@ import java.util.Iterator;
 /**
  * Represents a JSON map/collection type that wraps a singular class with collection semantics.
  *
- * <p>A JsonMap extends {@link JsonClass} to provide map-like behavior where keys map to
- * instances of a specified item class. This is used for representing JSON objects
- * that function as maps or dictionaries with homogeneous value types.</p>
+ * <p>
+ * A JsonMap extends {@link JsonClass} to provide map-like behavior where keys map to instances of a specified item
+ * class. This is used for representing JSON objects that function as maps or dictionaries with homogeneous value
+ * types.</p>
  *
- * <p>This class handles special behavior for map types including:</p>
+ * <p>
+ * This class handles special behavior for map types including:</p>
  * <ul>
- *   <li>Dynamic field access by key</li>
- *   <li>Collection type semantics (LIST, ARRAY, or NONE)</li>
- *   <li>Empty map detection</li>
+ * <li>Dynamic field access by key</li>
+ * <li>Collection type semantics (LIST, ARRAY, or NONE)</li>
+ * <li>Empty map detection</li>
  * </ul>
  *
  * @author Janusch Rentenatus
@@ -105,8 +107,8 @@ public class JsonMap extends JsonClass implements JsonType {
     }
 
     /**
-     * Returns an iterator over the field names (keys) for writing.
-     * For JsonMap, this returns the keys from the underlying JsonInstance object.
+     * Returns an iterator over the field names (keys) for writing. For JsonMap, this returns the keys from the
+     * underlying JsonInstance object.
      *
      * @param ob the JsonInstance object.
      * @return an iterator over the key set.
@@ -153,13 +155,18 @@ public class JsonMap extends JsonClass implements JsonType {
     }
 
     @Override
+    public boolean isDefinitional() {
+        return false;
+    }
+
+    @Override
     public String toString(Object attr) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
-     * Creates a type descriptor header for this map for model introspection.
-     * Ensures the item class is also described in the context.
+     * Creates a type descriptor header for this map for model introspection. Ensures the item class is also described
+     * in the context.
      *
      * @param context The model descriptor context.
      * @return A JsonTypeDescriptor for this map.
@@ -173,8 +180,8 @@ public class JsonMap extends JsonClass implements JsonType {
     }
 
     /**
-     * Describes all dependencies of this map for model introspection.
-     * This includes the item class dependency and the mapping field descriptor.
+     * Describes all dependencies of this map for model introspection. This includes the item class dependency and the
+     * mapping field descriptor.
      *
      * @param context The model descriptor context to add dependencies to.
      */

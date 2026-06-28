@@ -9,28 +9,54 @@ package de.jare.jsoncasted.model.item;
 
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.descriptor.JsonDefinitionsDescriptor;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 /**
- * Repository-like container for JSON type definitions.
+ * Hierarchical container that defines where referenced objects are written in a JSON structure.
  * <p>
- * A {@code JsonDefinitions} instance can contain multiple {@link JsonType} definitions as well as nested child
- * {@code JsonDefinitions}. This allows hierarchical definition spaces that can be used to collect and resolve
- * referenced types during serialization.
+ * A {@code JsonDefinitions} instance represents a definition scope within a model. It provides the structural place in
+ * which objects can be collected and written as separate definitions instead of being serialized inline at every
+ * occurrence.
+ * </p>
+ *
+ * <p>
+ * The actual object identity is intentionally not managed by this class. In the Wood-based setup, identity and
+ * cross-file linking are handled by providers, for example by combining a provider synonym with an object id such as
+ * {@code save::123456}. {@code JsonDefinitions} only supplies the hierarchical location in which such referenced
+ * objects belong.
+ * </p>
+ *
+ * <p>
+ * This means the class is not an id registry and not a link resolver. It is a model-side description of definition
+ * areas that can be used by serializers and editors to decide where provider-identified objects should be placed.
+ * </p>
+ *
+ * <p>
+ * A definition scope can contain multiple {@link JsonType}s as well as nested child {@code JsonDefinitions}. The stored
+ * types describe which kinds of objects may appear in this definition area. The concrete instances and their ids are
+ * handled outside this class by the surrounding serialization and provider infrastructure.
  * </p>
  *
  * <p>
  * Typical responsibilities include:
  * </p>
  * <ul>
- * <li>Holding locally defined {@link JsonType}s</li>
- * <li>Organizing nested definition scopes</li>
- * <li>Providing traversal and lookup methods</li>
- * <li>Serving as a model anchor for reference collection</li>
+ * <li>Defining a structural root or subtree for extracted object definitions</li>
+ * <li>Grouping definition areas hierarchically</li>
+ * <li>Associating definition areas with allowed JSON types</li>
+ * <li>Providing a lightweight descriptor view for editor and tooling support</li>
+ * </ul>
+ *
+ * <p>
+ * In short:
+ * </p>
+ * <ul>
+ * <li>{@link JsonType} describes what kind of object may appear here</li>
+ * <li>the provider system determines the identity of the referenced object</li>
+ * <li>{@code JsonDefinitions} determines where that object is stored</li>
  * </ul>
  *
  * @author Janusch Rentenatus
@@ -39,48 +65,40 @@ public class JsonDefinitions {
 
     private final String name;
     private JsonDefinitions parent;
-    private final ArrayList<JsonType> types;
-    private final ArrayList<JsonDefinitions> children;
+    private final List<JsonType> types;
+    private final List<JsonDefinitions> children;
 
     /**
-     * Creates a new unnamed definitions container.
-     */
-    public JsonDefinitions() {
-        this(null);
-    }
-
-    /**
-     * Creates a new definitions container with the given name.
+     * Constructs a definition scope with the specified name.
      *
-     * @param name The optional name of this definition scope.
+     * @param name the name of this definitions scope.
      */
     public JsonDefinitions(String name) {
         this.name = name;
-        this.parent = null;
         this.types = new ArrayList<>();
         this.children = new ArrayList<>();
     }
 
     /**
-     * Returns the name of this definitions container.
+     * Returns the name of this definitions scope.
      *
-     * @return The name, or {@code null} if unnamed.
+     * @return the scope name.
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Returns the parent definitions container.
+     * Returns the parent definitions scope.
      *
-     * @return The parent, or {@code null} if this is a root container.
+     * @return the parent scope, or {@code null} if this is the root.
      */
     public JsonDefinitions getParent() {
         return parent;
     }
 
     /**
-     * Returns whether this definitions container has a parent.
+     * Returns whether this definitions scope has a parent.
      *
      * @return {@code true} if a parent exists, otherwise {@code false}.
      */
@@ -89,229 +107,130 @@ public class JsonDefinitions {
     }
 
     /**
-     * Returns whether this definitions container contains any local types.
+     * Returns whether this definitions scope contains local type entries.
      *
-     * @return {@code true} if local types exist, otherwise {@code false}.
+     * @return {@code true} if local types exist.
      */
     public boolean hasTypes() {
         return !types.isEmpty();
     }
 
     /**
-     * Returns whether this definitions container contains any child containers.
+     * Returns whether this definitions scope contains child scopes.
      *
-     * @return {@code true} if child definitions exist, otherwise {@code false}.
+     * @return {@code true} if child scopes exist.
      */
     public boolean hasChildren() {
         return !children.isEmpty();
     }
 
     /**
-     * Returns whether this definitions container is empty.
+     * Returns whether this definitions scope is empty.
      *
-     * @return {@code true} if it has neither types nor children.
+     * @return {@code true} if it contains neither local types nor child scopes.
      */
     public boolean isEmpty() {
         return types.isEmpty() && children.isEmpty();
     }
 
     /**
-     * Returns the number of locally contained types.
+     * Returns the number of locally registered types.
      *
-     * @return The local type count.
+     * @return the number of local types.
      */
-    public int typeCount() {
+    public int size() {
         return types.size();
     }
 
     /**
-     * Returns the number of direct child definition containers.
+     * Returns the number of direct child scopes.
      *
-     * @return The child count.
+     * @return the number of children.
      */
     public int childCount() {
         return children.size();
     }
 
     /**
-     * Adds a type to this definitions container.
+     * Returns the nesting depth of this scope.
      *
-     * @param type The type to add.
-     * @throws NullPointerException if {@code type} is {@code null}.
+     * @return {@code 0} if this is the root scope.
      */
-    public void addType(JsonType type) {
-        if (type == null) {
-            throw new NullPointerException("JsonType is null.");
+    public int getDepth() {
+        int ret = 0;
+        JsonDefinitions current = parent;
+        while (current != null) {
+            ret++;
+            current = current.parent;
         }
-        types.add(type);
+        return ret;
     }
 
     /**
-     * Adds a type only if it is not already contained by identity or by equivalent name/node type combination.
+     * Returns the root definitions scope of this tree.
      *
-     * @param type The type to add.
-     * @return {@code true} if the type was added, otherwise {@code false}.
-     * @throws NullPointerException if {@code type} is {@code null}.
+     * @return the root scope.
      */
-    public boolean addTypeIfAbsent(JsonType type) {
-        if (type == null) {
-            throw new NullPointerException("JsonType is null.");
+    public JsonDefinitions getRoot() {
+        JsonDefinitions current = this;
+        while (current.parent != null) {
+            current = current.parent;
         }
-        if (containsLocalType(type)) {
-            return false;
-        }
-        types.add(type);
-        return true;
+        return current;
     }
 
     /**
-     * Removes the given local type.
+     * Checks whether the specified type is contained locally.
      *
-     * @param type The type to remove.
-     * @return {@code true} if removed, otherwise {@code false}.
-     */
-    public boolean removeType(JsonType type) {
-        return types.remove(type);
-    }
-
-    /**
-     * Removes the first local type with the given canonical name.
-     *
-     * @param cName The canonical name.
-     * @return The removed type, or {@code null} if not found.
-     */
-    public JsonType removeType(String cName) {
-        for (int i = 0; i < types.size(); i++) {
-            JsonType next = types.get(i);
-            if (equalsName(next, cName)) {
-                return types.remove(i);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Adds a child definitions container.
-     *
-     * @param child The child to add.
-     * @throws NullPointerException if {@code child} is {@code null}.
-     * @throws IllegalArgumentException if {@code child == this}, if the child already has a different parent, or if
-     * adding it would create a cycle.
-     */
-    public void addChild(JsonDefinitions child) {
-        if (child == null) {
-            throw new NullPointerException("JsonDefinitions child is null.");
-        }
-        if (child == this) {
-            throw new IllegalArgumentException("A JsonDefinitions cannot contain itself as child.");
-        }
-        if (isAncestorOf(child)) {
-            throw new IllegalArgumentException("Adding this child would create a circular definitions hierarchy.");
-        }
-        if (child.parent != null && child.parent != this) {
-            throw new IllegalArgumentException("The child JsonDefinitions already has another parent.");
-        }
-        if (!children.contains(child)) {
-            child.parent = this;
-            children.add(child);
-        }
-    }
-
-    /**
-     * Removes the given direct child definitions container.
-     *
-     * @param child The child to remove.
-     * @return {@code true} if removed, otherwise {@code false}.
-     */
-    public boolean removeChild(JsonDefinitions child) {
-        if (child == null) {
-            return false;
-        }
-        boolean removed = children.remove(child);
-        if (removed) {
-            child.parent = null;
-        }
-        return removed;
-    }
-
-    /**
-     * Removes the first direct child with the given name.
-     *
-     * @param name The child name.
-     * @return The removed child, or {@code null} if not found.
-     */
-    public JsonDefinitions removeChild(String name) {
-        for (int i = 0; i < children.size(); i++) {
-            JsonDefinitions next = children.get(i);
-            if (equalsString(next.getName(), name)) {
-                children.remove(i);
-                next.parent = null;
-                return next;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns whether this container contains the given type locally.
-     *
-     * @param type The type to check.
-     * @return {@code true} if locally contained, otherwise {@code false}.
+     * @param type the type to check.
+     * @return {@code true} if the type is contained locally.
      */
     public boolean containsLocalType(JsonType type) {
-        if (type == null) {
-            return false;
-        }
-        for (JsonType next : types) {
-            if (next == type) {
-                return true;
-            }
-            if (sameType(next, type)) {
-                return true;
-            }
-        }
-        return false;
+        return type != null && types.contains(type);
     }
 
     /**
-     * Returns whether this container contains a local type with the given name.
+     * Checks whether a local type with the specified canonical name exists.
      *
-     * @param cName The canonical type name.
-     * @return {@code true} if found locally, otherwise {@code false}.
+     * @param cName the canonical type name.
+     * @return {@code true} if a matching local type exists.
      */
     public boolean containsLocalType(String cName) {
         return getLocalType(cName) != null;
     }
 
     /**
-     * Returns whether this container contains the given child directly.
+     * Checks whether a direct child with the specified name exists.
      *
-     * @param child The child to check.
-     * @return {@code true} if contained directly, otherwise {@code false}.
+     * @param childName the child scope name.
+     * @return {@code true} if such a child exists.
+     */
+    public boolean containsChild(String childName) {
+        return getChild(childName) != null;
+    }
+
+    /**
+     * Checks whether the specified definitions scope is a direct child.
+     *
+     * @param child the child scope to check.
+     * @return {@code true} if it is a direct child.
      */
     public boolean containsChild(JsonDefinitions child) {
         return children.contains(child);
     }
 
     /**
-     * Returns whether this container contains a direct child with the given name.
+     * Returns the local type with the specified canonical name.
      *
-     * @param name The child name.
-     * @return {@code true} if found directly, otherwise {@code false}.
-     */
-    public boolean containsChild(String name) {
-        return getChild(name) != null;
-    }
-
-    /**
-     * Returns the first local type with the given canonical name.
-     *
-     * @param cName The canonical type name.
-     * @return The local type, or {@code null} if not found.
+     * @param cName the canonical type name.
+     * @return the matching local type, or {@code null} if not found.
      */
     public JsonType getLocalType(String cName) {
+        if (cName == null) {
+            return null;
+        }
         for (JsonType next : types) {
-            if (equalsName(next, cName)) {
+            if (cName.equals(next.getcName())) {
                 return next;
             }
         }
@@ -319,14 +238,17 @@ public class JsonDefinitions {
     }
 
     /**
-     * Returns the direct child with the given name.
+     * Returns the direct child scope with the specified name.
      *
-     * @param name The child name.
-     * @return The child, or {@code null} if not found.
+     * @param childName the child scope name.
+     * @return the child scope, or {@code null} if not found.
      */
-    public JsonDefinitions getChild(String name) {
+    public JsonDefinitions getChild(String childName) {
+        if (childName == null) {
+            return null;
+        }
         for (JsonDefinitions next : children) {
-            if (equalsString(next.getName(), name)) {
+            if (childName.equals(next.getName())) {
                 return next;
             }
         }
@@ -334,10 +256,10 @@ public class JsonDefinitions {
     }
 
     /**
-     * Finds a type in this container or recursively in its children.
+     * Finds a type recursively in this definitions subtree.
      *
-     * @param cName The canonical type name.
-     * @return The first matching type, or {@code null} if not found.
+     * @param cName the canonical type name.
+     * @return the first matching type, or {@code null} if not found.
      */
     public JsonType findType(String cName) {
         JsonType local = getLocalType(cName);
@@ -354,17 +276,17 @@ public class JsonDefinitions {
     }
 
     /**
-     * Finds a definitions container in this subtree by name.
+     * Finds a definitions scope recursively in this subtree.
      *
-     * @param name The name to search for.
-     * @return The matching definitions container, or {@code null} if not found.
+     * @param definitionsName the scope name.
+     * @return the matching scope, or {@code null} if not found.
      */
-    public JsonDefinitions findDefinitions(String name) {
-        if (equalsString(this.name, name)) {
+    public JsonDefinitions findDefinitions(String definitionsName) {
+        if (name.equals(definitionsName)) {
             return this;
         }
         for (JsonDefinitions child : children) {
-            JsonDefinitions nested = child.findDefinitions(name);
+            JsonDefinitions nested = child.findDefinitions(definitionsName);
             if (nested != null) {
                 return nested;
             }
@@ -373,118 +295,181 @@ public class JsonDefinitions {
     }
 
     /**
-     * Returns all local types as an immutable list.
+     * Checks whether this scope is an ancestor of the specified candidate.
      *
-     * @return Immutable view of local types.
+     * @param candidate the possible descendant.
+     * @return {@code true} if this scope is an ancestor of the candidate.
      */
-    public List<JsonType> getTypes() {
-        return Collections.unmodifiableList(types);
-    }
-
-    /**
-     * Returns all direct children as an immutable list.
-     *
-     * @return Immutable view of child definitions.
-     */
-    public List<JsonDefinitions> getChildren() {
-        return Collections.unmodifiableList(children);
-    }
-
-    /**
-     * Returns an iterator over local types.
-     *
-     * @return Iterator over local types.
-     */
-    public Iterator<JsonType> typesIterator() {
-        return getTypes().iterator();
-    }
-
-    /**
-     * Returns an iterator over direct child definitions.
-     *
-     * @return Iterator over direct child definitions.
-     */
-    public Iterator<JsonDefinitions> childrenIterator() {
-        return getChildren().iterator();
-    }
-
-    /**
-     * Returns all types from this subtree in preorder as an immutable list.
-     *
-     * @return Immutable list of all nested types including local ones.
-     */
-    public List<JsonType> getTypesDeep() {
-        ArrayList<JsonType> ret = new ArrayList<>();
-        collectTypesDeep(ret);
-        return Collections.unmodifiableList(ret);
-    }
-
-    /**
-     * Returns all child definitions from this subtree in preorder as an immutable list.
-     *
-     * @return Immutable list of all nested child definitions.
-     */
-    public List<JsonDefinitions> getChildrenDeep() {
-        ArrayList<JsonDefinitions> ret = new ArrayList<>();
-        collectChildrenDeep(ret);
-        return Collections.unmodifiableList(ret);
-    }
-
-    /**
-     * Returns an iterator over all subtree types in preorder.
-     *
-     * @return Iterator over all nested types.
-     */
-    public Iterator<JsonType> typesDeepIterator() {
-        return getTypesDeep().iterator();
-    }
-
-    /**
-     * Returns an iterator over all subtree child definitions in preorder.
-     *
-     * @return Iterator over all nested child definitions.
-     */
-    public Iterator<JsonDefinitions> childrenDeepIterator() {
-        return getChildrenDeep().iterator();
-    }
-
-    /**
-     * Returns the root definitions container.
-     *
-     * @return The root of the current hierarchy.
-     */
-    public JsonDefinitions getRoot() {
-        JsonDefinitions current = this;
-        while (current.parent != null) {
-            current = current.parent;
+    public boolean isAncestorOf(JsonDefinitions candidate) {
+        if (candidate == null) {
+            return false;
         }
-        return current;
-    }
-
-    /**
-     * Returns the depth of this definitions container in the hierarchy.
-     *
-     * @return {@code 0} for a root container, otherwise the ancestor distance.
-     */
-    public int getDepth() {
-        int ret = 0;
-        JsonDefinitions current = parent;
+        JsonDefinitions current = candidate.parent;
         while (current != null) {
-            ret++;
+            if (current == this) {
+                return true;
+            }
             current = current.parent;
         }
-        return ret;
+        return false;
     }
 
     /**
-     * Removes all local types.
+     * Adds a local type to this definitions scope.
+     *
+     * @param type the type to add.
+     * @return true if success.
+     */
+    public boolean addType(JsonType type) {
+        return types.add(type);
+    }
+
+    /**
+     * Adds a local type if no local type with the same canonical name exists yet.
+     *
+     * @param type the type to add.
+     * @return true if success.
+     */
+    public boolean addTypeIfAbsent(JsonType type) {
+        if (type != null && !containsLocalType(type.getcName())) {
+            return types.add(type);
+        }
+        return false;
+    }
+
+    /**
+     * Adds multiple local types.
+     *
+     * @param types the types to add.
+     */
+    public void addAllTypes(Iterable<JsonType> types) {
+        if (types == null) {
+            return;
+        }
+        for (JsonType type : types) {
+            addType(type);
+        }
+    }
+
+    /**
+     * Adds a child definitions scope.
+     *
+     * @param child the child scope to add.
+     * @return true if success.
+     * @throws IllegalArgumentException if adding the child would create a cycle.
+     */
+    public boolean addChild(JsonDefinitions child) {
+        if (child == null) {
+            return false;
+        }
+        if (child == this) {
+            throw new IllegalArgumentException("A JsonDefinitions cannot contain itself as child.");
+        }
+        if (child.isAncestorOf(this)) {
+            throw new IllegalArgumentException("Adding this child would create a circular definitions hierarchy.");
+        }
+        if (child.parent != null && child.parent != this) {
+            throw new IllegalArgumentException("The child JsonDefinitions already has another parent.");
+        }
+        if (!children.contains(child)) {
+            child.parent = this;
+            return children.add(child);
+        }
+        return false;
+    }
+
+    /**
+     * Adds a child definitions scope only if a direct child with the same name is absent.
+     *
+     * @param child the child scope to add.
+     * @return true if success.
+     */
+    public boolean addChildIfAbsent(JsonDefinitions child) {
+        if (child != null && !containsChild(child.getName())) {
+            return addChild(child);
+        }
+        return false;
+    }
+
+    /**
+     * Removes the specified local type.
+     *
+     * @param type the type to remove.
+     * @return {@code true} if the type was removed.
+     */
+    public boolean removeType(JsonType type) {
+        if (type == null) {
+            return false;
+        }
+        return types.remove(type);
+    }
+
+    /**
+     * Removes the first local type with the specified canonical name.
+     *
+     * @param cName the canonical type name.
+     * @return the removed type, or {@code null} if not found.
+     */
+    public JsonType removeType(String cName) {
+        if (cName == null) {
+            return null;
+        }
+        for (int i = 0; i < types.size(); i++) {
+            JsonType next = types.get(i);
+            if (cName.equals(next.getcName())) {
+                return types.remove(i);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Removes the specified direct child scope.
+     *
+     * @param child the child scope to remove.
+     * @return {@code true} if the child was removed.
+     */
+    public boolean removeChild(JsonDefinitions child) {
+        if (child == null) {
+            return false;
+        }
+        boolean removed = children.remove(child);
+        if (removed) {
+            child.parent = null;
+        }
+        return removed;
+    }
+
+    /**
+     * Removes the direct child scope with the specified name.
+     *
+     * @param childName the child scope name.
+     * @return the removed child scope, or {@code null} if not found.
+     */
+    public JsonDefinitions removeChild(String childName) {
+        if (childName == null) {
+            return null;
+        }
+        for (int i = 0; i < children.size(); i++) {
+            JsonDefinitions next = children.get(i);
+            if (childName.equals(next.getName())) {
+                children.remove(i);
+                next.parent = null;
+                return next;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Removes all local types from this scope.
      */
     public void clearTypes() {
         types.clear();
     }
 
     /**
-     * Removes all child definitions and resets their parent references.
+     * Removes all direct child scopes from this scope.
      */
     public void clearChildren() {
         for (JsonDefinitions child : children) {
@@ -494,78 +479,124 @@ public class JsonDefinitions {
     }
 
     /**
-     * Removes all local types and all child definitions.
+     * Clears local types and child scopes from this definitions scope.
      */
     public void clear() {
         clearTypes();
         clearChildren();
     }
 
-    private void collectTypesDeep(List<JsonType> result) {
-        result.addAll(types);
+    /**
+     * Returns an unmodifiable view of the local types.
+     *
+     * @return the local types.
+     */
+    public List<JsonType> getTypes() {
+        return Collections.unmodifiableList(types);
+    }
+
+    /**
+     * Returns an iterator over the local types.
+     *
+     * @return an iterator over local types.
+     */
+    public Iterator<JsonType> typesIterator() {
+        return types.iterator();
+    }
+
+    /**
+     * Returns an unmodifiable view of the direct child scopes.
+     *
+     * @return the direct child scopes.
+     */
+    public List<JsonDefinitions> getChildren() {
+        return Collections.unmodifiableList(children);
+    }
+
+    /**
+     * Returns an iterator over the direct child scopes.
+     *
+     * @return an iterator over direct child scopes.
+     */
+    public Iterator<JsonDefinitions> childrenIterator() {
+        return children.iterator();
+    }
+
+    /**
+     * Returns all types in this subtree as an unmodifiable list.
+     *
+     * @return all local and nested types.
+     */
+    public List<JsonType> getTypesDeep() {
+        List<JsonType> ret = new ArrayList<>();
+        collectTypesDeep(ret);
+        return Collections.unmodifiableList(ret);
+    }
+
+    /**
+     * Returns an iterator over all types in this subtree.
+     *
+     * @return an iterator over all local and nested types.
+     */
+    public Iterator<JsonType> typesDeepIterator() {
+        return getTypesDeep().iterator();
+    }
+
+    /**
+     * Returns all child scopes in this subtree as an unmodifiable list.
+     *
+     * @return all nested child scopes.
+     */
+    public List<JsonDefinitions> getChildrenDeep() {
+        List<JsonDefinitions> ret = new ArrayList<>();
+        collectChildrenDeep(ret);
+        return Collections.unmodifiableList(ret);
+    }
+
+    /**
+     * Returns an iterator over all child scopes in this subtree.
+     *
+     * @return an iterator over all nested child scopes.
+     */
+    public Iterator<JsonDefinitions> childrenDeepIterator() {
+        return getChildrenDeep().iterator();
+    }
+
+    private void collectTypesDeep(List<JsonType> target) {
+        target.addAll(types);
         for (JsonDefinitions child : children) {
-            child.collectTypesDeep(result);
+            child.collectTypesDeep(target);
         }
     }
 
-    private void collectChildrenDeep(List<JsonDefinitions> result) {
+    private void collectChildrenDeep(List<JsonDefinitions> target) {
         for (JsonDefinitions child : children) {
-            result.add(child);
-            child.collectChildrenDeep(result);
+            target.add(child);
+            child.collectChildrenDeep(target);
         }
     }
 
-    private boolean isAncestorOf(JsonDefinitions candidateChild) {
-        JsonDefinitions current = this;
-        while (current != null) {
-            if (current == candidateChild) {
-                return true;
-            }
-            current = current.parent;
-        }
-        return false;
-    }
-
-    private static boolean equalsName(JsonType type, String cName) {
-        if (type == null) {
-            return cName == null;
-        }
-        return equalsString(type.getcName(), cName);
-    }
-
-    private static boolean sameType(JsonType left, JsonType right) {
-        if (left == right) {
-            return true;
-        }
-        if (left == null || right == null) {
-            return false;
-        }
-        return equalsString(left.getcName(), right.getcName())
-                && left.getNodeType() == right.getNodeType();
-    }
-
-    private static boolean equalsString(String left, String right) {
-        return left == null ? right == null : left.equals(right);
-    }
-
+    /**
+     * Creates a lightweight descriptor of this definitions scope.
+     * <p>
+     * The descriptor contains the scope hierarchy and the canonical names of the locally registered types. Full type
+     * metadata remains available through the surrounding model descriptor.
+     * </p>
+     *
+     * @return the descriptor representation of this definitions scope.
+     */
     public JsonDefinitionsDescriptor describe() {
         JsonDefinitionsDescriptor ret = new JsonDefinitionsDescriptor(name);
-
         for (JsonType type : types) {
-            ret.addType(type.getcName());
+            if (type != null) {
+                ret.addType(type.getcName());
+            }
         }
         for (JsonDefinitions child : children) {
-            ret.addChild(child.describe());
+            if (child != null) {
+                ret.addChild(child.describe());
+            }
         }
         return ret;
-    }
-
-    @Override
-    public String toString() {
-        return "JsonDefinitions{"
-                + "name=" + name
-                + ", typeCount=" + types.size()
-                + ", childCount=" + children.size()
-                + '}';
     }
 }
