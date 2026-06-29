@@ -7,6 +7,8 @@
 package de.jare.jsoncasted.model.validation;
 
 import de.jare.jsoncasted.model.JsonModel;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Holds the validation context including the current model, result, and provides convenience methods for adding
@@ -18,6 +20,7 @@ public class ValidationContext {
 
     private final JsonModel model;
     private final ValidationResult result;
+    private final Map<Object, Object> information;
 
     /**
      * Creates a new validation context.
@@ -28,6 +31,7 @@ public class ValidationContext {
     public ValidationContext(JsonModel model, ValidationResult result) {
         this.model = model;
         this.result = result;
+        this.information = new HashMap<>();
     }
 
     /**
@@ -46,6 +50,15 @@ public class ValidationContext {
      */
     public ValidationResult getResult() {
         return result;
+    }
+
+    /**
+     * Returns the information map, a place to cache information.
+     *
+     * @return the information map
+     */
+    public Map<Object, Object> getInformation() {
+        return information;
     }
 
     /**
