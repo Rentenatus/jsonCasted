@@ -35,7 +35,7 @@ public final class WoodConverter {
      *
      * @throws IllegalStateException Always thrown as this is a utility class.
      */
-    public WoodConverter() {
+    private WoodConverter() {
         throw new IllegalStateException("Utility class");
     }
 

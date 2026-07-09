@@ -27,7 +27,7 @@ public final class RootConverter {
      *
      * @throws IllegalStateException Always thrown as this is a utility class.
      */
-    public RootConverter() {
+    private RootConverter() {
         throw new IllegalStateException("Utility class");
     }
 

@@ -18,15 +18,16 @@ import java.util.Iterator;
 /**
  * Interface defining the contract for JSON type representations in the jsonCasted system.
  *
- * <p>JsonType serves as the base interface for all type definitions including classes,
- * interfaces, enums, and primitive types. It provides methods for type checking,
- * object construction, and serialization.</p>
+ * <p>
+ * JsonType serves as the base interface for all type definitions including classes, interfaces, enums, and primitive
+ * types. It provides methods for type checking, object construction, and serialization.</p>
  *
- * <p>Implementations include:</p>
+ * <p>
+ * Implementations include:</p>
  * <ul>
- *   <li>{@link de.jare.jsoncasted.model.item.JsonClass JsonClass} - concrete class definitions</li>
- *   <li>{@link de.jare.jsoncasted.model.item.JsonInter JsonInter} - interface definitions</li>
- *   <li>{@link de.jare.jsoncasted.model.item.JsonMap JsonMap} - map/collection type definitions</li>
+ * <li>{@link de.jare.jsoncasted.model.item.JsonClass JsonClass} - concrete class definitions</li>
+ * <li>{@link de.jare.jsoncasted.model.item.JsonInter JsonInter} - interface definitions</li>
+ * <li>{@link de.jare.jsoncasted.model.item.JsonMap JsonMap} - map/collection type definitions</li>
  * </ul>
  *
  * @author Janusch Rentenatus
@@ -36,11 +37,11 @@ public interface JsonType {
     /**
      * Returns the direct JsonClass representation for this type.
      *
-     * <p>When no curly braces are found for an object during parsing,
-     * the field is provided directly. In this case, it can only be a primitive type.</p>
+     * <p>
+     * When no curly braces are found for an object during parsing, the field is provided directly. In this case, it can
+     * only be a primitive type.</p>
      *
-     * @return the JsonClass instance, or {@code null} if this type does not
-     *         have a direct class representation.
+     * @return the JsonClass instance, or {@code null} if this type does not have a direct class representation.
      */
     public JsonClass getDirectClass();
 
@@ -70,6 +71,13 @@ public interface JsonType {
      * @return {@code true} if this is a primitive type, {@code false} otherwise.
      */
     public boolean isPrimitive();
+
+    /**
+     * Recursive types has been stroed in definitions, not in containments.
+     *
+     * @return {@code true} if this is a definitional type, {@code false} otherwise.
+     */
+    public boolean isDefinitional();
 
     /**
      * Converts an attribute value to its string representation.

@@ -13,18 +13,18 @@ import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.parserwriter.JsonValidationMethod;
 
 /**
- * The JsonField class represents a single field in a JSON object. It defines
- * the field name, type, collection behavior, accessor methods, and validation
- * rules.
+ * The JsonField class represents a single field in a JSON object. It defines the field name, type, collection behavior,
+ * accessor methods, and validation rules.
  *
- * <p>A JsonField encapsulates all metadata needed to serialize and deserialize
- * a field between JSON and Java representations. This includes:</p>
+ * <p>
+ * A JsonField encapsulates all metadata needed to serialize and deserialize a field between JSON and Java
+ * representations. This includes:</p>
  * <ul>
- *   <li>Field name and JSON type</li>
- *   <li>Collection semantics (list, array, or none)</li>
- *   <li>Getter and setter method names for Java object access</li>
- *   <li>Validation method for data validation</li>
- *   <li>Field kind (attribute, containment, or reference)</li>
+ * <li>Field name and JSON type</li>
+ * <li>Collection semantics (list, array, or none)</li>
+ * <li>Getter and setter method names for Java object access</li>
+ * <li>Validation method for data validation</li>
+ * <li>Field kind (attribute, containment, or reference)</li>
  * </ul>
  *
  * @author Janusch Rentenatus
@@ -41,8 +41,7 @@ public class JsonField {
     private JsonValidationMethod validationMethod;
 
     /**
-     * Constructs a JsonField instance with collection type and validation
-     * method.
+     * Constructs a JsonField instance with collection type and validation method.
      *
      * @param fName The name of the field.
      * @param jType The JSON type of the field.
@@ -62,7 +61,7 @@ public class JsonField {
         this.getter = getter;
         this.setter = setter;
         this.validationMethod = validationMethod;
-        this.kind = FieldKind.ATTRIBUTE;
+        this.kind = jType.isDefinitional() ? FieldKind.REFERENCE : (jType.isPrimitive() ? FieldKind.ATTRIBUTE : FieldKind.CONTAINMENT);
     }
 
     /**
@@ -81,8 +80,7 @@ public class JsonField {
     /**
      * Constructs a JsonField instance.
      *
-     * @param parent JsonType for calculating of getter and setter method
-     * prefix.
+     * @param parent JsonType for calculating of getter and setter method prefix.
      * @param fName The name of the field.
      * @param jType The JSON type of the field.
      * @param type JsonCollectionType
@@ -100,14 +98,13 @@ public class JsonField {
         this.getter = parent.getterPre(jType) + getterSetterNorm;
         this.setter = parent.setterPre(jType) + getterSetterNorm;
         this.validationMethod = validationMethod;
-        this.kind = FieldKind.ATTRIBUTE;
+        this.kind = jType.isDefinitional() ? FieldKind.REFERENCE : (jType.isPrimitive() ? FieldKind.ATTRIBUTE : FieldKind.CONTAINMENT);
     }
 
     /**
      * Constructs a JsonField instance.
      *
-     * @param parent JsonType for calculating of getter and setter method
-     * prefix.
+     * @param parent JsonType for calculating of getter and setter method prefix.
      * @param fName The name of the field.
      * @param jType The JSON type of the field.
      * @param getterSetterNorm word root of getter and setter method name.
@@ -120,8 +117,7 @@ public class JsonField {
     /**
      * Constructs a JsonField instance.
      *
-     * @param parent JsonType for calculating of getter and setter method
-     * prefix.
+     * @param parent JsonType for calculating of getter and setter method prefix.
      * @param fName The name of the field.
      * @param jType The JSON type of the field.
      * @param type JsonCollectionType
@@ -139,15 +135,13 @@ public class JsonField {
         this.getter = parent.getterPre(jType) + getterSetterNorm;
         this.setter = parent.setterPre(jType) + getterSetterNorm;
         this.validationMethod = validationMethod;
-        this.kind = FieldKind.ATTRIBUTE;
+        this.kind = jType.isDefinitional() ? FieldKind.REFERENCE : (jType.isPrimitive() ? FieldKind.ATTRIBUTE : FieldKind.CONTAINMENT);
     }
 
     /**
-     * Constructs a JsonField instance with standard Java method naming
-     * conventions.
+     * Constructs a JsonField instance with standard Java method naming conventions.
      *
-     * @param parent JsonType for calculating of getter and setter method
-     * prefix.
+     * @param parent JsonType for calculating of getter and setter method prefix.
      * @param fName The name of the field.
      * @param jType The JSON type of the field.
      * @param validationMethod The validation method for the field.
@@ -186,8 +180,7 @@ public class JsonField {
     /**
      * Checks whether the field is a list or an array.
      *
-     * @return true if the field is a collection (list or array), false
-     * otherwise.
+     * @return true if the field is a collection (list or array), false otherwise.
      */
     public boolean isAsListOrArray() {
         return asList || asArray;
@@ -248,8 +241,8 @@ public class JsonField {
     }
 
     /**
-     * Marks this field as a containment field.
-     * Containment fields represent composed objects that are serialized inline.
+     * Marks this field as a containment field. Containment fields represent composed objects that are serialized
+     * inline.
      *
      * @return this JsonField for method chaining.
      */
@@ -259,8 +252,7 @@ public class JsonField {
     }
 
     /**
-     * Marks this field as a reference field.
-     * Reference fields represent objects that are referenced by identifier.
+     * Marks this field as a reference field. Reference fields represent objects that are referenced by identifier.
      *
      * @return this JsonField for method chaining.
      */

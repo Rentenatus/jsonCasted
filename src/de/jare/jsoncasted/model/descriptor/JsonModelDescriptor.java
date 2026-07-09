@@ -1,3 +1,9 @@
+/* <copyright>
+ * Copyright (C) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
+ */
 package de.jare.jsoncasted.model.descriptor;
 
 import java.util.ArrayList;
@@ -12,17 +18,18 @@ import java.util.Set;
 /**
  * Description of a complete JsonModel.
  *
- * <p>This class serves as the registry of all described types in a model.
- * It provides methods for adding, looking up, and managing type descriptors,
- * as well as validation of the complete model structure.</p>
+ * <p>
+ * This class serves as the registry of all described types in a model. It provides methods for adding, looking up, and
+ * managing type descriptors, as well as validation of the complete model structure.</p>
  *
- * <p>Key features:</p>
+ * <p>
+ * Key features:</p>
  * <ul>
- *   <li>Type registration and lookup by name</li>
- *   <li>Support for perceptual type matching (handling simple vs. qualified names)</li>
- *   <li>Validation of type consistency</li>
- *   <li>Unmodifiable views of all registered types</li>
- *   <li>Repository descriptor registry for external resource models</li>
+ * <li>Type registration and lookup by name</li>
+ * <li>Support for perceptual type matching (handling simple vs. qualified names)</li>
+ * <li>Validation of type consistency</li>
+ * <li>Unmodifiable views of all registered types</li>
+ * <li>Repository descriptor registry for external resource models</li>
  * </ul>
  *
  * @author Janusch Rentenatus
@@ -32,6 +39,7 @@ public class JsonModelDescriptor {
     private final String modelName;
     private final Map<String, JsonTypeDescriptor> describedTypes = new LinkedHashMap<>();
     private final Map<String, JsonModelDescriptor> repoDescriptors = new LinkedHashMap<>();
+    private JsonDefinitionsDescriptor definitionsRoot;
 
     /**
      * Constructs a model descriptor with the specified model name.
@@ -45,7 +53,6 @@ public class JsonModelDescriptor {
     // -------------------------------------------------------------------------
     // Base data
     // -------------------------------------------------------------------------
-
     /**
      * Returns the model name.
      *
@@ -53,6 +60,14 @@ public class JsonModelDescriptor {
      */
     public String getModelName() {
         return modelName;
+    }
+
+    public JsonDefinitionsDescriptor getDefinitionsRoot() {
+        return definitionsRoot;
+    }
+
+    public void setDefinitionsRoot(JsonDefinitionsDescriptor definitionsRoot) {
+        this.definitionsRoot = definitionsRoot;
     }
 
     /**
@@ -85,7 +100,6 @@ public class JsonModelDescriptor {
     // -------------------------------------------------------------------------
     // Query / Lookup
     // -------------------------------------------------------------------------
-
     /**
      * Checks if a type with the specified name is registered.
      *
@@ -122,8 +136,9 @@ public class JsonModelDescriptor {
     /**
      * Returns the type descriptor for the specified type name with perceptual matching.
      *
-     * <p>Perceptual matching attempts to find types even if the name doesn't match exactly,
-     * for example by matching simple names against fully qualified names.</p>
+     * <p>
+     * Perceptual matching attempts to find types even if the name doesn't match exactly, for example by matching simple
+     * names against fully qualified names.</p>
      *
      * @param typeName the type name to look up.
      * @return the type descriptor, or {@code null} if not found.
@@ -177,7 +192,6 @@ public class JsonModelDescriptor {
     // -------------------------------------------------------------------------
     // Repository descriptor lookup
     // -------------------------------------------------------------------------
-
     /**
      * Checks if a repository descriptor with the specified synonym is registered.
      *
@@ -219,7 +233,6 @@ public class JsonModelDescriptor {
     // -------------------------------------------------------------------------
     // Registration
     // -------------------------------------------------------------------------
-
     /**
      * Adds a type if the name is not already registered.
      *
@@ -302,7 +315,6 @@ public class JsonModelDescriptor {
     // -------------------------------------------------------------------------
     // Remove / Clear
     // -------------------------------------------------------------------------
-
     /**
      * Removes a type by its name.
      *
@@ -339,7 +351,6 @@ public class JsonModelDescriptor {
     // -------------------------------------------------------------------------
     // Views
     // -------------------------------------------------------------------------
-
     /**
      * Returns an unmodifiable list of all type descriptors.
      *
@@ -397,7 +408,6 @@ public class JsonModelDescriptor {
     // -------------------------------------------------------------------------
     // Validation
     // -------------------------------------------------------------------------
-
     /**
      * Validates this model descriptor.
      *
@@ -439,7 +449,6 @@ public class JsonModelDescriptor {
     // -------------------------------------------------------------------------
     // Helper methods
     // -------------------------------------------------------------------------
-
     /**
      * Returns an unmodifiable list of all type names.
      *

@@ -45,4 +45,7 @@ public class JsonTerms {
      * Used in JSON: {@code "_woodProviders": [...]}</p>
      */
     public static final String TERM_WOOD_PROVIDERS = "_woodProviders";
+    
+    
+    public static String DEFINITIONS_SUFFIX ="_def";
 }

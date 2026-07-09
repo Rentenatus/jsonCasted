@@ -1,3 +1,9 @@
+/* <copyright>
+ * Copyright (C) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
+ */
 package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.jsoncasted.model.JsonCollectionType;
@@ -7,19 +13,20 @@ import java.util.Objects;
 /**
  * Describes a field or property of a JSON-mappable type.
  *
- * <p>This class captures all metadata about a field including:</p>
+ * <p>
+ * This class captures all metadata about a field including:</p>
  * <ul>
- *   <li>Field name and type</li>
- *   <li>Collection type (NONE, ARRAY, LIST)</li>
- *   <li>Whether the field is required</li>
- *   <li>Whether it's a constructor parameter or a setter field</li>
- *   <li>Getter and setter method names</li>
- *   <li>Field kind (ATTRIBUTE, CONTAINMENT, REFERENCE)</li>
+ * <li>Field name and type</li>
+ * <li>Collection type (NONE, ARRAY, LIST)</li>
+ * <li>Whether the field is required</li>
+ * <li>Whether it's a constructor parameter or a setter field</li>
+ * <li>Getter and setter method names</li>
+ * <li>Field kind (ATTRIBUTE, CONTAINMENT, REFERENCE)</li>
  * </ul>
  *
- * <p>Constructor parameters typically have only a getter and are set during
- * instantiation. Setter fields have both getter and setter and are set
- * after construction.</p>
+ * <p>
+ * Constructor parameters typically have only a getter and are set during instantiation. Setter fields have both getter
+ * and setter and are set after construction.</p>
  *
  * @author Janusch Rentenatus
  */
