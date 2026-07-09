@@ -496,6 +496,196 @@ This allows JSON literals to be mapped robustly to enum constants without relyin
 
 ---
 
+## Meta-Modeling and Self-Describing Editing
+
+A model can be exported as a description. This description defines the structure of valid content and can be used in Wood Json Jack to create and edit arbitrary instances in a way that is conceptually similar to EMF-style model-driven editing.
+
+The important distinction is that a description is not just auxiliary metadata. In jsonCasted and Wood Json Jack, the Description level is itself part of the explicit modeling pipeline, alongside JsonNode, JsonClass, and object construction. 
+Because of that, the description can also be treated as a model in its own right.
+
+This leads to a second level: a description of the description. When that higher-level description is loaded into Wood Json Jack, the editor is no longer limited to editing model instances. It can also edit the structure definitions that describe those instances.
+
+In practice, this means Wood Json Jack supports both of the following:
+
+Editing data that conforms to a model description.
+
+Editing the model description itself, because that description is also represented as structured model data.
+
+This makes the system more than a lightweight EMF-like runtime for JSON resources, references, and polymorphic object graphs. 
+It also turns Wood Json Jack into a model editor for models themselves: not only an editor for content, but an editor for the definitions behind that content.
+
+The result is a self-describing modeling approach. A user can start with a domain model, export its description, use that description to create instances, and then move one level up by loading the description of that description to modify the modeling structure itself. 
+In that sense, Wood Json Jack is both a model-driven content editor and a meta-model editor.
+
+---
+
+## JsonConfig: Configuration Management Example
+
+While the TestBox example demonstrates polymorphic object graphs with explicit `_class` declarations, the **JsonConfig** example shows an alternative approach: schema-driven configuration management without type discriminators. This highlights jsonCasted's flexibility for different use cases.
+
+### Architectural Differences from TestBox Example
+
+| Aspect | TestBox (Polymorphic Objects) | JsonConfig (Schema-Based Config) |
+|--------|-------------------------------|----------------------------------|
+| **Casting Level** | `NECESSARY_CLASS_DEF` (requires `_class`) | `NEVER` (no `_class` needed) |
+| **Polymorphism** | Yes (ValueInterface implementations) | No (fixed type hierarchy) |
+| **Type Strategy** | Runtime polymorphism via `_class` | Compile-time type safety via model |
+| **Validation** | Standard type checking | Field validation methods (`ENDSWITH`, `EQUALS`) |
+| **Generic Maps** | No | Yes (`JsonInstance<String>`, `JsonInstance<String[]>`, `JsonInstance<Boolean>`) |
+| **Custom Builders** | No | Yes (`JsonReflectBuilder` for ConfigFeature) |
+| **Repository Model** | No | Yes (JsonConfigDefinition2 uses `JsonRepoModel`) |
+| **Helper Classes** | No | Yes (`JsonConfigHelper` for easy access) |
+| **Structure** | Flat object graph | Deeply nested configuration hierarchy |
+
+### Configuration JSON Example
+
+The following `seedConfigTemplate.json` demonstrates a real-world configuration structure with external resource references:
+
+```json
+{
+    "_woodProviders": [
+        {
+            "synonym": "core",
+            "filename": "config1.json"  
+        }
+    ],
+    "comments": [
+        "This is a JsonConfig file.",
+        "This is a template for seed-test."
+    ],
+    "mainLogging": {
+        "level": 10,
+        "path": "seeddata/status/"
+    },
+    "profiles": [
+        {
+            "profile": "main",
+            "comments": [
+                "This is the main profile."
+            ],
+            "profileLogging": {
+                "path": "seeddata/status/"
+            },
+            "features": [
+                {
+                    "feature": "ollama",
+                    "comments": [
+                        "Connection configuration for Ollama."
+                    ],
+                    "settings": {
+                        "host1": "http://localhost",
+                        "host2": "http://host.docker.internal",
+                        "host3": "",
+                        "port": 11434
+                    },
+                    "labels": {
+                        "system0": [
+                            "You are a tester..."
+                        ],
+                        "user0": [
+                            "Please examine the description..."
+                        ]
+                    },
+                    "enablements": {
+                        "rewriteStory": true
+                    }
+                }
+            ]
+        }
+    ]
+}
+```
+
+Key characteristics of this configuration:
+- No `_class` declarations — types are inferred from the model
+- `_woodProviders` enables referencing external resources (like `config1.json`)
+- Nested structure: ConfigRoot → Profiles → Features → Settings/Labels/Enablements
+- Settings, labels, and enablements are generic maps with `JsonInstance` wrapper types
+
+### Model Definition
+
+The corresponding model definition in `JsonConfigDefinition.java` shows how the type-safe structure is defined:
+
+```java
+public class JsonConfigDefinition implements JsonItemDefinition {
+    public static final JsonConfigDefinition INSTANCE = new JsonConfigDefinition();
+    
+    private final JsonModel model;
+    private final JsonClass configRoot;
+
+    public JsonConfigDefinition() {
+        model = new JsonModel("Seed");
+        model.addBasicModel();
+
+        final JsonClass asString = model.getJsonClass("String");
+        final JsonClass asBoolean = model.getJsonClass("Boolean");
+
+        // Enum for profile types
+        JsonClass profileType = model.newJsonEnumByName(ConfigProfileType.class);
+
+        // Generic map types for settings, labels, enablements
+        JsonMap stringMap = model.newRawJsonMapIndividually(JsonInstance.class, null, asString);
+        JsonMap stringArrayMap = model.newRawJsonMapIndividually(JsonInstance.class, null, asString, ARRAY);
+        JsonMap booleanMap = model.newRawJsonMapIndividually(JsonInstance.class, null, asBoolean);
+
+        // Logging configuration
+        JsonClass logging = model.newJsonReflect(ConfigLogging.class);
+        logging.addField("level", asString);
+        logging.addField("path", asString);
+
+        // Feature with custom builder for list handling
+        JsonClass feature = model.newJsonClass(ConfigFeature.class,
+            new JsonReflectBuilder<ConfigFeature>(ConfigFeature.class) {
+                @Override
+                public List<ConfigFeature> buildList(JsonType jType, BuilderService builderService, 
+                        Iterator<JsonItem> listIterator, int size) throws JsonBuildException {
+                    ArrayList<ConfigFeature> list = new ArrayList<>(size);
+                    while (listIterator.hasNext()) {
+                        list.add((ConfigFeature) listIterator.next().buildInstance(builderService));
+                    }
+                    return list;
+                }
+            });
+        
+        feature.addField("featureLogging", logging);
+        feature.addField("feature", asString, ENDSWITH);  // Validation: must end with specific pattern
+        feature.addField("comments", asString, ARRAY);
+        feature.addField("settings", stringMap);           // Map<String, String>
+        feature.addField("labels", stringArrayMap);       // Map<String, String[]>
+        feature.addField("enablements", booleanMap);      // Map<String, Boolean>
+
+        // Profile definition
+        JsonClass profile = model.newJsonReflect(ConfigProfile.class);
+        profile.addField("profileLogging", logging);
+        profile.addField("profile", asString, EQUALS);    // Validation: exact match
+        profile.addField("type", profileType);
+        profile.addField("comments", asString, ARRAY);
+        profile.addField("features", feature, LIST);
+
+        // Root configuration
+        configRoot = model.newJsonReflect(ConfigRoot.class);
+        configRoot.addField("mainLogging", logging);
+        configRoot.addField("comments", asString, ARRAY);
+        configRoot.addField("profiles", profile, LIST);
+    }
+
+    @Override
+    public JsonCastingLevel getCastingLevel() {
+        return JsonCastingLevel.NEVER;  // No _class required
+    }
+}
+```
+
+This configuration approach is ideal for:
+- Application configuration files
+- Settings management with nested structures
+- Type-safe JSON schemas without runtime type discriminators
+- Cases where the structure is known at development time
+
+The combination of `JsonInstance` wrapper types, custom builders, and validation methods makes JsonConfig a powerful example of jsonCasted's schema-based configuration capabilities, complementing the polymorphic object graph approach shown in the TestBox example.
+
+---
+
 ## Security
 
 A central design goal is controlled deserialization:
