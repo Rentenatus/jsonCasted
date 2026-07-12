@@ -209,7 +209,7 @@ public class Orator<T> {
                     }
                 }
                 listenerRefList.removeAll(hits);
-            } 
+            }
         }
         return removed;
     }
@@ -242,9 +242,9 @@ public class Orator<T> {
      * @param consumer the consumer to invoke for each listener, receiving the level and listener
      */
     public void say(BiConsumer<Integer, T> consumer) {
-        List<T> hits = new ArrayList<>();
         synchronized (listenerRefMap) {
             for (Integer level : listenerRefMap.keySet()) {
+                final List<T> hits = new ArrayList<>();
                 List<WeakReference<T>> listenerRefList = listenerRefMap.get(level);
                 for (WeakReference<T> ref : listenerRefList) {
                     T candidate = ref.get();
