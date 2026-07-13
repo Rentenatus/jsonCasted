@@ -12,27 +12,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Thread-local storage for the current debug level.
- * This allows classes that don't have direct access to a JsonDebugLevel instance
- * (like JsonClass.getAttr) to still use the debug logging system.
- */
-final class DebugLevelHolder {
-    private static final ThreadLocal<JsonDebugLevel> currentLevel = new ThreadLocal<>();
-    
-    public static JsonDebugLevel get() {
-        return currentLevel.get();
-    }
-    
-    public static void set(JsonDebugLevel level) {
-        currentLevel.set(level);
-    }
-    
-    public static void clear() {
-        currentLevel.remove();
-    }
-}
-
-/**
  * The JsonDebugLevel enum defines different levels of debugging information.
  * Each level determines the severity of the debug messages that should be
  * logged or processed.
@@ -103,9 +82,9 @@ public enum JsonDebugLevel {
     }
 
     /**
-     * Print info, if sytasfied.
+     * Print info, if satisfied.
      *
-     * dl.info(() -> new InfoTuple( "Wrong cast: {0} implements {1}",
+     * dl.info(() -> new DebugTuple( "Wrong cast: {0} implements {1}",
      * cast.asText(), childType.getTypeName()));
      *
      * @param block A function, which when called, produces the desired log
@@ -126,9 +105,9 @@ public enum JsonDebugLevel {
     }
 
     /**
-     * Print info, if sytasfied.
+     * Print warning, if satisfied.
      *
-     * dl.info(() -> new InfoTuple( "Wrong cast: {0} implements {1}",
+     * dl.warning(() -> new DebugTuple( "Wrong cast: {0} implements {1}",
      * cast.asText(), childType.getTypeName()));
      *
      * @param block A function, which when called, produces the desired log
@@ -149,12 +128,9 @@ public enum JsonDebugLevel {
     }
 
     /**
-     * Print info, if sytasfied.
+     * Print warning with throwable, if satisfied.
      *
-     * dl.info(() -> new InfoTuple( "Wrong cast: {0} implements {1}",
-     * cast.asText(), childType.getTypeName()));
-     *
-     * @param thrown
+     * @param thrown the throwable to log
      * @param msgSupplier A function, which when called, produces the desired
      * log message
      */
@@ -165,35 +141,4 @@ public enum JsonDebugLevel {
         Logger.getGlobal().log(Level.WARNING, thrown, msgSupplier);
     }
 
-    // -------------------------------------------------------------------------
-    // Static methods for thread-local debug level management
-    // -------------------------------------------------------------------------
-    
-    /**
-     * Sets the current debug level for this thread.
-     * This allows classes without direct access to a JsonDebugLevel instance
-     * to participate in debug logging.
-     *
-     * @param level The debug level to set for this thread.
-     */
-    public static void setCurrent(JsonDebugLevel level) {
-        DebugLevelHolder.set(level);
-    }
-
-    /**
-     * Gets the current debug level for this thread.
-     *
-     * @return The current debug level, or SIMPLE if none is set.
-     */
-    public static JsonDebugLevel getCurrent() {
-        JsonDebugLevel level = DebugLevelHolder.get();
-        return level != null ? level : SIMPLE;
-    }
-
-    /**
-     * Clears the current debug level for this thread.
-     */
-    public static void clearCurrent() {
-        DebugLevelHolder.clear();
-    }
 }

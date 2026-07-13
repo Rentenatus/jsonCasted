@@ -263,6 +263,19 @@ public class JsonClass implements JsonType {
      * @return The attribute value, or null if the getter cannot be invoked.
      */
     public Object getAttr(JsonField next, Object ob) {
+        return getAttr(next, ob, null);
+    }
+
+    /**
+     * Retrieves an attribute value from an object using reflection. Invokes the getter method matching the field's
+     * getter name on the object, with debug level support.
+     *
+     * @param next The field whose value to retrieve.
+     * @param ob The object to retrieve the attribute from.
+     * @param debugLevel The debug level for logging getter errors, or null for no debug logging.
+     * @return The attribute value, or null if the getter cannot be invoked.
+     */
+    public Object getAttr(JsonField next, Object ob, JsonDebugLevel debugLevel) {
         Object ret = null;
         for (Method meth : ob.getClass().getMethods()) {
             if (meth.getName().equals(next.getGetter()) && meth.getParameterCount() == 0) {
@@ -271,9 +284,8 @@ public class JsonClass implements JsonType {
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                     String msg = "Getter method '" + next.getGetter() + "' failed for field '" 
                             + next.getfName() + "' on class '" + ob.getClass().getTypeName() + "': " + ex.getMessage();
-                    JsonDebugLevel currentLevel = JsonDebugLevel.getCurrent();
-                    if (currentLevel != null) {
-                        currentLevel.warning(() -> new DebugTuple(msg, ex));
+                    if (debugLevel != null) {
+                        debugLevel.warning(() -> new DebugTuple(msg, ex));
                     }
                     Logger.getGlobal().log(Level.SEVERE, msg, ex);
                 }
@@ -283,9 +295,8 @@ public class JsonClass implements JsonType {
         if (ret == null) {
             String msg = "Getter method '" + next.getGetter() + "' not found for field '" 
                     + next.getfName() + "' on class '" + ob.getClass().getTypeName() + "'.";
-            JsonDebugLevel currentLevel = JsonDebugLevel.getCurrent();
-            if (currentLevel != null && currentLevel.satisfyWarning()) {
-                currentLevel.warning(() -> new DebugTuple(msg));
+            if (debugLevel != null && debugLevel.satisfyWarning()) {
+                debugLevel.warning(() -> new DebugTuple(msg));
             }
             Logger.getGlobal().log(Level.WARNING, msg);
         }

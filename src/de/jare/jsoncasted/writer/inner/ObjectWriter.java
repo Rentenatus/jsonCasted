@@ -216,17 +216,25 @@ public class ObjectWriter {
      * @param ob The object to serialize.
      */
     public void write(PrintWriter out, JsonClass jClass, Object ob) {
-        // Set debug level for this thread so that classes like JsonClass.getAttr can use it
-        JsonDebugLevel previousLevel = JsonDebugLevel.getCurrent();
-        JsonDebugLevel.setCurrent(debugLevel);
-        try {
-            if (jType != null && jType.needCast(castingLevel)
-                    || jClass.needCast(castingLevel)) {
-                out.print('(');
-                out.print(jClass.getcName());
-                out.print(')');
-            }
-            out.print('{');
+        write(out, jClass, ob, this.debugLevel);
+    }
+
+    /**
+     * Writes a JSON object representation with debug level.
+     *
+     * @param out The PrintWriter for output.
+     * @param jClass The JSON class defining the object's structure.
+     * @param ob The object to serialize.
+     * @param debugLevel The debug level for logging getter errors.
+     */
+    public void write(PrintWriter out, JsonClass jClass, Object ob, JsonDebugLevel debugLevel) {
+        if (jType != null && jType.needCast(castingLevel)
+                || jClass.needCast(castingLevel)) {
+            out.print('(');
+            out.print(jClass.getcName());
+            out.print(')');
+        }
+        out.print('{');
         String iString = intentString + "  ";
         if (jType != null && jType.needClassDef(castingLevel)
                 || jClass.needClassDef(castingLevel)) {
@@ -247,7 +255,7 @@ public class ObjectWriter {
 
         while (it.hasNext()) {
             JsonField next = jClass.get(it.next());
-            Object attr = jClass.getAttr(next, ob);
+            Object attr = jClass.getAttr(next, ob, debugLevel);
             if (attr == null && jClass.isSkippingNulls()) {
                 continue;
             }
@@ -272,10 +280,6 @@ public class ObjectWriter {
         }
         out.print('}');
         out.flush();
-        } finally {
-            // Restore previous debug level
-            JsonDebugLevel.setCurrent(previousLevel);
-        }
     }
 
     /**
@@ -322,7 +326,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeList(PrintWriter out, JsonType jTypeItem, Object attr, String iString) {
-        ListWriter reWriter = new ListWriter(model, jTypeItem, iString, castingLevel);
+        ListWriter reWriter = new ListWriter(model, jTypeItem, iString, castingLevel, debugLevel);
         reWriter.write(out, attr);
     }
 
@@ -335,7 +339,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeObject(PrintWriter out, JsonType jTypeItem, Object attr, String iString) {
-        ObjectWriter reWriter = new ObjectWriter(model, jTypeItem, iString, castingLevel);
+        ObjectWriter reWriter = new ObjectWriter(model, jTypeItem, iString, castingLevel, debugLevel);
         reWriter.write(out, reWriter.calculateJsonClass(attr), attr);
     }
 
@@ -443,7 +447,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeNodeArray(PrintWriter out, JsonNode node, String iString) {
-        ListWriter reWriter = new ListWriter(model, null, iString, castingLevel);
+        ListWriter reWriter = new ListWriter(model, null, iString, castingLevel, debugLevel);
         reWriter.writeNode(out, node);
     }
 
