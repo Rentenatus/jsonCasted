@@ -7,6 +7,8 @@
  */
 package de.jare.jsoncasted.model.item;
 
+import de.jare.debug.DebugTuple;
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.lang.JsonNodeType;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -266,10 +269,25 @@ public class JsonClass implements JsonType {
                 try {
                     ret = meth.invoke(ob);
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    Logger.getGlobal().log(Level.SEVERE, "Getter", ex);
+                    String msg = "Getter method '" + next.getGetter() + "' failed for field '" 
+                            + next.getfName() + "' on class '" + ob.getClass().getTypeName() + "': " + ex.getMessage();
+                    JsonDebugLevel currentLevel = JsonDebugLevel.getCurrent();
+                    if (currentLevel != null) {
+                        currentLevel.warning(() -> new DebugTuple(msg, ex));
+                    }
+                    Logger.getGlobal().log(Level.SEVERE, msg, ex);
                 }
                 break;
             }
+        }
+        if (ret == null) {
+            String msg = "Getter method '" + next.getGetter() + "' not found for field '" 
+                    + next.getfName() + "' on class '" + ob.getClass().getTypeName() + "'.";
+            JsonDebugLevel currentLevel = JsonDebugLevel.getCurrent();
+            if (currentLevel != null && currentLevel.satisfyWarning()) {
+                currentLevel.warning(() -> new DebugTuple(msg));
+            }
+            Logger.getGlobal().log(Level.WARNING, msg);
         }
         return ret;
     }

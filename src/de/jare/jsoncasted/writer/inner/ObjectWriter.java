@@ -216,13 +216,17 @@ public class ObjectWriter {
      * @param ob The object to serialize.
      */
     public void write(PrintWriter out, JsonClass jClass, Object ob) {
-        if (jType != null && jType.needCast(castingLevel)
-                || jClass.needCast(castingLevel)) {
-            out.print('(');
-            out.print(jClass.getcName());
-            out.print(')');
-        }
-        out.print('{');
+        // Set debug level for this thread so that classes like JsonClass.getAttr can use it
+        JsonDebugLevel previousLevel = JsonDebugLevel.getCurrent();
+        JsonDebugLevel.setCurrent(debugLevel);
+        try {
+            if (jType != null && jType.needCast(castingLevel)
+                    || jClass.needCast(castingLevel)) {
+                out.print('(');
+                out.print(jClass.getcName());
+                out.print(')');
+            }
+            out.print('{');
         String iString = intentString + "  ";
         if (jType != null && jType.needClassDef(castingLevel)
                 || jClass.needClassDef(castingLevel)) {
@@ -268,6 +272,10 @@ public class ObjectWriter {
         }
         out.print('}');
         out.flush();
+        } finally {
+            // Restore previous debug level
+            JsonDebugLevel.setCurrent(previousLevel);
+        }
     }
 
     /**
