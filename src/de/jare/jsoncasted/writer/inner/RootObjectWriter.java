@@ -7,6 +7,7 @@
  */
 package de.jare.jsoncasted.writer.inner;
 
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
@@ -45,6 +46,29 @@ public class RootObjectWriter extends ObjectWriter {
      */
     public RootObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString) {
         super(definition, jType, intentString);
+    }
+
+    /**
+     * Constructs a RootObjectWriter instance with default indentation and debug level.
+     *
+     * @param definition The JSON item definition.
+     * @param jType The JSON type used for serialization.
+     * @param debugLevel The debug level for controlling debug output.
+     */
+    public RootObjectWriter(JsonItemDefinition definition, JsonType jType, JsonDebugLevel debugLevel) {
+        super(definition, jType, debugLevel);
+    }
+
+    /**
+     * Constructs a RootObjectWriter instance with a specified indentation string and debug level.
+     *
+     * @param definition The JSON item definition.
+     * @param jType The JSON type used for serialization.
+     * @param intentString The indentation string for formatted output.
+     * @param debugLevel The debug level for controlling debug output.
+     */
+    public RootObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString, JsonDebugLevel debugLevel) {
+        super(definition, jType, intentString, debugLevel);
     }
 
     /**

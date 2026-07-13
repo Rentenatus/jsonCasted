@@ -6,6 +6,7 @@ package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
+import de.jare.jsoncasted.parserwriter.JsonWriteException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -54,7 +55,7 @@ public class JsonModelDescriptorNGTest {
      * ./out/description.json
      */
     @Test
-    public void testSaveAs() throws IOException, JsonParseException {
+    public void testSaveAs() throws IOException, JsonParseException, JsonWriteException {
         System.out.println("saveAs");
 
         // Create output directory

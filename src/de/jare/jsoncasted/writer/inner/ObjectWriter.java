@@ -7,6 +7,8 @@
  */
 package de.jare.jsoncasted.writer.inner;
 
+import de.jare.debug.DebugTuple;
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonModel;
@@ -20,6 +22,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,6 +39,7 @@ public class ObjectWriter {
     String intentString;
     private final JsonCastingLevel castingLevel;
     private final JsonModel model;
+    private final JsonDebugLevel debugLevel;
 
     /**
      * Constructs an ObjectWriter instance with default indentation.
@@ -48,6 +52,7 @@ public class ObjectWriter {
         this.model = definition.getModel();
         this.jType = jType;
         this.intentString = "";
+        this.debugLevel = JsonDebugLevel.SIMPLE;
     }
 
     /**
@@ -62,6 +67,38 @@ public class ObjectWriter {
         this.model = definition.getModel();
         this.jType = jType;
         this.intentString = intentString;
+        this.debugLevel = JsonDebugLevel.SIMPLE;
+    }
+
+    /**
+     * Constructs an ObjectWriter instance with default indentation.
+     *
+     * @param definition The JSON item definition.
+     * @param jType The JSON type used for serialization.
+     * @param debugLevel The debug level for controlling debug output.
+     */
+    public ObjectWriter(JsonItemDefinition definition, JsonType jType, JsonDebugLevel debugLevel) {
+        this.castingLevel = definition.getCastingLevel();
+        this.model = definition.getModel();
+        this.jType = jType;
+        this.intentString = "";
+        this.debugLevel = debugLevel != null ? debugLevel : JsonDebugLevel.SIMPLE;
+    }
+
+    /**
+     * Constructs an ObjectWriter instance with a specified indentation string.
+     *
+     * @param definition The JSON item definition.
+     * @param jType The JSON type used for serialization.
+     * @param intentString The indentation string for formatted output.
+     * @param debugLevel The debug level for controlling debug output.
+     */
+    public ObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString, JsonDebugLevel debugLevel) {
+        this.castingLevel = definition.getCastingLevel();
+        this.model = definition.getModel();
+        this.jType = jType;
+        this.intentString = intentString;
+        this.debugLevel = debugLevel != null ? debugLevel : JsonDebugLevel.SIMPLE;
     }
 
     /**
@@ -76,6 +113,7 @@ public class ObjectWriter {
         this.model = model;
         this.jType = jType;
         this.intentString = "";
+        this.debugLevel = JsonDebugLevel.SIMPLE;
     }
 
     /**
@@ -91,6 +129,24 @@ public class ObjectWriter {
         this.model = model;
         this.jType = jType;
         this.intentString = intentString;
+        this.debugLevel = JsonDebugLevel.SIMPLE;
+    }
+
+    /**
+     * Constructs an ObjectWriter instance with a specified indentation string.
+     *
+     * @param castingLevel the casting level for serialization
+     * @param model The JSON model.
+     * @param jType The JSON type used for serialization.
+     * @param intentString The indentation string for formatted output.
+     * @param debugLevel The debug level for controlling debug output.
+     */
+    public ObjectWriter(JsonModel model, JsonType jType, String intentString, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        this.castingLevel = castingLevel;
+        this.model = model;
+        this.jType = jType;
+        this.intentString = intentString;
+        this.debugLevel = debugLevel != null ? debugLevel : JsonDebugLevel.SIMPLE;
     }
 
     /**
@@ -126,6 +182,7 @@ public class ObjectWriter {
         if (jClass == null) {
             final String msg = "No description found for " + ob.getClass().getTypeName() + ".";
             final NullPointerException ex = new NullPointerException(msg);
+            debugLevel.warning(() -> new DebugTuple(msg, (Object[]) null));
             Logger.getGlobal().log(Level.SEVERE, msg, ex);
             throw ex;
         }
@@ -133,6 +190,7 @@ public class ObjectWriter {
             final String msg = "Item has the class '" + jClass.getcName()
                     + "', but the root should have been '" + jType.getcName() + "'.";
             final ClassCastException ex = new ClassCastException(msg);
+            debugLevel.warning(() -> new DebugTuple(msg, (Object[]) null));
             Logger.getGlobal().log(Level.SEVERE, msg, ex);
             throw ex;
         }

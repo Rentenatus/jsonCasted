@@ -18,8 +18,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
 import de.jare.jsoncasted.parserwriter.JsonParseException;
+import de.jare.jsoncasted.parserwriter.JsonWriteException;
 import de.jare.jsoncasted.parserwriter.JsonWriter;
 
 /**
@@ -486,11 +488,26 @@ public class JsonModelDescriptor {
      *
      * @param filename the target JSON file path.
      * @throws JsonParseException if parsing fails during serialization.
+     * @throws JsonWriteException if writing fails due to serialization errors.
      * @throws IOException if an I/O error occurs during writing.
      */
-    public void saveAs(String filename) throws JsonParseException, IOException {
+    public void saveAs(String filename) throws JsonParseException, JsonWriteException, IOException {
         File file = new File(filename);
         JsonWriter.write(this, file, JsonDescriptorDefinition.INSTANCE, JsonDescriptorDefinition.getInstance().getDescriptModel());
+    }
+
+    /**
+     * Saves this model descriptor to a JSON file with debug level.
+     *
+     * @param filename the target JSON file path.
+     * @param debugLevel the debug level for controlling debug output.
+     * @throws JsonParseException if parsing fails during serialization.
+     * @throws JsonWriteException if writing fails due to serialization errors.
+     * @throws IOException if an I/O error occurs during writing.
+     */
+    public void saveAs(String filename, JsonDebugLevel debugLevel) throws JsonParseException, JsonWriteException, IOException {
+        File file = new File(filename);
+        JsonWriter.write(this, file, JsonDescriptorDefinition.INSTANCE, JsonDescriptorDefinition.getInstance().getDescriptModel(), debugLevel);
     }
 
     @Override
