@@ -11,10 +11,10 @@ import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonValueBak;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
-import de.jare.jsoncasted.parserservice.ParseStreamReader;
+import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.io.parserservice.ParseStreamReader;
 import java.io.IOException;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
+import de.jare.jsoncasted.io.JsonItemDefinition;
 
 /**
  * Legacy root parser that delegates to specific parsers based on JSON structure.

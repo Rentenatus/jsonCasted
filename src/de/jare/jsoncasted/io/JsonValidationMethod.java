@@ -5,13 +5,13 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.parserwriter;
+package de.jare.jsoncasted.io;
 
 import java.util.function.BiPredicate;
 
 /**
- * The JsonValidationMethod enum defines different validation methods for JSON
- * values. Each method represents a specific validation strategy.
+ * The JsonValidationMethod enum defines different validation methods for JSON values. Each method represents a specific
+ * validation strategy.
  *
  * @author Janusch Rentenatus
  */
@@ -26,13 +26,12 @@ public enum JsonValidationMethod {
      */
     EQUALS(2, (x, target) -> x == target || x.equals(target)),
     /**
-     * Checks whether an object, as a string, appears at the end of a target
-     * value.
+     * Checks whether an object, as a string, appears at the end of a target value.
      */
     ENDSWITH(4, (x, target) -> String.valueOf(target).endsWith(String.valueOf(x)));
 
     private final int key;
-    private BiPredicate<Object, Object> method;
+    private final BiPredicate<Object, Object> method;
 
     /**
      * Constructor for JsonValidationMethod.

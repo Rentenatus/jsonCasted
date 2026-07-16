@@ -16,7 +16,7 @@ import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_OBJECT_ID;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
+import de.jare.jsoncasted.io.JsonParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

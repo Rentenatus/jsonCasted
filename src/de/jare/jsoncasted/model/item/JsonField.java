@@ -7,10 +7,10 @@
  */
 package de.jare.jsoncasted.model.item;
 
+import de.jare.jsoncasted.io.JsonValidationMethod;
 import de.jare.jsoncasted.model.FieldKind;
 import de.jare.jsoncasted.model.JsonCollectionType;
 import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.parserwriter.JsonValidationMethod;
 
 /**
  * The JsonField class represents a single field in a JSON object. It defines the field name, type, collection behavior,

@@ -7,11 +7,13 @@
  */
 package de.jare.jsoncasted.parserwriter;
 
+import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.io.JsonItemDefinition;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.parser.inner.RootParserBak;
-import de.jare.jsoncasted.parserservice.ParseStreamReader;
+import de.jare.jsoncasted.io.parserservice.ParseStreamReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;

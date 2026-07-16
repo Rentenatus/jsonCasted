@@ -7,6 +7,8 @@
  */
 package de.jare.jsoncasted.model.descriptor.def;
 
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonItemDefinition;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonCollectionType;
@@ -16,8 +18,6 @@ import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
-import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 
 /**
  *

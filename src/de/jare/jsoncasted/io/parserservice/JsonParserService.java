@@ -4,11 +4,11 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.parserservice;
+package de.jare.jsoncasted.io.parserservice;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.lang.JsonResource;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
+import de.jare.jsoncasted.io.JsonParseException;
 import java.io.*;
 import java.net.URL;
 import java.util.logging.Level;

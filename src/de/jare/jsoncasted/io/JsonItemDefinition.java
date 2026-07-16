@@ -5,7 +5,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.parserwriter;
+package de.jare.jsoncasted.io;
 
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
@@ -13,16 +13,17 @@ import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 /**
  * Interface for JSON item definitions that provide model and casting configuration.
  *
- * <p>Implementations of this interface define how JSON structures should be parsed
- * and cast to Java objects. It provides access to:</p>
+ * <p>
+ * Implementations of this interface define how JSON structures should be parsed and cast to Java objects. It provides
+ * access to:</p>
  * <ul>
- *   <li>The JSON model containing type definitions</li>
- *   <li>The casting level for type resolution</li>
- *   <li>The model descriptor for introspection</li>
+ * <li>The JSON model containing type definitions</li>
+ * <li>The casting level for type resolution</li>
+ * <li>The model descriptor for introspection</li>
  * </ul>
  *
- * <p>This is typically implemented by model definition classes like
- * {@code ImplTestDefinition} in the test package.</p>
+ * <p>
+ * This is typically implemented by model definition classes like {@code ImplTestDefinition} in the test package.</p>
  *
  * @author Janusch Rentenatus
  */

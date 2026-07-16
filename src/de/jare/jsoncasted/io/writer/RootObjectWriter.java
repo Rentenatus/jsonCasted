@@ -5,22 +5,21 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.writer.inner;
+package de.jare.jsoncasted.io.writer;
 
 import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonItemDefinition;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 
 /**
- * The RootObjectWriter class extends ObjectWriter and handles the serialization
- * of JSON root-level structures, including objects and arrays. It ensures
- * proper formatting when serializing lists or single objects.
+ * The RootObjectWriter class extends ObjectWriter and handles the serialization of JSON root-level structures,
+ * including objects and arrays. It ensures proper formatting when serializing lists or single objects.
  *
  * @author Janusch Rentenatus
  */
@@ -33,19 +32,18 @@ public class RootObjectWriter extends ObjectWriter {
      * @param jType The JSON type used for serialization.
      */
     public RootObjectWriter(JsonItemDefinition definition, JsonType jType) {
-        super(definition, jType);
+        super(definition, jType, JsonDebugLevel.SIMPLE);
     }
 
     /**
-     * Constructs a RootObjectWriter instance with a specified indentation
-     * string.
+     * Constructs a RootObjectWriter instance with a specified indentation string.
      *
      * @param definition The JSON item definition.
      * @param jType The JSON type used for serialization.
      * @param intentString The indentation string for formatted output.
      */
     public RootObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString) {
-        super(definition, jType, intentString);
+        super(definition, jType, intentString, JsonDebugLevel.SIMPLE);
     }
 
     /**
@@ -79,12 +77,11 @@ public class RootObjectWriter extends ObjectWriter {
      * @param jType The JSON type used for serialization.
      */
     public RootObjectWriter(JsonModel model, JsonType jType, JsonCastingLevel castingLevel) {
-        super(model, jType, castingLevel);
+        super(model, jType, castingLevel, JsonDebugLevel.SIMPLE);
     }
 
     /**
-     * Constructs a RootObjectWriter instance with a specified indentation
-     * string.
+     * Constructs a RootObjectWriter instance with a specified indentation string.
      *
      * @param castingLevel the casting level for serialization
      * @param model The JSON model.
@@ -92,12 +89,11 @@ public class RootObjectWriter extends ObjectWriter {
      * @param intentString The indentation string for formatted output.
      */
     public RootObjectWriter(JsonModel model, JsonType jType, String intentString, JsonCastingLevel castingLevel) {
-        super(model, jType, intentString, castingLevel);
+        super(model, jType, intentString, castingLevel, JsonDebugLevel.SIMPLE);
     }
 
     /**
-     * Writes an object or list as a JSON structure. If the provided object is a
-     * list, it serializes it as a JSON array.
+     * Writes an object or list as a JSON structure. If the provided object is a list, it serializes it as a JSON array.
      *
      * @param out The PrintWriter to write the JSON output.
      * @param ob The object or list to serialize.

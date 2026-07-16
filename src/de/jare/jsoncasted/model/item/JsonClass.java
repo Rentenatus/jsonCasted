@@ -9,6 +9,8 @@ package de.jare.jsoncasted.model.item;
 
 import de.jare.debug.DebugTuple;
 import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonValidationMethod;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.lang.JsonNodeType;
@@ -20,15 +22,12 @@ import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
-import de.jare.jsoncasted.parserwriter.JsonValidationMethod;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

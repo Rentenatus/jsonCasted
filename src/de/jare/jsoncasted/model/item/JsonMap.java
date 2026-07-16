@@ -7,15 +7,14 @@
  */
 package de.jare.jsoncasted.model.item;
 
+import de.jare.jsoncasted.io.JsonValidationMethod;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonCollectionType;
-import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonMapBuilder;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.parserwriter.JsonValidationMethod;
 import java.util.ArrayList;
 import java.util.Iterator;
 

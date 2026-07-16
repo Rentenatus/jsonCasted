@@ -7,6 +7,7 @@
  */
 package de.jare.jsoncasted.model.item;
 
+import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.lang.JsonNodeType;
@@ -15,7 +16,6 @@ import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;

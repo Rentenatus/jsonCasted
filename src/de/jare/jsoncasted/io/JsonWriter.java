@@ -5,12 +5,12 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.parserwriter;
+package de.jare.jsoncasted.io;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.parserwriter.JsonWriteException;
-import de.jare.jsoncasted.writer.inner.RootObjectWriter;
+import de.jare.jsoncasted.io.JsonWriteException;
+import de.jare.jsoncasted.io.writer.RootObjectWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;

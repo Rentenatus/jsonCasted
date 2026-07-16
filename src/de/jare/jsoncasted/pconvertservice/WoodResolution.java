@@ -7,7 +7,7 @@
 package de.jare.jsoncasted.pconvertservice;
 
 import de.jare.jsoncasted.item.JsonItem;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
+import de.jare.jsoncasted.io.JsonParseException;
 
 import java.util.ArrayList;
 import java.util.Collections;

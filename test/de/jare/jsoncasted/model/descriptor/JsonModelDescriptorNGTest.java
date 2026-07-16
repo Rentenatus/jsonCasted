@@ -5,8 +5,8 @@
 package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
-import de.jare.jsoncasted.parserwriter.JsonWriteException;
+import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.io.JsonWriteException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

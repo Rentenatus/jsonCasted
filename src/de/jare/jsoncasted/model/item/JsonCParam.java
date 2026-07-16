@@ -7,9 +7,9 @@
  */
 package de.jare.jsoncasted.model.item;
 
+import de.jare.jsoncasted.io.JsonValidationMethod;
 import de.jare.jsoncasted.model.JsonCollectionType;
 import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.parserwriter.JsonValidationMethod;
 
 /**
  * Represents a constructor parameter field in a JSON class definition.

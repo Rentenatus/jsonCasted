@@ -5,14 +5,14 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.parserwriter;
+package de.jare.jsoncasted.io;
 
 /**
  * Exception thrown when JSON writing fails.
  *
  * <p>
- * This exception is used to signal errors during JSON serialization, including: 
- * missing getter methods, type mismatches, and invalid object structures.</p>
+ * This exception is used to signal errors during JSON serialization, including: missing getter methods, type
+ * mismatches, and invalid object structures.</p>
  *
  * @author Janusch Rentenatus
  */

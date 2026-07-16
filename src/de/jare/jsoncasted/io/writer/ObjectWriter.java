@@ -5,10 +5,12 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.writer.inner;
+package de.jare.jsoncasted.io.writer;
 
 import de.jare.debug.DebugTuple;
 import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonItemDefinition;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonModel;
@@ -16,20 +18,16 @@ import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
-import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The ObjectWriter class handles the serialization of JSON object structures.
- * It converts objects into JSON format while maintaining indentation, type
- * information, and error handling.
+ * The ObjectWriter class handles the serialization of JSON object structures. It converts objects into JSON format
+ * while maintaining indentation, type information, and error handling.
  *
  * @author Janusch Rentenatus
  */
@@ -40,35 +38,6 @@ public class ObjectWriter {
     private final JsonCastingLevel castingLevel;
     private final JsonModel model;
     private final JsonDebugLevel debugLevel;
-
-    /**
-     * Constructs an ObjectWriter instance with default indentation.
-     *
-     * @param definition The JSON item definition.
-     * @param jType The JSON type used for serialization.
-     */
-    public ObjectWriter(JsonItemDefinition definition, JsonType jType) {
-        this.castingLevel = definition.getCastingLevel();
-        this.model = definition.getModel();
-        this.jType = jType;
-        this.intentString = "";
-        this.debugLevel = JsonDebugLevel.SIMPLE;
-    }
-
-    /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
-     *
-     * @param definition The JSON item definition.
-     * @param jType The JSON type used for serialization.
-     * @param intentString The indentation string for formatted output.
-     */
-    public ObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString) {
-        this.castingLevel = definition.getCastingLevel();
-        this.model = definition.getModel();
-        this.jType = jType;
-        this.intentString = intentString;
-        this.debugLevel = JsonDebugLevel.SIMPLE;
-    }
 
     /**
      * Constructs an ObjectWriter instance with default indentation.
@@ -107,29 +76,14 @@ public class ObjectWriter {
      * @param castingLevel the casting level for serialization
      * @param model The JSON model.
      * @param jType The JSON type used for serialization.
+     * @param debugLevel The debug level for controlling debug output.
      */
-    public ObjectWriter(JsonModel model, JsonType jType, JsonCastingLevel castingLevel) {
+    public ObjectWriter(JsonModel model, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         this.castingLevel = castingLevel;
         this.model = model;
         this.jType = jType;
         this.intentString = "";
-        this.debugLevel = JsonDebugLevel.SIMPLE;
-    }
-
-    /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
-     *
-     * @param castingLevel the casting level for serialization
-     * @param model The JSON model.
-     * @param jType The JSON type used for serialization.
-     * @param intentString The indentation string for formatted output.
-     */
-    public ObjectWriter(JsonModel model, JsonType jType, String intentString, JsonCastingLevel castingLevel) {
-        this.castingLevel = castingLevel;
-        this.model = model;
-        this.jType = jType;
-        this.intentString = intentString;
-        this.debugLevel = JsonDebugLevel.SIMPLE;
+        this.debugLevel = debugLevel != null ? debugLevel : JsonDebugLevel.SIMPLE;
     }
 
     /**
@@ -155,8 +109,7 @@ public class ObjectWriter {
      * @param out The PrintWriter to write the JSON output.
      * @param ob The object to serialize.
      * @throws NullPointerException If the object has no associated JSON class.
-     * @throws ClassCastException If the object does not match the expected JSON
-     * type.
+     * @throws ClassCastException If the object does not match the expected JSON type.
      */
     protected void write(PrintWriter out, Object ob) throws NullPointerException, ClassCastException {
         JsonClass jClass = calculateJsonClass(ob);
@@ -170,8 +123,7 @@ public class ObjectWriter {
      * @param ob The object to analyze.
      * @return The corresponding JsonClass representation.
      * @throws NullPointerException If no class description is found.
-     * @throws ClassCastException If the object does not match the expected JSON
-     * type.
+     * @throws ClassCastException If the object does not match the expected JSON type.
      */
     protected JsonClass calculateJsonClass(Object ob) throws NullPointerException, ClassCastException {
         if (jType instanceof JsonMap jMap) {
@@ -216,18 +168,6 @@ public class ObjectWriter {
      * @param ob The object to serialize.
      */
     public void write(PrintWriter out, JsonClass jClass, Object ob) {
-        write(out, jClass, ob, this.debugLevel);
-    }
-
-    /**
-     * Writes a JSON object representation with debug level.
-     *
-     * @param out The PrintWriter for output.
-     * @param jClass The JSON class defining the object's structure.
-     * @param ob The object to serialize.
-     * @param debugLevel The debug level for logging getter errors.
-     */
-    public void write(PrintWriter out, JsonClass jClass, Object ob, JsonDebugLevel debugLevel) {
         if (jType != null && jType.needCast(castingLevel)
                 || jClass.needCast(castingLevel)) {
             out.print('(');
@@ -452,8 +392,8 @@ public class ObjectWriter {
     }
 
     /**
-     * Escapes special characters in a string for JSON output.
-     * Handles backslash, quote, newline, carriage return, and tab characters.
+     * Escapes special characters in a string for JSON output. Handles backslash, quote, newline, carriage return, and
+     * tab characters.
      *
      * @param s The string to escape.
      * @return The escaped string safe for JSON output.

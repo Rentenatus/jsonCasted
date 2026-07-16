@@ -6,23 +6,21 @@
  */
 package de.jare.jsoncasted.model.descriptor;
 
+import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.io.JsonWriteException;
+import de.jare.jsoncasted.io.JsonWriter;
 import de.jare.jsoncasted.lang.JsonInstance;
+import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
-import de.jare.debug.JsonDebugLevel;
-import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
-import de.jare.jsoncasted.parserwriter.JsonWriteException;
-import de.jare.jsoncasted.parserwriter.JsonWriter;
 
 /**
  * Description of a complete JsonModel.
