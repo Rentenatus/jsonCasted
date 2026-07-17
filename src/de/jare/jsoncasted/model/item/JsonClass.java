@@ -281,7 +281,7 @@ public class JsonClass implements JsonType {
                 try {
                     ret = meth.invoke(ob);
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    String msg = "Getter method '" + next.getGetter() + "' failed for field '" 
+                    String msg = "Getter method '" + next.getGetter() + "' failed for field '"
                             + next.getfName() + "' on class '" + ob.getClass().getTypeName() + "': " + ex.getMessage();
                     if (debugLevel != null) {
                         debugLevel.warning(() -> new DebugTuple(msg, ex));
@@ -292,7 +292,7 @@ public class JsonClass implements JsonType {
             }
         }
         if (ret == null) {
-            String msg = "Getter method '" + next.getGetter() + "' not found for field '" 
+            String msg = "Getter method '" + next.getGetter() + "' not found for field '"
                     + next.getfName() + "' on class '" + ob.getClass().getTypeName() + "'.";
             if (debugLevel != null && debugLevel.satisfyWarning()) {
                 debugLevel.warning(() -> new DebugTuple(msg));
@@ -512,7 +512,7 @@ public class JsonClass implements JsonType {
      * @param key the field name.
      * @return the JsonField with the given name, or {@code null} if not found.
      */
-    public JsonField get(String key) {
+    public JsonField getField(String key) {
         return fields.get(key);
     }
 
@@ -522,7 +522,7 @@ public class JsonClass implements JsonType {
      * @param jField the field to remove.
      * @return the removed field, or {@code null} if not found.
      */
-    public JsonField remove(JsonField jField) {
+    public JsonField removeField(JsonField jField) {
         String key = jField.getfName();
         keys.remove(key);
         return fields.remove(key);
@@ -534,7 +534,7 @@ public class JsonClass implements JsonType {
      * @param key the field name to remove.
      * @return the removed field, or {@code null} if not found.
      */
-    public JsonField remove(String key) {
+    public JsonField removeField(String key) {
         keys.remove(key);
         return fields.remove(key);
     }

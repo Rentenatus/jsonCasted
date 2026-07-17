@@ -25,8 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Legacy parser for JSON object structures.
- * Parses JSON objects and their properties from the stream.
+ * Legacy parser for JSON object structures. Parses JSON objects and their properties from the stream.
  *
  * @author Janusch Rentenatus
  * @deprecated Replaced by JsonNode-based parsing pipeline.
@@ -102,7 +101,7 @@ public class ObjectParserBak {
                 } else if (c == '[') {
                     checkDoubleParam(paramValue, paramName, psr.getRow());
                     if (field != null && !field.isAsListOrArray()) {
-                        throw new JsonParseException(psr.getRow(),"Field " + field.getfName() + " is not a list nor array. (:" + psr.getRow() + ")");
+                        throw new JsonParseException(psr.getRow(), "Field " + field.getfName() + " is not a list nor array. (:" + psr.getRow() + ")");
                     }
                     paramValue = new ListParserBak(definition, paramType(field)).parse(psr, field == null || field.isAsList());
                 } else if (c == '(') {
@@ -203,7 +202,7 @@ public class ObjectParserBak {
      * @return The JsonField, or null if not found.
      */
     private JsonField paramField(String key) {
-        return aClass == null ? null : aClass.get(key);
+        return aClass == null ? null : aClass.getField(key);
     }
 
     /**

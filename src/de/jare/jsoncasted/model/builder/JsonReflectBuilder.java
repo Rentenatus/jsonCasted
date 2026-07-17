@@ -10,7 +10,6 @@ package de.jare.jsoncasted.model.builder;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
-import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
@@ -24,9 +23,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The JsonReflectBuilder class is responsible for constructing Java objects
- * from JSON data using reflection. It dynamically invokes constructors and
- * setter methods to populate object fields.
+ * The JsonReflectBuilder class is responsible for constructing Java objects from JSON data using reflection. It
+ * dynamically invokes constructors and setter methods to populate object fields.
  *
  * @author Janusch Rentenatus
  */
@@ -91,7 +89,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
         Iterator<String> it = jClass.keysForBuildIterator();
         while (it.hasNext()) {
             try {
-                JsonField next = jClass.get(it.next());
+                JsonField next = jClass.getField(it.next());
                 if (next.isConstructorParam()) {
                     continue;
                 }
@@ -150,6 +148,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
      *
      * @param jClass The JSON class definition.
      * @param jsonItem The JSON item containing constructor parameters.
+     * @param builderService
      * @return The instantiated object.
      * @throws JsonBuildException If instantiation fails.
      */
@@ -158,7 +157,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
         ArrayList<JsonField> params = new ArrayList<>();
         Iterator<String> it = jClass.keysForBuildIterator();
         while (it.hasNext()) {
-            JsonField next = jClass.get(it.next());
+            JsonField next = jClass.getField(it.next());
             if (next.isConstructorParam()) {
                 params.add(next);
             }
@@ -300,12 +299,10 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
     }
 
     /**
-     * Determines whether the JSON type represents a primitive value. Since
-     * objects created via reflection are inherently complex structures, this
-     * method always returns false.
+     * Determines whether the JSON type represents a primitive value. Since objects created via reflection are
+     * inherently complex structures, this method always returns false.
      *
-     * @return false, indicating that reflection-based objects are not
-     * primitive.
+     * @return false, indicating that reflection-based objects are not primitive.
      */
     @Override
     public boolean isPrimitive() {

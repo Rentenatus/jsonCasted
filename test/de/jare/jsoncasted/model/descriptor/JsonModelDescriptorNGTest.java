@@ -4,18 +4,16 @@
  */
 package de.jare.jsoncasted.model.descriptor;
 
-import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonWriteException;
+import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**

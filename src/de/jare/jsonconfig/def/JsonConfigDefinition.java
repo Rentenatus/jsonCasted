@@ -7,9 +7,12 @@
  */
 package de.jare.jsonconfig.def;
 
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonItemDefinition;
+import static de.jare.jsoncasted.io.JsonValidationMethod.ENDSWITH;
+import static de.jare.jsoncasted.io.JsonValidationMethod.EQUALS;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.BuilderService;
-import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonBuildException;
 import static de.jare.jsoncasted.model.JsonCollectionType.ARRAY;
@@ -19,10 +22,6 @@ import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonReflectBuilder;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
-import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.JsonItemDefinition;
-import static de.jare.jsoncasted.io.JsonValidationMethod.ENDSWITH;
-import static de.jare.jsoncasted.io.JsonValidationMethod.EQUALS;
 import de.jare.jsonconfig.item.ConfigFeature;
 import de.jare.jsonconfig.item.ConfigLogging;
 import de.jare.jsonconfig.item.ConfigProfile;

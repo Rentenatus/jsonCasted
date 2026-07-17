@@ -47,12 +47,12 @@ public class JsonMap extends JsonClass implements JsonType {
      * @param cName the canonical name for this map type.
      * @param singular the singular class type for map entries.
      * @param itemClass the JsonClass for map values.
-     * @param colType the collection type (LIST, ARRAY, or NONE).
+     * @param collectionType the collection type (LIST, ARRAY, or NONE).
      */
-    public JsonMap(String cName, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
+    public JsonMap(String cName, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType collectionType) {
         super(cName, new JsonMapBuilder(singular, itemClass));
         this.itemClass = itemClass;
-        this.colType = colType;
+        this.colType = collectionType != null ? collectionType : JsonCollectionType.NONE;
 
     }
 
@@ -63,12 +63,12 @@ public class JsonMap extends JsonClass implements JsonType {
      * @param skippingNulls if {@code true}, null values will be skipped during serialization.
      * @param singular the singular class type for map entries.
      * @param itemClass the JsonClass for map values.
-     * @param colType the collection type (LIST, ARRAY, or NONE).
+     * @param collectionType the collection type (LIST, ARRAY, or NONE).
      */
-    public JsonMap(String cName, boolean skippingNulls, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType colType) {
+    public JsonMap(String cName, boolean skippingNulls, Class<? extends JsonInstance<?>> singular, JsonClass itemClass, JsonCollectionType collectionType) {
         super(cName, skippingNulls, new JsonMapBuilder(singular, itemClass));
         this.itemClass = itemClass;
-        this.colType = colType;
+        this.colType = collectionType != null ? collectionType : JsonCollectionType.NONE;
     }
 
     @Override
@@ -125,7 +125,7 @@ public class JsonMap extends JsonClass implements JsonType {
      * @return a new JsonField configured for this map.
      */
     @Override
-    public JsonField get(String key) {
+    public JsonField getField(String key) {
         return new JsonField(this, key, itemClass, colType, JsonValidationMethod.NONE);
     }
 
@@ -208,6 +208,10 @@ public class JsonMap extends JsonClass implements JsonType {
         );
 
         target.setMappingAllFields(fd);
+    }
+
+    public boolean isAsListOrArray() {
+        return colType.isAsListOrArray();
     }
 
 }

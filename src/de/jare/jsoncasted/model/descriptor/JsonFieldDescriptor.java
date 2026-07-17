@@ -6,8 +6,8 @@
  */
 package de.jare.jsoncasted.model.descriptor;
 
-import de.jare.jsoncasted.model.JsonCollectionType;
 import de.jare.jsoncasted.model.FieldKind;
+import de.jare.jsoncasted.model.JsonCollectionType;
 import java.util.Objects;
 
 /**
@@ -71,7 +71,7 @@ public class JsonFieldDescriptor {
             String setter) {
         this.fieldName = Objects.requireNonNull(fieldName, "jsonName");
         this.typeName = Objects.requireNonNull(typeName, "typeName");
-        this.collectionType = collectionType;
+        this.collectionType = collectionType != null ? collectionType : JsonCollectionType.NONE;
         this.required = required;
         this.constructorParam = constructorParam;
         this.getter = getter;
@@ -111,7 +111,7 @@ public class JsonFieldDescriptor {
      * @return {@code true} if collection type is NONE.
      */
     public boolean isNotCollection() {
-        return collectionType == JsonCollectionType.NONE;
+        return collectionType.isNotCollection();
     }
 
     /**
@@ -120,7 +120,7 @@ public class JsonFieldDescriptor {
      * @return {@code true} if collection type is ARRAY or LIST.
      */
     public boolean isAsListOrArray() {
-        return collectionType == JsonCollectionType.ARRAY || collectionType == JsonCollectionType.LIST;
+        return collectionType.isAsListOrArray();
     }
 
     /**
@@ -129,7 +129,7 @@ public class JsonFieldDescriptor {
      * @return {@code true} if collection type is LIST.
      */
     public boolean isAsList() {
-        return collectionType == JsonCollectionType.LIST;
+        return collectionType.isAsList();
     }
 
     /**
@@ -138,7 +138,7 @@ public class JsonFieldDescriptor {
      * @return {@code true} if collection type is ARRAY.
      */
     public boolean isAsArray() {
-        return collectionType == JsonCollectionType.ARRAY;
+        return collectionType.isAsArray();
     }
 
     /**
