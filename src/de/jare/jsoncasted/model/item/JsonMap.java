@@ -12,7 +12,7 @@ import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonCollectionType;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonMapBuilder;
-import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.ArrayList;
@@ -197,16 +197,7 @@ public class JsonMap extends JsonClass implements JsonType {
             depClass.describeDependencies(context);
         }
 
-        JsonFieldDescriptor fd = new JsonFieldDescriptor(
-                "*:" + itemClass.getcName() + (colType == JsonCollectionType.NONE ? "" : "[]"),
-                itemClass.getcName(), // typeName
-                colType, // JsonCollectionType 
-                false, // required?
-                false, // constructorParam?
-                null, // getterName (String) oder null
-                null // setterName (String) oder null
-        );
-
+        JsonFieldTypeNote fd = new JsonFieldTypeNote(itemClass.getcName(), colType);
         target.setMappingAllFields(fd);
     }
 

@@ -47,12 +47,10 @@ public class JsonTypeDescriptor {
     private boolean primitive;
     private boolean recursive;
     /**
-     * A mask for all fields, that contains this class.
+     * A mask type for all fields, that contains this class for wood editor.
      *
-     * e.g. "*:de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor[]" for an Araay of this class.
      */
-
-    private JsonFieldDescriptor mappingAllFields;
+    private JsonFieldTypeNote mappingAllFields;
     private JsonTypeDescriptor parent;
 
     /**
@@ -113,7 +111,7 @@ public class JsonTypeDescriptor {
      *
      * @return the field descriptor for mapping all fields, or {@code null} if none.
      */
-    public JsonFieldDescriptor getMappingAllFields() {
+    public JsonFieldTypeNote getMappingAllFields() {
         return mappingAllFields;
     }
 
@@ -122,7 +120,7 @@ public class JsonTypeDescriptor {
      *
      * @param mappingAllFields the field descriptor to set.
      */
-    public void setMappingAllFields(JsonFieldDescriptor mappingAllFields) {
+    public void setMappingAllFields(JsonFieldTypeNote mappingAllFields) {
         this.mappingAllFields = mappingAllFields;
     }
 

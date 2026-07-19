@@ -14,6 +14,7 @@ import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonCollectionType;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
@@ -47,16 +48,17 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
         JsonClass collectionTypeEnum = model.newJsonEnumByName(JsonCollectionType.class);
         JsonClass nodeTypeEnum = model.newJsonEnumByName(JsonNodeType.class);
 
-        descriptField = model.newJsonReflect(JsonFieldDescriptor.class);
+        JsonClass descriptTypeNote = model.newJsonReflect(JsonFieldTypeNote.class);
+        descriptTypeNote.setDefinitional(true);
+        descriptTypeNote.addCParam("typeName", asString);
+        descriptTypeNote.addCParam("collectionType", collectionTypeEnum);
 
+        descriptField = model.newJsonReflect(JsonFieldDescriptor.class, descriptTypeNote);
         descriptField.addCParam("fieldName", asString);
-        descriptField.addCParam("typeName", asString);
-        descriptField.addCParam("collectionType", collectionTypeEnum);
         descriptField.addCParam("required", asBoolean);
         descriptField.addCParam("constructorParam", asBoolean);
         descriptField.addCParam("getter", asString);
         descriptField.addCParam("setter", asString);
-
 
         descriptType = model.newJsonReflect(JsonTypeDescriptor.class);
         descriptType.setDefinitional(true);
@@ -65,7 +67,7 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
         descriptType.addField("skippingNulls", asBoolean, "isSkippingNulls", "withSkippingNulls");
         descriptType.addField("primitive", asBoolean, "isPrimitive", "withPrimitive");
         descriptType.addField("recursive", asBoolean, "isRecursive", "withRecursive");
-        descriptType.addField("mappingAllFields", descriptField);
+        descriptType.addField("mappingAllFields", descriptTypeNote);
         descriptType.addField("parent", descriptType);
 
         JsonMap typeMap = model.newRawJsonMapIndividually((new JsonInstance<JsonTypeDescriptor>()).getClass(), (String) null, descriptType);

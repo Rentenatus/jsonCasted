@@ -30,11 +30,9 @@ import java.util.Objects;
  *
  * @author Janusch Rentenatus
  */
-public class JsonFieldDescriptor {
+public class JsonFieldDescriptor extends JsonFieldTypeNote {
 
     private final String fieldName;
-    private final String typeName;
-    private final JsonCollectionType collectionType;
     private final boolean required;
     private final boolean constructorParam;
     private String getter;
@@ -69,9 +67,8 @@ public class JsonFieldDescriptor {
             boolean constructorParam,
             String getter,
             String setter) {
+        super(typeName, collectionType);
         this.fieldName = Objects.requireNonNull(fieldName, "jsonName");
-        this.typeName = Objects.requireNonNull(typeName, "typeName");
-        this.collectionType = collectionType != null ? collectionType : JsonCollectionType.NONE;
         this.required = required;
         this.constructorParam = constructorParam;
         this.getter = getter;
@@ -87,59 +84,7 @@ public class JsonFieldDescriptor {
         return fieldName;
     }
 
-    /**
-     * Returns the type name.
-     *
-     * @return the type name.
-     */
-    public String getTypeName() {
-        return typeName;
-    }
 
-    /**
-     * Returns the collection type.
-     *
-     * @return the collection type.
-     */
-    public JsonCollectionType getCollectionType() {
-        return collectionType;
-    }
-
-    /**
-     * Checks if this is not a collection field.
-     *
-     * @return {@code true} if collection type is NONE.
-     */
-    public boolean isNotCollection() {
-        return collectionType.isNotCollection();
-    }
-
-    /**
-     * Checks if this is a list or array field.
-     *
-     * @return {@code true} if collection type is ARRAY or LIST.
-     */
-    public boolean isAsListOrArray() {
-        return collectionType.isAsListOrArray();
-    }
-
-    /**
-     * Checks if this is a list field.
-     *
-     * @return {@code true} if collection type is LIST.
-     */
-    public boolean isAsList() {
-        return collectionType.isAsList();
-    }
-
-    /**
-     * Checks if this is an array field.
-     *
-     * @return {@code true} if collection type is ARRAY.
-     */
-    public boolean isAsArray() {
-        return collectionType.isAsArray();
-    }
 
     /**
      * Checks if this is a required field.
@@ -177,7 +122,7 @@ public class JsonFieldDescriptor {
         if (fieldName.isBlank()) {
             throw new IllegalStateException("jsonName is blank");
         }
-        if (typeName.isBlank()) {
+        if (getTypeName().isBlank()) {
             throw new IllegalStateException("typeName is blank");
         }
         if (constructorParam && setter != null) {
@@ -210,8 +155,8 @@ public class JsonFieldDescriptor {
     public String toString() {
         return "JsonFieldDescriptor["
                 + "jsonName=" + fieldName
-                + ", typeName=" + typeName
-                + ", collectionType=" + collectionType
+                + ", typeName=" + getTypeName()
+                + ", collectionType=" + getCollectionType()
                 + ", required=" + required
                 + ", kind=" + kind.getName()
                 + ", constructorParam=" + constructorParam

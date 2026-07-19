@@ -17,13 +17,8 @@
       "primitive": false,
       "recursive": false,
       "mappingAllFields": {
-        "fieldName": "*:String",
         "typeName": "String",
-        "collectionType": "NONE",
-        "required": false,
-        "constructorParam": false,
-        "getter":  null,
-        "setter":  null
+        "collectionType": "NONE"
       },
       "parent":  null
     },
@@ -97,13 +92,8 @@
       "primitive": false,
       "recursive": false,
       "mappingAllFields": {
-        "fieldName": "*:de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor",
         "typeName": "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor",
-        "collectionType": "NONE",
-        "required": false,
-        "constructorParam": false,
-        "getter":  null,
-        "setter":  null
+        "collectionType": "NONE"
       },
       "parent":  null
     },
@@ -141,7 +131,15 @@
       "primitive": false,
       "recursive": false,
       "mappingAllFields":  null,
-      "parent":  null
+      "parent": {
+        "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": true,
+        "mappingAllFields":  null,
+        "parent":  null
+      }
     },
     "boolean": {
       "typeName": "boolean",
@@ -177,13 +175,8 @@
       "primitive": false,
       "recursive": false,
       "mappingAllFields": {
-        "fieldName": "*:de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor",
         "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor",
-        "collectionType": "NONE",
-        "required": false,
-        "constructorParam": false,
-        "getter":  null,
-        "setter":  null
+        "collectionType": "NONE"
       },
       "parent":  null
     },
@@ -193,6 +186,15 @@
       "skippingNulls": false,
       "primitive": true,
       "recursive": false,
+      "mappingAllFields":  null,
+      "parent":  null
+    },
+    "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote": {
+      "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote",
+      "nodeType": "OBJECT",
+      "skippingNulls": false,
+      "primitive": false,
+      "recursive": true,
       "mappingAllFields":  null,
       "parent":  null
     }
