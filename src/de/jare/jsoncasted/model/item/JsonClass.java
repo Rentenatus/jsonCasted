@@ -276,24 +276,45 @@ public class JsonClass implements JsonType {
      */
     public Object getAttr(JsonField next, Object ob, JsonDebugLevel debugLevel) {
         Object ret = null;
+        int lastParameterCount = -1;
         for (Method meth : ob.getClass().getMethods()) {
-            if (meth.getName().equals(next.getGetter()) && meth.getParameterCount() == 0) {
-                try {
-                    ret = meth.invoke(ob);
-                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    String msg = "Getter method '" + next.getGetter() + "' failed for field '"
-                            + next.getfName() + "' on class '" + ob.getClass().getTypeName() + "': " + ex.getMessage();
-                    if (debugLevel != null) {
-                        debugLevel.warning(() -> new DebugTuple(msg, ex));
-                    }
-                    Logger.getGlobal().log(Level.SEVERE, msg, ex);
+            if (meth.getName().equals(next.getGetter())) {
+                lastParameterCount = meth.getParameterCount();
+                if (lastParameterCount != 0) {
+                    continue;
                 }
-                break;
+            } else {
+                continue;
             }
+            try {
+                ret = meth.invoke(ob);
+                return ret; // ...could even result in a null outcome.
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                String msg = "Getter method '" + next.getGetter() + "' failed for field: " + ex.getMessage();
+                if (debugLevel != null) {
+                    debugLevel.warning(() -> new DebugTuple(msg, ex));
+                }
+                Logger.getGlobal().log(Level.SEVERE, msg, ex);
+            }
+            break;
         }
         if (ret == null) {
-            String msg = "Getter method '" + next.getGetter() + "' not found for field '"
-                    + next.getfName() + "' on class '" + ob.getClass().getTypeName() + "'.";
+            StringBuilder msgBuilder = new StringBuilder();
+            msgBuilder.append("Getter method '");
+            msgBuilder.append(next.getGetter());
+            msgBuilder.append("' not found for field '");
+            msgBuilder.append(next.getfName());
+            msgBuilder.append("' on class '");
+            msgBuilder.append(ob.getClass().getTypeName());
+            msgBuilder.append("'.");
+            if (lastParameterCount > 0) {
+                msgBuilder.append(" '");
+                msgBuilder.append(next.getGetter());
+                msgBuilder.append("' last seen with ");
+                msgBuilder.append(lastParameterCount);
+                msgBuilder.append(" parameters.");
+            }
+            final String msg = msgBuilder.toString();
             if (debugLevel != null && debugLevel.satisfyWarning()) {
                 debugLevel.warning(() -> new DebugTuple(msg));
             }
