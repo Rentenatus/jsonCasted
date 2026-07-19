@@ -45,6 +45,13 @@ public class JsonTerms {
      * Used in JSON: {@code "_woodProviders": [...]}</p>
      */
     public static final String TERM_WOOD_PROVIDERS = "_woodProviders";
+
+    /**
+     * Property name for definitions container.
+     * <p>
+     * Used in JSON: {@code "_woodDefinitions": {...}</p>
+     */
+    public static final String TERM_WOOD_DEFINITIONS = "_woodDefinitions";
     
     
     public static String DEFINITIONS_SUFFIX ="_def";

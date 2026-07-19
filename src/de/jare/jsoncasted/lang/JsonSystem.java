@@ -8,6 +8,7 @@ package de.jare.jsoncasted.lang;
 
 import de.jare.jsoncasted.wood.WoodProvider;
 import de.jare.jsoncasted.wood.WoodProviderBox;
+import de.jare.jsoncasted.io.parserservice.WoodIdFinder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,6 +73,20 @@ public final class JsonSystem {
         system.setProviderBox(providerBox != null ? providerBox : new WoodProviderBox(new ArrayList<>()));
         List<JsonResource> resources = new ArrayList<>();
         resources.add(mainResource);
+        
+        // Add definitions as separate resources
+        if (mainResource != null && mainResource.hasDefinitionNodes()) {
+            String providerName = mainResource.getProviderName();
+            for (JsonNode defNode : mainResource.getDefinitionNodes()) {
+                JsonResource defResource = JsonResource.forRoot(defNode);
+                defResource.setProviderName(providerName);
+                defResource.setResourceFile(mainResource.getResourceFile() + "[definitions]");
+                // Create LinkingSet for Definitions resource
+                defResource.setLinkingSet(WoodIdFinder.buildLinkingSet(defNode, providerName, null));
+                resources.add(defResource);
+            }
+        }
+        
         system.setResources(resources);
         system.setMainResource(mainResource);
         if (mainResource != null && !system.resources.contains(mainResource)) {

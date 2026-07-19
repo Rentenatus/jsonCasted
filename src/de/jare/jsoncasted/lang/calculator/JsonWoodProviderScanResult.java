@@ -7,6 +7,7 @@
 package de.jare.jsoncasted.lang.calculator;
 
 import de.jare.jsoncasted.lang.JsonNode;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_DEFINITIONS;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import java.util.Objects;
 public final class JsonWoodProviderScanResult {
 
     private final List<ProviderNodeEntry> providerNodes = new ArrayList<>();
+    private final List<DefinitionsNodeEntry> definitionNodes = new ArrayList<>();
 
     /**
      * Registers a provider node found during scanning.
@@ -35,6 +37,18 @@ public final class JsonWoodProviderScanResult {
         JsonNode ownerNode = JsonNode.objectNode();
         ownerNode.asObjectValues().put(TERM_WOOD_PROVIDERS, childNode);
         providerNodes.add(new ProviderNodeEntry(ownerNode, path));
+    }
+
+    /**
+     * Registers a definitions node found during scanning.
+     *
+     * @param childNode The JSON node containing the definitions.
+     * @param path The path to the parent node in the JSON structure.
+     */
+    void registerDefinitionNode(JsonNode childNode, String path) {
+        JsonNode ownerNode = JsonNode.objectNode();
+        ownerNode.asObjectValues().put(TERM_WOOD_DEFINITIONS, childNode);
+        definitionNodes.add(new DefinitionsNodeEntry(ownerNode, path));
     }
 
     /**
@@ -56,12 +70,30 @@ public final class JsonWoodProviderScanResult {
     }
 
     /**
-     * Checks if no provider nodes were found during scanning.
+     * Returns an unmodifiable list of all definitions node entries found during scanning.
      *
-     * @return true if no provider nodes were found, false otherwise.
+     * @return An unmodifiable list of definitions node entries.
+     */
+    public List<DefinitionsNodeEntry> getDefinitionNodes() {
+        return Collections.unmodifiableList(definitionNodes);
+    }
+
+    /**
+     * Checks if any definitions nodes were found during scanning.
+     *
+     * @return true if at least one definitions node was found, false otherwise.
+     */
+    public boolean hasDefinitionNodes() {
+        return !definitionNodes.isEmpty();
+    }
+
+    /**
+     * Checks if no provider or definition nodes were found during scanning.
+     *
+     * @return true if no provider or definition nodes were found, false otherwise.
      */
     public boolean isEmpty() {
-        return providerNodes.isEmpty();
+        return providerNodes.isEmpty() && definitionNodes.isEmpty();
     }
 
     /**
@@ -106,6 +138,53 @@ public final class JsonWoodProviderScanResult {
         @Override
         public String toString() {
             return "ProviderNodeEntry{"
+                    + "path='" + path + '\''
+                    + '}';
+        }
+    }
+
+    /**
+     * The DefinitionsNodeEntry class represents a single wood definitions node found during scanning.
+     * It stores the owner node (containing the definitions) and the path to that node.
+     */
+    public static final class DefinitionsNodeEntry {
+
+        private final JsonNode ownerNode;
+        private final String path;
+
+        /**
+         * Constructs a DefinitionsNodeEntry instance.
+         *
+         * @param ownerNode The JSON node that owns/contains the definitions.
+         * @param path The path to the owner node in the JSON structure.
+         * @throws NullPointerException If ownerNode or path is null.
+         */
+        public DefinitionsNodeEntry(JsonNode ownerNode, String path) {
+            this.ownerNode = Objects.requireNonNull(ownerNode, "ownerNode must not be null");
+            this.path = Objects.requireNonNull(path, "path must not be null");
+        }
+
+        /**
+         * Returns the owner JSON node.
+         *
+         * @return The owner JSON node.
+         */
+        public JsonNode getOwnerNode() {
+            return ownerNode;
+        }
+
+        /**
+         * Returns the path to the owner node.
+         *
+         * @return The path string.
+         */
+        public String getPath() {
+            return path;
+        }
+
+        @Override
+        public String toString() {
+            return "DefinitionsNodeEntry{" 
                     + "path='" + path + '\''
                     + '}';
         }

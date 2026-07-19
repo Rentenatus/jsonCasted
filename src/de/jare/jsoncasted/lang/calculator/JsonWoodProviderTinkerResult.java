@@ -26,6 +26,7 @@ public final class JsonWoodProviderTinkerResult {
     private final List<BuildEntry> entries = new ArrayList<>();
     private final List<JsonExceptionEntry> exceptions = new ArrayList<>();
     private WoodProviderBox woodProviderBox = null;
+    private final List<JsonWoodProviderScanResult.DefinitionsNodeEntry> definitionEntries = new ArrayList<>();
 
     /**
      * Registers a successfully built WoodProviderBox.
@@ -52,6 +53,17 @@ public final class JsonWoodProviderTinkerResult {
      */
     void registerException(JsonWoodProviderScanResult.ProviderNodeEntry scanEntry, Exception exception) {
         exceptions.add(new JsonExceptionEntry(scanEntry.getOwnerNode(), scanEntry.getPath(), exception));
+    }
+
+    /**
+     * Registers a definitions node entry found during scanning.
+     *
+     * @param scanEntry The scan entry containing the definitions node.
+     * @throws NullPointerException If scanEntry is null.
+     */
+    void registerDefinitionEntry(JsonWoodProviderScanResult.DefinitionsNodeEntry scanEntry) {
+        Objects.requireNonNull(scanEntry, "scanEntry must not be null");
+        definitionEntries.add(scanEntry);
     }
 
     /**
@@ -106,6 +118,24 @@ public final class JsonWoodProviderTinkerResult {
      */
     public WoodProviderBox getWoodProviderBox() {
         return woodProviderBox;
+    }
+
+    /**
+     * Returns an unmodifiable list of all definitions node entries.
+     *
+     * @return An unmodifiable list of definitions node entries.
+     */
+    public List<JsonWoodProviderScanResult.DefinitionsNodeEntry> getDefinitionEntries() {
+        return Collections.unmodifiableList(definitionEntries);
+    }
+
+    /**
+     * Checks if any definitions node entries were registered.
+     *
+     * @return true if at least one definitions entry was registered, false otherwise.
+     */
+    public boolean hasDefinitionEntries() {
+        return !definitionEntries.isEmpty();
     }
 
     /**

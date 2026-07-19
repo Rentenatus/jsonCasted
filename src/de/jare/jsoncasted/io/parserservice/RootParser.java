@@ -10,6 +10,7 @@ package de.jare.jsoncasted.io.parserservice;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.lang.calculator.JsonWoodProviderTinkerResult;
 import de.jare.jsoncasted.lang.calculator.JsonWoodProviderTinker;
 import de.jare.jsoncasted.lang.calculator.JsonWoodProviderScanResult;
@@ -64,6 +65,22 @@ public class RootParser {
             container.addExceptions(result.getExceptions());
         }
         container.setExpectedBox(result.getWoodProviderBox());
+        
+        // Definitions aus dem TinkerResult extrahieren und in die Resource aufnehmen
+        if (result.hasDefinitionEntries()) {
+            for (JsonWoodProviderScanResult.DefinitionsNodeEntry defEntry : result.getDefinitionEntries()) {
+                // Den _woodDefinitions-Knoten extrahieren
+                JsonNode ownerNode = defEntry.getOwnerNode();
+                JsonNode defsNode = ownerNode.asObjectValues().get(JsonTerms.TERM_WOOD_DEFINITIONS);
+                if (defsNode != null && defsNode.isObject()) {
+                    // Alle Kinder des _woodDefinitions-Objekts als einzelne Definition-Nodes hinzufügen
+                    for (JsonNode childNode : defsNode.asObjectValues().values()) {
+                        container.addDefinitionNode(childNode);
+                    }
+                }
+            }
+        }
+        
         return container;
     }
 

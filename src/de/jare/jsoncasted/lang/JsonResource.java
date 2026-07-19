@@ -36,6 +36,7 @@ public final class JsonResource {
     private WoodProviderBox expectedBox;
     private List<String> importedProviderSynonyms;
     private final List<JsonExceptionEntry> exceptions = new ArrayList<>();
+    private List<JsonNode> definitionNodes;
 
     private LinkingSet linkingSet;
 
@@ -214,6 +215,48 @@ public final class JsonResource {
             return;
         }
         this.importedProviderSynonyms.add(importedProviderSynonym);
+    }
+
+    /**
+     * Returns an unmodifiable list of definition nodes.
+     *
+     * @return unmodifiable list of definition nodes, or empty list if none.
+     */
+    public List<JsonNode> getDefinitionNodes() {
+        return definitionNodes != null ? Collections.unmodifiableList(definitionNodes) : Collections.emptyList();
+    }
+
+    /**
+     * Sets the list of definition nodes.
+     *
+     * @param definitionNodes the list of definition nodes to set, or null to clear.
+     */
+    public void setDefinitionNodes(List<JsonNode> definitionNodes) {
+        this.definitionNodes = definitionNodes != null ? new ArrayList<>(definitionNodes) : new ArrayList<>();
+    }
+
+    /**
+     * Adds a definition node.
+     *
+     * @param node the definition node to add (ignored if null).
+     */
+    public void addDefinitionNode(JsonNode node) {
+        if (node == null) {
+            return;
+        }
+        if (this.definitionNodes == null) {
+            this.definitionNodes = new ArrayList<>();
+        }
+        this.definitionNodes.add(node);
+    }
+
+    /**
+     * Checks if this resource has any definition nodes.
+     *
+     * @return true if definition nodes exist, false otherwise.
+     */
+    public boolean hasDefinitionNodes() {
+        return definitionNodes != null && !definitionNodes.isEmpty();
     }
 
     /**

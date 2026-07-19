@@ -8,9 +8,8 @@
 package de.jare.jsoncasted.io;
 
 import de.jare.debug.JsonDebugLevel;
-import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.io.JsonWriteException;
 import de.jare.jsoncasted.io.writer.RootObjectWriter;
+import de.jare.jsoncasted.model.item.JsonClass;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;

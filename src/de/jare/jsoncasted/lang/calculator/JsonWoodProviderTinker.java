@@ -57,7 +57,7 @@ public final class JsonWoodProviderTinker {
      *
      * @param scanResult The scan result containing provider nodes to process.
      * @param debugLevel The debug level for controlling debug output.
-     * @return The tinker result containing built provider boxes and any exceptions.
+     * @return The tinker result containing built provider boxes, definition entries, and any exceptions.
      * @throws NullPointerException If scanResult or debugLevel is null.
      */
     public JsonWoodProviderTinkerResult build(JsonWoodProviderScanResult scanResult, JsonDebugLevel debugLevel) {
@@ -65,8 +65,14 @@ public final class JsonWoodProviderTinker {
 
         JsonWoodProviderTinkerResult result = new JsonWoodProviderTinkerResult();
 
+        // 1. Zuerst Provider bauen (damit externe Ressourcen verfügbar sind)
         for (JsonWoodProviderScanResult.ProviderNodeEntry entry : scanResult.getProviderNodes()) {
             buildEntry(entry, result, debugLevel);
+        }
+
+        // 2. Dann Definition-NodeEntries registrieren (Auflösung kommt später im WoodResolver)
+        for (JsonWoodProviderScanResult.DefinitionsNodeEntry entry : scanResult.getDefinitionNodes()) {
+            result.registerDefinitionEntry(entry);
         }
 
         return result;
