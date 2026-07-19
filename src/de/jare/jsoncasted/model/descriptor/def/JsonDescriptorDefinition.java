@@ -44,7 +44,7 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
         final JsonClass asString = model.getJsonClass("String");
         final JsonClass asBoolean = model.getJsonClass("Boolean");
 
-        JsonMap stringMap = model.newRawJsonMapIndividually((new JsonInstance<String>()).getClass(), (String) null, asString);
+        //JsonMap stringMap = model.newRawJsonMapIndividually((new JsonInstance<String>()).getClass(), (String) null, asString);
         JsonClass collectionTypeEnum = model.newJsonEnumByName(JsonCollectionType.class);
         JsonClass nodeTypeEnum = model.newJsonEnumByName(JsonNodeType.class);
 

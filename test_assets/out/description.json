@@ -10,18 +10,6 @@
       "mappingAllFields":  null,
       "parent":  null
     },
-    "de.jare.jsoncasted.lang.JsonInstance<String>": {
-      "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>",
-      "nodeType": "OBJECT",
-      "skippingNulls": false,
-      "primitive": false,
-      "recursive": false,
-      "mappingAllFields": {
-        "typeName": "String",
-        "collectionType": "NONE"
-      },
-      "parent":  null
-    },
     "double": {
       "typeName": "double",
       "nodeType": "NUMBER",
@@ -199,5 +187,5 @@
       "parent":  null
     }
   },
-  "repoDescriptors":  null
+  "repoDescriptors": {}
 }

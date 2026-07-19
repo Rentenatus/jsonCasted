@@ -395,12 +395,12 @@ public class JsonModelDescriptor {
     }
 
     /**
-     * Returns an unmodifiable map of all repository descriptors.
+     * Returns repository descriptors.
      *
-     * @return map of synonyms to repository descriptors.
+     * @return map
      */
-    public Map<String, JsonModelDescriptor> getRepoDescriptorMap() {
-        return Collections.unmodifiableMap(repoDescriptors);
+    public Map<String, JsonModelDescriptor> getRepoDescriptors() {
+        return repoDescriptors;
     }
 
     public JsonInstance<JsonTypeDescriptor> getDescribedTypes() {
