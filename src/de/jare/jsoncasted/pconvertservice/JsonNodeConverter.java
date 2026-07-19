@@ -15,7 +15,7 @@ import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
+import de.jare.jsoncasted.io.JsonParseException;
 import java.util.ArrayList;
 
 /**

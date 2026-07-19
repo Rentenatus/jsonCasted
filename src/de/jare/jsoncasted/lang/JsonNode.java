@@ -6,6 +6,7 @@
  */
 package de.jare.jsoncasted.lang;
 
+import de.jare.jsoncasted.io.JsonParseException;
 import static de.jare.jsoncasted.lang.JsonNodeType.ARRAY;
 import static de.jare.jsoncasted.lang.JsonNodeType.BOOLEAN;
 import static de.jare.jsoncasted.lang.JsonNodeType.LONG;
@@ -15,7 +16,6 @@ import static de.jare.jsoncasted.lang.JsonNodeType.OBJECT;
 import static de.jare.jsoncasted.lang.JsonNodeType.STRING;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.*;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
 
 /**
  * Simple JsonNode representation supporting objects, arrays, strings, numbers,

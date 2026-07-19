@@ -5,7 +5,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.parserservice;
+package de.jare.jsoncasted.io.parserservice;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.lang.JsonNode;
@@ -14,7 +14,7 @@ import de.jare.jsoncasted.lang.calculator.JsonWoodProviderTinkerResult;
 import de.jare.jsoncasted.lang.calculator.JsonWoodProviderTinker;
 import de.jare.jsoncasted.lang.calculator.JsonWoodProviderScanResult;
 import de.jare.jsoncasted.lang.calculator.JsonWoodProviderScanner;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
+import de.jare.jsoncasted.io.JsonParseException;
 import java.io.IOException;
 
 /**

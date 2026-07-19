@@ -6,10 +6,17 @@
  */
 package de.jare.jsoncasted.model.descriptor;
 
+import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.io.JsonWriteException;
+import de.jare.jsoncasted.io.JsonWriter;
+import de.jare.jsoncasted.lang.JsonInstance;
+import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,8 +44,8 @@ import java.util.Set;
 public class JsonModelDescriptor {
 
     private final String modelName;
-    private final Map<String, JsonTypeDescriptor> describedTypes = new LinkedHashMap<>();
-    private final Map<String, JsonModelDescriptor> repoDescriptors = new LinkedHashMap<>();
+    private final JsonInstance< JsonTypeDescriptor> describedTypes = new JsonInstance<>();
+    private final JsonInstance< JsonModelDescriptor> repoDescriptors = new JsonInstance<>();
     private JsonDefinitionsDescriptor definitionsRoot;
 
     /**
@@ -352,20 +359,11 @@ public class JsonModelDescriptor {
     // Views
     // -------------------------------------------------------------------------
     /**
-     * Returns an unmodifiable list of all type descriptors.
-     *
-     * @return list of all types.
-     */
-    public List<JsonTypeDescriptor> getTypes() {
-        return Collections.unmodifiableList(new ArrayList<>(describedTypes.values()));
-    }
-
-    /**
      * Returns an unmodifiable collection of all type descriptors.
      *
      * @return collection of all types.
      */
-    public Collection<JsonTypeDescriptor> values() {
+    public Collection<JsonTypeDescriptor> getTypes() {
         return Collections.unmodifiableCollection(describedTypes.values());
     }
 
@@ -374,7 +372,7 @@ public class JsonModelDescriptor {
      *
      * @return set of type names.
      */
-    public Set<String> keySet() {
+    public Set<String> getTypesKeys() {
         return Collections.unmodifiableSet(describedTypes.keySet());
     }
 
@@ -383,7 +381,7 @@ public class JsonModelDescriptor {
      *
      * @return set of entries.
      */
-    public Set<Map.Entry<String, JsonTypeDescriptor>> entrySet() {
+    public Set<Map.Entry<String, JsonTypeDescriptor>> getTypesEntries() {
         return Collections.unmodifiableSet(describedTypes.entrySet());
     }
 
@@ -397,12 +395,21 @@ public class JsonModelDescriptor {
     }
 
     /**
-     * Returns an unmodifiable map of all repository descriptors.
+     * Returns repository descriptors.
      *
-     * @return map of synonyms to repository descriptors.
+     * @return map
      */
-    public Map<String, JsonModelDescriptor> getRepoDescriptorMap() {
-        return Collections.unmodifiableMap(repoDescriptors);
+    public Map<String, JsonModelDescriptor> getRepoDescriptors() {
+        return repoDescriptors;
+    }
+
+    public JsonInstance<JsonTypeDescriptor> getDescribedTypes() {
+        return describedTypes;
+    }
+
+    public void setDescribedTypes(JsonInstance<JsonTypeDescriptor> describedTypes) {
+        this.describedTypes.clear();
+        this.describedTypes.putAll(describedTypes);
     }
 
     // -------------------------------------------------------------------------
@@ -469,6 +476,36 @@ public class JsonModelDescriptor {
             return false;
         }
         return describedTypes.keySet().containsAll(typeNames);
+    }
+
+    // -------------------------------------------------------------------------
+    // Serialization
+    // -------------------------------------------------------------------------
+    /**
+     * Saves this model descriptor to a JSON file.
+     *
+     * @param filename the target JSON file path.
+     * @throws JsonParseException if parsing fails during serialization.
+     * @throws JsonWriteException if writing fails due to serialization errors.
+     * @throws IOException if an I/O error occurs during writing.
+     */
+    public void saveAs(String filename) throws JsonParseException, JsonWriteException, IOException {
+        File file = new File(filename);
+        JsonWriter.write(this, file, JsonDescriptorDefinition.INSTANCE, JsonDescriptorDefinition.getInstance().getDescriptModel());
+    }
+
+    /**
+     * Saves this model descriptor to a JSON file with debug level.
+     *
+     * @param filename the target JSON file path.
+     * @param debugLevel the debug level for controlling debug output.
+     * @throws JsonParseException if parsing fails during serialization.
+     * @throws JsonWriteException if writing fails due to serialization errors.
+     * @throws IOException if an I/O error occurs during writing.
+     */
+    public void saveAs(String filename, JsonDebugLevel debugLevel) throws JsonParseException, JsonWriteException, IOException {
+        File file = new File(filename);
+        JsonWriter.write(this, file, JsonDescriptorDefinition.INSTANCE, JsonDescriptorDefinition.getInstance().getDescriptModel(), debugLevel);
     }
 
     @Override

@@ -13,8 +13,8 @@ import de.jare.jsoncasted.model.JsonRepo;
 import de.jare.jsoncasted.model.JsonRepoModel;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonInter;
-import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonItemDefinition;
 
 /**
  * Definition class for implementation tests. Sets up the JSON model structure

@@ -7,6 +7,10 @@
  */
 package de.jare.jsoncasted.model.item;
 
+import de.jare.debug.DebugTuple;
+import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonValidationMethod;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.lang.JsonNodeType;
@@ -16,10 +20,9 @@ import de.jare.jsoncasted.model.JsonEnumTemplate;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
-import de.jare.jsoncasted.parserwriter.JsonValidationMethod;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -260,16 +263,63 @@ public class JsonClass implements JsonType {
      * @return The attribute value, or null if the getter cannot be invoked.
      */
     public Object getAttr(JsonField next, Object ob) {
+        return getAttr(next, ob, null);
+    }
+
+    /**
+     * Retrieves an attribute value from an object using reflection. Invokes the getter method matching the field's
+     * getter name on the object, with debug level support.
+     *
+     * @param next The field whose value to retrieve.
+     * @param ob The object to retrieve the attribute from.
+     * @param debugLevel The debug level for logging getter errors, or null for no debug logging.
+     * @return The attribute value, or null if the getter cannot be invoked.
+     */
+    public Object getAttr(JsonField next, Object ob, JsonDebugLevel debugLevel) {
         Object ret = null;
+        int lastParameterCount = -1;
         for (Method meth : ob.getClass().getMethods()) {
-            if (meth.getName().equals(next.getGetter()) && meth.getParameterCount() == 0) {
-                try {
-                    ret = meth.invoke(ob);
-                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    Logger.getGlobal().log(Level.SEVERE, "Getter", ex);
+            if (meth.getName().equals(next.getGetter())) {
+                lastParameterCount = meth.getParameterCount();
+                if (lastParameterCount != 0) {
+                    continue;
                 }
-                break;
+            } else {
+                continue;
             }
+            try {
+                ret = meth.invoke(ob);
+                return ret; // ...could even result in a null outcome.
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                String msg = "Getter method '" + next.getGetter() + "' failed for field: " + ex.getMessage();
+                if (debugLevel != null) {
+                    debugLevel.warning(() -> new DebugTuple(msg, ex));
+                }
+                Logger.getGlobal().log(Level.SEVERE, msg, ex);
+            }
+            break;
+        }
+        if (ret == null) {
+            StringBuilder msgBuilder = new StringBuilder();
+            msgBuilder.append("Getter method '");
+            msgBuilder.append(next.getGetter());
+            msgBuilder.append("' not found for field '");
+            msgBuilder.append(next.getfName());
+            msgBuilder.append("' on class '");
+            msgBuilder.append(ob.getClass().getTypeName());
+            msgBuilder.append("'.");
+            if (lastParameterCount > 0) {
+                msgBuilder.append(" '");
+                msgBuilder.append(next.getGetter());
+                msgBuilder.append("' last seen with ");
+                msgBuilder.append(lastParameterCount);
+                msgBuilder.append(" parameters.");
+            }
+            final String msg = msgBuilder.toString();
+            if (debugLevel != null && debugLevel.satisfyWarning()) {
+                debugLevel.warning(() -> new DebugTuple(msg));
+            }
+            Logger.getGlobal().log(Level.WARNING, msg);
         }
         return ret;
     }
@@ -484,7 +534,7 @@ public class JsonClass implements JsonType {
      * @param key the field name.
      * @return the JsonField with the given name, or {@code null} if not found.
      */
-    public JsonField get(String key) {
+    public JsonField getField(String key) {
         return fields.get(key);
     }
 
@@ -494,7 +544,7 @@ public class JsonClass implements JsonType {
      * @param jField the field to remove.
      * @return the removed field, or {@code null} if not found.
      */
-    public JsonField remove(JsonField jField) {
+    public JsonField removeField(JsonField jField) {
         String key = jField.getfName();
         keys.remove(key);
         return fields.remove(key);
@@ -506,7 +556,7 @@ public class JsonClass implements JsonType {
      * @param key the field name to remove.
      * @return the removed field, or {@code null} if not found.
      */
-    public JsonField remove(String key) {
+    public JsonField removeField(String key) {
         keys.remove(key);
         return fields.remove(key);
     }

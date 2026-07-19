@@ -3,7 +3,7 @@ package de.jare.jsoncasted.parser;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.lang.JsonNode;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
-import de.jare.jsoncasted.parserservice.JsonParserService;
+import de.jare.jsoncasted.io.parserservice.JsonParserService;
 import java.io.File;
 import java.io.FileReader;
 import org.testng.Assert;

@@ -10,10 +10,10 @@ package de.jare.jsoncasted.parser.inner;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.debug.JsonDebugLevel;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
-import de.jare.jsoncasted.parserservice.ParseStreamReader;
+import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.io.parserservice.ParseStreamReader;
 import java.io.IOException;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
+import de.jare.jsoncasted.io.JsonItemDefinition;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

@@ -5,10 +5,12 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.parserwriter;
+package de.jare.jsoncasted.io;
 
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.writer.inner.RootObjectWriter;
+import de.jare.jsoncasted.io.JsonWriteException;
+import de.jare.jsoncasted.io.writer.RootObjectWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -149,6 +151,105 @@ public class JsonWriter {
         try (PrintWriter prn = new PrintWriter(out)) {
             new RootObjectWriter(definition, root).write(prn, ob);
             prn.flush();
+        }
+    }
+
+    /**
+     * Serializes an object to an output stream with debug level.
+     *
+     * @param ob The object to serialize.
+     * @param out The output stream to write the JSON output.
+     * @param definition The JSON item definition containing model information.
+     * @param root The root JSON class for the object.
+     * @param debugLevel The debug level for controlling debug output.
+     * @throws IOException If an I/O error occurs during writing.
+     * @throws JsonWriteException If writing fails due to serialization errors.
+     * @throws JsonParseException If parsing fails during serialization.
+     */
+    public static void write(Object ob, OutputStream out, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
+        try (PrintWriter prn = new PrintWriter(out)) {
+            new RootObjectWriter(definition, root, debugLevel).write(prn, ob);
+            prn.flush();
+        }
+    }
+
+    /**
+     * Serializes an object and writes it to a file with debug level.
+     *
+     * @param ob The object to serialize.
+     * @param file The target file to write the JSON output.
+     * @param definition The JSON item definition containing model information.
+     * @param root The root JSON class for the object.
+     * @param debugLevel The debug level for controlling debug output.
+     * @throws JsonWriteException If writing fails due to serialization errors.
+     * @throws JsonParseException If parsing fails during serialization.
+     * @throws IOException If an I/O error occurs during writing.
+     */
+    public static void write(Object ob, File file, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws JsonWriteException, JsonParseException, IOException {
+        FileOutputStream out;
+        try {
+            out = new FileOutputStream(file);
+            write(ob, out, definition, root, debugLevel);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Serializes an object to a JSON string with debug level.
+     *
+     * @param ob The object to serialize.
+     * @param definition The JSON item definition containing model information.
+     * @param root The root JSON class for the object.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return JSON string representation of the object.
+     * @throws JsonWriteException If writing fails due to serialization errors.
+     * @throws JsonParseException If parsing fails during serialization.
+     * @throws IOException If an I/O error occurs during writing.
+     */
+    public static String writeToString(Object ob, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws JsonWriteException, JsonParseException, IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        write(ob, out, definition, root, debugLevel);
+        return new String(out.toByteArray());
+    }
+
+    /**
+     * Serializes an object to a JSON string using the default character encoding.
+     * Uses the default root class from the definition with debug level.
+     *
+     * @param ob The object to serialize.
+     * @param definition The JSON item definition containing model information.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return JSON string representation of the object.
+     * @throws JsonWriteException If writing fails due to serialization errors.
+     * @throws JsonParseException If parsing fails during serialization.
+     * @throws IOException If an I/O error occurs during writing.
+     */
+    public static String writeToString(Object ob, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonWriteException, JsonParseException, IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        write(ob, out, definition, null, debugLevel);
+        return new String(out.toByteArray());
+    }
+
+    /**
+     * Serializes an object and writes it to a file with debug level.
+     * Uses the default root class from the definition.
+     *
+     * @param ob The object to serialize.
+     * @param file The target file to write the JSON output.
+     * @param definition The JSON item definition containing model information.
+     * @param debugLevel The debug level for controlling debug output.
+     * @throws JsonWriteException If writing fails due to serialization errors.
+     * @throws JsonParseException If parsing fails during serialization.
+     * @throws IOException If an I/O error occurs during writing.
+     */
+    public static void write(Object ob, File file, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonWriteException, JsonParseException, IOException {
+        FileOutputStream out;
+        try {
+            out = new FileOutputStream(file);
+            write(ob, out, definition, null, debugLevel);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

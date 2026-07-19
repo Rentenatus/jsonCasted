@@ -1,0 +1,15 @@
+{
+  "modelName": "TestModel",
+  "describedTypes": {
+    "java.lang.String": {
+      "typeName": "java.lang.String",
+      "nodeType": "STRING",
+      "skippingNulls": false,
+      "primitive": true,
+      "recursive": false,
+      "mappingAllFields":  null,
+      "parent":  null
+    }
+  },
+  "repoDescriptors": {}
+}

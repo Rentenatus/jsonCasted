@@ -82,9 +82,9 @@ public enum JsonDebugLevel {
     }
 
     /**
-     * Print info, if sytasfied.
+     * Print info, if satisfied.
      *
-     * dl.info(() -> new InfoTuple( "Wrong cast: {0} implements {1}",
+     * dl.info(() -> new DebugTuple( "Wrong cast: {0} implements {1}",
      * cast.asText(), childType.getTypeName()));
      *
      * @param block A function, which when called, produces the desired log
@@ -105,9 +105,9 @@ public enum JsonDebugLevel {
     }
 
     /**
-     * Print info, if sytasfied.
+     * Print warning, if satisfied.
      *
-     * dl.info(() -> new InfoTuple( "Wrong cast: {0} implements {1}",
+     * dl.warning(() -> new DebugTuple( "Wrong cast: {0} implements {1}",
      * cast.asText(), childType.getTypeName()));
      *
      * @param block A function, which when called, produces the desired log
@@ -128,12 +128,9 @@ public enum JsonDebugLevel {
     }
 
     /**
-     * Print info, if sytasfied.
+     * Print warning with throwable, if satisfied.
      *
-     * dl.info(() -> new InfoTuple( "Wrong cast: {0} implements {1}",
-     * cast.asText(), childType.getTypeName()));
-     *
-     * @param thrown
+     * @param thrown the throwable to log
      * @param msgSupplier A function, which when called, produces the desired
      * log message
      */
@@ -143,4 +140,5 @@ public enum JsonDebugLevel {
         }
         Logger.getGlobal().log(Level.WARNING, thrown, msgSupplier);
     }
+
 }

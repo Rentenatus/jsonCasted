@@ -16,7 +16,8 @@ import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_OBJECT_ID;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
+import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +26,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Converter for transforming JsonNode objects into JsonItem instances.
- * This class handles the conversion of JSON object structures, including
- * field resolution, type casting, and caching of already converted objects.
+ * Converter for transforming JsonNode objects into JsonItem instances. This class handles the conversion of JSON object
+ * structures, including field resolution, type casting, and caching of already converted objects.
  *
  * @author Janusch Rentenatus
  */
@@ -43,8 +43,7 @@ public class JsonObjectConverter {
     }
 
     /**
-     * Converts a JSON object node into a JsonItem.
-     * This is the main entry point for object conversion, handling caching
+     * Converts a JSON object node into a JsonItem. This is the main entry point for object conversion, handling caching
      * and type casting.
      *
      * @param node The JSON node to convert.
@@ -156,8 +155,8 @@ public class JsonObjectConverter {
     }
 
     /**
-     * Converts the JSON object into a JsonItem.
-     * Processes all fields, handles exceptions, and aggregates any conversion errors.
+     * Converts the JSON object into a JsonItem. Processes all fields, handles exceptions, and aggregates any conversion
+     * errors.
      *
      * @return The converted JsonObject.
      * @throws JsonParseException If conversion fails for any field.
@@ -191,8 +190,8 @@ public class JsonObjectConverter {
     }
 
     /**
-     * Calculates and adds a parameter to the object being built.
-     * Handles field resolution, type casting, and value conversion.
+     * Calculates and adds a parameter to the object being built. Handles field resolution, type casting, and value
+     * conversion.
      *
      * @param paramName The name of the parameter/field.
      * @param childNode The JSON node containing the parameter value.
@@ -233,8 +232,8 @@ public class JsonObjectConverter {
     }
 
     /**
-     * Attempts to cast or retrieve the type for a child node.
-     * Handles type inheritance and implementation checking for polymorphic types.
+     * Attempts to cast or retrieve the type for a child node. Handles type inheritance and implementation checking for
+     * polymorphic types.
      *
      * @param suspectedType The initially suspected type.
      * @param childValues The child node's object values.
@@ -302,15 +301,14 @@ public class JsonObjectConverter {
     }
 
     /**
-     * Calculates a map entry parameter.
-     * Used when the context class has a mappingAllFields descriptor.
+     * Calculates a map entry parameter. Used when the context class has a mappingAllFields descriptor.
      *
      * @param paramName The name of the parameter.
      * @param childNode The JSON node containing the value.
      * @throws JsonParseException If conversion fails.
      */
     protected void calculateMapEntry(String paramName, JsonNode childNode) throws JsonParseException {
-        JsonFieldDescriptor field = contextClass.getMappingAllFields();
+        JsonFieldTypeNote field = contextClass.getMappingAllFields();
         JsonTypeDescriptor childType = service.getType(field.getTypeName());
         JsonItem paramObject = field.isAsListOrArray()
                 ? JsonNodeConverter.convertArray(childNode, childType, field.isAsList(), service)

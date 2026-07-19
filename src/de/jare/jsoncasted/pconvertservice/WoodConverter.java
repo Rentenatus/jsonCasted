@@ -15,7 +15,7 @@ import de.jare.jsoncasted.lang.LinkNodeEntry;
 import de.jare.jsoncasted.lang.LinkingSet;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
+import de.jare.jsoncasted.io.JsonParseException;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;

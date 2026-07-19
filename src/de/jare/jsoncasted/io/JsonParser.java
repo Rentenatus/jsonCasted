@@ -5,14 +5,14 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.parserwriter;
+package de.jare.jsoncasted.io;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.parserservice.JsonParserService;
+import de.jare.jsoncasted.io.parserservice.JsonParserService;
 import de.jare.jsoncasted.pconvertservice.RootConverter;
 import java.io.File;
 import java.io.IOException;

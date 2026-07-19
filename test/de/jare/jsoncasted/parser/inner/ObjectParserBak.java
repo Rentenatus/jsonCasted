@@ -15,18 +15,17 @@ import de.jare.jsoncasted.item.JsonValueBak;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
-import de.jare.jsoncasted.parserservice.ParseStreamReader;
+import de.jare.jsoncasted.io.parserservice.ParseStreamReader;
 import de.jare.debug.JsonDebugLevel;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
+import de.jare.jsoncasted.io.JsonItemDefinition;
+import de.jare.jsoncasted.io.JsonParseException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Legacy parser for JSON object structures.
- * Parses JSON objects and their properties from the stream.
+ * Legacy parser for JSON object structures. Parses JSON objects and their properties from the stream.
  *
  * @author Janusch Rentenatus
  * @deprecated Replaced by JsonNode-based parsing pipeline.
@@ -102,7 +101,7 @@ public class ObjectParserBak {
                 } else if (c == '[') {
                     checkDoubleParam(paramValue, paramName, psr.getRow());
                     if (field != null && !field.isAsListOrArray()) {
-                        throw new JsonParseException(psr.getRow(),"Field " + field.getfName() + " is not a list nor array. (:" + psr.getRow() + ")");
+                        throw new JsonParseException(psr.getRow(), "Field " + field.getfName() + " is not a list nor array. (:" + psr.getRow() + ")");
                     }
                     paramValue = new ListParserBak(definition, paramType(field)).parse(psr, field == null || field.isAsList());
                 } else if (c == '(') {
@@ -203,7 +202,7 @@ public class ObjectParserBak {
      * @return The JsonField, or null if not found.
      */
     private JsonField paramField(String key) {
-        return aClass == null ? null : aClass.get(key);
+        return aClass == null ? null : aClass.getField(key);
     }
 
     /**

@@ -12,11 +12,11 @@ import de.jare.jsoncasted.item.JsonListBak;
 import de.jare.jsoncasted.item.JsonValueBak;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
-import de.jare.jsoncasted.parserservice.ParseStreamReader;
+import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.io.parserservice.ParseStreamReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
+import de.jare.jsoncasted.io.JsonItemDefinition;
 
 /**
  * Legacy parser for JSON array structures.

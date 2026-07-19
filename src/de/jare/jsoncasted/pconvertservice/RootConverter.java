@@ -11,7 +11,7 @@ import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonSystem;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
-import de.jare.jsoncasted.parserwriter.JsonParseException;
+import de.jare.jsoncasted.io.JsonParseException;
 
 /**
  * The RootConverter class provides the main entry point for converting JSON

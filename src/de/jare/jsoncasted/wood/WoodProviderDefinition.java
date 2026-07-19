@@ -9,8 +9,8 @@ package de.jare.jsoncasted.wood;
 import static de.jare.jsoncasted.model.JsonCollectionType.LIST;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.parserwriter.JsonCastingLevel;
-import de.jare.jsoncasted.parserwriter.JsonItemDefinition;
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonItemDefinition;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 
 /**
