@@ -10,12 +10,16 @@ package de.jare.jsoncasted.io.writer;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.JsonItemDefinition;
+import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.lang.JsonResource;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The RootObjectWriter class extends ObjectWriter and handles the serialization of JSON root-level structures,
@@ -24,6 +28,9 @@ import java.util.List;
  * @author Janusch Rentenatus
  */
 public class RootObjectWriter extends ObjectWriter {
+
+    private JsonResource resource;
+    private boolean writeWoodMetadata;
 
     /**
      * Constructs a RootObjectWriter instance with default indentation.
@@ -93,13 +100,70 @@ public class RootObjectWriter extends ObjectWriter {
     }
 
     /**
+     * Constructs a RootObjectWriter instance with Wood metadata support.
+     *
+     * @param definition The JSON item definition.
+     * @param jType The JSON type used for serialization.
+     * @param resource The JSON resource containing definition nodes and metadata.
+     */
+    public RootObjectWriter(JsonItemDefinition definition, JsonType jType, JsonResource resource) {
+        super(definition, jType, JsonDebugLevel.SIMPLE);
+        this.resource = resource;
+    }
+
+    /**
+     * Constructs a RootObjectWriter instance with Wood metadata support and indentation.
+     *
+     * @param definition The JSON item definition.
+     * @param jType The JSON type used for serialization.
+     * @param intentString The indentation string for formatted output.
+     * @param resource The JSON resource containing definition nodes and metadata.
+     */
+    public RootObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString, JsonResource resource) {
+        super(definition, jType, intentString, JsonDebugLevel.SIMPLE);
+        this.resource = resource;
+    }
+
+    /**
+     * Constructs a RootObjectWriter instance with Wood metadata support and debug level.
+     *
+     * @param definition The JSON item definition.
+     * @param jType The JSON type used for serialization.
+     * @param resource The JSON resource containing definition nodes and metadata.
+     * @param debugLevel The debug level for controlling debug output.
+     */
+    public RootObjectWriter(JsonItemDefinition definition, JsonType jType, JsonResource resource, JsonDebugLevel debugLevel) {
+        super(definition, jType, debugLevel);
+        this.resource = resource;
+    }
+
+    /**
+     * Constructs a RootObjectWriter instance with Wood metadata support, indentation and debug level.
+     *
+     * @param definition The JSON item definition.
+     * @param jType The JSON type used for serialization.
+     * @param intentString The indentation string for formatted output.
+     * @param resource The JSON resource containing definition nodes and metadata.
+     * @param debugLevel The debug level for controlling debug output.
+     */
+    public RootObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString, JsonResource resource, JsonDebugLevel debugLevel) {
+        super(definition, jType, intentString, debugLevel);
+        this.resource = resource;
+    }
+
+    /**
      * Writes an object or list as a JSON structure. If the provided object is a list, it serializes it as a JSON array.
+     * <p>
+     * For single objects, Wood metadata (_woodProviders, _woodDefinitions) is written first if enabled.
+     * </p>
      *
      * @param out The PrintWriter to write the JSON output.
      * @param ob The object or list to serialize.
      */
     @Override
     public void write(PrintWriter out, Object ob) {
+        writeWoodMetadata = true;
+
         if (!(ob instanceof List<?>)) {
             super.write(out, ob);
             return;
@@ -128,6 +192,104 @@ public class RootObjectWriter extends ObjectWriter {
 
         out.print("\n]");
         out.flush();
+    }
+
+    @Override
+    void writeCast(final JsonClass jClass, final PrintWriter out, final Object ob, String iString) {
+        super.writeCast(jClass, out, ob, iString);
+        if (writeWoodMetadata) {
+            writeWoodMetadata = false;
+            writeWood(out);
+        }
+    }
+
+    void writeWood(PrintWriter out) {
+        // For single objects: write Wood metadata first
+        if (resource != null) {
+            writeWoodProviders(out);
+
+            // If we wrote Wood metadata, we need to handle the comma and object writing
+            boolean hasWrittenMetadata = hasWoodMetadata();
+            if (hasWrittenMetadata) {
+                // Write the actual object with proper separation
+                out.println(",");
+                out.print(intentString);
+            }
+        }
+        writeWoodDefinitions(out);
+    }
+
+    /**
+     * Checks if there is any Wood metadata to write.
+     */
+    private boolean hasWoodMetadata() {
+        if (resource == null) {
+            return false;
+        }
+        return hasWoodProviders();
+    }
+
+    /**
+     * Checks if the resource has wood providers.
+     */
+    private boolean hasWoodProviders() {
+        if (resource == null || resource.getRoot() == null) {
+            return false;
+        }
+        JsonNode rootNode = resource.getRoot();
+        if (!rootNode.isObject()) {
+            return false;
+        }
+        Map<String, JsonNode> rootValues = rootNode.asObjectValues();
+        return rootValues.containsKey(JsonTerms.TERM_WOOD_PROVIDERS);
+    }
+
+    /**
+     * Writes the _woodProviders field from the resource's root node. This assumes the root node is an object containing
+     * the _woodProviders field.
+     */
+    private void writeWoodProviders(PrintWriter out) {
+        if (resource == null || resource.getRoot() == null) {
+            return;
+        }
+
+        JsonNode rootNode = resource.getRoot();
+        if (!rootNode.isObject()) {
+            return;
+        }
+
+        Map<String, JsonNode> rootValues = rootNode.asObjectValues();
+        JsonNode providersNode = rootValues.get(JsonTerms.TERM_WOOD_PROVIDERS);
+
+        if (providersNode == null) {
+            return;
+        }
+
+        // Write the _woodProviders field
+        out.print(intentString);
+        out.print("\"");
+        out.print(JsonTerms.TERM_WOOD_PROVIDERS);
+        out.print("\": ");
+
+        // Write the providers array/object
+        writeNode(out, providersNode, intentString);
+    }
+
+    // TODO: Implement writeWoodDefinitions when definition nodes should be written
+    /**
+     * Writes the _woodDefinitions field from the resource's definition nodes. Currently a placeholder - will be
+     * implemented to write definition nodes as a _woodDefinitions object.
+     */
+    private void writeWoodDefinitions(PrintWriter out) {
+        // TODO: Implement when we need to write definition nodes back to JSON
+        // This should iterate through resource.getDefinitionNodes() and write them
+        // as children of a _woodDefinitions object.
+
+        // Placeholder: Will be implemented
+        // out.print(",\n" + intentString);
+        // out.print("\"" + JsonTerms.TERM_WOOD_DEFINITIONS + "\": {");
+        // ... write definition nodes ...
+        // out.print("}");
     }
 
 }
