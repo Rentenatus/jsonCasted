@@ -20,6 +20,7 @@ import de.jare.jsoncasted.io.parserservice.JsonParserService;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
 import de.jare.jsoncasted.io.writer.RootObjectWriter;
+import de.jare.jsoncasted.io.writer.definitions.DefinitionsContext;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -33,8 +34,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * Test class for the TestBox implementation. Tests parsing and building of
- * complex JSON structures with the ImplTestDefinition.
+ * Test class for the TestBox implementation. Tests parsing and building of complex JSON structures with the
+ * ImplTestDefinition.
  *
  * @author Janusch Rentenatus
  */
@@ -88,8 +89,7 @@ public class TestBoxNGTest2 {
     }
 
     /**
-     * Tests parsing and building with a valid testbox configuration. Target
-     * version using the new parser pipeline.
+     * Tests parsing and building with a valid testbox configuration. Target version using the new parser pipeline.
      *
      * @param configFile The configuration file to parse.
      * @param definition The ImplTestDefinition to use.
@@ -151,8 +151,7 @@ public class TestBoxNGTest2 {
     }
 
     /**
-     * Tests parsing and building with a valid testbox configuration. Target
-     * version using the new parser pipeline.
+     * Tests parsing and building with a valid testbox configuration. Target version using the new parser pipeline.
      *
      * @param configFile The configuration file to parse.
      * @param definition The ImplTestDefinition to use.
@@ -179,7 +178,8 @@ public class TestBoxNGTest2 {
         assertNotNull(obj1);
         System.out.println("Target=============================================== Print node");
         final JsonRepoModel repoModel = definition.getModel().getRepoModel("save");
-        RootObjectWriter writer = new RootObjectWriter(repoModel, definition.getRepo(), definition.getCastingLevel());
+        DefinitionsContext definitionsContext = new DefinitionsContext(repoModel);
+        RootObjectWriter writer = new RootObjectWriter(definitionsContext, definition.getRepo(), definition.getCastingLevel());
         writer.writeNode(System.out, node);
         System.out.println("Target=============================================== Repo Class");
         System.out.println(obj1.getClass());
