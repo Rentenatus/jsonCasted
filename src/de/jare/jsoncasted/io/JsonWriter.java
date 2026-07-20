@@ -8,7 +8,7 @@
 package de.jare.jsoncasted.io;
 
 import de.jare.debug.JsonDebugLevel;
-import de.jare.jsoncasted.io.writer.RootObjectWriter;
+import de.jare.jsoncasted.io.writer.printer.RootObjectPrintWriter;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -148,7 +148,7 @@ public class JsonWriter {
      */
     public static void write(Object ob, OutputStream out, JsonItemDefinition definition, JsonClass root) throws IOException, JsonParseException {
         try (PrintWriter prn = new PrintWriter(out)) {
-            new RootObjectWriter(definition, root).write(prn, ob);
+            new RootObjectPrintWriter(definition, root).write(prn, ob);
             prn.flush();
         }
     }
@@ -167,7 +167,7 @@ public class JsonWriter {
      */
     public static void write(Object ob, OutputStream out, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
         try (PrintWriter prn = new PrintWriter(out)) {
-            new RootObjectWriter(definition, root, debugLevel).write(prn, ob);
+            new RootObjectPrintWriter(definition, root, debugLevel).write(prn, ob);
             prn.flush();
         }
     }

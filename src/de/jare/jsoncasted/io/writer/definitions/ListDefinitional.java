@@ -68,7 +68,7 @@ public class ListDefinitional extends ObjectDefinitional {
      *
      * @param ob the collection or array to process
      */
-    public void process(Object ob) {
+    public void processList(Object ob) {
         if (ob == null) {
             return;
         }

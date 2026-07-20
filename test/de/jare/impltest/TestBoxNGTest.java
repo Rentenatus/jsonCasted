@@ -16,7 +16,7 @@ import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
-import de.jare.jsoncasted.io.writer.RootObjectWriter;
+import de.jare.jsoncasted.io.writer.printer.RootObjectPrintWriter;
 import java.io.File;
 import java.io.IOException;
 import org.testng.annotations.AfterClass;
@@ -115,7 +115,7 @@ public class TestBoxNGTest {
         }
         assertNotNull(obj1);
         System.out.println("Target=============================================== Print node");
-        RootObjectWriter writer = new RootObjectWriter(definition, definition.getTestBox());
+        RootObjectPrintWriter writer = new RootObjectPrintWriter(definition, definition.getTestBox());
         writer.writeNode(System.out, node);
         System.out.println("Target=============================================== Config Class");
         System.out.println(obj1.getClass());
@@ -188,7 +188,7 @@ public class TestBoxNGTest {
         }
         assertNotNull(obj1);
         System.out.println("Target=============================================== Print node");
-        RootObjectWriter writer = new RootObjectWriter(definition, definition.getTestBox());
+        RootObjectPrintWriter writer = new RootObjectPrintWriter(definition, definition.getTestBox());
         writer.writeNode(System.out, node);
         System.out.println("Target=============================================== Config Class");
         System.out.println(obj1.getClass());

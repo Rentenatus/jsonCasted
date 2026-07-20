@@ -5,7 +5,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.io.writer;
+package de.jare.jsoncasted.io.writer.printer;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
@@ -27,7 +27,7 @@ import java.util.Map;
  *
  * @author Janusch Rentenatus
  */
-public class RootObjectWriter extends ObjectWriter {
+public class RootObjectPrintWriter extends ObjectPrintWriter {
 
     private JsonResource resource;
     private boolean writeWoodMetadata;
@@ -38,7 +38,7 @@ public class RootObjectWriter extends ObjectWriter {
      * @param definition The JSON item definition.
      * @param jType The JSON type used for serialization.
      */
-    public RootObjectWriter(JsonItemDefinition definition, JsonType jType) {
+    public RootObjectPrintWriter(JsonItemDefinition definition, JsonType jType) {
         super(new DefinitionsContext(definition.getModel()), jType, definition.getCastingLevel(), JsonDebugLevel.SIMPLE);
     }
 
@@ -49,7 +49,7 @@ public class RootObjectWriter extends ObjectWriter {
      * @param jType The JSON type used for serialization.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public RootObjectWriter(JsonItemDefinition definition, JsonType jType, JsonDebugLevel debugLevel) {
+    public RootObjectPrintWriter(JsonItemDefinition definition, JsonType jType, JsonDebugLevel debugLevel) {
         super(new DefinitionsContext(definition.getModel()), jType, definition.getCastingLevel(), debugLevel);
     }
 
@@ -60,7 +60,7 @@ public class RootObjectWriter extends ObjectWriter {
      * @param castingLevel the casting level for serialization
      * @param jType The JSON type used for serialization.
      */
-    public RootObjectWriter(DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel) {
+    public RootObjectPrintWriter(DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel) {
         super(definitionsContext, jType, castingLevel, JsonDebugLevel.SIMPLE);
     }
 
@@ -72,7 +72,7 @@ public class RootObjectWriter extends ObjectWriter {
      * @param jType The JSON type used for serialization.
      * @param intentString The indentation string for formatted output.
      */
-    public RootObjectWriter(DefinitionsContext definitionsContext, JsonType jType, String intentString, JsonCastingLevel castingLevel) {
+    public RootObjectPrintWriter(DefinitionsContext definitionsContext, JsonType jType, String intentString, JsonCastingLevel castingLevel) {
         super(definitionsContext, jType, intentString, castingLevel, JsonDebugLevel.SIMPLE);
     }
 

@@ -9,26 +9,22 @@ import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.JsonItemDefinition;
 import de.jare.jsoncasted.io.writer.getter.GetterFieldInfo;
-import de.jare.jsoncasted.io.writer.getter.ListGetter;
 import de.jare.jsoncasted.io.writer.getter.ObjectGetter;
-import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
-import java.util.Collection;
-import java.util.Iterator;
 
 import java.util.List;
 
 /**
- * Processes object nodes and applies definition rules to their children. Works with object/structural nodes in the JSON
- * tree. Collects all objects in DefinitionsContext: candidates or findings (if definitional).
+ * Processes object nodes and applies definition rules to their children.
+ * Works with object/structural nodes in the JSON tree.
+ * Collects all objects in DefinitionsContext: candidates or findings (if definitional).
  */
 public class ObjectDefinitional {
 
     private final ObjectGetter objectGetter;
-    private final ListGetter listGetter;
     private final DefinitionsContext definitionsContext;
     private final JsonType jType;
 
@@ -44,7 +40,6 @@ public class ObjectDefinitional {
         this.definitionsContext = definitionsContext;
         this.jType = jType;
         this.objectGetter = new ObjectGetter(definitionsContext, castingLevel, jType, debugLevel);
-        this.listGetter = new ListGetter(definitionsContext, jType, castingLevel, debugLevel);
     }
 
     /**
@@ -118,12 +113,12 @@ public class ObjectDefinitional {
      */
     protected void processField(GetterFieldInfo fieldInfo, Object attr) {
         JsonType fieldType = fieldInfo.getJsonField().getjType();
-
+        
         if (fieldType.isPrimitive()) {
             // Skip primitive fields
             return;
         }
-
+        
         if (fieldInfo.getJsonField().isAsListOrArray()) {
             processListValue(fieldInfo, attr);
         } else if (fieldType instanceof JsonMap jMap) {
@@ -152,50 +147,12 @@ public class ObjectDefinitional {
     protected void processListValue(GetterFieldInfo fieldInfo, Object attr) {
         JsonType fieldType = fieldInfo.getJsonField().getjType();
         ListDefinitional listDefinitional = new ListDefinitional(
-                definitionsContext,
-                fieldType,
-                objectGetter.getCastingLevel(),
-                objectGetter.getDebugLevel()
+            definitionsContext,
+            fieldType,
+            objectGetter.getCastingLevel(),
+            objectGetter.getDebugLevel()
         );
         listDefinitional.process(attr);
-    }
-
-    /**
-     * Processes a collection/array and all its nested objects, cataloging them in the definitions context.
-     *
-     * @param ob the collection or array to process
-     */
-    public void processList(Object ob) {
-        if (ob == null) {
-            return;
-        }
-
-        // Get the collection
-        Collection<?> collection = listGetter.extractCollection(ob);
-        if (collection == null) {
-            return;
-        }
-
-        Iterator<?> it = collection.iterator();
-        while (it.hasNext()) {
-            Object element = it.next();
-            if (element != null) {
-                // Skip if already processed
-                if (getDefinitionsContext().isInFindings(element) || getDefinitionsContext().isInCandidates(element)) {
-                    continue;
-                }
-
-                // Catalog the element
-                if (getjType().isDefinitional()) {
-                    getDefinitionsContext().addToFindings(element);
-                } else {
-                    getDefinitionsContext().addToCandidates(element);
-                }
-
-                // Process nested objects recursively
-                process(element);
-            }
-        }
     }
 
     /**
@@ -208,52 +165,16 @@ public class ObjectDefinitional {
     protected void processMapValue(GetterFieldInfo fieldInfo, Object attr, JsonMap jMap) {
         JsonType fieldType = fieldInfo.getJsonField().getjType();
         MapDefinitional mapDefinitional = new MapDefinitional(
-                definitionsContext,
-                jMap,
-                fieldType,
-                objectGetter.getCastingLevel(),
-                objectGetter.getDebugLevel()
+            definitionsContext,
+            jMap,
+            fieldType,
+            objectGetter.getCastingLevel(),
+            objectGetter.getDebugLevel()
         );
         mapDefinitional.process(attr);
     }
-
-    /**
-     * Processes a JsonInstance map and all its nested values, cataloging them in the definitions context.
-     *
-     * @param ob the JsonInstance map to process
-     */
-    public void processMap(Object ob) {
-        if (ob == null) {
-            return;
-        }
-
-        if (!(ob instanceof JsonInstance<?> inst)) {
-            return;
-        }
-
-        Iterator<String> it = inst.keySet().iterator();
-        while (it.hasNext()) {
-            String key = it.next();
-            Object value = inst.get(key);
-
-            if (value != null) {
-                // Skip if already processed
-                if (getDefinitionsContext().isInFindings(value) || getDefinitionsContext().isInCandidates(value)) {
-                    continue;
-                }
-
-                // Catalog the value
-                if (getjType().isDefinitional()) {
-                    getDefinitionsContext().addToFindings(value);
-                } else {
-                    getDefinitionsContext().addToCandidates(value);
-                }
-
-                // Process nested objects recursively
-                process(value);
-            }
-        }
-    }
+    
+    
 
     /**
      * Gets the definitions context used by this ObjectDefinitional.

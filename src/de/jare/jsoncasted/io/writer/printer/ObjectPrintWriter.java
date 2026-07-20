@@ -5,7 +5,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.io.writer;
+package de.jare.jsoncasted.io.writer.printer;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
@@ -29,7 +29,7 @@ import java.util.Map;
  *
  * @author Janusch Rentenatus
  */
-public class ObjectWriter {
+public class ObjectPrintWriter {
 
     String intentString;
     final ObjectGetter objectGetter;
@@ -42,7 +42,7 @@ public class ObjectWriter {
      * @param jType The JSON type used for serialization.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public ObjectWriter(DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+    public ObjectPrintWriter(DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         this.intentString = "";
         this.objectGetter = new ObjectGetter(definitionsContext, castingLevel, jType, debugLevel);
     }
@@ -56,7 +56,7 @@ public class ObjectWriter {
      * @param intentString The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public ObjectWriter(DefinitionsContext definitionsContext, JsonType jType, String intentString, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+    public ObjectPrintWriter(DefinitionsContext definitionsContext, JsonType jType, String intentString, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         this.intentString = intentString;
         this.objectGetter = new ObjectGetter(definitionsContext, castingLevel, jType, debugLevel);
     }
@@ -220,7 +220,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeList(PrintWriter out, JsonType jTypeItem, Object attr, String iString) {
-        ListWriter reWriter = new ListWriter(objectGetter.getDefinitionsContext(), jTypeItem, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
+        ListPrintWriter reWriter = new ListPrintWriter(objectGetter.getDefinitionsContext(), jTypeItem, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         reWriter.write(out, attr);
     }
 
@@ -233,7 +233,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeMap(PrintWriter out, JsonMap jMap, Object attr, String iString) {
-        MapWriter reWriter = new MapWriter(objectGetter.getDefinitionsContext(), jMap, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
+        MapPrintWriter reWriter = new MapPrintWriter(objectGetter.getDefinitionsContext(), jMap, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         reWriter.write(out, reWriter.calculateJsonClass(attr), attr);
     }
 
@@ -246,7 +246,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeObject(PrintWriter out, JsonType jTypeItem, Object attr, String iString) {
-        ObjectWriter reWriter = new ObjectWriter(objectGetter.getDefinitionsContext(), jTypeItem, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
+        ObjectPrintWriter reWriter = new ObjectPrintWriter(objectGetter.getDefinitionsContext(), jTypeItem, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         reWriter.write(out, reWriter.calculateJsonClass(attr), attr);
     }
 
@@ -354,7 +354,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeNodeArray(PrintWriter out, JsonNode node, String iString) {
-        ListWriter reWriter = new ListWriter(objectGetter.getDefinitionsContext(), null, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
+        ListPrintWriter reWriter = new ListPrintWriter(objectGetter.getDefinitionsContext(), null, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         reWriter.writeNode(out, node);
     }
 

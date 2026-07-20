@@ -17,7 +17,7 @@ import de.jare.jsoncasted.io.parserservice.JsonParserService;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
 import de.jare.jsoncasted.parserwriter.JsonParserReference;
-import de.jare.jsoncasted.io.writer.RootObjectWriter;
+import de.jare.jsoncasted.io.writer.printer.RootObjectPrintWriter;
 import de.jare.jsonconfig.JsonConfigHelper;
 import de.jare.jsonconfig.item.ConfigFeature;
 import de.jare.jsonconfig.item.ConfigRoot;
@@ -217,7 +217,7 @@ public class JsonConfigFactoryNGTest {
         }
         assertNotNull(obj1);
         System.out.println("Target=============================================== Print node");
-        RootObjectWriter writer = new RootObjectWriter(definition, definition.getConfigRoot());
+        RootObjectPrintWriter writer = new RootObjectPrintWriter(definition, definition.getConfigRoot());
         writer.writeNode(System.out, node);
         System.out.println("Target=============================================== Config Class");
         System.out.println(obj1.getClass());

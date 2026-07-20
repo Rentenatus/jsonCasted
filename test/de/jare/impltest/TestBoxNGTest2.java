@@ -19,7 +19,7 @@ import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.io.parserservice.JsonParserService;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
-import de.jare.jsoncasted.io.writer.RootObjectWriter;
+import de.jare.jsoncasted.io.writer.printer.RootObjectPrintWriter;
 import de.jare.jsoncasted.io.writer.definitions.DefinitionsContext;
 import java.io.File;
 import java.io.IOException;
@@ -115,7 +115,7 @@ public class TestBoxNGTest2 {
         }
         assertNotNull(obj1);
         System.out.println("Target=============================================== Print node");
-        RootObjectWriter writer = new RootObjectWriter(definition, definition.getTestBox());
+        RootObjectPrintWriter writer = new RootObjectPrintWriter(definition, definition.getTestBox());
         writer.writeNode(System.out, node);
         System.out.println("Target=============================================== Config Class");
         System.out.println(obj1.getClass());
@@ -179,7 +179,7 @@ public class TestBoxNGTest2 {
         System.out.println("Target=============================================== Print node");
         final JsonRepoModel repoModel = definition.getModel().getRepoModel("save");
         DefinitionsContext definitionsContext = new DefinitionsContext(repoModel);
-        RootObjectWriter writer = new RootObjectWriter(definitionsContext, definition.getRepo(), definition.getCastingLevel());
+        RootObjectPrintWriter writer = new RootObjectPrintWriter(definitionsContext, definition.getRepo(), definition.getCastingLevel());
         writer.writeNode(System.out, node);
         System.out.println("Target=============================================== Repo Class");
         System.out.println(obj1.getClass());
