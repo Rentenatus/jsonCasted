@@ -275,21 +275,60 @@ public class RootObjectWriter extends ObjectWriter {
         writeNode(out, providersNode, intentString);
     }
 
-    // TODO: Implement writeWoodDefinitions when definition nodes should be written
     /**
-     * Writes the _woodDefinitions field from the resource's definition nodes. Currently a placeholder - will be
-     * implemented to write definition nodes as a _woodDefinitions object.
+     * Writes the _woodDefinitions field from the resource's definition nodes.
+     * Uses the DefinitionalWriter hierarchy to process and categorize nodes.
      */
     private void writeWoodDefinitions(PrintWriter out) {
-        // TODO: Implement when we need to write definition nodes back to JSON
-        // This should iterate through resource.getDefinitionNodes() and write them
-        // as children of a _woodDefinitions object.
+        if (resource == null || !resource.hasDefinitionNodes()) {
+            return;
+        }
+        
+        // Create _woodDefinitions object from definition nodes
+        JsonNode definitionsObject = JsonNode.objectNode();
+        
+        for (JsonNode defNode : resource.getDefinitionNodes()) {
+            String defId = getOrGenerateDefinitionId(defNode);
+            definitionsObject.put(defId, defNode);
+        }
+        
+        if (definitionsObject.asObjectValues().isEmpty()) {
+            return;
+        }
+        
+        // Write _woodDefinitions
+        out.print(",\n" + intentString);
+        out.print("\"");
+        out.print(JsonTerms.TERM_WOOD_DEFINITIONS);
+        out.print("\": ");
+        writeNode(out, definitionsObject, intentString + "  ");
+    }
 
-        // Placeholder: Will be implemented
-        // out.print(",\n" + intentString);
-        // out.print("\"" + JsonTerms.TERM_WOOD_DEFINITIONS + "\": {");
-        // ... write definition nodes ...
-        // out.print("}");
+    /**
+     * Gets or generates a definition ID for a node.
+     */
+    private String getOrGenerateDefinitionId(JsonNode node) {
+        if (node == null || !node.isObject()) {
+            return "def_" + System.currentTimeMillis();
+        }
+        
+        JsonNode idNode = node.asObjectValues().get(JsonTerms.TERM_WOOD_OBJECT_ID);
+        if (idNode != null) {
+            return idNode.asText();
+        }
+        
+        // Generate from class name
+        JsonNode classNode = node.asObjectValues().get(JsonTerms.TERM_CLASS);
+        if (classNode != null) {
+            String className = classNode.asText();
+            if (className != null && !className.isEmpty()) {
+                int lastDot = className.lastIndexOf('.');
+                String simpleName = lastDot > 0 ? className.substring(lastDot + 1) : className;
+                return simpleName.toLowerCase() + "_def";
+            }
+        }
+        
+        return "def_" + System.currentTimeMillis();
     }
 
 }

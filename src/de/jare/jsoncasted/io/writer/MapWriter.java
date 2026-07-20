@@ -66,7 +66,7 @@ class MapWriter extends ObjectWriter {
     @Override
     public void write(final PrintWriter out, final JsonClass jClass, final Object ob) {
         if (!(ob instanceof JsonInstance<?> inst)) {
-            debugLevel.warning(new ClassCastException(), () -> "Expected instance of JsonInstance<?>");
+            objectGetter.warning(new ClassCastException(), () -> "Expected instance of JsonInstance<?>");
             return;
         }
 

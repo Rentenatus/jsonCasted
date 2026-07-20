@@ -7,10 +7,11 @@
  */
 package de.jare.jsoncasted.io.writer;
 
-import de.jare.debug.DebugTuple;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.JsonItemDefinition;
+import de.jare.jsoncasted.io.writer.getter.GetterFieldInfo;
+import de.jare.jsoncasted.io.writer.getter.ObjectGetter;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonModel;
@@ -20,10 +21,8 @@ import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The ObjectWriter class handles the serialization of JSON object structures. It converts objects into JSON format
@@ -33,11 +32,8 @@ import java.util.logging.Logger;
  */
 public class ObjectWriter {
 
-    private final JsonType jType;
     String intentString;
-    final JsonCastingLevel castingLevel;
-    final JsonModel model;
-    final JsonDebugLevel debugLevel;
+    final ObjectGetter objectGetter;
 
     /**
      * Constructs an ObjectWriter instance with default indentation.
@@ -47,11 +43,8 @@ public class ObjectWriter {
      * @param debugLevel The debug level for controlling debug output.
      */
     public ObjectWriter(JsonItemDefinition definition, JsonType jType, JsonDebugLevel debugLevel) {
-        this.castingLevel = definition.getCastingLevel();
-        this.model = definition.getModel();
-        this.jType = jType;
         this.intentString = "";
-        this.debugLevel = debugLevel != null ? debugLevel : JsonDebugLevel.SIMPLE;
+        this.objectGetter = new ObjectGetter(definition, jType, debugLevel);
     }
 
     /**
@@ -63,11 +56,8 @@ public class ObjectWriter {
      * @param debugLevel The debug level for controlling debug output.
      */
     public ObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString, JsonDebugLevel debugLevel) {
-        this.castingLevel = definition.getCastingLevel();
-        this.model = definition.getModel();
-        this.jType = jType;
         this.intentString = intentString;
-        this.debugLevel = debugLevel != null ? debugLevel : JsonDebugLevel.SIMPLE;
+        this.objectGetter = new ObjectGetter(definition, jType, debugLevel);
     }
 
     /**
@@ -79,11 +69,8 @@ public class ObjectWriter {
      * @param debugLevel The debug level for controlling debug output.
      */
     public ObjectWriter(JsonModel model, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        this.castingLevel = castingLevel;
-        this.model = model;
-        this.jType = jType;
         this.intentString = "";
-        this.debugLevel = debugLevel != null ? debugLevel : JsonDebugLevel.SIMPLE;
+        this.objectGetter = new ObjectGetter(model, castingLevel, jType, debugLevel);
     }
 
     /**
@@ -96,11 +83,8 @@ public class ObjectWriter {
      * @param debugLevel The debug level for controlling debug output.
      */
     public ObjectWriter(JsonModel model, JsonType jType, String intentString, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        this.castingLevel = castingLevel;
-        this.model = model;
-        this.jType = jType;
         this.intentString = intentString;
-        this.debugLevel = debugLevel != null ? debugLevel : JsonDebugLevel.SIMPLE;
+        this.objectGetter = new ObjectGetter(model, castingLevel, jType, debugLevel);
     }
 
     /**
@@ -118,7 +102,7 @@ public class ObjectWriter {
     }
 
     /**
-     * Determines the JSON class associated with an object.
+     * Determines the JSON class associated with an object. Delegates to the ObjectGetter.
      *
      * @param ob The object to analyze.
      * @return The corresponding JsonClass representation.
@@ -126,27 +110,7 @@ public class ObjectWriter {
      * @throws ClassCastException If the object does not match the expected JSON type.
      */
     protected JsonClass calculateJsonClass(Object ob) throws NullPointerException, ClassCastException {
-        if (jType instanceof JsonMap jMap) {
-            JsonClass keyClass = jMap.getItemClass();
-            return keyClass;
-        }
-        JsonClass jClass = model.getJsonClass(ob.getClass());
-        if (jClass == null) {
-            final String msg = "No description found for " + ob.getClass().getTypeName() + ".";
-            final NullPointerException ex = new NullPointerException(msg);
-            debugLevel.warning(() -> new DebugTuple(msg, (Object[]) null));
-            Logger.getGlobal().log(Level.SEVERE, msg, ex);
-            throw ex;
-        }
-        if (jType != null && !jType.contains(jClass) && !jClass.isSubOf(jType)) {
-            final String msg = "Item has the class '" + jClass.getcName()
-                    + "', but the root should have been '" + jType.getcName() + "'.";
-            final ClassCastException ex = new ClassCastException(msg);
-            debugLevel.warning(() -> new DebugTuple(msg, (Object[]) null));
-            Logger.getGlobal().log(Level.SEVERE, msg, ex);
-            throw ex;
-        }
-        return jClass;
+        return objectGetter.calculateJsonClass(ob);
     }
 
     /**
@@ -171,15 +135,19 @@ public class ObjectWriter {
         String iString = intentString + "  ";
         writeCast(jClass, out, ob, iString);
 
-        if (jClass.hasFieldKeys(ob)) {
+        boolean hasFieldKeys = objectGetter.hasFieldKeys(jClass, ob);
+
+        if (hasFieldKeys) {
             out.println();
         }
-        Iterator<String> it = jClass.keysForWriteIterator(ob);
+
+        List< GetterFieldInfo> fieldInfos = objectGetter.extractFields(jClass, ob);
         boolean isFollowing = false;
 
-        while (it.hasNext()) {
-            JsonField next = jClass.getField(it.next());
-            Object attr = jClass.getAttr(next, ob, debugLevel);
+        for (GetterFieldInfo fieldInfo : fieldInfos) {
+            Object attr = fieldInfo.getAttribute();
+            JsonField next = fieldInfo.getJsonField();
+
             if (attr == null && jClass.isSkippingNulls()) {
                 continue;
             }
@@ -199,7 +167,7 @@ public class ObjectWriter {
         if (isFollowing) {
             out.println();
         }
-        if (jClass.hasFieldKeys(ob)) {
+        if (hasFieldKeys) {
             out.print(intentString);
         }
         out.print('}');
@@ -207,16 +175,14 @@ public class ObjectWriter {
     }
 
     void writeCast(final JsonClass jClass, final PrintWriter out, final Object ob, String iString) {
-        if (jType != null && jType.needCast(castingLevel)
-                || jClass.needCast(castingLevel)) {
+        if (objectGetter.needsCast(jClass)) {
             out.print('(');
             out.print(jClass.getcName());
             out.print(')');
         }
         out.print('{');
 
-        if (jType != null && jType.needClassDef(castingLevel)
-                || jClass.needClassDef(castingLevel)) {
+        if (objectGetter.needsClassDef(jClass)) {
             out.println();
             out.print(iString);
             out.print("\"_class\": \"");
@@ -280,7 +246,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeList(PrintWriter out, JsonType jTypeItem, Object attr, String iString) {
-        ListWriter reWriter = new ListWriter(model, jTypeItem, iString, castingLevel, debugLevel);
+        ListWriter reWriter = new ListWriter(objectGetter.getModel(), jTypeItem, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         reWriter.write(out, attr);
     }
 
@@ -293,7 +259,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeMap(PrintWriter out, JsonMap jMap, Object attr, String iString) {
-        MapWriter reWriter = new MapWriter(model, jMap, iString, castingLevel, debugLevel);
+        MapWriter reWriter = new MapWriter(objectGetter.getModel(), jMap, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         reWriter.write(out, reWriter.calculateJsonClass(attr), attr);
     }
 
@@ -306,7 +272,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeObject(PrintWriter out, JsonType jTypeItem, Object attr, String iString) {
-        ObjectWriter reWriter = new ObjectWriter(model, jTypeItem, iString, castingLevel, debugLevel);
+        ObjectWriter reWriter = new ObjectWriter(objectGetter.getModel(), jTypeItem, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         reWriter.write(out, reWriter.calculateJsonClass(attr), attr);
     }
 
@@ -414,7 +380,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeNodeArray(PrintWriter out, JsonNode node, String iString) {
-        ListWriter reWriter = new ListWriter(model, null, iString, castingLevel, debugLevel);
+        ListWriter reWriter = new ListWriter(objectGetter.getModel(), null, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         reWriter.writeNode(out, node);
     }
 
