@@ -8,17 +8,15 @@ package de.jare.jsoncasted.io.writer.getter;
 import de.jare.debug.DebugTuple;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.JsonItemDefinition;
+import de.jare.jsoncasted.io.writer.definitions.DefinitionsContext;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,13 +27,17 @@ import java.util.logging.Logger;
  */
 public class ObjectGetter {
 
-    final JsonModel model;
+    final DefinitionsContext definitionsContext;
     final JsonCastingLevel castingLevel;
     final JsonType jType;
     final JsonDebugLevel debugLevel;
 
     public JsonModel getModel() {
-        return model;
+        return definitionsContext.getModel();
+    }
+
+    public DefinitionsContext getDefinitionsContext() {
+        return definitionsContext;
     }
 
     public JsonCastingLevel getCastingLevel() {
@@ -51,21 +53,16 @@ public class ObjectGetter {
     }
 
     /**
-     * Constructs an ObjectGetter with the specified JSON model.
+     * Constructs an ObjectGetter with the specified parameters.
      *
-     * @param model the JSON model for type lookups
-     * @param castingLevel
+     * @param definitionsContext the definitions context containing model and wood IDs
+     * @param castingLevel the casting level for serialization
+     * @param jType the JSON type used for serialization
+     * @param debugLevel the debug level for controlling debug output
      */
-    public ObjectGetter(JsonModel model, JsonCastingLevel castingLevel, JsonType jType, JsonDebugLevel debugLevel) {
-        this.model = model;
+    public ObjectGetter(DefinitionsContext definitionsContext, JsonCastingLevel castingLevel, JsonType jType, JsonDebugLevel debugLevel) {
+        this.definitionsContext = definitionsContext;
         this.castingLevel = castingLevel;
-        this.jType = jType;
-        this.debugLevel = debugLevel != null ? debugLevel : JsonDebugLevel.SIMPLE;
-    }
-
-    public ObjectGetter(JsonItemDefinition definition, JsonType jType, JsonDebugLevel debugLevel) {
-        this.castingLevel = definition.getCastingLevel();
-        this.model = definition.getModel();
         this.jType = jType;
         this.debugLevel = debugLevel != null ? debugLevel : JsonDebugLevel.SIMPLE;
     }
@@ -139,7 +136,7 @@ public class ObjectGetter {
             JsonClass keyClass = jMap.getItemClass();
             return keyClass;
         }
-        JsonClass jClass = model.getJsonClass(ob.getClass());
+        JsonClass jClass = definitionsContext.getModel().getJsonClass(ob.getClass());
         if (jClass == null) {
             final String msg = "No description found for " + ob.getClass().getTypeName() + ".";
             final NullPointerException ex = new NullPointerException(msg);

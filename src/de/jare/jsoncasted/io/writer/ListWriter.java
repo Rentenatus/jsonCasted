@@ -8,11 +8,10 @@
 package de.jare.jsoncasted.io.writer;
 
 import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.JsonItemDefinition;
+import de.jare.jsoncasted.io.writer.definitions.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.getter.ListGetter;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
-import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -33,38 +32,13 @@ class ListWriter {
     /**
      * Constructs a ListWriter instance with default indentation.
      *
-     * @param definition The JSON item definition.
+     * @param castingLevel the casting level for serialization
+     * @param model The JSON model.
      * @param jType The JSON type used for serialization.
-     * @param debugLevel The debug level for controlling debug output.
      */
-    public ListWriter(JsonItemDefinition definition, JsonType jType, de.jare.debug.JsonDebugLevel debugLevel) {
+    public ListWriter(DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel) {
         this.intentString = "";
-        this.listGetter = new ListGetter(definition, jType, debugLevel);
-    }
-
-    /**
-     * Constructs a ListWriter instance with a specified indentation string.
-     *
-     * @param definition The JSON item definition.
-     * @param jType The JSON type used for serialization.
-     * @param intentString The indentation string for formatted output.
-     * @param debugLevel The debug level for controlling debug output.
-     */
-    public ListWriter(JsonItemDefinition definition, JsonType jType, String intentString, de.jare.debug.JsonDebugLevel debugLevel) {
-        this.intentString = intentString;
-        this.listGetter = new ListGetter(definition, jType, debugLevel);
-    }
-
-    /**
-     * Constructs a ListWriter instance with default indentation.
-     *
-     * @param castingLevel the casting level for serialization
-     * @param model The JSON model.
-     * @param jType The JSON type used for serialization.
-     */
-    public ListWriter(JsonModel model, JsonType jType, JsonCastingLevel castingLevel) {
-        this.intentString = "";
-        this.listGetter = new ListGetter(model, jType, castingLevel, de.jare.debug.JsonDebugLevel.SIMPLE);
+        this.listGetter = new ListGetter(definitionsContext, jType, castingLevel, de.jare.debug.JsonDebugLevel.SIMPLE);
     }
 
     /**
@@ -75,9 +49,9 @@ class ListWriter {
      * @param jType The JSON type used for serialization.
      * @param intentString The indentation string for formatted output.
      */
-    public ListWriter(JsonModel model, JsonType jType, String intentString, JsonCastingLevel castingLevel) {
+    public ListWriter(DefinitionsContext definitionsContext, JsonType jType, String intentString, JsonCastingLevel castingLevel) {
         this.intentString = intentString;
-        this.listGetter = new ListGetter(model, jType, castingLevel, de.jare.debug.JsonDebugLevel.SIMPLE);
+        this.listGetter = new ListGetter(definitionsContext, jType, castingLevel, de.jare.debug.JsonDebugLevel.SIMPLE);
     }
 
     /**
@@ -89,9 +63,9 @@ class ListWriter {
      * @param intentString The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public ListWriter(JsonModel model, JsonType jType, String intentString, JsonCastingLevel castingLevel, de.jare.debug.JsonDebugLevel debugLevel) {
+    public ListWriter(DefinitionsContext definitionsContext, JsonType jType, String intentString, JsonCastingLevel castingLevel, de.jare.debug.JsonDebugLevel debugLevel) {
         this.intentString = intentString;
-        this.listGetter = new ListGetter(model, jType, castingLevel, debugLevel);
+        this.listGetter = new ListGetter(definitionsContext, jType, castingLevel, debugLevel);
     }
 
     /**
@@ -169,7 +143,7 @@ class ListWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeObject(PrintWriter out, Object attr, String iString) {
-        ObjectWriter reWriter = new ObjectWriter(listGetter.getModel(), listGetter.getjType(), iString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
+        ObjectWriter reWriter = new ObjectWriter(listGetter.getDefinitionsContext(), listGetter.getjType(), iString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
         reWriter.write(out, reWriter.calculateJsonClass(attr), attr);
     }
 
@@ -182,7 +156,7 @@ class ListWriter {
     public void writeNode(PrintWriter out, JsonNode node) {
         out.print('[');
         if (node != null && node.getType() != JsonNodeType.ARRAY) {
-            ObjectWriter reWriter = new ObjectWriter(listGetter.getModel(), null, intentString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
+            ObjectWriter reWriter = new ObjectWriter(listGetter.getDefinitionsContext(), null, intentString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
             reWriter.writeNode(out, node);
         } else {
             writeNodeArrayItems(out, node, intentString);
@@ -200,7 +174,7 @@ class ListWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeNodeArrayItems(PrintWriter out, JsonNode node, String iString) {
-        ObjectWriter reWriter = new ObjectWriter(listGetter.getModel(), null, iString + "  ", listGetter.getCastingLevel(), listGetter.getDebugLevel());
+        ObjectWriter reWriter = new ObjectWriter(listGetter.getDefinitionsContext(), null, iString + "  ", listGetter.getCastingLevel(), listGetter.getDebugLevel());
         List<JsonNode> list = node.asArray();
         if (list != null && !list.isEmpty()) {
             out.println();

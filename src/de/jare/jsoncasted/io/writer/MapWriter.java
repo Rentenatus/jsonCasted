@@ -9,8 +9,8 @@ package de.jare.jsoncasted.io.writer;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.writer.definitions.DefinitionsContext;
 import de.jare.jsoncasted.lang.JsonInstance;
-import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
 import java.io.PrintWriter;
@@ -35,8 +35,8 @@ class MapWriter extends ObjectWriter {
      * @param jType The JSON type used for serialization.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public MapWriter(JsonModel model, JsonMap jMap, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        super(model, jMap, castingLevel, debugLevel);
+    public MapWriter(DefinitionsContext definitionsContext, JsonMap jMap, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        super(definitionsContext, jMap, castingLevel, debugLevel);
         this.jMap = jMap;
 
     }
@@ -50,10 +50,9 @@ class MapWriter extends ObjectWriter {
      * @param intentString The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public MapWriter(JsonModel model, JsonMap jMap, String intentString, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        super(model, jMap, intentString, castingLevel, debugLevel);
+    public MapWriter(DefinitionsContext definitionsContext, JsonMap jMap, String intentString, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        super(definitionsContext, jMap, intentString, castingLevel, debugLevel);
         this.jMap = jMap;
-
     }
 
     /**

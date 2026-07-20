@@ -9,12 +9,11 @@ package de.jare.jsoncasted.io.writer;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.JsonItemDefinition;
+import de.jare.jsoncasted.io.writer.definitions.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.getter.GetterFieldInfo;
 import de.jare.jsoncasted.io.writer.getter.ObjectGetter;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
-import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
@@ -38,53 +37,28 @@ public class ObjectWriter {
     /**
      * Constructs an ObjectWriter instance with default indentation.
      *
-     * @param definition The JSON item definition.
+     * @param definitionsContext
+     * @param castingLevel the casting level for serialization
      * @param jType The JSON type used for serialization.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public ObjectWriter(JsonItemDefinition definition, JsonType jType, JsonDebugLevel debugLevel) {
+    public ObjectWriter(DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         this.intentString = "";
-        this.objectGetter = new ObjectGetter(definition, jType, debugLevel);
+        this.objectGetter = new ObjectGetter(definitionsContext, castingLevel, jType, debugLevel);
     }
 
     /**
      * Constructs an ObjectWriter instance with a specified indentation string.
      *
-     * @param definition The JSON item definition.
+     * @param definitionsContext
+     * @param castingLevel the casting level for serialization
      * @param jType The JSON type used for serialization.
      * @param intentString The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public ObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString, JsonDebugLevel debugLevel) {
+    public ObjectWriter(DefinitionsContext definitionsContext, JsonType jType, String intentString, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         this.intentString = intentString;
-        this.objectGetter = new ObjectGetter(definition, jType, debugLevel);
-    }
-
-    /**
-     * Constructs an ObjectWriter instance with default indentation.
-     *
-     * @param castingLevel the casting level for serialization
-     * @param model The JSON model.
-     * @param jType The JSON type used for serialization.
-     * @param debugLevel The debug level for controlling debug output.
-     */
-    public ObjectWriter(JsonModel model, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        this.intentString = "";
-        this.objectGetter = new ObjectGetter(model, castingLevel, jType, debugLevel);
-    }
-
-    /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
-     *
-     * @param castingLevel the casting level for serialization
-     * @param model The JSON model.
-     * @param jType The JSON type used for serialization.
-     * @param intentString The indentation string for formatted output.
-     * @param debugLevel The debug level for controlling debug output.
-     */
-    public ObjectWriter(JsonModel model, JsonType jType, String intentString, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        this.intentString = intentString;
-        this.objectGetter = new ObjectGetter(model, castingLevel, jType, debugLevel);
+        this.objectGetter = new ObjectGetter(definitionsContext, castingLevel, jType, debugLevel);
     }
 
     /**
@@ -246,7 +220,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeList(PrintWriter out, JsonType jTypeItem, Object attr, String iString) {
-        ListWriter reWriter = new ListWriter(objectGetter.getModel(), jTypeItem, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
+        ListWriter reWriter = new ListWriter(objectGetter.getDefinitionsContext(), jTypeItem, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         reWriter.write(out, attr);
     }
 
@@ -259,7 +233,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeMap(PrintWriter out, JsonMap jMap, Object attr, String iString) {
-        MapWriter reWriter = new MapWriter(objectGetter.getModel(), jMap, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
+        MapWriter reWriter = new MapWriter(objectGetter.getDefinitionsContext(), jMap, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         reWriter.write(out, reWriter.calculateJsonClass(attr), attr);
     }
 
@@ -272,7 +246,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeObject(PrintWriter out, JsonType jTypeItem, Object attr, String iString) {
-        ObjectWriter reWriter = new ObjectWriter(objectGetter.getModel(), jTypeItem, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
+        ObjectWriter reWriter = new ObjectWriter(objectGetter.getDefinitionsContext(), jTypeItem, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         reWriter.write(out, reWriter.calculateJsonClass(attr), attr);
     }
 
@@ -380,7 +354,7 @@ public class ObjectWriter {
      * @param iString The indentation string for formatted output.
      */
     protected void writeNodeArray(PrintWriter out, JsonNode node, String iString) {
-        ListWriter reWriter = new ListWriter(objectGetter.getModel(), null, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
+        ListWriter reWriter = new ListWriter(objectGetter.getDefinitionsContext(), null, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         reWriter.writeNode(out, node);
     }
 

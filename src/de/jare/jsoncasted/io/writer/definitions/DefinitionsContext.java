@@ -32,4 +32,8 @@ public class DefinitionsContext {
     public DefinitionsContext(de.jare.jsoncasted.model.JsonModel model) {
         this.model = model;
     }
+
+    public JsonModel getModel() {
+        return model;
+    }
 }

@@ -7,10 +7,9 @@ package de.jare.jsoncasted.io.writer.getter;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.JsonItemDefinition;
+import de.jare.jsoncasted.io.writer.definitions.DefinitionsContext;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
-
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -19,13 +18,17 @@ import java.util.Iterator;
  */
 public class ListGetter {
 
-    final JsonModel model;
+    final DefinitionsContext definitionsContext;
     final JsonCastingLevel castingLevel;
     final JsonType jType;
     final JsonDebugLevel debugLevel;
 
     public JsonModel getModel() {
-        return model;
+        return definitionsContext.getModel();
+    }
+
+    public DefinitionsContext getDefinitionsContext() {
+        return definitionsContext;
     }
 
     public JsonCastingLevel getCastingLevel() {
@@ -40,16 +43,17 @@ public class ListGetter {
         return debugLevel;
     }
 
-    public ListGetter(JsonModel model, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        this.model = model;
+    /**
+     * Constructs a ListGetter with DefinitionsContext.
+     *
+     * @param definitionsContext
+     * @param jType
+     * @param castingLevel
+     * @param debugLevel
+     */
+    public ListGetter(DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        this.definitionsContext = definitionsContext;
         this.castingLevel = castingLevel;
-        this.jType = jType;
-        this.debugLevel = debugLevel != null ? debugLevel : JsonDebugLevel.SIMPLE;
-    }
-
-    public ListGetter(JsonItemDefinition definition, JsonType jType, JsonDebugLevel debugLevel) {
-        this.castingLevel = definition.getCastingLevel();
-        this.model = definition.getModel();
         this.jType = jType;
         this.debugLevel = debugLevel != null ? debugLevel : JsonDebugLevel.SIMPLE;
     }

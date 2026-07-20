@@ -10,10 +10,10 @@ package de.jare.jsoncasted.io.writer;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.JsonItemDefinition;
+import de.jare.jsoncasted.io.writer.definitions.DefinitionsContext;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonTerms;
-import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.io.PrintWriter;
@@ -39,18 +39,7 @@ public class RootObjectWriter extends ObjectWriter {
      * @param jType The JSON type used for serialization.
      */
     public RootObjectWriter(JsonItemDefinition definition, JsonType jType) {
-        super(definition, jType, JsonDebugLevel.SIMPLE);
-    }
-
-    /**
-     * Constructs a RootObjectWriter instance with a specified indentation string.
-     *
-     * @param definition The JSON item definition.
-     * @param jType The JSON type used for serialization.
-     * @param intentString The indentation string for formatted output.
-     */
-    public RootObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString) {
-        super(definition, jType, intentString, JsonDebugLevel.SIMPLE);
+        super(new DefinitionsContext(definition.getModel()), jType, definition.getCastingLevel(), JsonDebugLevel.SIMPLE);
     }
 
     /**
@@ -61,94 +50,30 @@ public class RootObjectWriter extends ObjectWriter {
      * @param debugLevel The debug level for controlling debug output.
      */
     public RootObjectWriter(JsonItemDefinition definition, JsonType jType, JsonDebugLevel debugLevel) {
-        super(definition, jType, debugLevel);
-    }
-
-    /**
-     * Constructs a RootObjectWriter instance with a specified indentation string and debug level.
-     *
-     * @param definition The JSON item definition.
-     * @param jType The JSON type used for serialization.
-     * @param intentString The indentation string for formatted output.
-     * @param debugLevel The debug level for controlling debug output.
-     */
-    public RootObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString, JsonDebugLevel debugLevel) {
-        super(definition, jType, intentString, debugLevel);
+        super(new DefinitionsContext(definition.getModel()), jType, definition.getCastingLevel(), debugLevel);
     }
 
     /**
      * Constructs a RootObjectWriter instance with default indentation.
      *
+     * @param definitionsContext
      * @param castingLevel the casting level for serialization
-     * @param model The JSON model.
      * @param jType The JSON type used for serialization.
      */
-    public RootObjectWriter(JsonModel model, JsonType jType, JsonCastingLevel castingLevel) {
-        super(model, jType, castingLevel, JsonDebugLevel.SIMPLE);
+    public RootObjectWriter(DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel) {
+        super(definitionsContext, jType, castingLevel, JsonDebugLevel.SIMPLE);
     }
 
     /**
      * Constructs a RootObjectWriter instance with a specified indentation string.
      *
+     * @param definitionsContext
      * @param castingLevel the casting level for serialization
-     * @param model The JSON model.
      * @param jType The JSON type used for serialization.
      * @param intentString The indentation string for formatted output.
      */
-    public RootObjectWriter(JsonModel model, JsonType jType, String intentString, JsonCastingLevel castingLevel) {
-        super(model, jType, intentString, castingLevel, JsonDebugLevel.SIMPLE);
-    }
-
-    /**
-     * Constructs a RootObjectWriter instance with Wood metadata support.
-     *
-     * @param definition The JSON item definition.
-     * @param jType The JSON type used for serialization.
-     * @param resource The JSON resource containing definition nodes and metadata.
-     */
-    public RootObjectWriter(JsonItemDefinition definition, JsonType jType, JsonResource resource) {
-        super(definition, jType, JsonDebugLevel.SIMPLE);
-        this.resource = resource;
-    }
-
-    /**
-     * Constructs a RootObjectWriter instance with Wood metadata support and indentation.
-     *
-     * @param definition The JSON item definition.
-     * @param jType The JSON type used for serialization.
-     * @param intentString The indentation string for formatted output.
-     * @param resource The JSON resource containing definition nodes and metadata.
-     */
-    public RootObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString, JsonResource resource) {
-        super(definition, jType, intentString, JsonDebugLevel.SIMPLE);
-        this.resource = resource;
-    }
-
-    /**
-     * Constructs a RootObjectWriter instance with Wood metadata support and debug level.
-     *
-     * @param definition The JSON item definition.
-     * @param jType The JSON type used for serialization.
-     * @param resource The JSON resource containing definition nodes and metadata.
-     * @param debugLevel The debug level for controlling debug output.
-     */
-    public RootObjectWriter(JsonItemDefinition definition, JsonType jType, JsonResource resource, JsonDebugLevel debugLevel) {
-        super(definition, jType, debugLevel);
-        this.resource = resource;
-    }
-
-    /**
-     * Constructs a RootObjectWriter instance with Wood metadata support, indentation and debug level.
-     *
-     * @param definition The JSON item definition.
-     * @param jType The JSON type used for serialization.
-     * @param intentString The indentation string for formatted output.
-     * @param resource The JSON resource containing definition nodes and metadata.
-     * @param debugLevel The debug level for controlling debug output.
-     */
-    public RootObjectWriter(JsonItemDefinition definition, JsonType jType, String intentString, JsonResource resource, JsonDebugLevel debugLevel) {
-        super(definition, jType, intentString, debugLevel);
-        this.resource = resource;
+    public RootObjectWriter(DefinitionsContext definitionsContext, JsonType jType, String intentString, JsonCastingLevel castingLevel) {
+        super(definitionsContext, jType, intentString, castingLevel, JsonDebugLevel.SIMPLE);
     }
 
     /**
@@ -276,26 +201,26 @@ public class RootObjectWriter extends ObjectWriter {
     }
 
     /**
-     * Writes the _woodDefinitions field from the resource's definition nodes.
-     * Uses the DefinitionalWriter hierarchy to process and categorize nodes.
+     * Writes the _woodDefinitions field from the resource's definition nodes. Uses the DefinitionalWriter hierarchy to
+     * process and categorize nodes.
      */
     private void writeWoodDefinitions(PrintWriter out) {
         if (resource == null || !resource.hasDefinitionNodes()) {
             return;
         }
-        
+
         // Create _woodDefinitions object from definition nodes
         JsonNode definitionsObject = JsonNode.objectNode();
-        
+
         for (JsonNode defNode : resource.getDefinitionNodes()) {
             String defId = getOrGenerateDefinitionId(defNode);
             definitionsObject.put(defId, defNode);
         }
-        
+
         if (definitionsObject.asObjectValues().isEmpty()) {
             return;
         }
-        
+
         // Write _woodDefinitions
         out.print(",\n" + intentString);
         out.print("\"");
@@ -311,12 +236,12 @@ public class RootObjectWriter extends ObjectWriter {
         if (node == null || !node.isObject()) {
             return "def_" + System.currentTimeMillis();
         }
-        
+
         JsonNode idNode = node.asObjectValues().get(JsonTerms.TERM_WOOD_OBJECT_ID);
         if (idNode != null) {
             return idNode.asText();
         }
-        
+
         // Generate from class name
         JsonNode classNode = node.asObjectValues().get(JsonTerms.TERM_CLASS);
         if (classNode != null) {
@@ -327,7 +252,7 @@ public class RootObjectWriter extends ObjectWriter {
                 return simpleName.toLowerCase() + "_def";
             }
         }
-        
+
         return "def_" + System.currentTimeMillis();
     }
 
