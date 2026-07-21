@@ -11,7 +11,6 @@ import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.WriteStrategie;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.model.item.JsonField;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
@@ -21,7 +20,7 @@ import java.io.PrintWriter;
  *
  * @author Janusch Rentenatus
  */
-public class ObjectPrintStrategie implements WriteStrategie {
+public class PrintStrategie implements WriteStrategie {
 
     private final PrintWriter out;
 
@@ -30,7 +29,7 @@ public class ObjectPrintStrategie implements WriteStrategie {
      *
      * @param out
      */
-    public ObjectPrintStrategie(PrintWriter out) {
+    public PrintStrategie(PrintWriter out) {
         this.out = out;
     }
 
@@ -39,7 +38,7 @@ public class ObjectPrintStrategie implements WriteStrategie {
      *
      * @param out
      */
-    public ObjectPrintStrategie(PrintStream out) {
+    public PrintStrategie(PrintStream out) {
         this.out = new PrintWriter(out);
     }
 

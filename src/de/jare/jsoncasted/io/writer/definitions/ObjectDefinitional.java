@@ -19,9 +19,8 @@ import de.jare.jsoncasted.model.item.JsonMap;
 import java.util.List;
 
 /**
- * Processes object nodes and applies definition rules to their children.
- * Works with object/structural nodes in the JSON tree.
- * Collects all objects in DefinitionsContext: candidates or findings (if definitional).
+ * Processes object nodes and applies definition rules to their children. Works with object/structural nodes in the JSON
+ * tree. Collects all objects in DefinitionsContext: candidates or findings (if definitional).
  */
 public class ObjectDefinitional {
 
@@ -74,12 +73,9 @@ public class ObjectDefinitional {
      * @param ob the object to process
      */
     public void process(Object ob) {
-        if (ob == null) {
-            return;
-        }
 
         // Skip if already processed
-        if (definitionsContext.isInFindings(ob) || definitionsContext.isInCandidates(ob)) {
+        if (skippProzess(null, ob)) {
             return;
         }
 
@@ -106,6 +102,13 @@ public class ObjectDefinitional {
         }
     }
 
+    public boolean skippProzess(final JsonClass jClass, final Object ob) {
+        if (ob == null) {
+            return true;
+        }
+        return definitionsContext.isInFindings(ob) || definitionsContext.isInCandidates(ob);
+    }
+
     /**
      * Processes a single field, dispatching to the appropriate method based on field type.
      *
@@ -114,12 +117,12 @@ public class ObjectDefinitional {
      */
     protected void processField(GetterFieldInfo fieldInfo, Object attr) {
         JsonType fieldType = fieldInfo.getJsonField().getjType();
-        
+
         if (fieldType.isPrimitive()) {
             // Skip primitive fields
             return;
         }
-        
+
         if (fieldInfo.getJsonField().isAsListOrArray()) {
             processListValue(fieldInfo, attr);
         } else if (fieldType instanceof JsonMap jMap) {
@@ -148,10 +151,10 @@ public class ObjectDefinitional {
     protected void processListValue(GetterFieldInfo fieldInfo, Object attr) {
         JsonType fieldType = fieldInfo.getJsonField().getjType();
         ListDefinitional listDefinitional = new ListDefinitional(
-            definitionsContext,
-            fieldType,
-            objectGetter.getCastingLevel(),
-            objectGetter.getDebugLevel()
+                definitionsContext,
+                fieldType,
+                objectGetter.getCastingLevel(),
+                objectGetter.getDebugLevel()
         );
         listDefinitional.process(attr);
     }
@@ -166,16 +169,14 @@ public class ObjectDefinitional {
     protected void processMapValue(GetterFieldInfo fieldInfo, Object attr, JsonMap jMap) {
         JsonType fieldType = fieldInfo.getJsonField().getjType();
         MapDefinitional mapDefinitional = new MapDefinitional(
-            definitionsContext,
-            jMap,
-            fieldType,
-            objectGetter.getCastingLevel(),
-            objectGetter.getDebugLevel()
+                definitionsContext,
+                jMap,
+                fieldType,
+                objectGetter.getCastingLevel(),
+                objectGetter.getDebugLevel()
         );
         mapDefinitional.process(attr);
     }
-    
-    
 
     /**
      * Gets the definitions context used by this ObjectDefinitional.

@@ -107,6 +107,11 @@ public class ObjectWriteWalker {
      * @param ob The object to serialize.
      */
     public void writeObject(final JsonClass jClass, final Object ob) {
+        // Skip if already processed
+        if (strategie.skippProzess(jClass, ob)) {
+            return;
+        }
+
         WriteNodePath iString = intentPath.append("  ");
         writeCast(jClass, ob, iString);
 

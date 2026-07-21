@@ -34,4 +34,8 @@ public interface WriteStrategie {
 
     public void writeArraySeparator(Object ob, boolean primitive, WriteNodePath iString);
 
+    default boolean skippProzess(JsonClass jClass, Object ob) {
+        return false;
+    }
+
 }
