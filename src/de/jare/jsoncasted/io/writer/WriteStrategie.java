@@ -26,15 +26,15 @@ public interface WriteStrategie {
 
     public void writeHasFieldKeys(JsonClass jClass, Object ob, WriteNodePath iString);
 
-    public void writeAttrName(JsonClass jClass, Object ob, boolean isFollowing, String fName, WriteNodePath iString);
+    public void writeAttrName(JsonClass jClass, boolean isFollowing, String fName, WriteNodePath iString);
 
     public void writeAttrNull(WriteNodePath iString);
 
     public void writePrimitive(JsonType jTypePrim, Object attr, WriteNodePath iString);
 
-    public void writeArraySeparator(Object ob, boolean primitive, WriteNodePath iString);
+    public void writeArraySeparator(boolean primitive, WriteNodePath iString);
 
-    default boolean skippProzess(JsonClass jClass, Object ob) {
+    default boolean skippProzess(JsonType jType, Object ob) {
         return false;
     }
 

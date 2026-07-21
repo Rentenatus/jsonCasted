@@ -64,9 +64,14 @@ public class ListWriteWalker {
         while (it.hasNext()) {
             Object next = it.next();
 
+            // Skip if already processed
+            if (strategie.skippProzess(listGetter.getjType(), next)) {
+                continue;
+            }
+
             writeEntry(next, iString);
             if (it.hasNext()) {
-                strategie.writeArraySeparator(ob, listGetter.isPrimitive(), iString);
+                strategie.writeArraySeparator(listGetter.isPrimitive(), iString);
             }
 
             isFollowing = true;
@@ -106,7 +111,6 @@ public class ListWriteWalker {
 //    }
 //
 // Array as Item of Array 
-    
     /**
      * Writes a JSON object representation.
      *

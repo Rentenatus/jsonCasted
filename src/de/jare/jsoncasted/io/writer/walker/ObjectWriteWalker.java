@@ -131,7 +131,7 @@ public class ObjectWriteWalker {
                 continue;
             }
 
-            strategie.writeAttrName(jClass, ob, isFollowing, next.getfName(), iString);
+            strategie.writeAttrName(jClass, isFollowing, next.getfName(), iString);
             writeAttr(next, attr, iString);
             isFollowing = true;
         }

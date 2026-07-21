@@ -60,7 +60,7 @@ public class PrintStrategie implements WriteStrategie {
     }
 
     @Override
-    public void writeAttrName(JsonClass jClass, Object ob, boolean isFollowing, String fName, WriteNodePath intentPath) {
+    public void writeAttrName(JsonClass jClass, boolean isFollowing, String fName, WriteNodePath intentPath) {
         if (isFollowing) {
             out.print(',');
             out.println();
@@ -149,7 +149,7 @@ public class PrintStrategie implements WriteStrategie {
     }
 
     @Override
-    public void writeArraySeparator(Object ob, boolean isPrimitive, WriteNodePath iString) {
+    public void writeArraySeparator(boolean isPrimitive, WriteNodePath iString) {
         out.print(", ");
         if (!isPrimitive) {
             out.println();

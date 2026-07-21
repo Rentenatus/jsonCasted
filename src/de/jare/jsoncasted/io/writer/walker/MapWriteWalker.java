@@ -68,9 +68,14 @@ public class MapWriteWalker extends ObjectWriteWalker {
             if (attr == null && jClass.isSkippingNulls()) {
                 continue;
             }
+            // Skip if already processed
+            if (strategie.skippProzess(jMap.getItemClass(), attr)) {
+                continue;
+            }
+
             isFollowing = true;
 
-            strategie.writeAttrName(jClass, ob, isFollowing, nextName, iString);
+            strategie.writeAttrName(jMap.getItemClass(), isFollowing, nextName, iString);
             if (jMap.isAsListOrArray()) {
                 writeList(jMap.getItemClass(), attr, iString);
             } else {
