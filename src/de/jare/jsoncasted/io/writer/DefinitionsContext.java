@@ -3,7 +3,7 @@
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
  */
-package de.jare.jsoncasted.io.writer.definitions;
+package de.jare.jsoncasted.io.writer;
 
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.item.JsonDefinitions;

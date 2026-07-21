@@ -20,7 +20,7 @@ import de.jare.jsoncasted.io.parserservice.JsonParserService;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
 import de.jare.jsoncasted.io.writer.printer.RootObjectPrintWriter;
-import de.jare.jsoncasted.io.writer.definitions.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.DefinitionsContext;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;

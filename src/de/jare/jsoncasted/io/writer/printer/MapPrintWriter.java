@@ -9,7 +9,7 @@ package de.jare.jsoncasted.io.writer.printer;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.writer.definitions.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.DefinitionsContext;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;

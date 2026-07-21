@@ -21,9 +21,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The JsonWriter class provides utility methods for serializing Java objects
- * into JSON format. It supports writing to strings, files, and output streams
- * with configurable character encoding.
+ * The JsonWriter class provides utility methods for serializing Java objects into JSON format. It supports writing to
+ * strings, files, and output streams with configurable character encoding.
  *
  * @author Janusch Rentenatus
  */
@@ -84,8 +83,8 @@ public class JsonWriter {
     }
 
     /**
-     * Serializes an object to a JSON string using the specified character encoding.
-     * Uses the default root class from the definition.
+     * Serializes an object to a JSON string using the specified character encoding. Uses the default root class from
+     * the definition.
      *
      * @param ob The object to serialize.
      * @param definition The JSON item definition containing model information.
@@ -101,8 +100,8 @@ public class JsonWriter {
     }
 
     /**
-     * Serializes an object to a JSON string using the default character encoding.
-     * Uses the default root class from the definition.
+     * Serializes an object to a JSON string using the default character encoding. Uses the default root class from the
+     * definition.
      *
      * @param ob The object to serialize.
      * @param definition The JSON item definition containing model information.
@@ -117,8 +116,7 @@ public class JsonWriter {
     }
 
     /**
-     * Serializes an object and writes it to a file.
-     * Uses the default root class from the definition.
+     * Serializes an object and writes it to a file. Uses the default root class from the definition.
      *
      * @param ob The object to serialize.
      * @param file The target file to write the JSON output.
@@ -213,8 +211,8 @@ public class JsonWriter {
     }
 
     /**
-     * Serializes an object to a JSON string using the default character encoding.
-     * Uses the default root class from the definition with debug level.
+     * Serializes an object to a JSON string using the default character encoding. Uses the default root class from the
+     * definition with debug level.
      *
      * @param ob The object to serialize.
      * @param definition The JSON item definition containing model information.
@@ -231,8 +229,7 @@ public class JsonWriter {
     }
 
     /**
-     * Serializes an object and writes it to a file with debug level.
-     * Uses the default root class from the definition.
+     * Serializes an object and writes it to a file with debug level. Uses the default root class from the definition.
      *
      * @param ob The object to serialize.
      * @param file The target file to write the JSON output.

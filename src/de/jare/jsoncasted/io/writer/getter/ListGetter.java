@@ -7,7 +7,7 @@ package de.jare.jsoncasted.io.writer.getter;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.writer.definitions.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.DefinitionsContext;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import java.util.Collection;
