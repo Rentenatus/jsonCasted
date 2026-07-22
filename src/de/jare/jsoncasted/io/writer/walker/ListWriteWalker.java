@@ -10,17 +10,10 @@ import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.writer.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.WriteStrategie;
-import de.jare.jsoncasted.io.writer.getter.GetterFieldInfo;
 import de.jare.jsoncasted.io.writer.getter.ListGetter;
-import de.jare.jsoncasted.io.writer.getter.ObjectGetter;
 import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
-import java.io.PrintWriter;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  *
@@ -31,6 +24,7 @@ public class ListWriteWalker {
     final WriteNodePath intentPath;
     final WriteStrategie strategie;
     final ListGetter listGetter;
+    WoodMetadataInjection woodMetadata;
 
     /**
      * Constructs an ObjectWriter instance with a specified indentation string.
@@ -46,6 +40,11 @@ public class ListWriteWalker {
         this.strategie = strategie;
         this.intentPath = intentPath;
         this.listGetter = new ListGetter(definitionsContext, jType, castingLevel, debugLevel);
+        this.woodMetadata = null;
+    }
+
+    public void setWoodMetadata(WoodMetadataInjection woodMetadata) {
+        this.woodMetadata = woodMetadata;
     }
 
     /**
@@ -56,28 +55,30 @@ public class ListWriteWalker {
     public void writeList(final Object ob) {
         WriteNodePath iString = intentPath.append("  ");
         strategie.writeStartArray(ob, listGetter.isPrimitive(), iString);
-
-        Iterator<?> it = listGetter.iterator(ob);
-        boolean hasFieldKeys = it.hasNext();
         boolean isFollowing = false;
+        boolean hasFieldKeys = false;
+        try {
+            Iterator<?> it = listGetter.iterator(ob);
+            hasFieldKeys = it.hasNext();
 
-        while (it.hasNext()) {
-            Object next = it.next();
+            while (it.hasNext()) {
+                Object next = it.next();
 
-            // Skip if already processed
-            if (strategie.skippProzess(listGetter.getjType(), next)) {
-                continue;
+                // Skip if already processed
+                if (strategie.skippProzess(listGetter.getjType(), next)) {
+                    continue;
+                }
+
+                writeEntry(next, iString);
+                if (it.hasNext()) {
+                    strategie.writeArraySeparator(listGetter.isPrimitive(), iString);
+                }
+
+                isFollowing = true;
             }
-
-            writeEntry(next, iString);
-            if (it.hasNext()) {
-                strategie.writeArraySeparator(listGetter.isPrimitive(), iString);
-            }
-
-            isFollowing = true;
+        } finally {
+            strategie.writeEndArray(ob, listGetter.isPrimitive(), isFollowing, hasFieldKeys, iString);
         }
-
-        strategie.writeEndArray(ob, listGetter.isPrimitive(), isFollowing, hasFieldKeys, iString);
     }
 
     /**
@@ -98,6 +99,10 @@ public class ListWriteWalker {
         }
     }
 
+//
+// Array as Item of Array 
+//
+//
 //    /**
 //     * Writes a JSON list representation.
 //     *
@@ -107,10 +112,14 @@ public class ListWriteWalker {
 //     */
 //    protected void writeList(JsonType jTypeItem, Object attr, WriteNodePath iString) {
 //        ListWriteWalker reWriter = new ListWriteWalker(strategie, listGetter.getDefinitionsContext(), jTypeItem, iString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
+//            if (WoodMetadataInjection.hasInjection(woodMetadata)) reWriter.setWoodMetadata(woodMetadata);
 //        reWriter.writeList(attr);
 //    }
 //
+//
 // Array as Item of Array 
+//
+//
     /**
      * Writes a JSON object representation.
      *
@@ -120,6 +129,9 @@ public class ListWriteWalker {
      */
     protected void writeMap(JsonMap jMap, Object attr, WriteNodePath iString) {
         MapWriteWalker reWriter = new MapWriteWalker(strategie, listGetter.getDefinitionsContext(), jMap, iString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
+        if (WoodMetadataInjection.hasInjection(woodMetadata)) {
+            reWriter.setWoodMetadata(woodMetadata);
+        }
         reWriter.writeObject(reWriter.calculateJsonClass(attr), attr);
     }
 
@@ -132,6 +144,10 @@ public class ListWriteWalker {
      */
     protected void writeObject(JsonType jTypeItem, Object attr, WriteNodePath iString) {
         ObjectWriteWalker reWriter = new ObjectWriteWalker(strategie, listGetter.getDefinitionsContext(), jTypeItem, iString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
+        if (WoodMetadataInjection.hasInjection(woodMetadata)) {
+            reWriter.setWoodMetadata(woodMetadata);
+        }
+
         reWriter.writeObject(reWriter.calculateJsonClass(attr), attr);
     }
 

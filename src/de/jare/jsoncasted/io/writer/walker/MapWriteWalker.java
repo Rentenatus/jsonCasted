@@ -51,39 +51,40 @@ public class MapWriteWalker extends ObjectWriteWalker {
             return;
         }
         WriteNodePath iString = intentPath.append("  ");
-        writeCast(jClass, ob, iString);
-
-        Iterator<String> it = inst.keySet().iterator();
-        boolean hasFieldKeys = it.hasNext();
-        if (hasFieldKeys) {
-            strategie.writeHasFieldKeys(jClass, ob, iString);
-        }
-
+        writeStart(jClass, ob, iString);
         boolean isFollowing = false;
-
-        while (it.hasNext()) {
-            final String nextName = it.next();
-            Object attr = inst.get(nextName);
-
-            if (attr == null && jClass.isSkippingNulls()) {
-                continue;
-            }
-            // Skip if already processed
-            if (strategie.skippProzess(jMap.getItemClass(), attr)) {
-                continue;
+        boolean hasFieldKeys = false;
+        try {
+            Iterator<String> it = inst.keySet().iterator();
+            hasFieldKeys = it.hasNext();
+            if (hasFieldKeys) {
+                strategie.writeHasFieldKeys(jClass, ob, iString);
             }
 
-            isFollowing = true;
+            while (it.hasNext()) {
+                final String nextName = it.next();
+                Object attr = inst.get(nextName);
 
-            strategie.writeAttrName(jMap.getItemClass(), isFollowing, nextName, iString);
-            if (jMap.isAsListOrArray()) {
-                writeList(jMap.getItemClass(), attr, iString);
-            } else {
-                writeSingle(jMap.getItemClass(), attr, iString);
+                if (attr == null && jClass.isSkippingNulls()) {
+                    continue;
+                }
+                // Skip if already processed
+                if (strategie.skippProzess(jMap.getItemClass(), attr)) {
+                    continue;
+                }
+
+                isFollowing = true;
+
+                strategie.writeAttrName(jMap.getItemClass(), isFollowing, nextName, iString);
+                if (jMap.isAsListOrArray()) {
+                    writeList(jMap.getItemClass(), attr, iString);
+                } else {
+                    writeSingle(jMap.getItemClass(), attr, iString);
+                }
             }
+        } finally {
+            strategie.writeEnd(jClass, ob, isFollowing, hasFieldKeys, iString);
         }
-
-        strategie.writeEnd(jClass, ob, isFollowing, hasFieldKeys, iString);
     }
 
 }

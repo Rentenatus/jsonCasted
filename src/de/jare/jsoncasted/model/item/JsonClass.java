@@ -20,7 +20,6 @@ import de.jare.jsoncasted.model.JsonEnumTemplate;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
-import de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.lang.reflect.InvocationTargetException;
