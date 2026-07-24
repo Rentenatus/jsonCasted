@@ -122,6 +122,11 @@ public class ObjectWriteWalker {
 
         WriteNodePath iString = intentPath.append("  ");
         writeStart(jClass, ob, iString);
+        if (WoodMetadataInjection.hasInjection(woodMetadata)) {
+            woodMetadata.popWood(strategie, iString, objectGetter.getDebugLevel());
+            woodMetadata = null;
+        }
+        
         boolean isFollowing = false;
         boolean hasFieldKeys = false;
         try {

@@ -5,6 +5,7 @@
  */
 package de.jare.jsoncasted.io.writer;
 
+import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 
@@ -16,11 +17,11 @@ public interface WriteStrategie {
 
     public void writePath(WriteNodePath intentPath);
 
-    public void writeStart(JsonClass jClass, Object ob, boolean needsCast, boolean needsClassDef, WriteNodePath iString);
+    public void writeStart(JsonClass jClassOtNull, Object ob, boolean needsCast, boolean needsClassDef, WriteNodePath iString);
 
     public void writeStartArray(Object ob, boolean isPrimitive, WriteNodePath iString);
 
-    public void writeEnd(final JsonClass jClass, final Object ob, boolean isFollowing, boolean hasFieldKeys, WriteNodePath iString);
+    public void writeEnd(final JsonClass jClassOrNull, final Object ob, boolean isFollowing, boolean hasFieldKeys, WriteNodePath iString);
 
     public void writeEndArray(final Object ob, boolean isPrimitive, boolean isFollowing, boolean hasFieldKeys, WriteNodePath iString);
 
@@ -37,5 +38,7 @@ public interface WriteStrategie {
     default boolean skippProzess(JsonType jType, Object ob) {
         return false;
     }
+
+    public void writeNodeValue(Object object, WriteNodePath iString);
 
 }

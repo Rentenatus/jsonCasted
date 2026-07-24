@@ -5,6 +5,11 @@
  */
 package de.jare.jsoncasted.io.writer.walker;
 
+import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.io.writer.WriteNodePath;
+import de.jare.jsoncasted.io.writer.WriteStrategie;
+import de.jare.jsoncasted.lang.JsonResource;
+
 /**
  *
  * @author Janusch Renteantus
@@ -12,6 +17,11 @@ package de.jare.jsoncasted.io.writer.walker;
 public class WoodMetadataInjection {
 
     boolean carried = false;
+    private final JsonResource woodResource;
+
+    public WoodMetadataInjection(final JsonResource woodResource) {
+        this.woodResource = woodResource;
+    }
 
     public boolean isCarried() {
         return carried;
@@ -27,6 +37,12 @@ public class WoodMetadataInjection {
 
     public static boolean hasInjection(WoodMetadataInjection woodMetadata) {
         return woodMetadata != null && woodMetadata.hasToDo();
+    }
+
+    public void popWood(WriteStrategie strategie, WriteNodePath iString, JsonDebugLevel debugLevel) {
+        NodeWriteWalker reWriter = new NodeWriteWalker(strategie, iString, debugLevel);
+        reWriter.writeNode(woodResource.getRoot());
+        carried = true;
     }
 
 }

@@ -93,4 +93,9 @@ public class DefinitionalStrategie implements WriteStrategie {
         //NoOp
     }
 
+    @Override
+    public void writeNodeValue(Object object, WriteNodePath iString) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
 }

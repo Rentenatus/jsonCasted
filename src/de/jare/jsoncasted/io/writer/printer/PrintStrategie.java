@@ -21,7 +21,7 @@ import java.io.PrintWriter;
  * @author Janusch Rentenatus
  */
 public class PrintStrategie implements WriteStrategie {
-
+    
     private final PrintWriter out;
 
     /**
@@ -53,12 +53,12 @@ public class PrintStrategie implements WriteStrategie {
     public void writePath(WriteNodePath intentPath) throws NullPointerException, ClassCastException {
         out.print(intentPath);
     }
-
+    
     @Override
     public void writeHasFieldKeys(JsonClass jClass, Object ob, WriteNodePath intentPath) {
         out.println();
     }
-
+    
     @Override
     public void writeAttrName(JsonClass jClass, boolean isFollowing, String fName, WriteNodePath intentPath) {
         if (isFollowing) {
@@ -71,7 +71,7 @@ public class PrintStrategie implements WriteStrategie {
         out.print('"');
         out.print(": ");
     }
-
+    
     @Override
     public void writeStart(JsonClass jClass, Object ob, boolean needsCast, boolean needsClassDef, WriteNodePath intentPath) {
         if (needsCast) {
@@ -82,7 +82,7 @@ public class PrintStrategie implements WriteStrategie {
             writeCastDef(jClass, ob, intentPath);
         }
     }
-
+    
     @Override
     public void writeStartArray(Object ob, boolean isPrimitive, WriteNodePath iString) {
         out.print('[');
@@ -91,13 +91,13 @@ public class PrintStrategie implements WriteStrategie {
             out.print(iString);
         }
     }
-
+    
     public void writeCast(final JsonClass jClass, final Object ob, WriteNodePath intentPath) {
         out.print('(');
         out.print(jClass.getcName());
         out.print(')');
     }
-
+    
     public void writeCastDef(final JsonClass jClass, final Object ob, WriteNodePath intentPath) {
         out.println();
         out.print(intentPath);
@@ -108,7 +108,7 @@ public class PrintStrategie implements WriteStrategie {
             out.print(',');
         }
     }
-
+    
     @Override
     public void writeEnd(final JsonClass jClass, final Object ob, boolean isFollowing, boolean hasFieldKeys, WriteNodePath intentPath) {
         if (isFollowing) {
@@ -120,7 +120,7 @@ public class PrintStrategie implements WriteStrategie {
         out.print('}');
         out.flush();
     }
-
+    
     @Override
     public void writeEndArray(final Object ob, boolean isPrimitive, boolean isFollowing, boolean hasFieldKeys, WriteNodePath iString) {
         if (!isPrimitive) {
@@ -130,7 +130,7 @@ public class PrintStrategie implements WriteStrategie {
         out.print(']');
         out.flush();
     }
-
+    
     @Override
     public void writeAttrNull(WriteNodePath intentPath) {
         out.print(" null");
@@ -147,7 +147,7 @@ public class PrintStrategie implements WriteStrategie {
     public void writePrimitive(JsonType jTypePrim, Object attr, WriteNodePath intentPath) {
         out.print(jTypePrim.toString(attr));
     }
-
+    
     @Override
     public void writeArraySeparator(boolean isPrimitive, WriteNodePath iString) {
         out.print(", ");
@@ -156,5 +156,10 @@ public class PrintStrategie implements WriteStrategie {
             out.print(iString);
         }
     }
-
+    
+    @Override
+    public void writeNodeValue(Object object, WriteNodePath iString) {
+        out.print(String.valueOf(object));
+    }
+    
 }
