@@ -56,10 +56,8 @@ public class ListWriteWalker {
         WriteNodePath iString = intentPath.append("  ");
         strategie.writeStartArray(ob, listGetter.isPrimitive(), iString);
         boolean isFollowing = false;
-        boolean hasFieldKeys = false;
         try {
             Iterator<?> it = listGetter.iterator(ob);
-            hasFieldKeys = it.hasNext();
 
             while (it.hasNext()) {
                 Object next = it.next();
@@ -77,7 +75,7 @@ public class ListWriteWalker {
                 isFollowing = true;
             }
         } finally {
-            strategie.writeEndArray(ob, listGetter.isPrimitive(), isFollowing, hasFieldKeys, iString);
+            strategie.writeEndArray(ob, listGetter.isPrimitive(), isFollowing, iString);
         }
     }
 

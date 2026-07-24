@@ -23,11 +23,11 @@ public interface WriteStrategie {
 
     public void writeEnd(final JsonClass jClassOrNull, final Object ob, boolean isFollowing, boolean hasFieldKeys, WriteNodePath iString);
 
-    public void writeEndArray(final Object ob, boolean isPrimitive, boolean isFollowing, boolean hasFieldKeys, WriteNodePath iString);
+    public void writeEndArray(final Object ob, boolean isPrimitive, boolean isFollowing, WriteNodePath iString);
 
-    public void writeHasFieldKeys(JsonClass jClass, Object ob, WriteNodePath iString);
+    public void writeHasFieldKeys(JsonClass jClassOrNull, Object ob, WriteNodePath iString);
 
-    public void writeAttrName(JsonClass jClass, boolean isFollowing, String fName, WriteNodePath iString);
+    public void writeAttrName(JsonClass jClassOrNull, boolean isFollowing, String fName, WriteNodePath iString);
 
     public void writeAttrNull(WriteNodePath iString);
 
@@ -35,7 +35,7 @@ public interface WriteStrategie {
 
     public void writeArraySeparator(boolean primitive, WriteNodePath iString);
 
-    default boolean skippProzess(JsonType jType, Object ob) {
+    default boolean skippProzess(JsonType jTypeOrNull, Object ob) {
         return false;
     }
 

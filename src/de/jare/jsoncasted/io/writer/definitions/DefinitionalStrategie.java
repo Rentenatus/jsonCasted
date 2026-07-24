@@ -56,7 +56,7 @@ public class DefinitionalStrategie implements WriteStrategie {
     }
 
     @Override
-    public void writeEndArray(Object ob, boolean isPrimitive, boolean isFollowing, boolean hasFieldKeys, WriteNodePath iString) {
+    public void writeEndArray(Object ob, boolean isPrimitive, boolean isFollowing, WriteNodePath iString) {
         //NoOp
     }
 

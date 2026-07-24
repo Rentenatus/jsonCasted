@@ -84,7 +84,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         if (myList.isEmpty()) {
             strategie.writePath(intentPath);
             strategie.writeStartArray(ob, true, intentPath);
-            strategie.writeEndArray(ob, true, false, false, intentPath);
+            strategie.writeEndArray(ob, true, false, intentPath);
             return;
         }
         Object ob0 = myList.get(0);

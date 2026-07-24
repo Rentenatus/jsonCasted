@@ -122,7 +122,7 @@ public class PrintStrategie implements WriteStrategie {
     }
     
     @Override
-    public void writeEndArray(final Object ob, boolean isPrimitive, boolean isFollowing, boolean hasFieldKeys, WriteNodePath iString) {
+    public void writeEndArray(final Object ob, boolean isPrimitive, boolean isFollowing, WriteNodePath iString) {
         if (!isPrimitive) {
             out.println();
             out.print(iString);

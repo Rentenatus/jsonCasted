@@ -118,76 +118,73 @@ public class NodeWriteWalker {
     protected void writeNodeObject(JsonNode node, WriteNodePath iString) {
         strategie.writeStart(null, node, false, false, iString);
         boolean isFollowing = false;
+        boolean hasFieldKeys = false;
         try {
             Map<String, JsonNode> map = node.asObjectValues();
-            if (map != null && !map.isEmpty()) {
-                out.println();
-                String childIndent = iString + "  ";
-                boolean first = true;
-                for (Map.Entry<String, JsonNode> e : map.entrySet()) {
-                    if (!first) {
-                        out.print(',');
-                        out.println();
-                    }
-                    first = false;
-                    out.print(childIndent);
-                    out.print('"');
-                    out.print(escape(String.valueOf(e.getKey())));
-                    out.print('"');
-                    out.print(": ");
-                    writeNode(out, (JsonNode) e.getValue(), childIndent);
-                }
-                out.println();
-                out.print(iString);
+
+            Iterator<String> it = map.keySet().iterator();
+            hasFieldKeys = it.hasNext();
+            if (hasFieldKeys) {
+                strategie.writeHasFieldKeys(null, node, iString);
+            }
+
+            WriteNodePath childIndent = iString.append("  ");
+            while (it.hasNext()) {
+                final String nextName = it.next();
+                JsonNode attr = map.get(nextName);
+                isFollowing = true;
+                strategie.writeAttrName(null, isFollowing, nextName, childIndent);
+                writeNode(attr, childIndent);
             }
         } finally {
-            strategie.writeEnd(null, node, isFollowing, false, iString);
+            strategie.writeEnd(null, node, isFollowing, hasFieldKeys, iString);
         }
     }
 
     /**
      * Writes a JsonNode array or a single JsonNode element as a list.
      *
-     * @param out The PrintWriter to write the JSON output.
      * @param node The JsonNode to serialize.
      * @param iString
      */
     public void writeNodeArray(JsonNode node, WriteNodePath iString) {
-        out.print('[');
         if (node != null && node.getType() != JsonNodeType.ARRAY) {
-            writeNode(out, node, iString + "  ");
+            strategie.writeStartArray(node, false, iString);
+            writeNode(node, iString); // fallback
+            strategie.writeEndArray(node, false, true, iString);
         } else {
-            writeNodeArrayItems(out, node, iString + "  ");
+            writeNodeArrayItems(node, iString);
         }
-        out.print(iString);
-        out.print(']');
-        out.flush();
     }
 
     /**
      * Writes the array items of a JsonNode array.
      *
-     * @param out The PrintWriter to write the JSON output.
      * @param node The JsonNode array to serialize.
      * @param iString The indentation string for formatted output.
      */
-    protected void writeNodeArrayItems(JsonNode node, String iString) {
-        List<JsonNode> list = node.asArray();
-        if (list != null && !list.isEmpty()) {
-            out.println();
-            String childIndent = iString + " ";
-            boolean first = true;
-            for (JsonNode item : list) {
-                if (!first) {
-                    out.print(',');
-                    out.println();
+    protected void writeNodeArrayItems(JsonNode node, WriteNodePath iString) {
+        strategie.writeStartArray(node, false, iString);
+        boolean isFollowing = false;
+        try {
+            List<JsonNode> list = node.asArray();
+            Iterator<JsonNode> it = list.iterator();
+
+            WriteNodePath childIndent = iString.append("  ");
+            while (it.hasNext()) {
+                JsonNode next = it.next();
+
+                writeNode(next, childIndent);
+                if (it.hasNext()) {
+                    strategie.writeArraySeparator(false, iString);
                 }
-                first = false;
-                out.print(childIndent);
-                writeNode(out, item, childIndent);
+
+                isFollowing = true;
             }
-            out.println();
+        } finally {
+            strategie.writeEndArray(node, false, isFollowing, iString);
         }
+
     }
 
     /**
