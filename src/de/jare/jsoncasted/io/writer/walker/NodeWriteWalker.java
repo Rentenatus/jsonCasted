@@ -132,12 +132,13 @@ public class NodeWriteWalker {
             while (it.hasNext()) {
                 final String nextName = it.next();
                 JsonNode attr = map.get(nextName);
-                isFollowing = true;
+
                 strategie.writeAttrName(null, isFollowing, nextName, childIndent);
+                isFollowing = true;
                 writeNode(attr, childIndent);
             }
         } finally {
-            strategie.writeEnd(null, node, isFollowing, hasFieldKeys, iString);
+            strategie.writeEnd(null, node, isFollowing, hasFieldKeys, intentPath);
         }
     }
 

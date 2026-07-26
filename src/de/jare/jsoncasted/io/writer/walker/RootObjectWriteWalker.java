@@ -62,7 +62,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
     }
 
     @Override
-    protected void write(Object ob) throws NullPointerException, ClassCastException {
+    public void write(Object ob) throws NullPointerException, ClassCastException {
         write(ob, woodMetadata);
     }
 

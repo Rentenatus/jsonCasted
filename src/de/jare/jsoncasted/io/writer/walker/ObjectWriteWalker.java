@@ -126,7 +126,7 @@ public class ObjectWriteWalker {
             woodMetadata.popWood(strategie, iString, objectGetter.getDebugLevel());
             woodMetadata = null;
         }
-        
+
         boolean isFollowing = false;
         boolean hasFieldKeys = false;
         try {
@@ -150,7 +150,7 @@ public class ObjectWriteWalker {
                 isFollowing = true;
             }
         } finally {
-            strategie.writeEnd(jClass, ob, isFollowing, hasFieldKeys, iString);
+            strategie.writeEnd(jClass, ob, isFollowing, hasFieldKeys, intentPath);
         }
     }
 

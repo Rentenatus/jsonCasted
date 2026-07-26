@@ -56,7 +56,7 @@ public class MapWriteWalker extends ObjectWriteWalker {
             woodMetadata.popWood(strategie, iString, objectGetter.getDebugLevel());
             woodMetadata = null;
         }
-        
+
         boolean isFollowing = false;
         boolean hasFieldKeys = false;
         try {
@@ -78,9 +78,9 @@ public class MapWriteWalker extends ObjectWriteWalker {
                     continue;
                 }
 
+                strategie.writeAttrName(jMap.getItemClass(), isFollowing, nextName, iString);
                 isFollowing = true;
 
-                strategie.writeAttrName(jMap.getItemClass(), isFollowing, nextName, iString);
                 if (jMap.isAsListOrArray()) {
                     writeList(jMap.getItemClass(), attr, iString);
                 } else {
@@ -88,7 +88,7 @@ public class MapWriteWalker extends ObjectWriteWalker {
                 }
             }
         } finally {
-            strategie.writeEnd(jClass, ob, isFollowing, hasFieldKeys, iString);
+            strategie.writeEnd(jClass, ob, isFollowing, hasFieldKeys, intentPath);
         }
     }
 
