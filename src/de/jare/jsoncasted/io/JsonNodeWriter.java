@@ -72,6 +72,7 @@ public class JsonNodeWriter {
         try {
             out = new FileOutputStream(file);
             write(node, out);
+            out.close();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(JsonNodeWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -86,11 +87,11 @@ public class JsonNodeWriter {
      * @throws JsonParseException If parsing fails during serialization.
      */
     public static void write(JsonNode node, OutputStream out) throws IOException, JsonParseException {
-        try (PrintWriter prn = new PrintWriter(out)) {
-            PrintStrategie strategie = new PrintStrategie(prn);
-            new NodeWriteWalker(strategie, "", JsonDebugLevel.SIMPLE).writeNode(node);
-            prn.flush();
-        }
+        PrintWriter prn = new PrintWriter(out);
+        PrintStrategie strategie = new PrintStrategie(prn);
+        new NodeWriteWalker(strategie, "", JsonDebugLevel.SIMPLE).writeNode(node);
+        prn.flush();
+
     }
 
     /**
@@ -104,11 +105,10 @@ public class JsonNodeWriter {
      * @throws JsonParseException If parsing fails during serialization.
      */
     public static void write(JsonNode node, OutputStream out, JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
-        try (PrintWriter prn = new PrintWriter(out)) {
-            PrintStrategie strategie = new PrintStrategie(prn);
-            new NodeWriteWalker(strategie, "", debugLevel).writeNode(node);
-            prn.flush();
-        }
+        PrintWriter prn = new PrintWriter(out);
+        PrintStrategie strategie = new PrintStrategie(prn);
+        new NodeWriteWalker(strategie, "", debugLevel).writeNode(node);
+        prn.flush();
     }
 
     /**
@@ -126,6 +126,7 @@ public class JsonNodeWriter {
         try {
             out = new FileOutputStream(file);
             write(node, out, debugLevel);
+            out.close();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(JsonNodeWriter.class.getName()).log(Level.SEVERE, null, ex);
         }

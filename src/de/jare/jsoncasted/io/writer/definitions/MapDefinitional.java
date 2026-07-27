@@ -5,23 +5,21 @@
  */
 package de.jare.jsoncasted.io.writer.definitions;
 
-import de.jare.jsoncasted.io.writer.DefinitionsContext;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.JsonItemDefinition;
-import de.jare.jsoncasted.io.writer.getter.ObjectGetter;
+import de.jare.jsoncasted.io.writer.DefinitionsContext;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
-
 import java.util.Iterator;
 
 /**
  * Processes map nodes and catalogs all objects in DefinitionsContext. Works with JsonInstance map structures in the
  * JSON tree. Collects all objects in DefinitionsContext: candidates or findings (if definitional).
  */
+@Deprecated
 public class MapDefinitional extends ObjectDefinitional {
 
     private final JsonMap jMap;

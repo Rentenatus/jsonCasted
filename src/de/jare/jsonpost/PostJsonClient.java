@@ -15,6 +15,7 @@ import de.jare.jsoncasted.io.JsonItemDefinition;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
 import de.jare.jsoncasted.io.JsonObjectWriter;
+import de.jare.jsoncasted.io.JsonWriteException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,6 +37,8 @@ public class PostJsonClient {
             post = JsonObjectWriter.writeToString(request, definition, writeClass);
         } catch (JsonParseException | IOException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
+        } catch (JsonWriteException ex) {
+            Logger.getLogger(PostJsonClient.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         // Erstellen Sie eine URL, die auf den lokalen Server zeigt

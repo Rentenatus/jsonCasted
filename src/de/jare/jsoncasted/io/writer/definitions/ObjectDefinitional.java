@@ -22,6 +22,7 @@ import java.util.List;
  * Processes object nodes and applies definition rules to their children. Works with object/structural nodes in the JSON
  * tree. Collects all objects in DefinitionsContext: candidates or findings (if definitional).
  */
+@Deprecated
 public class ObjectDefinitional {
 
     private final ObjectGetter objectGetter;

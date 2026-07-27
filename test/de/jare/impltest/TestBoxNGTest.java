@@ -8,10 +8,11 @@ package de.jare.impltest;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonNodeWriter;
+import de.jare.jsoncasted.io.JsonObjectWriter;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
+import de.jare.jsoncasted.io.JsonWriteException;
 import de.jare.jsoncasted.io.parserservice.JsonParserService;
-import de.jare.jsoncasted.io.writer.printer.RootObjectPrintWriter;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.lang.JsonNode;
@@ -119,6 +120,7 @@ public class TestBoxNGTest {
             Logger.getLogger(TestBoxNGTest.class.getName()).log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
+        System.out.println();
         System.out.println("Target=============================================== Config Class");
         System.out.println(obj1.getClass());
 
@@ -127,22 +129,18 @@ public class TestBoxNGTest {
             final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), false, obj1);
             System.out.println(buildInstance1.getClass().getName());
             assertNotNull(root = (TestBox) buildInstance1);
-
         } catch (JsonBuildException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
         System.out.println("Target=============================================== Print object");
-        RootObjectPrintWriter writer = new RootObjectPrintWriter(definition, definition.getTestBox());
-        writer.write(System.out, definition.getTestBox(), root);
-        /*
         try {
             JsonObjectWriter.write(root, System.out, definition, definition.getTestBox());
-        } catch (IOException | JsonParseException ex) {
-            Logger.getLogger(TestBoxNGTest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException | JsonParseException | JsonWriteException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
-        }*/
-
+        }
+        System.out.println();
         System.out.println("Target=============================================== Comment");
         assertNotNull(root.getOne());
         assertNotNull(root.getList());
@@ -198,8 +196,13 @@ public class TestBoxNGTest {
         }
         assertNotNull(obj1);
         System.out.println("Target=============================================== Print node");
-        RootObjectPrintWriter writer = new RootObjectPrintWriter(definition, definition.getTestBox());
-        writer.writeNode(System.out, node);
+        try {
+            JsonNodeWriter.write(node, System.out);
+        } catch (IOException | JsonParseException ex) {
+            Logger.getLogger(TestBoxNGTest.class.getName()).log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        }
+        System.out.println();
         System.out.println("Target=============================================== Config Class");
         System.out.println(obj1.getClass());
 
@@ -214,8 +217,14 @@ public class TestBoxNGTest {
             fail(ex.getMessage(), ex);
         }
         System.out.println("Target=============================================== Print object");
-        writer.write(System.out, definition.getTestBox(), root);
-
+        try {
+            JsonObjectWriter.write(root, System.out, definition, definition.getTestBox());
+        } catch (IOException | JsonParseException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        } catch (JsonWriteException ex) {
+            Logger.getLogger(TestBoxNGTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
         System.out.println("Target=============================================== Comment");
         assertNull(root.getOne());
         assertNotNull(root.getList());

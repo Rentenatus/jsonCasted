@@ -8,16 +8,19 @@
 package de.jare.jsonconfig.def;
 
 import de.jare.debug.JsonDebugLevel;
+import de.jare.impltest.TestBoxNGTest;
+import de.jare.jsoncasted.io.JsonNodeWriter;
+import de.jare.jsoncasted.io.JsonObjectWriter;
+import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.io.JsonParser;
+import de.jare.jsoncasted.io.JsonWriteException;
+import de.jare.jsoncasted.io.parserservice.JsonParserService;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.JsonBuildException;
-import de.jare.jsoncasted.io.parserservice.JsonParserService;
-import de.jare.jsoncasted.io.JsonParseException;
-import de.jare.jsoncasted.io.JsonParser;
 import de.jare.jsoncasted.parserwriter.JsonParserReference;
-import de.jare.jsoncasted.io.writer.printer.RootObjectPrintWriter;
 import de.jare.jsonconfig.JsonConfigHelper;
 import de.jare.jsonconfig.item.ConfigFeature;
 import de.jare.jsonconfig.item.ConfigRoot;
@@ -33,8 +36,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * Test class for JsonConfigFactory functionality.
- * Tests parsing and building of JSON configuration files.
+ * Test class for JsonConfigFactory functionality. Tests parsing and building of JSON configuration files.
  *
  * @author Janusch Rentenatus
  */
@@ -47,8 +49,7 @@ public class JsonConfigFactoryNGTest {
     }
 
     /**
-     * Sets up the test class.
-     * Printed to stdout for test tracking.
+     * Sets up the test class. Printed to stdout for test tracking.
      *
      * @throws Exception If setup fails.
      */
@@ -59,8 +60,7 @@ public class JsonConfigFactoryNGTest {
     }
 
     /**
-     * Tears down the test class.
-     * Printed to stdout for test tracking.
+     * Tears down the test class. Printed to stdout for test tracking.
      *
      * @throws Exception If teardown fails.
      */
@@ -103,8 +103,7 @@ public class JsonConfigFactoryNGTest {
     }
 
     /**
-     * Test of getModel method with seedConfigTemplate.json.
-     * Compares reference and new parser implementations.
+     * Test of getModel method with seedConfigTemplate.json. Compares reference and new parser implementations.
      */
     @Test
     public void testModelSeed() {
@@ -217,8 +216,13 @@ public class JsonConfigFactoryNGTest {
         }
         assertNotNull(obj1);
         System.out.println("Target=============================================== Print node");
-        RootObjectPrintWriter writer = new RootObjectPrintWriter(definition, definition.getConfigRoot());
-        writer.writeNode(System.out, node);
+        try {
+            JsonNodeWriter.write(node, System.out);
+        } catch (IOException | JsonParseException ex) {
+            Logger.getLogger(TestBoxNGTest.class.getName()).log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        }
+        System.out.println();
         System.out.println("Target=============================================== Config Class");
         System.out.println(obj1.getClass());
 
@@ -233,8 +237,13 @@ public class JsonConfigFactoryNGTest {
             fail(ex.getMessage(), ex);
         }
         System.out.println("Target=============================================== Print object");
-        writer.write(System.out, definition.getConfigRoot(), root);
-
+        try {
+            JsonObjectWriter.write(root, System.out, definition, definition.getConfigRoot());
+        } catch (IOException | JsonParseException | JsonWriteException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        }
+        System.out.println();
         System.out.println("Target=============================================== Comment");
         assertNotNull(root.getComments());
         for (String comment : root.getComments()) {
