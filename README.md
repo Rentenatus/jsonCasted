@@ -10,7 +10,7 @@ The focus is on:
 - An explicit model (Model → Description) and parsing (JSON → JsonNode → JsonClass via. Description → Java Objects via. Model)
 - EMF-like references and resources – but JSON-native
 - Multi-model support with linked resources and model-aware save files
-- Explicit class visibility (`PUBLIC`, `PROTECTED`, optional private/package variants)
+- Explicit class visibility (`PUBLIC`, `PROTECTED`
 - Optional export lists for controlled handover of public submodels
 
 
@@ -39,7 +39,6 @@ Wood Json Jack distinguishes between the visibility of a class inside a model an
 
 - `PUBLIC` means the class is part of the model namespace and may be used by content inside that model.
 - `PROTECTED` means the class stays internal to the model or to a controlled sub-context and should not be treated as a public handover type.
-- Additional variants such as `PRIVATE` or package-like visibility can be added later without changing the basic architecture.
 
 Visibility is therefore a property of `JsonClass` itself. It describes how the class behaves inside its defining model, not whether it is currently shared with other models.
 
