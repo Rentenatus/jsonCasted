@@ -7,11 +7,11 @@
  */
 package de.jare.jsoncasted.model;
 
+import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.io.JsonCastingLevel;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -20,10 +20,12 @@ import java.util.Iterator;
  *
  * <p>
  * JsonType serves as the base interface for all type definitions including classes, interfaces, enums, and primitive
- * types. It provides methods for type checking, object construction, and serialization.</p>
+ * types. It provides methods for type checking, object construction, and serialization.
+ * </p>
  *
  * <p>
- * Implementations include:</p>
+ * Implementations include:
+ * </p>
  * <ul>
  * <li>{@link de.jare.jsoncasted.model.item.JsonClass JsonClass} - concrete class definitions</li>
  * <li>{@link de.jare.jsoncasted.model.item.JsonInter JsonInter} - interface definitions</li>
@@ -39,7 +41,8 @@ public interface JsonType {
      *
      * <p>
      * When no curly braces are found for an object during parsing, the field is provided directly. In this case, it can
-     * only be a primitive type.</p>
+     * only be a primitive type.
+     * </p>
      *
      * @return the JsonClass instance, or {@code null} if this type does not have a direct class representation.
      */
@@ -63,7 +66,8 @@ public interface JsonType {
      * @return the constructed object or collection.
      * @throws JsonBuildException if object construction fails.
      */
-    public Object build(BuilderService builderService, Iterator<JsonItem> listIterator, boolean asList, int size) throws JsonBuildException;
+    public Object build(BuilderService builderService, Iterator<JsonItem> listIterator, boolean asList, int size)
+            throws JsonBuildException;
 
     /**
      * Checks if this type represents a primitive type.
@@ -78,6 +82,27 @@ public interface JsonType {
      * @return {@code true} if this is a definitional type, {@code false} otherwise.
      */
     public boolean isDefinitional();
+
+    /**
+     * Returns the visibility of this type.
+     *
+     * @return
+     */
+    public JsonTypeVisibility getVisibility();
+
+    /**
+     * Sets the visibility of this type.
+     *
+     * @return itself
+     */
+    public JsonType asPublic();
+
+    /**
+     * Sets the visibility of this type.
+     *
+     * @return itself
+     */
+    public JsonType asProtected();
 
     /**
      * Converts an attribute value to its string representation.

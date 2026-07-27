@@ -10,7 +10,6 @@ package de.jare.jsoncasted.io;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.writer.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.printer.PrintStrategie;
-import de.jare.jsoncasted.io.writer.printer.RootObjectPrintWriter;
 import de.jare.jsoncasted.io.writer.walker.RootObjectWriteWalker;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.io.ByteArrayOutputStream;
@@ -29,7 +28,7 @@ import java.util.logging.Logger;
  *
  * @author Janusch Rentenatus
  */
-public class JsonWriter {
+public class JsonObjectWriter {
 
     /**
      * Serializes an object to a JSON string using the specified character encoding.
@@ -81,7 +80,7 @@ public class JsonWriter {
             out = new FileOutputStream(file);
             write(ob, out, definition, root);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -133,7 +132,7 @@ public class JsonWriter {
             out = new FileOutputStream(file);
             write(ob, out, definition, null);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -149,7 +148,6 @@ public class JsonWriter {
      */
     public static void write(Object ob, OutputStream out, JsonItemDefinition definition, JsonClass root) throws IOException, JsonParseException {
         try (PrintWriter prn = new PrintWriter(out)) {
-            //new RootObjectPrintWriter(definition, root).write(prn, ob);
             PrintStrategie strategie = new PrintStrategie(prn);
             DefinitionsContext definitionsContext = new DefinitionsContext(definition.getModel());
             new RootObjectWriteWalker(strategie, definitionsContext, root, definition.getCastingLevel(), JsonDebugLevel.SIMPLE).write(ob);
@@ -171,7 +169,6 @@ public class JsonWriter {
      */
     public static void write(Object ob, OutputStream out, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
         try (PrintWriter prn = new PrintWriter(out)) {
-            //new RootObjectPrintWriter(definition, root, debugLevel).write(prn, ob);
             PrintStrategie strategie = new PrintStrategie(prn);
             DefinitionsContext definitionsContext = new DefinitionsContext(definition.getModel());
             new RootObjectWriteWalker(strategie, definitionsContext, root, definition.getCastingLevel(), debugLevel).write(ob);
@@ -197,7 +194,7 @@ public class JsonWriter {
             out = new FileOutputStream(file);
             write(ob, out, definition, root, debugLevel);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -254,7 +251,7 @@ public class JsonWriter {
             out = new FileOutputStream(file);
             write(ob, out, definition, null, debugLevel);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(JsonWriter.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

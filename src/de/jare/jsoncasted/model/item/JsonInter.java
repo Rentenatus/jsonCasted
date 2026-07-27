@@ -14,6 +14,7 @@ import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.model.JsonTypeVisibility;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
 
     private final JsonModellClassBuilder builder;
     private final String cName;
+    private JsonTypeVisibility visibility;
 
     /**
      * Constructs a JsonInter instance with the specified interface name and builder.
@@ -46,6 +48,7 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
         super();
         this.builder = builder;
         this.cName = cName;
+        this.visibility = JsonTypeVisibility.PUBLIC; // Default visibility
     }
 
     /**
@@ -62,6 +65,7 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
         }
         this.builder = builder;
         this.cName = cName;
+        this.visibility = JsonTypeVisibility.PUBLIC; // Default visibility
     }
 
     /**
@@ -137,6 +141,38 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
     @Override
     public boolean isDefinitional() {
         return true;
+    }
+
+    /**
+     * Returns the visibility of this type.
+     *
+     * @return
+     */
+    @Override
+    public JsonTypeVisibility getVisibility() {
+        return visibility;
+    }
+
+    /**
+     * Sets the visibility of this type.
+     *
+     * @return itself
+     */
+    @Override
+    public JsonInter asPublic() {
+        this.visibility = JsonTypeVisibility.PUBLIC;
+        return this;
+    }
+
+    /**
+     * Sets the visibility of this type.
+     *
+     * @return itself
+     */
+    @Override
+    public JsonInter asProtected() {
+        this.visibility = JsonTypeVisibility.PROTECTED;
+        return this;
     }
 
     /**

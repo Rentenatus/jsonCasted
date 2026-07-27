@@ -9,6 +9,9 @@ The focus is on:
 - Controlled object construction via whitelists
 - An explicit model (Model → Description) and parsing (JSON → JsonNode → JsonClass via. Description → Java Objects via. Model)
 - EMF-like references and resources – but JSON-native
+- Multi-model support with linked resources and model-aware save files
+- Explicit class visibility (`PUBLIC`, `PROTECTED`, optional private/package variants)
+- Optional export lists for controlled handover of public submodels
 
 
 ## Support 🐾
@@ -25,6 +28,55 @@ If you like my projects, consider [supporting my work](https://github.com/sponso
 - References via `_woodLink`  
 - External files via `_woodProviders`  
 - Polymorphism via `_class` or inline type `(Type){...}`  
+
+---
+
+## Core concepts
+
+### Visibility
+
+Wood Json Jack distinguishes between the visibility of a class inside a model and the question whether that class is meant to be handed to other models.
+
+- `PUBLIC` means the class is part of the model namespace and may be used by content inside that model.
+- `PROTECTED` means the class stays internal to the model or to a controlled sub-context and should not be treated as a public handover type.
+- Additional variants such as `PRIVATE` or package-like visibility can be added later without changing the basic architecture.
+
+Visibility is therefore a property of `JsonClass` itself. It describes how the class behaves inside its defining model, not whether it is currently shared with other models.
+
+### Export
+
+Export is modeled separately from visibility. A class can be `PUBLIC` without automatically being part of the outward-facing API of a model.
+
+- `PUBLIC` answers: may this class exist and be referenced inside the model?
+- `export` answers: should this class be offered as a reusable part when a model, resource, or submodel is handed to another context?
+
+The export information should therefore live on the model description, for example as an export list of class names. This keeps export declarative, serializable, and independent from Java object identity. In practice, export is mainly a control and packaging mechanism for forwarding selected public parts of a model to other editors or save files.
+
+### Multi-model
+
+A `JsonModel` can reference additional repository or resource models. In many cases the technical coupling between resources is already achieved by `_woodLink` and a stable `linkId`; strict export handling is therefore not required for basic reference resolution.
+
+The value of the multi-model concept is mainly higher-level control:
+
+- separate namespaces for resource-local definitions,
+- optional modular handover of public submodels,
+- cleaner editor behavior for linked resources,
+- and a place to describe imports, aliases, and versioned model hints.
+
+This means linked resources can work even if their models do not fully know each other. Export becomes the explicit mechanism for controlled sharing, not the prerequisite for links.
+
+### Model description in save files
+
+`JsonModelDescription` is itself model data. Because Wood Json Jack always deserializes a file into generic tree nodes first, a save file may embed a special subtree such as `_model` that contains the model description or a model hint.
+
+That enables a two-phase workflow:
+
+1. Deserialize the JSON file into a generic node tree.
+2. Intercept special nodes such as `_model` or `_proxy`.
+3. Deserialize the `_model` subtree into a `JsonModelDescription`.
+4. Deserialize the remaining tree with that resolved description.
+
+This is not an EMF clone. It is a tree-first parsing architecture in which model metadata can be external, embedded, or both. The model version stays the same regardless of whether the description is stored outside the file or embedded into the save file as a bootstrap subtree.
 
 ---
 
@@ -500,22 +552,20 @@ This allows JSON literals to be mapped robustly to enum constants without relyin
 
 A model can be exported as a description. This description defines the structure of valid content and can be used in Wood Json Jack to create and edit arbitrary instances in a way that is conceptually similar to EMF-style model-driven editing.
 
-The important distinction is that a description is not just auxiliary metadata. In jsonCasted and Wood Json Jack, the Description level is itself part of the explicit modeling pipeline, alongside JsonNode, JsonClass, and object construction. 
-Because of that, the description can also be treated as a model in its own right.
+The important distinction is that a description is not just auxiliary metadata. In jsonCasted and Wood Json Jack, the Description level is itself part of the explicit modeling pipeline, alongside JsonNode, JsonClass, and object construction. Because of that, the description can also be treated as a model in its own right.
 
 This leads to a second level: a description of the description. When that higher-level description is loaded into Wood Json Jack, the editor is no longer limited to editing model instances. It can also edit the structure definitions that describe those instances.
 
 In practice, this means Wood Json Jack supports both of the following:
 
-Editing data that conforms to a model description.
+- Editing data that conforms to a model description.
+- Editing the model description itself, because that description is also represented as structured model data.
 
-Editing the model description itself, because that description is also represented as structured model data.
+This makes the system more than a lightweight EMF-like runtime for JSON resources, references, and polymorphic object graphs. It also turns Wood Json Jack into a model editor for models themselves: not only an editor for content, but an editor for the definitions behind that content.
 
-This makes the system more than a lightweight EMF-like runtime for JSON resources, references, and polymorphic object graphs. 
-It also turns Wood Json Jack into a model editor for models themselves: not only an editor for content, but an editor for the definitions behind that content.
+A save file may additionally embed a `_model` subtree that acts as a serialized `JsonModelDescription` or as a model hint for phase-2 parsing. Because files are parsed as generic node trees first, embedded model information can be intercepted before the rest of the tree is deserialized into typed content.
 
-The result is a self-describing modeling approach. A user can start with a domain model, export its description, use that description to create instances, and then move one level up by loading the description of that description to modify the modeling structure itself. 
-In that sense, Wood Json Jack is both a model-driven content editor and a meta-model editor.
+The result is a self-describing modeling approach. A user can start with a domain model, export its description, use that description to create instances, and then move one level up by loading the description of that description to modify the modeling structure itself. In that sense, Wood Json Jack is both a model-driven content editor and a meta-model editor.
 
 ---
 

@@ -6,11 +6,8 @@
 package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.debug.JsonDebugLevel;
-import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.writer.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.WriteStrategie;
-import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import static de.jare.jsoncasted.lang.JsonNodeType.ARRAY;
@@ -20,9 +17,6 @@ import static de.jare.jsoncasted.lang.JsonNodeType.NULL;
 import static de.jare.jsoncasted.lang.JsonNodeType.NUMBER;
 import static de.jare.jsoncasted.lang.JsonNodeType.OBJECT;
 import static de.jare.jsoncasted.lang.JsonNodeType.STRING;
-import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.model.item.JsonMap;
-import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +53,19 @@ public class NodeWriteWalker {
     public NodeWriteWalker(WriteStrategie strategie, WriteNodePath intentPath, JsonDebugLevel debugLevel) {
         this.strategie = strategie;
         this.intentPath = intentPath;
+        this.debugLevel = debugLevel;
+    }
+
+    /**
+     * Constructs an ObjectWriter instance with a specified indentation string.
+     *
+     * @param strategie
+     * @param intentString
+     * @param debugLevel The debug level for controlling debug output.
+     */
+    public NodeWriteWalker(WriteStrategie strategie, String intentString, JsonDebugLevel debugLevel) {
+        this.strategie = strategie;
+        this.intentPath = new WriteNodePath(intentString);
         this.debugLevel = debugLevel;
     }
 

@@ -19,6 +19,7 @@ import de.jare.jsoncasted.model.JsonCollectionType;
 import de.jare.jsoncasted.model.JsonEnumTemplate;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.model.JsonTypeVisibility;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
@@ -58,6 +59,7 @@ public class JsonClass implements JsonType {
     private final JsonModellClassBuilder builder;
     private boolean skippingNulls;
     private final JsonNodeType nodeType;
+    private JsonTypeVisibility visibility;
     private JsonClass parent;
     private JsonEnumTemplate[] valuesArray;
     private boolean definitional;
@@ -88,6 +90,7 @@ public class JsonClass implements JsonType {
         this.skippingNulls = false;
         this.parent = null;
         this.definitional = false;
+        this.visibility = JsonTypeVisibility.PUBLIC; // Default visibility
     }
 
     /**
@@ -119,6 +122,7 @@ public class JsonClass implements JsonType {
         this.keys = new ArrayList<>();
         this.parent = null;
         this.definitional = false;
+        this.visibility = JsonTypeVisibility.PUBLIC; // Default visibility
     }
 
     @Override
@@ -169,6 +173,38 @@ public class JsonClass implements JsonType {
             throw new IllegalArgumentException("A class cannot be both primitive and definitional at the same time.");
         }
         this.definitional = definitional;
+    }
+
+    /**
+     * Returns the visibility of this type.
+     *
+     * @return
+     */
+    @Override
+    public JsonTypeVisibility getVisibility() {
+        return visibility;
+    }
+
+    /**
+     * Sets the visibility of this type.
+     *
+     * @return itself
+     */
+    @Override
+    public JsonClass asPublic() {
+        this.visibility = JsonTypeVisibility.PUBLIC;
+        return this;
+    }
+
+    /**
+     * Sets the visibility of this type.
+     *
+     * @return itself
+     */
+    @Override
+    public JsonClass asProtected() {
+        this.visibility = JsonTypeVisibility.PROTECTED;
+        return this;
     }
 
     /**

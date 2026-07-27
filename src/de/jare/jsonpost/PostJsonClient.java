@@ -14,7 +14,7 @@ import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.io.JsonItemDefinition;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
-import de.jare.jsoncasted.io.JsonWriter;
+import de.jare.jsoncasted.io.JsonObjectWriter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,7 +33,7 @@ public class PostJsonClient {
         String post = "{}";
         boolean hasWrite = request != null && writeClass != null;
         if (hasWrite) try {
-            post = JsonWriter.writeToString(request, definition, writeClass);
+            post = JsonObjectWriter.writeToString(request, definition, writeClass);
         } catch (JsonParseException | IOException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
