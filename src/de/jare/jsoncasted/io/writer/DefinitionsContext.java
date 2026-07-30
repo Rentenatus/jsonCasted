@@ -82,6 +82,16 @@ public class DefinitionsContext {
     }
 
     /**
+     * Removes an object from candidates.
+     * 
+     * @param ob the object to remove
+     * @return {@code true} if candidates contained the specified element
+     */
+    public boolean removeCandidate(Object ob) {
+        return candidates.remove(ob);
+    }
+
+    /**
      * Gets the next unique ID from the atomic counter.
      *
      * @return the next ID value
@@ -105,4 +115,5 @@ public class DefinitionsContext {
     public void resetIdCounter() {
         idCounter.set(0);
     }
+
 }

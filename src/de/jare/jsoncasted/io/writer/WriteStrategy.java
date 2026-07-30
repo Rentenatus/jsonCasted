@@ -13,7 +13,7 @@ import de.jare.jsoncasted.model.item.JsonClass;
  *
  * @author Janusch Renteantus
  */
-public interface WriteStrategie {
+public interface WriteStrategy {
 
     public void writePath(WriteNodePath intentPath);
 

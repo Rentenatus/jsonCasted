@@ -9,10 +9,10 @@ import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.writer.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
-import de.jare.jsoncasted.io.writer.WriteStrategie;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.util.List;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
 
 /**
  *
@@ -29,7 +29,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
      * @param jType The JSON type used for serialization.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public RootObjectWriteWalker(WriteStrategie strategie, DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+    public RootObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         super(strategie, definitionsContext, jType, castingLevel, debugLevel);
     }
 
@@ -43,7 +43,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
      * @param intentString The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public RootObjectWriteWalker(WriteStrategie strategie, DefinitionsContext definitionsContext, JsonType jType, String intentString, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+    public RootObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, String intentString, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         super(strategie, definitionsContext, jType, intentString, castingLevel, debugLevel);
     }
 
@@ -57,7 +57,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
      * @param intentPath The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public RootObjectWriteWalker(WriteStrategie strategie, DefinitionsContext definitionsContext, JsonType jType, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+    public RootObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         super(strategie, definitionsContext, jType, intentPath, castingLevel, debugLevel);
     }
 

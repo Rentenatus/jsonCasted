@@ -7,7 +7,6 @@ package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
-import de.jare.jsoncasted.io.writer.WriteStrategie;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import static de.jare.jsoncasted.lang.JsonNodeType.ARRAY;
@@ -20,6 +19,7 @@ import static de.jare.jsoncasted.lang.JsonNodeType.STRING;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
 
 /**
  *
@@ -28,7 +28,7 @@ import java.util.Map;
 public class NodeWriteWalker {
 
     final WriteNodePath intentPath;
-    private final WriteStrategie strategie;
+    private final WriteStrategy strategie;
     private final JsonDebugLevel debugLevel;
 
     /**
@@ -37,7 +37,7 @@ public class NodeWriteWalker {
      * @param strategie
      * @param debugLevel The debug level for controlling debug output.
      */
-    public NodeWriteWalker(WriteStrategie strategie, JsonDebugLevel debugLevel) {
+    public NodeWriteWalker(WriteStrategy strategie, JsonDebugLevel debugLevel) {
         this.strategie = strategie;
         this.intentPath = new WriteNodePath("");
         this.debugLevel = debugLevel;
@@ -50,7 +50,7 @@ public class NodeWriteWalker {
      * @param intentPath
      * @param debugLevel The debug level for controlling debug output.
      */
-    public NodeWriteWalker(WriteStrategie strategie, WriteNodePath intentPath, JsonDebugLevel debugLevel) {
+    public NodeWriteWalker(WriteStrategy strategie, WriteNodePath intentPath, JsonDebugLevel debugLevel) {
         this.strategie = strategie;
         this.intentPath = intentPath;
         this.debugLevel = debugLevel;
@@ -63,7 +63,7 @@ public class NodeWriteWalker {
      * @param intentString
      * @param debugLevel The debug level for controlling debug output.
      */
-    public NodeWriteWalker(WriteStrategie strategie, String intentString, JsonDebugLevel debugLevel) {
+    public NodeWriteWalker(WriteStrategy strategie, String intentString, JsonDebugLevel debugLevel) {
         this.strategie = strategie;
         this.intentPath = new WriteNodePath(intentString);
         this.debugLevel = debugLevel;

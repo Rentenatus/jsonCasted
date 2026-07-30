@@ -9,8 +9,10 @@ package de.jare.jsoncasted.io;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.writer.DefinitionsContext;
-import de.jare.jsoncasted.io.writer.printer.PrintStrategie;
+import de.jare.jsoncasted.io.writer.strategy.DefinitionalStrategy;
+import de.jare.jsoncasted.io.writer.strategy.PrintStrategy;
 import de.jare.jsoncasted.io.writer.walker.RootObjectWriteWalker;
+import de.jare.jsoncasted.io.writer.walker.WoodMetadataInjection;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.io.ByteArrayOutputStream;
@@ -206,13 +208,22 @@ public class JsonObjectWriter {
      * @throws JsonParseException If parsing fails during serialization.
      */
     public static void write(Object ob, OutputStream out, JsonModel model, JsonCastingLevel castingLevel, JsonClass root, JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
-        PrintWriter prn = new PrintWriter(out);
-        PrintStrategie strategie = new PrintStrategie(prn);
-        DefinitionsContext definitionsContext = new DefinitionsContext(model);
-        new RootObjectWriteWalker(strategie, definitionsContext, root, castingLevel, debugLevel).write(ob);
+        final PrintWriter prn = new PrintWriter(out);
+        final PrintStrategy strategie = new PrintStrategy(prn);
+        final DefinitionsContext definitionsContext = new DefinitionsContext(model);
+        final WoodMetadataInjection injection = writeInjection(ob, definitionsContext, root, castingLevel, debugLevel);
+        final RootObjectWriteWalker walker = new RootObjectWriteWalker(strategie, definitionsContext, root, castingLevel, debugLevel);
+        walker.write(ob);
         prn.flush();
     }
 
+    protected static WoodMetadataInjection writeInjection(Object ob, DefinitionsContext definitionsContext, JsonClass root, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        final DefinitionalStrategy strategie = new DefinitionalStrategy(definitionsContext);
+        new RootObjectWriteWalker(strategie, definitionsContext, root, castingLevel, debugLevel).write(ob);
+        //return new WoodMetadataInjection(       );
+        return null;
+    }
+ 
     /**
      * Serializes an object and writes it to a file with debug level.
      *

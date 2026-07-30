@@ -9,7 +9,6 @@ import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.writer.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
-import de.jare.jsoncasted.io.writer.WriteStrategie;
 import de.jare.jsoncasted.io.writer.getter.GetterFieldInfo;
 import de.jare.jsoncasted.io.writer.getter.ObjectGetter;
 import de.jare.jsoncasted.model.JsonType;
@@ -17,6 +16,7 @@ import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
 import java.util.List;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
 
 /**
  *
@@ -25,7 +25,7 @@ import java.util.List;
 public class ObjectWriteWalker {
 
     final WriteNodePath intentPath;
-    final WriteStrategie strategie;
+    final WriteStrategy strategie;
     final ObjectGetter objectGetter;
     WoodMetadataInjection woodMetadata;
 
@@ -38,7 +38,7 @@ public class ObjectWriteWalker {
      * @param jType The JSON type used for serialization.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public ObjectWriteWalker(WriteStrategie strategie, DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+    public ObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         this.strategie = strategie;
         this.intentPath = new WriteNodePath("");
         this.objectGetter = new ObjectGetter(definitionsContext, castingLevel, jType, debugLevel);
@@ -55,7 +55,7 @@ public class ObjectWriteWalker {
      * @param intentString The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public ObjectWriteWalker(WriteStrategie strategie, DefinitionsContext definitionsContext, JsonType jType, String intentString, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+    public ObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, String intentString, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         this.strategie = strategie;
         this.intentPath = new WriteNodePath(intentString);
         this.objectGetter = new ObjectGetter(definitionsContext, castingLevel, jType, debugLevel);
@@ -72,7 +72,7 @@ public class ObjectWriteWalker {
      * @param intentPath The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public ObjectWriteWalker(WriteStrategie strategie, DefinitionsContext definitionsContext, JsonType jType, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+    public ObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         this.strategie = strategie;
         this.intentPath = intentPath;
         this.objectGetter = new ObjectGetter(definitionsContext, castingLevel, jType, debugLevel);
@@ -114,7 +114,7 @@ public class ObjectWriteWalker {
      * @param jClass The JSON class defining the object's structure.
      * @param ob The object to serialize.
      */
-    public void writeObject(final JsonClass jClass, final Object ob) {
+    public void writeObject(JsonClass jClass, final Object ob) {
         // Skip if already processed
         if (strategie.skippProzess(jClass, ob)) {
             return;

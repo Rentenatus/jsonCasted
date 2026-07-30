@@ -8,7 +8,7 @@
 package de.jare.jsoncasted.io;
 
 import de.jare.debug.JsonDebugLevel;
-import de.jare.jsoncasted.io.writer.printer.PrintStrategie;
+import de.jare.jsoncasted.io.writer.strategy.PrintStrategy;
 import de.jare.jsoncasted.io.writer.walker.NodeWriteWalker;
 import de.jare.jsoncasted.lang.JsonNode;
 import java.io.ByteArrayOutputStream;
@@ -88,7 +88,7 @@ public class JsonNodeWriter {
      */
     public static void write(JsonNode node, OutputStream out) throws IOException, JsonParseException {
         PrintWriter prn = new PrintWriter(out);
-        PrintStrategie strategie = new PrintStrategie(prn);
+        PrintStrategy strategie = new PrintStrategy(prn);
         new NodeWriteWalker(strategie, "", JsonDebugLevel.SIMPLE).writeNode(node);
         prn.flush();
 
@@ -106,7 +106,7 @@ public class JsonNodeWriter {
      */
     public static void write(JsonNode node, OutputStream out, JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
         PrintWriter prn = new PrintWriter(out);
-        PrintStrategie strategie = new PrintStrategie(prn);
+        PrintStrategy strategie = new PrintStrategy(prn);
         new NodeWriteWalker(strategie, "", debugLevel).writeNode(node);
         prn.flush();
     }

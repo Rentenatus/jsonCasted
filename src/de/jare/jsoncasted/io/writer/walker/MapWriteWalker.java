@@ -9,11 +9,11 @@ import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.writer.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
-import de.jare.jsoncasted.io.writer.WriteStrategie;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
 import java.util.Iterator;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
 
 /**
  *
@@ -33,7 +33,7 @@ public class MapWriteWalker extends ObjectWriteWalker {
      * @param intentPath The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public MapWriteWalker(WriteStrategie strategie, DefinitionsContext definitionsContext, JsonMap jMap, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+    public MapWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonMap jMap, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         super(strategie, definitionsContext, jMap, intentPath, castingLevel, debugLevel);
         this.jMap = jMap;
     }

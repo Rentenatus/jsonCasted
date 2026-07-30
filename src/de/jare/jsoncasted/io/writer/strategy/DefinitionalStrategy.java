@@ -1,24 +1,28 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+/* <copyright>
+ * Copyright (C) 2022 Janusch Rentenatus
+ * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
  */
-package de.jare.jsoncasted.io.writer.definitions;
+package de.jare.jsoncasted.io.writer.strategy;
 
 import de.jare.jsoncasted.io.writer.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
-import de.jare.jsoncasted.io.writer.WriteStrategie;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 
 /**
  *
- * @author Administrator
+ *
+ * @author Janusch Rentenatus
  */
-public class DefinitionalStrategie implements WriteStrategie {
+public class DefinitionalStrategy implements WriteStrategy {
 
     private final DefinitionsContext definitionsContext;
 
-    public DefinitionalStrategie(DefinitionsContext definitionsContext) {
+    public DefinitionalStrategy(DefinitionsContext definitionsContext) {
         this.definitionsContext = definitionsContext;
     }
 
@@ -38,8 +42,11 @@ public class DefinitionalStrategie implements WriteStrategie {
 
     @Override
     public void writeStart(JsonClass jClass, Object ob, boolean needsCast, boolean needsClassDef, WriteNodePath iString) {
-        if (jClass.isDefinitional()) {
+        if (jClass != null && jClass.isDefinitional()) {
             definitionsContext.addToFindings(ob);
+        } else if (definitionsContext.isInCandidates(ob)) {
+            definitionsContext.addToFindings(ob);
+            definitionsContext.removeCandidate(ob);
         } else {
             definitionsContext.addToCandidates(ob);
         }
@@ -95,7 +102,7 @@ public class DefinitionalStrategie implements WriteStrategie {
 
     @Override
     public void writeNodeValue(Object object, WriteNodePath iString) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

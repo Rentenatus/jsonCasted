@@ -9,11 +9,11 @@ import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.writer.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
-import de.jare.jsoncasted.io.writer.WriteStrategie;
 import de.jare.jsoncasted.io.writer.getter.ListGetter;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonMap;
 import java.util.Iterator;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
 
 /**
  *
@@ -22,7 +22,7 @@ import java.util.Iterator;
 public class ListWriteWalker {
 
     final WriteNodePath intentPath;
-    final WriteStrategie strategie;
+    final WriteStrategy strategie;
     final ListGetter listGetter;
     WoodMetadataInjection woodMetadata;
 
@@ -36,7 +36,7 @@ public class ListWriteWalker {
      * @param intentPath The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public ListWriteWalker(WriteStrategie strategie, DefinitionsContext definitionsContext, JsonType jType, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+    public ListWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         this.strategie = strategie;
         this.intentPath = intentPath;
         this.listGetter = new ListGetter(definitionsContext, jType, castingLevel, debugLevel);

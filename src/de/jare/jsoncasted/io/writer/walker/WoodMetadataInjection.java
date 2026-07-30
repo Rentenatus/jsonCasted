@@ -7,8 +7,8 @@ package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
-import de.jare.jsoncasted.io.writer.WriteStrategie;
 import de.jare.jsoncasted.lang.JsonResource;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
 
 /**
  *
@@ -39,7 +39,7 @@ public class WoodMetadataInjection {
         return woodMetadata != null && woodMetadata.hasToDo();
     }
 
-    public void popWood(WriteStrategie strategie, WriteNodePath iString, JsonDebugLevel debugLevel) {
+    public void popWood(WriteStrategy strategie, WriteNodePath iString, JsonDebugLevel debugLevel) {
         NodeWriteWalker reWriter = new NodeWriteWalker(strategie, iString, debugLevel);
         reWriter.writeNode(woodResource.getRoot());
         carried = true;
