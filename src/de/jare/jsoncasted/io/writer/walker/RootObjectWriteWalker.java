@@ -30,21 +30,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
      * @param debugLevel The debug level for controlling debug output.
      */
     public RootObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        super(strategie, definitionsContext, jType, castingLevel, debugLevel);
-    }
-
-    /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
-     *
-     * @param strategie
-     * @param definitionsContext
-     * @param castingLevel the casting level for serialization
-     * @param jType The JSON type used for serialization.
-     * @param intentString The indentation string for formatted output.
-     * @param debugLevel The debug level for controlling debug output.
-     */
-    public RootObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, String intentString, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        super(strategie, definitionsContext, jType, intentString, castingLevel, debugLevel);
+        super(strategie, definitionsContext, jType, null, null, castingLevel, debugLevel);
     }
 
     /**
@@ -58,7 +44,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
      * @param debugLevel The debug level for controlling debug output.
      */
     public RootObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        super(strategie, definitionsContext, jType, intentPath, castingLevel, debugLevel);
+        super(strategie, definitionsContext, jType, null, null, intentPath, castingLevel, debugLevel);
     }
 
     @Override
@@ -83,7 +69,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         List<?> myList = (List<?>) ob;
         if (myList.isEmpty()) {
             strategie.writePath(intentPath);
-            strategie.writeStartArray(ob, true, intentPath);
+            strategie.writeStartArray(null, ob, true, intentPath);
             strategie.writeEndArray(ob, true, false, intentPath);
             return;
         }

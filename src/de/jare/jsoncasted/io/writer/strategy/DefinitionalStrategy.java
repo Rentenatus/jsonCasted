@@ -13,8 +13,7 @@ import de.jare.jsoncasted.io.writer.WriteStrategy;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 
-/**
- *
+/** 
  *
  * @author Janusch Rentenatus
  */
@@ -41,19 +40,19 @@ public class DefinitionalStrategy implements WriteStrategy {
     }
 
     @Override
-    public void writeStart(JsonClass jClass, Object ob, boolean needsCast, boolean needsClassDef, WriteNodePath iString) {
-        if (jClass != null && jClass.isDefinitional()) {
-            definitionsContext.addToFindings(ob);
+    public void writeStart(JsonClass jClass, Object ob, JsonType parentType, Object parent, boolean needsCast, boolean needsClassDef, WriteNodePath iString) {
+        if (parent != null && parentType != null && parentType.isDefinitional()) {
+            definitionsContext.addToAssigned(ob, parent);
         } else if (definitionsContext.isInCandidates(ob)) {
-            definitionsContext.addToFindings(ob);
-            definitionsContext.removeCandidate(ob);
+            definitionsContext.moveToFindings(ob);
         } else {
             definitionsContext.addToCandidates(ob);
         }
+
     }
 
     @Override
-    public void writeStartArray(Object ob, boolean isPrimitive, WriteNodePath iString) {
+    public void writeStartArray(JsonType jTypeOrNull, Object ob, boolean isPrimitive, WriteNodePath iString) {
         //NoOp
     }
 
@@ -72,7 +71,7 @@ public class DefinitionalStrategy implements WriteStrategy {
         if (ob == null) {
             return true;
         }
-        return definitionsContext.isInFindings(ob) || definitionsContext.isInCandidates(ob);
+        return definitionsContext.isInAssigned(ob);
     }
 
     @Override

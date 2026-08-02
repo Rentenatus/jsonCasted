@@ -123,7 +123,7 @@ public class NodeWriteWalker {
      * @param iString The indentation string for formatted output.
      */
     protected void writeNodeObject(JsonNode node, WriteNodePath iString) {
-        strategie.writeStart(null, node, false, false, iString);
+        strategie.writeStart(null, node, null, null, false, false, iString);
         boolean isFollowing = false;
         boolean hasFieldKeys = false;
         try {
@@ -157,7 +157,7 @@ public class NodeWriteWalker {
      */
     public void writeNodeArray(JsonNode node, WriteNodePath iString) {
         if (node != null && node.getType() != JsonNodeType.ARRAY) {
-            strategie.writeStartArray(node, false, iString);
+            strategie.writeStartArray(null, node, false, iString);
             writeNode(node, iString); // fallback
             strategie.writeEndArray(node, false, true, iString);
         } else {
@@ -172,7 +172,7 @@ public class NodeWriteWalker {
      * @param iString The indentation string for formatted output.
      */
     protected void writeNodeArrayItems(JsonNode node, WriteNodePath iString) {
-        strategie.writeStartArray(node, false, iString);
+        strategie.writeStartArray(null, node, false, iString);
         boolean isFollowing = false;
         try {
             List<JsonNode> list = node.asArray();

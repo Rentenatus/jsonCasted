@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import de.jare.jsoncasted.io.writer.WriteStrategy;
 
 /**
+ *
  * Handles the serialization of JSON object structures. It converts objects into JSON format while maintaining
  * indentation, type information, and error handling.
  *
@@ -73,18 +74,18 @@ public class PrintStrategy implements WriteStrategy {
     }
 
     @Override
-    public void writeStart(JsonClass jClass, Object ob, boolean needsCast, boolean needsClassDef, WriteNodePath intentPath) {
-        if (needsCast) {
+    public void writeStart(JsonClass jClass, Object ob, JsonType parentType, Object parent, boolean needsCast, boolean needsClassDef, WriteNodePath intentPath) {
+        if (jClass != null && needsCast) {
             writeCast(jClass, ob, intentPath);
         }
         out.print('{');
-        if (needsClassDef) {
+        if (jClass != null && needsClassDef) {
             writeCastDef(jClass, ob, intentPath);
         }
     }
 
     @Override
-    public void writeStartArray(Object ob, boolean isPrimitive, WriteNodePath iString) {
+    public void writeStartArray(JsonType jTypeOrNull, Object ob, boolean isPrimitive, WriteNodePath iString) {
         out.print('[');
         if (isPrimitive) {
             out.println();

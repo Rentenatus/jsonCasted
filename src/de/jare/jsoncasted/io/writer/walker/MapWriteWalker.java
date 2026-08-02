@@ -14,6 +14,7 @@ import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
 import java.util.Iterator;
 import de.jare.jsoncasted.io.writer.WriteStrategy;
+import de.jare.jsoncasted.model.JsonType;
 
 /**
  *
@@ -29,12 +30,14 @@ public class MapWriteWalker extends ObjectWriteWalker {
      * @param strategie
      * @param definitionsContext
      * @param castingLevel the casting level for serialization
+     * @param parentType
+     * @param parent
      * @param jMap The JSON type used for serialization.
      * @param intentPath The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public MapWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonMap jMap, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        super(strategie, definitionsContext, jMap, intentPath, castingLevel, debugLevel);
+    public MapWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonMap jMap, JsonType parentType, Object parent, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        super(strategie, definitionsContext, jMap, parentType, parent, intentPath, castingLevel, debugLevel);
         this.jMap = jMap;
     }
 
@@ -84,7 +87,7 @@ public class MapWriteWalker extends ObjectWriteWalker {
                 if (jMap.isAsListOrArray()) {
                     writeList(jMap.getItemClass(), attr, iString);
                 } else {
-                    writeSingle(jMap.getItemClass(), attr, iString);
+                    writeSingle(jMap.getItemClass(), attr, jClass, ob, iString);
                 }
             }
         } finally {

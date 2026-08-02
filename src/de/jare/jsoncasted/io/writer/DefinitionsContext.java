@@ -6,14 +6,13 @@
 package de.jare.jsoncasted.io.writer;
 
 import de.jare.jsoncasted.model.JsonModel;
-import de.jare.jsoncasted.model.item.JsonDefinitions;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ *
+ * @author Janusch Renteantus
  */
 public class DefinitionsContext {
 
@@ -22,19 +21,12 @@ public class DefinitionsContext {
     // Atomic counter for generating unique IDs within this context.
     private final AtomicLong idCounter = new AtomicLong(0);
 
-    // The object definitions pre-baked during the first pass are stored here.
-    private final Map<JsonDefinitions, Object> woodDefinitions = new HashMap<>();
-
-    // All objects found that are candidates for a reference ID are collected here.
-    // Unless they are already in the pre-baked map.
-    private final Set<Object> candidates = new HashSet<>();
-
-    // All objects found that are going to be serialized are collected here. They
-    // will be removed from the set of candidates.
-    private final Set<Object> findings = new HashSet<>();
+    // All objects found that are candidates for a reference ID or found that are going to be serialized are collected here. They
+    private final Map<Object, DefinitionsContextObjectRecord> recordMap;
 
     public DefinitionsContext(de.jare.jsoncasted.model.JsonModel model) {
         this.model = model;
+        this.recordMap = new IdentityHashMap<>();
     }
 
     public JsonModel getModel() {
@@ -48,7 +40,11 @@ public class DefinitionsContext {
      * @return true if the object is in findings
      */
     public boolean isInFindings(Object ob) {
-        return findings.contains(ob);
+        DefinitionsContextObjectRecord record = recordMap.get(ob);
+        if (record == null) {
+            return false;
+        }
+        return record.isFinding();
     }
 
     /**
@@ -58,7 +54,25 @@ public class DefinitionsContext {
      * @return true if the object is in candidates
      */
     public boolean isInCandidates(Object ob) {
-        return candidates.contains(ob);
+        DefinitionsContextObjectRecord record = recordMap.get(ob);
+        if (record == null) {
+            return false;
+        }
+        return record.isCandidate();
+    }
+
+    /**
+     * Checks if an object is already in candidates.
+     *
+     * @param ob the object to check
+     * @return true if the object is in candidates
+     */
+    public boolean isInAssigned(Object ob) {
+        DefinitionsContextObjectRecord record = recordMap.get(ob);
+        if (record == null) {
+            return false;
+        }
+        return record.isAssigned();
     }
 
     /**
@@ -67,8 +81,10 @@ public class DefinitionsContext {
      * @param ob the object to add
      * @return true if the object was added (was not already present)
      */
-    public boolean addToFindings(Object ob) {
-        return findings.add(ob);
+    public DefinitionsContextObjectRecord addToFindings(Object ob) {
+        DefinitionsContextObjectRecord record = getOrCreate(ob);
+        record.asFinding();
+        return record;
     }
 
     /**
@@ -77,18 +93,57 @@ public class DefinitionsContext {
      * @param ob the object to add
      * @return true if the object was added (was not already present)
      */
-    public boolean addToCandidates(Object ob) {
-        return candidates.add(ob);
+    public DefinitionsContextObjectRecord addToCandidates(Object ob) {
+        DefinitionsContextObjectRecord record = getOrCreate(ob);
+        record.asCandidate();
+        return record;
+    }
+
+    public DefinitionsContextObjectRecord moveToFindings(Object ob) {
+        DefinitionsContextObjectRecord record = recordMap.get(ob);
+        if (record == null) {
+            return null;
+        }
+        record.asFinding();
+        return record;
+    }
+
+    public DefinitionsContextObjectRecord moveToAssigned(Object ob, Object parent) {
+        DefinitionsContextObjectRecord record = recordMap.get(ob);
+        if (record == null) {
+            return null;
+        }
+        record.setContainer(parent);
+        record = getOrCreate(parent);
+        record.asContainer();
+        return record;
+    }
+
+    public DefinitionsContextObjectRecord addToAssigned(Object ob, Object parent) {
+        DefinitionsContextObjectRecord record = getOrCreate(ob);
+        record.setContainer(parent);
+        record = getOrCreate(parent);
+        record.asContainer();
+        return record;
+    }
+
+    public DefinitionsContextObjectRecord getOrCreate(Object ob) {
+        DefinitionsContextObjectRecord record = recordMap.get(ob);
+        if (record == null) {
+            record = new DefinitionsContextObjectRecord(ob, nextId());
+            recordMap.put(ob, record);
+        }
+        return record;
     }
 
     /**
-     * Removes an object from candidates.
-     * 
+     * Removes an object from map.
+     *
      * @param ob the object to remove
      * @return {@code true} if candidates contained the specified element
      */
-    public boolean removeCandidate(Object ob) {
-        return candidates.remove(ob);
+    public DefinitionsContextObjectRecord remove(Object ob) {
+        return recordMap.remove(ob);
     }
 
     /**
