@@ -28,18 +28,16 @@ import java.util.Iterator;
  * Repository model that extends JsonModel and implements JsonRepoEntity.
  *
  * <p>
- * This model is used for managing types from external JSON resources, ensuring
- * that all registered classes implement the JsonRepoEntity interface for
- * cross-resource referencing support.</p>
+ * This model is used for managing types from external JSON resources, ensuring that all registered classes implement
+ * the JsonRepoEntity interface for cross-resource referencing support.</p>
  *
  * @author Janusch Rentenatus
  */
-public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
+public class JsonRepoModel extends JsonModel {
 
     /**
-     * Constructs a JsonRepoModel with the specified model name. Creates a
-     * repository model that can only contain JsonClass instances whose
-     * underlying classes implement JsonRepoEntity.
+     * Constructs a JsonRepoModel with the specified model name. Creates a repository model that can only contain
+     * JsonClass instances whose underlying classes implement JsonRepoEntity.
      *
      * @param mName The name of the repository model.
      */
@@ -48,8 +46,8 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
     }
 
     /**
-     * Recursively adds a JSON type and all its referenced types to the model.
-     * Handles JsonEnum, JsonInter, and JsonClass types appropriately.
+     * Recursively adds a JSON type and all its referenced types to the model. Handles JsonEnum, JsonInter, and
+     * JsonClass types appropriately.
      *
      * @param parent Parent model that knows recursive JsonType.
      * @param jType The JSON type to add recursively.
@@ -95,13 +93,11 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
     /**
      * Populates the model with basic data types used in JSON processing.
      * <p>
-     * This override adds the same basic types as
-     * {@link JsonModel#addBasicModel()} but uses super.addClass() to bypass the
-     * JsonRepoEntity validation.</p>
+     * This override adds the same basic types as {@link JsonModel#addBasicModel()} but uses super.addClass() to bypass
+     * the JsonRepoEntity validation.</p>
      * <p>
-     * Registers primitive wrapper types (String, Integer, Long, Float, Double,
-     * Boolean) and their primitive counterparts (int, long, float, double,
-     * boolean).</p>
+     * Registers primitive wrapper types (String, Integer, Long, Float, Double, Boolean) and their primitive
+     * counterparts (int, long, float, double, boolean).</p>
      */
     @Override
     public void addBasicModel() {
@@ -119,17 +115,18 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
     }
 
     /**
-     * Creates a new JsonClass for representing a JsonRepo with the specified
-     * content type.
+     * Creates a new JsonClass for representing a JsonRepo with the specified content type.
      *
      * @param repoName Name of this repo.
      * @param repoContent The interface type for the repository contents.
      * @return A JsonClass configured for JsonRepo serialization.
      */
-    public JsonClass newJsonRepo(String repoName, JsonInter repoContent) {
-        JsonClass repo = newJsonReflectIndividually(JsonRepo.class, "JsonRepo'" + repoName + "'");
+    public JsonClass newJsonRepo(String repoName, JsonType repoContent) {
+        JsonClass repo = newJsonReflectIndividually(JsonRepo.class, "JsonRepo/"+repoContent.getcName());
         repo.addCParam("repoName", getJsonClass("String"));
         repo.addField("contents", repoContent, LIST);
+        repo.addField("subRepos", repo, LIST);
+        repo.setDefinitional(true);
         return repo;
     }
 }

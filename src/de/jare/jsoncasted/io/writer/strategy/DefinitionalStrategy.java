@@ -7,13 +7,13 @@
  */
 package de.jare.jsoncasted.io.writer.strategy;
 
-import de.jare.jsoncasted.io.writer.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.WriteStrategy;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 
-/** 
+/**
  *
  * @author Janusch Rentenatus
  */
@@ -42,11 +42,11 @@ public class DefinitionalStrategy implements WriteStrategy {
     @Override
     public void writeStart(JsonClass jClass, Object ob, JsonType parentType, Object parent, boolean needsCast, boolean needsClassDef, WriteNodePath iString) {
         if (parent != null && parentType != null && parentType.isDefinitional()) {
-            definitionsContext.addToAssigned(ob, parent);
+            definitionsContext.addToAssigned(jClass, ob, parentType, parent);
         } else if (definitionsContext.isInCandidates(ob)) {
             definitionsContext.moveToFindings(ob);
         } else {
-            definitionsContext.addToCandidates(ob);
+            definitionsContext.addToCandidates(jClass, ob);
         }
 
     }

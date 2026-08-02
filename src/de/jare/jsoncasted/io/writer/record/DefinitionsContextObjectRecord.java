@@ -3,8 +3,9 @@
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
  */
-package de.jare.jsoncasted.io.writer;
+package de.jare.jsoncasted.io.writer.record;
 
+import de.jare.jsoncasted.model.JsonType;
 import java.util.Objects;
 
 /**
@@ -20,6 +21,7 @@ public class DefinitionsContextObjectRecord {
         ASSIGNED
     }
     private final Object object;
+    private final JsonType jType;
     private long localId = -1;
     private Object container = null;
     private boolean isContainer = false;
@@ -29,13 +31,19 @@ public class DefinitionsContextObjectRecord {
 
     private Disposition disposition = Disposition.UNKNOWN;
 
-    public DefinitionsContextObjectRecord(Object object) {
+    public DefinitionsContextObjectRecord(JsonType jType, Object object) {
+        this.jType = jType;
         this.object = object;
     }
 
-    public DefinitionsContextObjectRecord(Object object, long localId) {
+    public DefinitionsContextObjectRecord(JsonType jType, Object object, long localId) {
+        this.jType = jType;
         this.object = object;
         this.localId = localId;
+    }
+
+    public JsonType getJsonType() {
+        return jType;
     }
 
     public Object getObject() {
@@ -50,7 +58,7 @@ public class DefinitionsContextObjectRecord {
         this.localId = localId;
     }
 
-    public Object geContainer() {
+    public Object getContainer() {
         return container;
     }
 

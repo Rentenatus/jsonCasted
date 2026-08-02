@@ -20,7 +20,6 @@ import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonRepo;
-import de.jare.jsoncasted.model.JsonRepoEntity;
 import de.jare.jsoncasted.model.JsonRepoModel;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import java.io.File;
@@ -219,7 +218,7 @@ public class TestBoxNGTest2 {
         }
         System.out.println();
         System.out.println("Target=============================================== Comment");
-        for (JsonRepoEntity elem : root.getContents()) {
+        for (Object elem : root.getContents()) {
             System.out.println("repo.elem  > " + ((ValueInterface) elem).getText());
         }
 

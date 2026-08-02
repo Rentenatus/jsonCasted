@@ -3,9 +3,11 @@
  * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
  */
-package de.jare.jsoncasted.io.writer;
+package de.jare.jsoncasted.io.writer.record;
 
 import de.jare.jsoncasted.model.JsonModel;
+import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.model.item.JsonClass;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -31,6 +33,10 @@ public class DefinitionsContext {
 
     public JsonModel getModel() {
         return model;
+    }
+
+    Map<Object, DefinitionsContextObjectRecord> getRecordMap() {
+        return recordMap;
     }
 
     /**
@@ -78,11 +84,12 @@ public class DefinitionsContext {
     /**
      * Adds an object to findings.
      *
+     * @param jType
      * @param ob the object to add
      * @return true if the object was added (was not already present)
      */
-    public DefinitionsContextObjectRecord addToFindings(Object ob) {
-        DefinitionsContextObjectRecord record = getOrCreate(ob);
+    public DefinitionsContextObjectRecord addToFindings(JsonClass jType, Object ob) {
+        DefinitionsContextObjectRecord record = getOrCreate(jType, ob);
         record.asFinding();
         return record;
     }
@@ -90,11 +97,12 @@ public class DefinitionsContext {
     /**
      * Adds an object to candidates.
      *
+     * @param jType
      * @param ob the object to add
      * @return true if the object was added (was not already present)
      */
-    public DefinitionsContextObjectRecord addToCandidates(Object ob) {
-        DefinitionsContextObjectRecord record = getOrCreate(ob);
+    public DefinitionsContextObjectRecord addToCandidates(JsonType jType, Object ob) {
+        DefinitionsContextObjectRecord record = getOrCreate(jType, ob);
         record.asCandidate();
         return record;
     }
@@ -108,29 +116,29 @@ public class DefinitionsContext {
         return record;
     }
 
-    public DefinitionsContextObjectRecord moveToAssigned(Object ob, Object parent) {
+    public DefinitionsContextObjectRecord moveToAssigned(Object ob, JsonType parentType, Object parent) {
         DefinitionsContextObjectRecord record = recordMap.get(ob);
         if (record == null) {
             return null;
         }
         record.setContainer(parent);
-        record = getOrCreate(parent);
+        record = getOrCreate(parentType, parent);
         record.asContainer();
         return record;
     }
 
-    public DefinitionsContextObjectRecord addToAssigned(Object ob, Object parent) {
-        DefinitionsContextObjectRecord record = getOrCreate(ob);
+    public DefinitionsContextObjectRecord addToAssigned(JsonType jType, Object ob, JsonType parentType, Object parent) {
+        DefinitionsContextObjectRecord record = getOrCreate(jType, ob);
         record.setContainer(parent);
-        record = getOrCreate(parent);
+        record = getOrCreate(parentType, parent);
         record.asContainer();
         return record;
     }
 
-    public DefinitionsContextObjectRecord getOrCreate(Object ob) {
+    public DefinitionsContextObjectRecord getOrCreate(JsonType jType, Object ob) {
         DefinitionsContextObjectRecord record = recordMap.get(ob);
         if (record == null) {
-            record = new DefinitionsContextObjectRecord(ob, nextId());
+            record = new DefinitionsContextObjectRecord(jType, ob, nextId());
             recordMap.put(ob, record);
         }
         return record;

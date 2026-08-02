@@ -6,15 +6,12 @@
  */
 package de.jare.impltest;
 
-import de.jare.jsoncasted.model.JsonRepoEntity;
-
 /**
- * Interface for value objects that can provide text representation. All test
- * value classes implement this interface.
+ * Interface for value objects that can provide text representation. All test value classes implement this interface.
  *
  * @author Janusch Rentenatus
  */
-public interface ValueInterface extends JsonRepoEntity {
+public interface ValueInterface {
 
     /**
      * Returns the text representation of this value.

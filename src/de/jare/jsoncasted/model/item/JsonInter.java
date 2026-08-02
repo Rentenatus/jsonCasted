@@ -79,11 +79,6 @@ public class JsonInter extends ArrayList<JsonClass> implements JsonType {
         }
     }
 
-    public boolean add(JsonClass jClass) {
-        jClass.setDefinitional(true);
-        return super.add(jClass);
-    }
-
     /**
      * Retrieves the name of the interface.
      *

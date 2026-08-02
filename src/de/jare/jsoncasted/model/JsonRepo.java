@@ -12,15 +12,16 @@ import java.util.List;
 /**
  * Repository container for storing collections of {@link JsonRepoEntity} instances.
  * <p>
- * This class represents a named repository that can hold multiple entities
- * and is used for organizing and managing external JSON resources.
+ * This class represents a named repository that can hold multiple entities and is used for organizing and managing
+ * external JSON resources.
  * </p>
  *
  * @author Janusch Rentenatus
  */
-public class JsonRepo implements JsonRepoEntity {
+public class JsonRepo {
 
-    private List<JsonRepoEntity> contents;
+    private List<JsonRepo> subRepos;
+    private List<Object> contents;
     private String repoName;
 
     /**
@@ -38,11 +39,13 @@ public class JsonRepo implements JsonRepoEntity {
      * Creates a JsonRepo instance with the specified contents.
      *
      * @param contents The list of entities to store in the repository.
+     * @param subRepos
      * @return A new JsonRepo instance with the specified contents.
      */
-    public static JsonRepo copyRepo(List<JsonRepoEntity> contents) {
+    public static JsonRepo copyRepo(List<Object> contents, List<JsonRepo> subRepos) {
         JsonRepo ret = new JsonRepo();
         ret.setContents(new ArrayList<>(contents));
+        ret.setSubRepos(new ArrayList<>(subRepos));
         return ret;
     }
 
@@ -51,6 +54,7 @@ public class JsonRepo implements JsonRepoEntity {
      */
     public JsonRepo() {
         this.contents = new ArrayList<>();
+        this.subRepos = new ArrayList<>();
         this.repoName = "";
     }
 
@@ -61,6 +65,7 @@ public class JsonRepo implements JsonRepoEntity {
      */
     public JsonRepo(String repoName) {
         this.contents = new ArrayList<>();
+        this.subRepos = new ArrayList<>();
         this.repoName = repoName;
     }
 
@@ -69,7 +74,7 @@ public class JsonRepo implements JsonRepoEntity {
      *
      * @return The list of JsonRepoEntity instances.
      */
-    public List<JsonRepoEntity> getContents() {
+    public List<Object> getContents() {
         return contents;
     }
 
@@ -78,8 +83,16 @@ public class JsonRepo implements JsonRepoEntity {
      *
      * @param contents The list of JsonRepoEntity instances to store.
      */
-    public void setContents(List<JsonRepoEntity> contents) {
+    public void setContents(List<Object> contents) {
         this.contents = contents;
+    }
+
+    public List<JsonRepo> getSubRepos() {
+        return subRepos;
+    }
+
+    public void setSubRepos(List<JsonRepo> subRepos) {
+        this.subRepos = subRepos;
     }
 
     /**
@@ -98,6 +111,14 @@ public class JsonRepo implements JsonRepoEntity {
      */
     public void setRepoName(String repoName) {
         this.repoName = repoName;
+    }
+
+    public void addItem(Object item) {
+        this.contents.add(item);
+    }
+
+    public void addSubRepo(JsonRepo subRepo) {
+        this.subRepos.add(subRepo);
     }
 
 }

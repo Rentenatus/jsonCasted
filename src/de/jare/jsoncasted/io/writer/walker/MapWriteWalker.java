@@ -7,7 +7,7 @@ package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.writer.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.item.JsonClass;
