@@ -136,7 +136,10 @@ public class ObjectGetter {
             JsonClass keyClass = jMap.getItemClass();
             return keyClass;
         }
-        JsonClass jClass = definitionsContext.getModel().getJsonClass(ob.getClass());
+        JsonClass jClass = jType == null ? null : jType.getDirectClass();
+        if (jClass == null) {
+            jClass = definitionsContext.getModel().getJsonClass(ob.getClass());
+        }
         if (jClass == null) {
             final String msg = "No description found for " + ob.getClass().getTypeName() + ".";
             final NullPointerException ex = new NullPointerException(msg);

@@ -16,6 +16,7 @@ import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.JsonTypeVisibility;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -144,7 +145,18 @@ public class JsonUnknown implements JsonInter {
      */
     @Override
     public Object build(BuilderService builderService, Iterator<JsonItem> listIterator, boolean asList, int size) throws JsonBuildException {
-        throw new IllegalStateException();
+        if (size == 0) {
+            return null;
+        }
+        ArrayList<Object> list = new ArrayList<>();
+        while (listIterator.hasNext()) {
+            final JsonItem next = listIterator.next();
+            list.add(next.buildInstance(builderService));
+        }
+        if (asList) {
+            return list;
+        }
+        return list.toArray();
     }
 
     /**

@@ -125,21 +125,21 @@ public class JsonObjectConverter {
      * @param service The convert service for accessing resources.
      * @throws JsonParseException If node conversion setup fails.
      */
-    JsonObjectConverter(JsonNode node, JsonTypeDescriptor contextClass,
+    JsonObjectConverter(JsonNode node, JsonTypeDescriptor hintContextClass,
             ConvertService service) throws JsonParseException {
 
         this.values = node.asObjectValues();
-        if (contextClass == null && values != null) {
+        this.contextClass = hintContextClass;
+        if (values != null) {
             final JsonNode cast = values.get(TERM_CLASS);
             if (cast != null) {
-                contextClass = service.getType(cast.asText());
+                this.contextClass = service.getType(cast.asText());
             }
         }
         node.setJsonDescriptor(contextClass);
         if (contextClass == null) {
             throw new JsonParseException("No Class.");
         }
-        this.contextClass = contextClass;
         this.myObject = new JsonObject(contextClass);
         this.service = service;
     }
