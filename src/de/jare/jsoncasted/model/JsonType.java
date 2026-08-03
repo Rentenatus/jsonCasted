@@ -74,14 +74,14 @@ public interface JsonType {
      *
      * @return {@code true} if this is a primitive type, {@code false} otherwise.
      */
-    public boolean isPrimitive();
+    public boolean isBoxOrPrimitive();
 
     /**
-     * Recursive types has been stroed in definitions, not in containments.
+     * Reflective types can been stroed in definitions and in repos.
      *
      * @return {@code true} if this is a definitional type, {@code false} otherwise.
      */
-    public boolean isDefinitional();
+    public boolean isReflective();
 
     /**
      * Returns the visibility of this type.

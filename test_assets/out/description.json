@@ -24,7 +24,7 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "recursive": true,
+      "recursive": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -124,7 +124,7 @@
         "nodeType": "OBJECT",
         "skippingNulls": false,
         "primitive": false,
-        "recursive": true,
+        "recursive": false,
         "mappingAllFields":  null,
         "parent":  null
       }
@@ -168,6 +168,15 @@
       },
       "parent":  null
     },
+    "Object": {
+      "typeName": "Object",
+      "nodeType": "OBJECT",
+      "skippingNulls": false,
+      "primitive": false,
+      "recursive": false,
+      "mappingAllFields":  null,
+      "parent":  null
+    },
     "Boolean": {
       "typeName": "Boolean",
       "nodeType": "BOOLEAN",
@@ -182,7 +191,7 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "recursive": true,
+      "recursive": false,
       "mappingAllFields":  null,
       "parent":  null
     }

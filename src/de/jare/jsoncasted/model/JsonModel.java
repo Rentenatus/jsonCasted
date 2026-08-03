@@ -251,7 +251,7 @@ public class JsonModel {
      * @param inter The JSON interface to register.
      */
     public void addInterface(JsonInter inter) {
-        for (JsonClass jc : inter) {
+        for (JsonClass jc : inter.iterable()) {
             if (classes.containsKey(jc.getcName())) {
                 continue;
             }
@@ -392,17 +392,18 @@ public class JsonModel {
      * Integer, Long, Float, Double, Boolean) and their primitive counterparts (int, long, float, double, boolean).
      */
     public void addBasicModel() {
-        addClass(new JsonClass("String", JsonNodeType.STRING, new JsonStringBuilder()).asProtected());
-        addClass(new JsonClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder()).asProtected());
-        addClass(new JsonClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder()).asProtected());
-        addClass(new JsonClass("Float", JsonNodeType.NUMBER, new JsonFloatObjBuilder()).asProtected());
-        addClass(new JsonClass("Double", JsonNodeType.NUMBER, new JsonDoubleObjBuilder()).asProtected());
-        addClass(new JsonClass("Boolean", JsonNodeType.BOOLEAN, new JsonBooleanObjBuilder()).asProtected());
-        addClass(new JsonClass("int", JsonNodeType.LONG, new JsonIntBuilder()).asProtected());
-        addClass(new JsonClass("long", JsonNodeType.LONG, new JsonLongBuilder()).asProtected());
-        addClass(new JsonClass("float", JsonNodeType.NUMBER, new JsonFloatBuilder()).asProtected());
-        addClass(new JsonClass("double", JsonNodeType.NUMBER, new JsonDoubleBuilder()).asProtected());
-        addClass(new JsonClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder()).asProtected());
+        addInterface(new JsonUnknown("Object"));
+        addClass(new JsonClass("String", JsonNodeType.STRING, new JsonStringBuilder()));
+        addClass(new JsonClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder()));
+        addClass(new JsonClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder()));
+        addClass(new JsonClass("Float", JsonNodeType.NUMBER, new JsonFloatObjBuilder()));
+        addClass(new JsonClass("Double", JsonNodeType.NUMBER, new JsonDoubleObjBuilder()));
+        addClass(new JsonClass("Boolean", JsonNodeType.BOOLEAN, new JsonBooleanObjBuilder()));
+        addClass(new JsonClass("int", JsonNodeType.LONG, new JsonIntBuilder()));
+        addClass(new JsonClass("long", JsonNodeType.LONG, new JsonLongBuilder()));
+        addClass(new JsonClass("float", JsonNodeType.NUMBER, new JsonFloatBuilder()));
+        addClass(new JsonClass("double", JsonNodeType.NUMBER, new JsonDoubleBuilder()));
+        addClass(new JsonClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder()));
     }
 
     public List<String> getExports() {
@@ -738,7 +739,7 @@ public class JsonModel {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName();
         }
-        final JsonInter ret = new JsonInter(cNameOrNull, new JsonReflectBuilder(clazz), jClass);
+        final JsonInter ret = new JsonInterface(cNameOrNull, new JsonReflectBuilder(clazz), jClass);
         interfaces.put(ret.getcName(), ret);
         return ret;
     }
@@ -970,7 +971,7 @@ public class JsonModel {
         }
 
         for (JsonInter jsonInter : orderedInterfaces) {
-            for (JsonClass next : jsonInter) {
+            for (JsonClass next : jsonInter.iterable()) {
                 if (!context.containsType(next.getcName())) {
                     context.addType(next.describeHead(context));
                     orderedClasses.add(next);

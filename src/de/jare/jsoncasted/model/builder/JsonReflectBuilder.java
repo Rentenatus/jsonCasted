@@ -305,7 +305,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
      * @return false, indicating that reflection-based objects are not primitive.
      */
     @Override
-    public boolean isPrimitive() {
+    public boolean isBoxOrPrimitive() {
         return false;
     }
 

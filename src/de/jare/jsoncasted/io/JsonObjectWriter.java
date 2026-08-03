@@ -8,7 +8,7 @@
 package de.jare.jsoncasted.io;
 
 import de.jare.debug.JsonDebugLevel;
-import de.jare.jsoncasted.io.writer.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.strategy.DefinitionalStrategy;
 import de.jare.jsoncasted.io.writer.strategy.PrintStrategy;
 import de.jare.jsoncasted.io.writer.walker.RootObjectWriteWalker;
@@ -220,8 +220,7 @@ public class JsonObjectWriter {
     protected static WoodMetadataInjection writeInjection(Object ob, DefinitionsContext definitionsContext, JsonClass root, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         final DefinitionalStrategy strategie = new DefinitionalStrategy(definitionsContext);
         new RootObjectWriteWalker(strategie, definitionsContext, root, castingLevel, debugLevel).write(ob);
-        //return new WoodMetadataInjection(       );
-        return null;
+       return new WoodMetadataInjection(  null      );
     }
  
     /**

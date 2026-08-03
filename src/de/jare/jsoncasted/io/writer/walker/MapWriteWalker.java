@@ -30,14 +30,13 @@ public class MapWriteWalker extends ObjectWriteWalker {
      * @param strategie
      * @param definitionsContext
      * @param castingLevel the casting level for serialization
-     * @param parentType
      * @param parent
      * @param jMap The JSON type used for serialization.
      * @param intentPath The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public MapWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonMap jMap, JsonType parentType, Object parent, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        super(strategie, definitionsContext, jMap, parentType, parent, intentPath, castingLevel, debugLevel);
+    public MapWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonMap jMap, Object parent, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        super(strategie, definitionsContext, jMap, null, parent, intentPath, castingLevel, debugLevel);
         this.jMap = jMap;
     }
 
@@ -85,9 +84,9 @@ public class MapWriteWalker extends ObjectWriteWalker {
                 isFollowing = true;
 
                 if (jMap.isAsListOrArray()) {
-                    writeList(jMap.getItemClass(), attr, iString);
+                    writeList(jMap.getItemClass(), attr, null, null, iString);
                 } else {
-                    writeSingle(jMap.getItemClass(), attr, jClass, ob, iString);
+                    writeSingle(jMap.getItemClass(), attr, null, null, iString);
                 }
             }
         } finally {

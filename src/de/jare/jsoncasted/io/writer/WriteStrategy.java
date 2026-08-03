@@ -7,6 +7,7 @@ package de.jare.jsoncasted.io.writer;
 
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.item.JsonField;
 
 /**
  *
@@ -16,7 +17,7 @@ public interface WriteStrategy {
 
     public void writePath(WriteNodePath intentPath);
 
-    public void writeStart(JsonClass jClassOrNull, Object ob, JsonType parentType, Object parent, boolean needsCast, boolean needsClassDef, WriteNodePath iString);
+    public void writeStart(JsonClass jClassOrNull, Object ob, JsonField parentField, Object parent, boolean needsCast, boolean needsClassDef, WriteNodePath iString);
 
     public void writeStartArray(JsonType jTypeOrNull, Object ob, boolean isPrimitive, WriteNodePath iString);
 

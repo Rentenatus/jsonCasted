@@ -45,7 +45,8 @@ public class JsonTypeDescriptor {
     private JsonNodeType nodeType;
     private boolean skippingNulls;
     private boolean primitive;
-    private boolean recursive;
+    private boolean reflective;
+
     /**
      * A mask type for all fields, that contains this class for wood editor.
      *
@@ -242,7 +243,7 @@ public class JsonTypeDescriptor {
      * @return {@code true} if recursive.
      */
     public boolean isRecursive() {
-        return recursive;
+        return reflective;
     }
 
     /**
@@ -314,11 +315,11 @@ public class JsonTypeDescriptor {
     /**
      * Sets whether this is a recursive for chaining.
      *
-     * @param recursive whether this is recursive.
+     * @param reflective whether this is reflective.
      * @return this type descriptor.
      */
-    public JsonTypeDescriptor withRecursive(boolean recursive) {
-        this.recursive = recursive;
+    public JsonTypeDescriptor withReflective(boolean reflective) {
+        this.reflective = reflective;
         return this;
     }
 
@@ -381,7 +382,7 @@ public class JsonTypeDescriptor {
                 + "typeName=" + typeName
                 + ", nodeType=" + nodeType
                 + ", primitive=" + primitive
-                + ", recursive=" + recursive
+                + ", reflective=" + reflective
                 + ", ctor=" + constructorParams.size()
                 + ", fields=" + fields.size()
                 + "]";

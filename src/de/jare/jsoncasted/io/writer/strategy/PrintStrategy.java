@@ -13,6 +13,7 @@ import de.jare.jsoncasted.model.item.JsonClass;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import de.jare.jsoncasted.io.writer.WriteStrategy;
+import de.jare.jsoncasted.model.item.JsonField;
 
 /**
  *
@@ -74,7 +75,7 @@ public class PrintStrategy implements WriteStrategy {
     }
 
     @Override
-    public void writeStart(JsonClass jClass, Object ob, JsonType parentType, Object parent, boolean needsCast, boolean needsClassDef, WriteNodePath intentPath) {
+    public void writeStart(JsonClass jClass, Object ob, JsonField parentField, Object parent, boolean needsCast, boolean needsClassDef, WriteNodePath intentPath) {
         if (jClass != null && needsCast) {
             writeCast(jClass, ob, intentPath);
         }

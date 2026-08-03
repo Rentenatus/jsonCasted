@@ -17,17 +17,18 @@ import java.util.Map;
 /**
  * Interface for builders that create Java objects from JSON structures.
  *
- * <p>Implementations of this interface define how to instantiate and populate
- * Java objects from JSON data. Each builder handles a specific type of JSON
- * value (primitives, objects, arrays, lists, etc.).</p>
+ * <p>
+ * Implementations of this interface define how to instantiate and populate Java objects from JSON data. Each builder
+ * handles a specific type of JSON value (primitives, objects, arrays, lists, etc.).</p>
  *
- * <p>Key responsibilities:</p>
+ * <p>
+ * Key responsibilities:</p>
  * <ul>
- *   <li>Building single objects from JSON items</li>
- *   <li>Building lists from JSON arrays</li>
- *   <li>Building arrays from JSON arrays</li>
- *   <li>Providing type information (singular class, primitives)</li>
- *   <li>Converting values to/from strings and collections</li>
+ * <li>Building single objects from JSON items</li>
+ * <li>Building lists from JSON arrays</li>
+ * <li>Building arrays from JSON arrays</li>
+ * <li>Providing type information (singular class, primitives)</li>
+ * <li>Converting values to/from strings and collections</li>
  * </ul>
  *
  * @author Janusch Rentenatus
@@ -35,7 +36,6 @@ import java.util.Map;
 public interface JsonModellClassBuilder {
 
     // public static final String NOT_LIST = "This Class is not a list.";
-
     /**
      * Returns the singular Java class that this builder creates.
      *
@@ -79,11 +79,11 @@ public interface JsonModellClassBuilder {
     public Object buildArray(JsonType jType, BuilderService builderService, Iterator<JsonItem> listIterator, int size) throws JsonBuildException;
 
     /**
-     * Checks if this builder handles primitive types.
+     * Checks if this builder handles primitive or box types.
      *
      * @return {@code true} if this is a primitive builder, {@code false} otherwise.
      */
-    public default boolean isPrimitive() {
+    public default boolean isBoxOrPrimitive() {
         return true;
     }
 

@@ -17,8 +17,8 @@ import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.JsonItemDefinition;
 
 /**
- * Definition class for implementation tests. Sets up the JSON model structure
- * for testing various value types and their inheritance relationships.
+ * Definition class for implementation tests. Sets up the JSON model structure for testing various value types and their
+ * inheritance relationships.
  *
  * @author Janusch Rentenatus
  */
@@ -44,8 +44,8 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
     private final JsonClass repo;
 
     /**
-     * Constructs an ImplTestDefinition instance. Creates the model and defines
-     * the structure for all test value classes.
+     * Constructs an ImplTestDefinition instance. Creates the model and defines the structure for all test value
+     * classes.
      */
     public ImplTestDefinition2() {
         model = new JsonModel("impltest");
@@ -87,7 +87,7 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
         testBox.addField("arr", valueIx, ARRAY);
 
         repoModel.addRecursive(model, valueIx);
-        repo = repoModel.newJsonRepo("main", valueIx);
+        repo = repoModel.getOrCreateRepo();
         model.addRepoModel("save", repoModel);
 
     }

@@ -75,7 +75,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         }
         Object ob0 = myList.get(0);
         JsonClass jClass = calculateJsonClass(ob0);
-        writeList(jClass, ob0, intentPath);
+        writeList(jClass, ob0, null, null, intentPath);
     }
 
 }

@@ -1,0 +1,252 @@
+/* <copyright>
+ * Copyright (C) 2022 Janusch Rentenatus 
+ * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
+ */
+package de.jare.jsoncasted.model.item;
+
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.builder.BuilderService;
+import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.model.JsonBuildException;
+import de.jare.jsoncasted.model.JsonModellClassBuilder;
+import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.model.JsonTypeVisibility;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+
+/**
+ * The JsonInter class represents an interface definition in a JSON structure. It extends ArrayList<JsonClass> and
+ * implements JsonType, allowing multiple class associations.
+ *
+ * <p>
+ * An interface in jsonCasted can have multiple concrete implementations. When parsing JSON that matches an interface
+ * type, the system will attempt to determine the correct implementation based on the JSON structure and registered type
+ * information.</p>
+ *
+ * @author Janusch Rentenatus
+ */
+public class JsonInterface implements JsonInter {
+
+    private final JsonModellClassBuilder builder;
+    private final String cName;
+    private final ArrayList<JsonClass> implementors;
+    private JsonTypeVisibility visibility;
+
+    /**
+     * Constructs a JsonInter instance with the specified interface name and builder.
+     *
+     * @param cName The name of the interface.
+     * @param builder The builder responsible for instance creation.
+     */
+    public JsonInterface(String cName, JsonModellClassBuilder builder) {
+        super();
+        this.builder = builder;
+        this.cName = cName;
+        this.implementors = new ArrayList<>();
+        this.visibility = JsonTypeVisibility.PUBLIC; // Default visibility
+    }
+
+    /**
+     * Constructs a JsonInter instance with a predefined set of associated classes.
+     *
+     * @param cName The name of the interface.
+     * @param builder The builder responsible for instance creation.
+     * @param jClasses The associated JSON classes.
+     */
+    public JsonInterface(String cName, JsonModellClassBuilder builder, JsonClass... jClasses) {
+        this.implementors = new ArrayList<>(jClasses.length + 3);
+        for (JsonClass jc : jClasses) {
+            implementors.add(jc);
+        }
+        this.builder = builder;
+        this.cName = cName;
+        this.visibility = JsonTypeVisibility.PUBLIC; // Default visibility
+    }
+
+    /**
+     * Adds multiple JSON classes to the interface definition.
+     *
+     * @param jClasses The JSON classes to associate with the interface.
+     */
+    public void addAll(JsonClass... jClasses) {
+        for (JsonClass jc : jClasses) {
+            implementors.add(jc);
+        }
+    }
+
+    /**
+     * Retrieves the name of the interface.
+     *
+     * @return The interface name.
+     */
+    @Override
+    public String getcName() {
+        return cName;
+    }
+
+    /**
+     * Returns the node type for this interface. Interfaces are always represented as OBJECT nodes in JSON.
+     *
+     * @return JsonNodeType.OBJECT always.
+     */
+    @Override
+    public JsonNodeType getNodeType() {
+        return JsonNodeType.OBJECT;
+    }
+
+    /**
+     * Returns the direct JSON class. Since this represents an interface, it does not have a direct class.
+     *
+     * @return null, as interfaces do not directly represent a singular class.
+     */
+    @Override
+    public JsonClass getDirectClass() {
+        return null;
+    }
+
+    /**
+     * Checks whether a given JSON class is associated with this interface.
+     *
+     * @param check The class to check.
+     * @return true if the class is included, false otherwise.
+     */
+    @Override
+    public boolean contains(JsonType check) {
+        if (check == null) {
+            return false;
+        }
+        return implementors.contains(check);
+    }
+
+    /**
+     * Determines if this JSON type represents a primitive value.
+     *
+     * @return false, as interfaces cannot be primitive types.
+     */
+    @Override
+    public boolean isBoxOrPrimitive() {
+        return false;
+    }
+
+    @Override
+    public boolean isReflective() {
+        return true;
+    }
+
+    /**
+     * Returns the visibility of this type.
+     *
+     * @return
+     */
+    @Override
+    public JsonTypeVisibility getVisibility() {
+        return visibility;
+    }
+
+    /**
+     * Sets the visibility of this type.
+     *
+     * @return itself
+     */
+    @Override
+    public JsonInterface asPublic() {
+        this.visibility = JsonTypeVisibility.PUBLIC;
+        return this;
+    }
+
+    /**
+     * Sets the visibility of this type.
+     *
+     * @return itself
+     */
+    @Override
+    public JsonInterface asProtected() {
+        this.visibility = JsonTypeVisibility.PROTECTED;
+        return this;
+    }
+
+    /**
+     * Converts the provided attribute into its string representation.
+     *
+     * @param attr The attribute to convert.
+     * @return The string representation of the attribute.
+     */
+    @Override
+    public String toString(Object attr) {
+        return builder == null ? String.valueOf(attr) : builder.toString(attr);
+    }
+
+    /**
+     * Builds an instance or a collection from the JSON structure.
+     *
+     * @param listIterator Iterator over JSON items.
+     * @param asList Indicates whether the output should be a list.
+     * @param size The expected size of the output collection.
+     * @return The constructed object or collection.
+     * @throws JsonBuildException If instance creation fails.
+     */
+    @Override
+    public Object build(BuilderService builderService, Iterator<JsonItem> listIterator, boolean asList, int size) throws JsonBuildException {
+        return builder == null ? null : (asList
+                ? builder.buildList(this, builderService, listIterator, size)
+                : builder.buildArray(this, builderService, listIterator, size));
+    }
+
+    /**
+     * Converts an object into a list representation.
+     *
+     * @param ob The object to convert.
+     * @return A list representation of the object.
+     */
+    @Override
+    public Collection<?> asList(Object ob) {
+        return builder == null ? new ArrayList<>() : builder.asCollection(ob);
+    }
+
+    /**
+     * Determines if casting is required based on the specified level.
+     *
+     * @param level The casting level.
+     * @return true if casting is required, false otherwise.
+     */
+    @Override
+    public boolean needCast(JsonCastingLevel level) {
+        return JsonCastingLevel.ALWAYS_CAST == level || JsonCastingLevel.NECESSARY_CAST == level;
+    }
+
+    @Override
+    public boolean needClassDef(JsonCastingLevel level) {
+        return JsonCastingLevel.ALWAYS_CLASS_DEF == level || JsonCastingLevel.NECESSARY_CLASS_DEF == level;
+    }
+
+    /**
+     * Creates a type descriptor header for this interface for model introspection. Includes the interface name and all
+     * its implementing classes.
+     *
+     * @param context The model descriptor context.
+     * @return A JsonTypeDescriptor for this interface with all implementors registered.
+     */
+    @Override
+    public JsonTypeDescriptor describeHeadInterface(JsonModelDescriptor context) {
+        final JsonTypeDescriptor ret = new JsonTypeDescriptor(cName)
+                .withNodeType(JsonNodeType.OBJECT);
+        for (JsonClass next : iterable()) {
+            ret.addImplementor(context.getType(next.getcName()));
+        }
+        return ret;
+    }
+
+    @Override
+    public Iterable<JsonClass> iterable() {
+        return Collections.unmodifiableCollection(implementors);
+    }
+
+}

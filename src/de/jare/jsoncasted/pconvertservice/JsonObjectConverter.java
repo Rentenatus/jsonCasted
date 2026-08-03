@@ -261,6 +261,11 @@ public class JsonObjectConverter {
         } else if (cast != null) {
             final List<JsonTypeDescriptor> implementors = suspectedType.getImplementors();
             final JsonTypeDescriptor candidate = service.getTypePerceptive(cast.asText());
+            if (candidate == null) {
+                service.warning(() -> new DebugTuple("Unknown class: {0}",
+                        cast.asText()));
+                return null;
+            }
             if (implementors.isEmpty()) {
                 if (candidate.containsSuper(suspectedType)) {
 
@@ -272,10 +277,7 @@ public class JsonObjectConverter {
                     castedChildType = candidate;
                 }
             } else {
-                if (candidate == null) {
-                    Logger.getGlobal().log(Level.SEVERE, "Unknown class: {0}", cast.asText());
-                    return null;
-                }
+
                 castedChildType = null;
                 for (JsonTypeDescriptor im : implementors) {
                     if (im.getTypeName().equals(candidate.getTypeName())) {

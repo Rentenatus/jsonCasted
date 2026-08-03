@@ -12,6 +12,7 @@ import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.WriteStrategy;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.item.JsonField;
 
 /**
  *
@@ -40,9 +41,10 @@ public class DefinitionalStrategy implements WriteStrategy {
     }
 
     @Override
-    public void writeStart(JsonClass jClass, Object ob, JsonType parentType, Object parent, boolean needsCast, boolean needsClassDef, WriteNodePath iString) {
-        if (parent != null && parentType != null && parentType.isDefinitional()) {
-            definitionsContext.addToAssigned(jClass, ob, parentType, parent);
+    public void writeStart(JsonClass jClass, Object ob, JsonField parentField, Object definitionalParent, boolean needsCast, boolean needsClassDef, WriteNodePath intentPath) {
+        if (definitionalParent != null && parentField != null && parentField.getKind().isDefinitional()) {
+            JsonType parentType = parentField.getjType();
+            definitionsContext.addToAssigned(jClass, ob, parentType, definitionalParent);
         } else if (definitionsContext.isInCandidates(ob)) {
             definitionsContext.moveToFindings(ob);
         } else {

@@ -10,7 +10,6 @@ import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonRepo;
 import de.jare.jsoncasted.model.JsonRepoModel;
 import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.pconvertservice.JsonNodeConverter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +39,7 @@ public class DefinitionsComputer {
                 }
                 repo = new JsonRepo(type.getcName());
                 repos.put(type.getcName(), repo);
-                repoModel.newJsonRepo(type.getcName(), type);
+                 
 
             }
             repo.addItem(record.getObject());

@@ -61,7 +61,7 @@ public class JsonField {
         this.getter = getter;
         this.setter = setter;
         this.validationMethod = validationMethod;
-        this.kind = jType.isDefinitional() ? FieldKind.REFERENCE : (jType.isPrimitive() ? FieldKind.ATTRIBUTE : FieldKind.CONTAINMENT);
+        this.kind = jType.isReflective() ? FieldKind.REFERENCE : (jType.isBoxOrPrimitive() ? FieldKind.ATTRIBUTE : FieldKind.CONTAINMENT);
     }
 
     /**
@@ -98,7 +98,7 @@ public class JsonField {
         this.getter = parent.getterPre(jType) + getterSetterNorm;
         this.setter = parent.setterPre(jType) + getterSetterNorm;
         this.validationMethod = validationMethod;
-        this.kind = jType.isDefinitional() ? FieldKind.REFERENCE : (jType.isPrimitive() ? FieldKind.ATTRIBUTE : FieldKind.CONTAINMENT);
+        this.kind = jType.isReflective() ? FieldKind.REFERENCE : (jType.isBoxOrPrimitive() ? FieldKind.ATTRIBUTE : FieldKind.CONTAINMENT);
     }
 
     /**
@@ -135,7 +135,7 @@ public class JsonField {
         this.getter = parent.getterPre(jType) + getterSetterNorm;
         this.setter = parent.setterPre(jType) + getterSetterNorm;
         this.validationMethod = validationMethod;
-        this.kind = jType.isDefinitional() ? FieldKind.REFERENCE : (jType.isPrimitive() ? FieldKind.ATTRIBUTE : FieldKind.CONTAINMENT);
+        this.kind = jType.isReflective() ? FieldKind.REFERENCE : (jType.isBoxOrPrimitive() ? FieldKind.ATTRIBUTE : FieldKind.CONTAINMENT);
     }
 
     /**

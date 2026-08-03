@@ -71,7 +71,7 @@ public class ListGetter {
     }
 
     public boolean isPrimitive() {
-        return jType != null && jType.isPrimitive();
+        return jType != null && jType.isBoxOrPrimitive();
     }
 
     public String toPrimitiveString(Object attr) {
