@@ -8,8 +8,15 @@ package de.jare.jsoncasted.pconvertservice;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonSystem;
+import de.jare.jsoncasted.lang.JsonTerms;
+import de.jare.jsoncasted.lang.calculator.JsonWoodProviderScanResult;
+import de.jare.jsoncasted.lang.calculator.JsonWoodProviderScanner;
+import de.jare.jsoncasted.lang.calculator.JsonWoodProviderTinker;
+import de.jare.jsoncasted.lang.calculator.JsonWoodProviderTinkerResult;
+import de.jare.jsoncasted.io.parserservice.WoodIdFinder;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.io.JsonParseException;
 
@@ -43,7 +50,6 @@ public final class RootConverter {
      * @return The converted JsonItem, or null if the resource or its root is
      * null.
      * @throws JsonParseException If conversion fails.
-     * @throws IOException If I/O errors occur during resource processing.
      */
     public static JsonItem convert(JsonResource res, String cName, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
         if (res == null) {
@@ -51,6 +57,38 @@ public final class RootConverter {
         }
         if (res.getRoot() == null) {
             return null;
+        }
+
+        // Falls die Resource nicht durch RootParser.parse() initialisiert wurde:
+        // Führe die fehlende Provider-/Linking-Initialisierung analog zu RootParser.parse() aus
+        if (res.getLinkingSet() == null || res.getExpectedBox() == null) {
+            // 1. LinkingSet aufbauen (für _woodObjectId / _woodLink)
+            res.setLinkingSet(
+                WoodIdFinder.buildLinkingSet(res.getRoot(), res.getProviderName(), debugLevel)
+            );
+
+            // 2. Provider scannen und WoodProviderBox bauen
+            JsonWoodProviderScanResult scan = JsonWoodProviderScanner.INSTANCE.scan(res.getRoot());
+            JsonWoodProviderTinkerResult tinkerResult = JsonWoodProviderTinker.INSTANCE.build(scan, debugLevel);
+            res.setExpectedBox(tinkerResult.getWoodProviderBox());
+
+            // 3. Exceptions aus Scan/Tinker sammeln
+            if (tinkerResult.hasExceptions()) {
+                res.addExceptions(tinkerResult.getExceptions());
+            }
+
+            // 4. Definitionen extrahieren (aus _woodDefinitions)
+            if (tinkerResult.hasDefinitionEntries()) {
+                for (JsonWoodProviderScanResult.DefinitionsNodeEntry defEntry : tinkerResult.getDefinitionEntries()) {
+                    JsonNode ownerNode = defEntry.getOwnerNode();
+                    JsonNode defsNode = ownerNode.asObjectValues().get(JsonTerms.TERM_WOOD_DEFINITIONS);
+                    if (defsNode != null && defsNode.isObject()) {
+                        for (JsonNode childNode : defsNode.asObjectValues().values()) {
+                            res.addDefinitionNode(childNode);
+                        }
+                    }
+                }
+            }
         }
 
         JsonSystem sys = JsonSystem.of(res);
