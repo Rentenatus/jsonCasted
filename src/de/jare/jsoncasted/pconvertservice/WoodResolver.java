@@ -7,6 +7,9 @@
 package de.jare.jsoncasted.pconvertservice;
 
 import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.io.parserservice.ParseStreamReader;
+import de.jare.jsoncasted.io.parserservice.RootParser;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
@@ -16,18 +19,18 @@ import de.jare.jsoncasted.lang.LinkNodeEntry;
 import de.jare.jsoncasted.lang.LinkingSet;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.io.parserservice.ParseStreamReader;
-import de.jare.jsoncasted.io.parserservice.RootParser;
-import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.wood.WoodProvider;
+import de.jare.jsoncasted.wood.WoodProviderBox;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -123,6 +126,96 @@ public final class WoodResolver {
         JsonResource subContainer = JsonResource.forFile(provider.getFilename());
         subContainer.setProviderName(provider.getSynonym());
         return RootParser.parse(psr, subContainer, debugLevel);
+    }
+
+    /**
+     * Recursively loads all provider files referenced in the main resource's provider box and merges their linking sets
+     * into the main resource's linking set.
+     *
+     * <p>
+     * This method ensures that all object IDs and links from dependent provider files are available in the main
+     * resource before resolution begins. It handles cycles by tracking visited provider synonyms.</p>
+     *
+     * <p>
+     * Note: This method modifies the main resource's linking set by merging in all object IDs and links from loaded
+     * provider resources.</p>
+     *
+     * @param sys The JsonSystem containing the main resource with provider box.
+     * @param debugLevel The debug level for controlling debug output.
+     * @throws IOException If I/O errors occur during loading.
+     * @throws JsonParseException If parsing fails for any provider file.
+     */
+    public static void resolveProviders(JsonSystem sys, JsonDebugLevel debugLevel)
+            throws IOException, JsonParseException {
+        Objects.requireNonNull(sys, "sys must not be null");
+        Objects.requireNonNull(debugLevel, "debugLevel must not be null");
+
+        JsonResource mainResource = sys.getMainResource();
+        if (mainResource == null) {
+            return;
+        }
+
+        LinkingSet mainLinkingSet = mainResource.getLinkingSet();
+        if (mainLinkingSet == null) {
+            return;
+        }
+
+        Set<String> visitedSynonyms = new LinkedHashSet<>();
+        Queue<JsonResource> resourcesToProcess = new LinkedList<>();
+        resourcesToProcess.add(mainResource);
+
+        while (!resourcesToProcess.isEmpty()) {
+            JsonResource current = resourcesToProcess.poll();
+
+            WoodProviderBox box = current.getExpectedBox();
+            if (box == null || box.isEmpty()) {
+                continue;
+            }
+
+            for (WoodProvider provider : box.getProviders()) {
+                String synonym = provider.getSynonym();
+
+                if (visitedSynonyms.contains(synonym)) {
+                    continue;
+                }
+                visitedSynonyms.add(synonym);
+
+                JsonResource existing = sys.findResourcesBySynonym(synonym);
+                if (existing != null) {
+                    resourcesToProcess.add(existing);
+                    continue;
+                }
+
+                try {
+                    JsonResource loaded = load(provider, debugLevel);
+                    sys.addResource(loaded);
+                    resourcesToProcess.add(loaded);
+
+                    LinkingSet loadedLinkingSet = loaded.getLinkingSet();
+                    if (loadedLinkingSet != null) {
+                        mergeLinkingSets(mainLinkingSet, loadedLinkingSet);
+                    }
+
+                } catch (FileNotFoundException ex) {
+                    debugLevel.warning(ex, ()
+                            -> "Provider file not found: " + provider.getFilename());
+                }
+            }
+        }
+    }
+
+    /**
+     * Merges the object IDs and links from the source linking set into the target.
+     *
+     * @param target The linking set to merge into.
+     * @param source The linking set to merge from.
+     */
+    private static void mergeLinkingSets(LinkingSet target, LinkingSet source) {
+        if (target == null || source == null) {
+            return;
+        }
+        target.getObjectIdMap().putAll(source.getObjectIdMap());
+        target.getLinkMap().putAll(source.getLinkMap());
     }
 
     /**
