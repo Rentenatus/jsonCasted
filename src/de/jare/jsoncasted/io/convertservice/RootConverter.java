@@ -13,6 +13,8 @@ import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonSystem;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The RootConverter class provides the main entry point for converting JSON resources into JsonItem instances. It
@@ -56,6 +58,19 @@ public final class RootConverter {
         } catch (IOException ex) {
             throw new JsonParseException("Failed to resolve the proxies.", ex);
         }
+
+        // Reorder resources in topological order (dependencies first)
+        List<String> sortedSynonyms = sys.getSortedSynonyms();
+        List<JsonResource> sortedResources = new ArrayList<>();
+        for (String synonym : sortedSynonyms) {
+            JsonResource resource = sys.findResourcesBySynonym(synonym);
+            if (resource != null && !sortedResources.contains(resource)) {
+                sortedResources.add(resource);
+            }
+        }
+        // Set the sorted resources back into the system
+        sys.setResources(sortedResources);
+
         WoodResolution resolution = WoodResolver.resolve(sys, descriptor, debugLevel);
         return JsonNodeConverter.convert(res, cName, descriptor, resolution, debugLevel);
     }
