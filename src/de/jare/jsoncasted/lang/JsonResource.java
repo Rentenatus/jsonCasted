@@ -6,6 +6,7 @@
  */
 package de.jare.jsoncasted.lang;
 
+import static de.jare.jsoncasted.lang.JsonTerms.SELF_SYNONYM;
 import de.jare.jsoncasted.wood.WoodProviderBox;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +43,7 @@ public final class JsonResource {
 
     private JsonResource() {
         this.importedProviderSynonyms = new ArrayList<>();
-        this.providerName = "self";
+        this.providerName = SELF_SYNONYM;
     }
 
     /**

@@ -13,7 +13,7 @@ import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.io.parserservice.JsonParserService;
-import de.jare.jsoncasted.pconvertservice.RootConverter;
+import de.jare.jsoncasted.io.convertservice.RootConverter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;

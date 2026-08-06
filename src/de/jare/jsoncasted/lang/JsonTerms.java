@@ -7,12 +7,11 @@
 package de.jare.jsoncasted.lang;
 
 /**
- * Constants for special JSON property names used in the jsonCasted and Wood
- * Json Jack systems.
+ * Constants for special JSON property names used in the jsonCasted and Wood Json Jack systems.
  *
  * <p>
- * These terms are used as reserved property names in JSON structures to convey
- * type information, object identities, and resource references.</p>
+ * These terms are used as reserved property names in JSON structures to convey type information, object identities, and
+ * resource references.</p>
  *
  * @author Janusch Rentenatus
  */
@@ -52,7 +51,8 @@ public class JsonTerms {
      * Used in JSON: {@code "_woodDefinitions": {...}</p>
      */
     public static final String TERM_WOOD_DEFINITIONS = "_woodDefinitions";
-    
-    
-    public static String DEFINITIONS_SUFFIX ="_def";
+
+    public static String DEFINITIONS_SUFFIX = "_def";
+
+    public static String SELF_SYNONYM = "self";
 }

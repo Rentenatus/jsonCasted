@@ -14,6 +14,7 @@ import de.jare.jsoncasted.lang.LinkingSet;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
+import static de.jare.jsoncasted.lang.JsonTerms.SELF_SYNONYM;
 import de.jare.jsoncasted.wood.WoodProviderBox;
 import de.jare.jsoncasted.wood.WoodProviderDefinition;
 import java.io.IOException;
@@ -88,7 +89,7 @@ public final class JsonWoodProviderTinker {
     private void buildEntry(JsonWoodProviderScanResult.ProviderNodeEntry entry, JsonWoodProviderTinkerResult result, JsonDebugLevel debugLevel) {
         try {
             JsonResource res = JsonResource.forRoot(entry.getOwnerNode());
-            res.setLinkingSet(new LinkingSet("self"));
+            res.setLinkingSet(new LinkingSet(SELF_SYNONYM));
             JsonItem jsonItem = JsonParser.parse(res,
                     definition.getDescriptor(), definition.getWoodProviderBox().getcName(), debugLevel);
             Object instance = JsonBuilder.buildInstance(definition.getModel(), true, jsonItem);

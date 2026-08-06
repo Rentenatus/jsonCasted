@@ -4,7 +4,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.pconvertservice;
+package de.jare.jsoncasted.io.convertservice;
 
 import de.jare.debug.DebugTuple;
 import de.jare.debug.JsonDebugLevel;
@@ -16,6 +16,7 @@ import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonSystem;
 import de.jare.jsoncasted.lang.JsonTerms;
+import static de.jare.jsoncasted.lang.JsonTerms.SELF_SYNONYM;
 import de.jare.jsoncasted.lang.LinkNodeEntry;
 import de.jare.jsoncasted.lang.LinkingSet;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
@@ -184,11 +185,13 @@ public final class WoodResolver {
 
         JsonResource mainResource = sys.getMainResource();
         if (mainResource == null) {
+            sys.setSortedSynonyms(Collections.singletonList(SELF_SYNONYM));
             return;
         }
 
         LinkingSet mainLinkingSet = mainResource.getLinkingSet();
         if (mainLinkingSet == null) {
+            sys.setSortedSynonyms(Collections.singletonList(SELF_SYNONYM));
             return;
         }
 
@@ -310,6 +313,8 @@ public final class WoodResolver {
                 debugLevel.warning(ex, () -> "Provider file not found: " + provider.getFilename());
             }
         }
+
+        sys.setSortedSynonyms(sortedSynonyms);
     }
 
     /**

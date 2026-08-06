@@ -4,7 +4,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.pconvertservice;
+package de.jare.jsoncasted.io.convertservice;
 
 import de.jare.debug.DebugTuple;
 import de.jare.debug.JsonDebugLevel;
