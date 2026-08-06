@@ -143,7 +143,7 @@ public class ObjectGetter {
         if (jClass == null) {
             final String msg = "No description found for " + ob.getClass().getTypeName() + ".";
             final NullPointerException ex = new NullPointerException(msg);
-            debugLevel.warning(() -> new DebugTuple(msg, (Object[]) null));
+            debugLevel.warning(() -> new DebugTuple(msg));
             Logger.getGlobal().log(Level.SEVERE, msg, ex);
             throw ex;
         }
@@ -151,7 +151,7 @@ public class ObjectGetter {
             final String msg = "Item has the class '" + jClass.getcName()
                     + "', but the root should have been '" + jType.getcName() + "'.";
             final ClassCastException ex = new ClassCastException(msg);
-            debugLevel.warning(() -> new DebugTuple(msg, (Object[]) null));
+            debugLevel.warning(() -> new DebugTuple(msg));
             Logger.getGlobal().log(Level.SEVERE, msg, ex);
             throw ex;
         }

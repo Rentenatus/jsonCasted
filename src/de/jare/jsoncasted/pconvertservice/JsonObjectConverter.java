@@ -168,11 +168,9 @@ public class JsonObjectConverter {
                 calculateParam(paramName, childNode);
             } catch (JsonParseException ex) {
                 service.warning(() -> new DebugTuple(
-                        "[WARNING] " + contextClass.getTypeName() + "." + paramName
-                        + ": Convert failed.",
-                        ex
+                        "[WARNING] {0}.{1} : Convert failed; {2}",
+                        contextClass.getTypeName(), paramName, ex.getMessage()
                 ));
-
                 exList.add(ex);
             }
         });

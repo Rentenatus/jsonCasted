@@ -342,7 +342,7 @@ public class JsonClass implements JsonType {
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 String msg = "Getter method '" + next.getGetter() + "' failed for field: " + ex.getMessage();
                 if (debugLevel != null) {
-                    debugLevel.warning(() -> new DebugTuple(msg, ex));
+                    debugLevel.warning(() -> new DebugTuple(msg));
                 }
                 Logger.getGlobal().log(Level.SEVERE, msg, ex);
             }
