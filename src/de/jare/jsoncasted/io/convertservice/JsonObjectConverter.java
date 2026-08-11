@@ -106,7 +106,7 @@ public class JsonObjectConverter {
         }
 
         String linkKey = node.getLink(providerName);
-        if (service.containsResolutionKey(linkKey)) {
+        if (linkKey != null && service.containsResolutionKey(linkKey)) {
             return linkKey;
         }
         return null;
@@ -133,7 +133,7 @@ public class JsonObjectConverter {
         if (values != null) {
             final JsonNode cast = values.get(TERM_CLASS);
             if (cast != null) {
-                this.contextClass = service.getType(cast.asText());
+                this.contextClass = service.getTypePerceptive(cast.asText());
             }
         }
         node.setJsonDescriptor(contextClass);
