@@ -9,8 +9,10 @@ package de.jare.jsoncasted.io.convertservice;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonSystem;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,7 +80,7 @@ public final class RootConverter {
         JsonItem converted = null;
         WoodResolution resolution = new WoodResolution();
         for (JsonResource itemRes : sortedResources) {
-            String itemClassName = cName; // ToDo
+            String itemClassName = rootClassName(itemRes, cName);
             String resName = itemRes.getProviderName();
             JsonModelDescriptor repoDesc = descriptor.getRepoDescriptorOrThis(resName);
             WoodElementResolver.resolve(sys, itemRes, repoDesc, debugLevel);
@@ -86,6 +88,27 @@ public final class RootConverter {
 
         }
         return converted;
+    }
+
+    /**
+     * Ermittelt den Klassennamen für die Root-Konvertierung einer
+     * JSON-Ressource.Priorisiert das _class-Feld des Root-Nodes, fällt zurück
+     * auf den Kontext-Klassennamen.
+     *
+     * @param resource Die JSON-Ressource, deren Root-Klasse bestimmt werden
+     * soll.
+     * @param contextClassName Der Fallback-Klassenname (z. B. übergebener
+     * cName).
+     * @return Der zu verwendende Klassenname: zuerst _class-Feld des
+     * Root-Nodes, sonst contextClassName.
+     */
+    public static String rootClassName(JsonResource resource, String contextClassName) {
+        if (resource == null || resource.getRoot() == null || !resource.getRoot().isObject()) {
+            return contextClassName;
+        }
+
+        JsonNode classNode = resource.getRoot().asObjectValues().get(JsonTerms.TERM_CLASS);
+        return (classNode != null) ? classNode.asText() : contextClassName;
     }
 
 }

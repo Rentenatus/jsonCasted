@@ -49,44 +49,36 @@ public final class WoodElementResolver {
     }
 
     /**
-     * Resolves all wood references in a JsonSystem. This method attempts to
+     * Resolves all wood references in a JsonSystem.This method attempts to
      * resolve all object references within the system, loading external
-     * resources as needed when providers are not found.
-     *
-     * Attempts to resolve all wood references in a JsonSystem.This method
-     * processes the main resource and all registered resources, resolving
-     * object references in an iterative manner.<p>
+     * resources as needed when providers are not found.Attempts to resolve all
+     * wood references in a JsonSystem.This method processes the main resource
+     * and all registered resources, resolving object references in an iterative
+     * manner.<p>
      * Repository descriptors are retrieved directly from the main descriptor's
      * repoDescriptor map, without accessing the JsonModel instances.
      * </p>
      *
      * @param sys The JsonSystem containing resources to resolve.
      * @param container
-     * @param descriptor The model descriptor containing type definitions.
+     * @param resourceDescriptor
      * @param debugLevel The debug level for controlling debug output.
      * @return The WoodResolution containing resolved objects, unresolved keys,
      * and exceptions.
      */
-    public static WoodResolution resolve(JsonSystem sys, JsonResource container, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) {
+    public static WoodResolution resolve(JsonSystem sys, JsonResource container, JsonModelDescriptor resourceDescriptor, JsonDebugLevel debugLevel) {
 
         LinkingSet linkingSet = Objects.requireNonNull(container.getLinkingSet(),
                 "container.linkingSet must not be null");
         WoodResolution resolution = new WoodResolution();
-        Set<String> remainingKeys = new LinkedHashSet<>(linkingSet.getLinkMap().keySet());
+        Set<String> remainingKeys = new LinkedHashSet<>(linkingSet.getObjectIdMap().keySet());
         boolean progress = !remainingKeys.isEmpty();
-        final List<JsonResource> resources = sys.getResources();
-        ConvertService[] services = new ConvertService[resources.size()];
-        for (int i = 0; i < resources.size(); i++) {
-            JsonResource resource = resources.get(i);
-            String providerSynonym = resource.getProviderName();
-            JsonModelDescriptor resourceDescriptor = descriptor.getRepoDescriptor(providerSynonym);
-            if (resourceDescriptor == null) {
-                resourceDescriptor = descriptor;
-            }
-            services[i] = new ConvertService(resource, resourceDescriptor, resolution, debugLevel);
-        }
+
+        ConvertService services = new ConvertService(container, resourceDescriptor, resolution, debugLevel);
+
         while (progress) {
             progress = resolveLoop(remainingKeys, services);
+            // `progress` is true only if at least one object could be resolved—that is, only if the set has shrunk.
         }
         for (String unresolved : remainingKeys) {
             resolution.addUnresolvedKey(unresolved);
@@ -99,41 +91,38 @@ public final class WoodElementResolver {
      *
      * @param remainingKeys The set of keys that still need to be resolved.
      * @param services The array of convert services for each resource.
-     * @return true if any progress was made (objects were resolved), false
-     * otherwise.
+     * @return true if any progress was made (objects were resolved == the set
+     * has shrunk), false otherwise.
      */
-    private static boolean resolveLoop(Set<String> remainingKeys, ConvertService[] services) {
+    private static boolean resolveLoop(Set<String> remainingKeys, ConvertService service) {
         boolean progress = false;
         Set<String> resolvedThisRound = new LinkedHashSet<>();
 
-        int i = services.length;
-        while (--i >= 0) {
-            final ConvertService service = services[i];
-            LinkingSet linkingSet = service.getLinkingSet();
-            for (String key : remainingKeys) {
-                LinkNodeEntry entry = linkingSet.getObjectIdMap().get(key);
-                if (entry == null) {
-                    continue;
-                }
-
-                final JsonNode node = entry.getNode();
-                if (!isConvertibleNow(node, linkingSet, service.getResolution())) {
-                    continue;
-                }
-
-                try {
-                    JsonTypeDescriptor typeDescriptor = resolveContextClass(node, service.getDescriptor());
-                    JsonItem convertedObject = JsonObjectConverter.convertObject(node, typeDescriptor, service);
-                    convertedObject.setWoodKey(key);
-                    service.getResolution().putResolvedObject(key, convertedObject);
-                    resolvedThisRound.add(key);
-                    progress = true;
-                } catch (JsonParseException ex) {
-                    service.getResolution().addException(ex);
-                    resolvedThisRound.add(key);
-                    progress = true;
-                }
+        LinkingSet linkingSet = service.getLinkingSet();
+        for (String key : remainingKeys) {
+            LinkNodeEntry entry = linkingSet.getObjectIdMap().get(key);
+            if (entry == null) {
+                continue;
             }
+
+            final JsonNode node = entry.getNode();
+            if (!isConvertibleNow(node, linkingSet, service.getResolution())) {
+                continue;
+            }
+
+            try {
+                JsonTypeDescriptor typeDescriptor = resolveContextClass(node, service.getDescriptor());
+                JsonItem convertedObject = JsonObjectConverter.convertObject(node, typeDescriptor, service);
+                convertedObject.setWoodKey(key);
+                service.getResolution().putResolvedObject(key, convertedObject);
+                resolvedThisRound.add(key);
+                progress = true;
+            } catch (JsonParseException ex) {
+                service.getResolution().addException(ex);
+                resolvedThisRound.add(key);
+                progress = true;
+            }
+
         }
         remainingKeys.removeAll(resolvedThisRound);
         return progress;
@@ -171,12 +160,12 @@ public final class WoodElementResolver {
         }
 
         try {
-            String linkKey = node.getLink(providerName);
-            if (linkKey != null) {
-                if (!resolution.getUnmodifiableResolvedObjects().containsKey(linkKey)) {
-                    return false;
-                }
-            }
+//            String linkKey = node.getLink(providerName);
+//            if (linkKey != null) {
+//                if (!resolution.getUnmodifiableResolvedObjects().containsKey(linkKey)) {
+//                    return false;
+//                }
+//            }
             String idKey = node.getObjectId(providerName);
             if (idKey != null) {
                 if (!resolution.getUnmodifiableResolvedObjects().containsKey(idKey)) {
