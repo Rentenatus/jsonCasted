@@ -14,6 +14,7 @@ import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonInter;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -163,7 +164,8 @@ public class BuilderService {
         }
         JsonInter jInter = model.getJsonInter(typeName);
         if (jInter != null) {
-            return jInter.build(this, jsonValue.listIterator(), asList, jsonValue.listSize());
+            final Iterator<JsonItem> listIterator = jsonValue.listIterator();
+            return jInter.build(this, listIterator, asList, jsonValue.listSize());
         }
         buildException("JsonClass " + typeName + " is unknown.");
         return null;
