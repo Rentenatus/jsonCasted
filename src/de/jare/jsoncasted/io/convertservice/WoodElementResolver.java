@@ -74,10 +74,10 @@ public final class WoodElementResolver {
         Set<String> remainingKeys = new LinkedHashSet<>(linkingSet.getObjectIdMap().keySet());
         boolean progress = !remainingKeys.isEmpty();
 
-        ConvertService services = new ConvertService(container, resourceDescriptor, resolution, debugLevel);
+        ConvertService service = new ConvertService(container, resourceDescriptor, resolution, debugLevel);
 
         while (progress) {
-            progress = resolveLoop(remainingKeys, services);
+            progress = resolveLoop(remainingKeys, service);
             // `progress` is true only if at least one object could be resolved—that is, only if the set has shrunk.
         }
         for (String unresolved : remainingKeys) {
@@ -90,7 +90,7 @@ public final class WoodElementResolver {
      * Performs one iteration of the resolution loop across all resources.
      *
      * @param remainingKeys The set of keys that still need to be resolved.
-     * @param services The array of convert services for each resource.
+     * @param service The convert service for resolution.
      * @return true if any progress was made (objects were resolved == the set
      * has shrunk), false otherwise.
      */
@@ -119,8 +119,6 @@ public final class WoodElementResolver {
                 progress = true;
             } catch (JsonParseException ex) {
                 service.getResolution().addException(ex);
-                resolvedThisRound.add(key);
-                progress = true;
             }
 
         }
