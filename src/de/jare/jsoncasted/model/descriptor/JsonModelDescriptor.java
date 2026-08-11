@@ -26,14 +26,16 @@ import java.util.Set;
  * Description of a complete JsonModel.
  *
  * <p>
- * This class serves as the registry of all described types in a model. It provides methods for adding, looking up, and
- * managing type descriptors, as well as validation of the complete model structure.</p>
+ * This class serves as the registry of all described types in a model. It
+ * provides methods for adding, looking up, and managing type descriptors, as
+ * well as validation of the complete model structure.</p>
  *
  * <p>
  * Key features:</p>
  * <ul>
  * <li>Type registration and lookup by name</li>
- * <li>Support for perceptual type matching (handling simple vs. qualified names)</li>
+ * <li>Support for perceptual type matching (handling simple vs. qualified
+ * names)</li>
  * <li>Validation of type consistency</li>
  * <li>Unmodifiable views of all registered types</li>
  * <li>Repository descriptor registry for external resource models</li>
@@ -141,11 +143,13 @@ public class JsonModelDescriptor {
     }
 
     /**
-     * Returns the type descriptor for the specified type name with perceptual matching.
+     * Returns the type descriptor for the specified type name with perceptual
+     * matching.
      *
      * <p>
-     * Perceptual matching attempts to find types even if the name doesn't match exactly, for example by matching simple
-     * names against fully qualified names.</p>
+     * Perceptual matching attempts to find types even if the name doesn't match
+     * exactly, for example by matching simple names against fully qualified
+     * names.</p>
      *
      * @param typeName the type name to look up.
      * @return the type descriptor, or {@code null} if not found.
@@ -186,7 +190,8 @@ public class JsonModelDescriptor {
     }
 
     /**
-     * Returns the type descriptor for the specified type name, or a fallback if not found.
+     * Returns the type descriptor for the specified type name, or a fallback if
+     * not found.
      *
      * @param typeName the type name to look up.
      * @param fallback the fallback descriptor to return if not found.
@@ -200,7 +205,8 @@ public class JsonModelDescriptor {
     // Repository descriptor lookup
     // -------------------------------------------------------------------------
     /**
-     * Checks if a repository descriptor with the specified synonym is registered.
+     * Checks if a repository descriptor with the specified synonym is
+     * registered.
      *
      * @param synonym the repository synonym to check.
      * @return {@code true} if the repository descriptor is registered.
@@ -220,6 +226,19 @@ public class JsonModelDescriptor {
             return null;
         }
         return repoDescriptors.get(synonym);
+    }
+
+    /**
+     * Returns the repository descriptor for the specified synonym.
+     *
+     * @param synonym the repository synonym to look up.
+     * @return the repository descriptor, or {@code this} if not found.
+     */
+    public JsonModelDescriptor getRepoDescriptorOrThis(String synonym) {
+        if (synonym == null) {
+            return this;
+        }
+        return repoDescriptors.getOrDefault(synonym, this);
     }
 
     /**

@@ -17,8 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The RootConverter class provides the main entry point for converting JSON resources into JsonItem instances. It
- * coordinates the creation of JsonSystem, wood resolution, and the conversion process.
+ * The RootConverter class provides the main entry point for converting JSON
+ * resources into JsonItem instances. It coordinates the creation of JsonSystem,
+ * wood resolution, and the conversion process.
  *
  * @author Janusch Rentenatus
  */
@@ -34,17 +35,20 @@ public final class RootConverter {
     }
 
     /**
-     * Converts a JSON resource into a JsonItem using the specified context class name and model.This is the primary
-     * method for converting JSON resources to the internal JsonItem model.
+     * Converts a JSON resource into a JsonItem using the specified context
+     * class name and model.This is the primary method for converting JSON
+     * resources to the internal JsonItem model.
      *
      * @param res The JSON resource to convert.
      * @param cName The name of the context/root class for type resolution.
      * @param descriptor The model descriptor containing type definitions.
      * @param debugLevel The debug level for controlling debug output.
-     * @return The converted JsonItem, or null if the resource or its root is null.
+     * @return The converted JsonItem, or null if the resource or its root is
+     * null.
      * @throws JsonParseException If conversion fails.
      */
-    public static JsonItem convert(JsonResource res, String cName, JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
+    public static JsonItem convert(JsonResource res, String cName, JsonModelDescriptor descriptor,
+            JsonDebugLevel debugLevel) throws JsonParseException {
         if (res == null) {
             return null;
         }
@@ -54,7 +58,7 @@ public final class RootConverter {
 
         JsonSystem sys = JsonSystem.of(res);
         try {
-            WoodResolver.resolveProviders(sys, debugLevel);
+            WoodProxyResolver.resolveProviders(sys, debugLevel);
         } catch (IOException ex) {
             throw new JsonParseException("Failed to resolve the proxies.", ex);
         }
@@ -71,8 +75,17 @@ public final class RootConverter {
         // Set the sorted resources back into the system
         sys.setResources(sortedResources);
 
-        WoodResolution resolution = WoodResolver.resolve(sys, descriptor, debugLevel);
-        return JsonNodeConverter.convert(res, cName, descriptor, resolution, debugLevel);
+        JsonItem converted = null;
+        WoodResolution resolution = new WoodResolution();
+        for (JsonResource itemRes : sortedResources) {
+            String itemClassName = cName; // ToDo
+            String resName = itemRes.getProviderName();
+            JsonModelDescriptor repoDesc = descriptor.getRepoDescriptorOrThis(resName);
+            WoodElementResolver.resolve(sys, itemRes, repoDesc, debugLevel);
+            converted = JsonNodeConverter.convert(itemRes, itemClassName, repoDesc, resolution, debugLevel);
+
+        }
+        return converted;
     }
 
 }
