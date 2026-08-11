@@ -189,6 +189,9 @@ public final class WoodElementResolver {
     public static boolean isConvertibleBelow(JsonNode node,
             LinkingSet linkingSet,
             WoodResolution resolution) {
+        if (node.asObjectValues() == null) {
+            return false;
+        }
         for (Map.Entry<String, JsonNode> entry : node.asObjectValues().entrySet()) {
             String key = entry.getKey();
             if (JsonTerms.TERM_WOOD_OBJECT_ID.equals(key) || JsonTerms.TERM_WOOD_LINK.equals(key)
@@ -215,7 +218,7 @@ public final class WoodElementResolver {
     private static JsonTypeDescriptor resolveContextClass(JsonNode node, JsonModelDescriptor descriptor)
             throws JsonParseException {
 
-        if (node == null || !node.isObject()) {
+        if (node == null || !node.isObject() || node.asObjectValues() == null) {
             throw new JsonParseException("Context node must be an object.");
         }
 

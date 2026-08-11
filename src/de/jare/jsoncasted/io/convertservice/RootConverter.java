@@ -77,17 +77,14 @@ public final class RootConverter {
         // Set the sorted resources back into the system
         sys.setResources(sortedResources);
 
-        JsonItem converted = null;
         WoodResolution resolution = new WoodResolution();
         for (JsonResource itemRes : sortedResources) {
-            String itemClassName = rootClassName(itemRes, cName);
             String resName = itemRes.getProviderName();
             JsonModelDescriptor repoDesc = descriptor.getRepoDescriptorOrThis(resName);
             WoodElementResolver.resolve(sys, itemRes, repoDesc, debugLevel);
-            converted = JsonNodeConverter.convert(itemRes, itemClassName, repoDesc, resolution, debugLevel);
 
         }
-        return converted;
+        return JsonNodeConverter.convert(res, cName, descriptor, resolution, debugLevel);
     }
 
     /**
@@ -103,7 +100,7 @@ public final class RootConverter {
      * Root-Nodes, sonst contextClassName.
      */
     public static String rootClassName(JsonResource resource, String contextClassName) {
-        if (resource == null || resource.getRoot() == null || !resource.getRoot().isObject()) {
+        if (resource == null || resource.getRoot() == null || !resource.getRoot().isObject() || resource.getRoot().asObjectValues() == null) {
             return contextClassName;
         }
 
