@@ -12,9 +12,8 @@ import java.util.Objects;
  * Context information for an exception that occurred within a JsonNode tree.
  *
  * <p>
- * This class captures the node where the exception occurred, the path to that
- * node, and the exception itself, providing detailed context for error
- * reporting and debugging.</p>
+ * This class captures the node where the exception occurred, the path to that node, and the exception itself, providing
+ * detailed context for error reporting and debugging.</p>
  */
 public class JsonExceptionEntry {
 
@@ -26,8 +25,7 @@ public class JsonExceptionEntry {
      * Constructs a JsonExceptionEntry with the node, path, and exception.
      *
      * @param ownerNode the JsonNode where the exception occurred (may be null).
-     * @param path the path to the node where the exception occurred (must not
-     * be null).
+     * @param path the path to the node where the exception occurred (must not be null).
      * @param exception the exception that occurred (must not be null).
      * @throws NullPointerException if path or exception is null.
      */

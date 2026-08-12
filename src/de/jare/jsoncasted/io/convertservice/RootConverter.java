@@ -19,9 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The RootConverter class provides the main entry point for converting JSON
- * resources into JsonItem instances. It coordinates the creation of JsonSystem,
- * wood resolution, and the conversion process.
+ * The RootConverter class provides the main entry point for converting JSON resources into JsonItem instances. It
+ * coordinates the creation of JsonSystem, wood resolution, and the conversion process.
  *
  * @author Janusch Rentenatus
  */
@@ -37,16 +36,14 @@ public final class RootConverter {
     }
 
     /**
-     * Converts a JSON resource into a JsonItem using the specified context
-     * class name and model.This is the primary method for converting JSON
-     * resources to the internal JsonItem model.
+     * Converts a JSON resource into a JsonItem using the specified context class name and model.This is the primary
+     * method for converting JSON resources to the internal JsonItem model.
      *
      * @param res The JSON resource to convert.
      * @param cName The name of the context/root class for type resolution.
      * @param descriptor The model descriptor containing type definitions.
      * @param debugLevel The debug level for controlling debug output.
-     * @return The converted JsonItem, or null if the resource or its root is
-     * null.
+     * @return The converted JsonItem, or null if the resource or its root is null.
      * @throws JsonParseException If conversion fails.
      */
     public static JsonItem convert(JsonResource res, String cName, JsonModelDescriptor descriptor,
@@ -88,16 +85,12 @@ public final class RootConverter {
     }
 
     /**
-     * Ermittelt den Klassennamen für die Root-Konvertierung einer
-     * JSON-Ressource.Priorisiert das _class-Feld des Root-Nodes, fällt zurück
-     * auf den Kontext-Klassennamen.
+     * Ermittelt den Klassennamen für die Root-Konvertierung einer JSON-Ressource.Priorisiert das _class-Feld des
+     * Root-Nodes, fällt zurück auf den Kontext-Klassennamen.
      *
-     * @param resource Die JSON-Ressource, deren Root-Klasse bestimmt werden
-     * soll.
-     * @param contextClassName Der Fallback-Klassenname (z. B. übergebener
-     * cName).
-     * @return Der zu verwendende Klassenname: zuerst _class-Feld des
-     * Root-Nodes, sonst contextClassName.
+     * @param resource Die JSON-Ressource, deren Root-Klasse bestimmt werden soll.
+     * @param contextClassName Der Fallback-Klassenname (z. B. übergebener cName).
+     * @return Der zu verwendende Klassenname: zuerst _class-Feld des Root-Nodes, sonst contextClassName.
      */
     public static String rootClassName(JsonResource resource, String contextClassName) {
         if (resource == null || resource.getRoot() == null || !resource.getRoot().isObject() || resource.getRoot().asObjectValues() == null) {

@@ -32,9 +32,8 @@ import java.util.Queue;
 import java.util.Set;
 
 /**
- * Resolves wood references for already ordered resources. This resolver does
- * not load additional resources. It walks through the resources in order and
- * collects object IDs.
+ * Resolves wood references for already ordered resources. This resolver does not load additional resources. It walks
+ * through the resources in order and collects object IDs.
  *
  * @author Janusch Rentenatus
  */
@@ -45,55 +44,45 @@ public final class WoodProxyResolver {
     }
 
     /**
-     * Recursively loads all provider files referenced in the main resource's
-     * provider box and merges their linking sets into the main resource's
-     * linking set using topological sorting to ensure correct dependency order.
+     * Recursively loads all provider files referenced in the main resource's provider box and merges their linking sets
+     * into the main resource's linking set using topological sorting to ensure correct dependency order.
      *
      * <p>
-     * This method ensures that all object IDs and links from dependent provider
-     * files are available in the main resource before resolution begins. It
-     * detects cycles and throws an exception if circular dependencies exist.
+     * This method ensures that all object IDs and links from dependent provider files are available in the main
+     * resource before resolution begins. It detects cycles and throws an exception if circular dependencies exist.
      * Multiple dependencies on the same provider are supported.</p>
      *
      * <p>
      * The loading order is determined by the following algorithm:</p>
      * <ol>
-     * <li><b>Graph Construction:</b> All provider synonyms are collected from
-     * the main resource and all existing resources. For each resource, its
-     * provider box defines dependencies: if resource R (with provider name PN)
-     * references provider P in its box, an edge P -> PN is added to the
-     * dependency graph.</li>
-     * <li><b>Topological Sorting:</b> Uses Kahn's algorithm to compute a valid
-     * loading order:
+     * <li><b>Graph Construction:</b> All provider synonyms are collected from the main resource and all existing
+     * resources. For each resource, its provider box defines dependencies: if resource R (with provider name PN)
+     * references provider P in its box, an edge P -> PN is added to the dependency graph.</li>
+     * <li><b>Topological Sorting:</b> Uses Kahn's algorithm to compute a valid loading order:
      * <ol>
-     * <li>Compute in-degree (number of dependencies) for each provider
-     * node</li>
+     * <li>Compute in-degree (number of dependencies) for each provider node</li>
      * <li>Start with all nodes having in-degree 0 (no dependencies)</li>
      * <li>Process nodes, reducing in-degree of their dependents</li>
      * <li>Add nodes to the result when their in-degree reaches 0</li>
      * </ol>
      * </li>
-     * <li><b>Cycle Detection:</b> If the sorted list contains fewer nodes than
-     * the total number of provider synonyms, a cycle exists and a
-     * {@code JsonParseException} is thrown with the unsortable providers.</li>
-     * <li><b>Ordered Loading:</b> Providers are loaded in the computed
-     * topological order, ensuring that all dependencies of a provider are
-     * available before the provider itself is loaded.</li>
-     * <li><b>LinkingSet Merging:</b> After loading each provider, its linking
-     * set (containing object IDs and links) is merged into the main resource's
-     * linking set.</li>
+     * <li><b>Cycle Detection:</b> If the sorted list contains fewer nodes than the total number of provider synonyms, a
+     * cycle exists and a {@code JsonParseException} is thrown with the unsortable providers.</li>
+     * <li><b>Ordered Loading:</b> Providers are loaded in the computed topological order, ensuring that all
+     * dependencies of a provider are available before the provider itself is loaded.</li>
+     * <li><b>LinkingSet Merging:</b> After loading each provider, its linking set (containing object IDs and links) is
+     * merged into the main resource's linking set.</li>
      * </ol>
      *
      * <p>
-     * Note: This method modifies the main resource's linking set by merging in
-     * all object IDs and links from loaded provider resources. Already loaded
-     * resources are skipped.</p>
+     * Note: This method modifies the main resource's linking set by merging in all object IDs and links from loaded
+     * provider resources. Already loaded resources are skipped.</p>
      *
      * @param sys The JsonSystem containing the main resource with provider box.
      * @param debugLevel The debug level for controlling debug output.
      * @throws IOException If I/O errors occur during loading.
-     * @throws JsonParseException If parsing fails for any provider file, or if
-     * a cycle is detected in provider dependencies.
+     * @throws JsonParseException If parsing fails for any provider file, or if a cycle is detected in provider
+     * dependencies.
      */
     public static void resolveProviders(JsonSystem sys, JsonDebugLevel debugLevel)
             throws IOException, JsonParseException {
@@ -254,8 +243,7 @@ public final class WoodProxyResolver {
     }
 
     /**
-     * Merges the object IDs and links from the source linking set into the
-     * target.
+     * Merges the object IDs and links from the source linking set into the target.
      *
      * @param target The linking set to merge into.
      * @param source The linking set to merge from.

@@ -10,8 +10,8 @@ package de.jare.jsoncasted.lang;
 import java.util.HashMap;
 
 /**
- * The JsonInstance class represents a generic JSON object structure. It extends
- * HashMap to store key-value pairs dynamically with type safety.
+ * The JsonInstance class represents a generic JSON object structure. It extends HashMap to store key-value pairs
+ * dynamically with type safety.
  *
  * @author Janusch Rentenatus
  *

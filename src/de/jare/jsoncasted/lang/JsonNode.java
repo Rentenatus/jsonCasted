@@ -21,8 +21,8 @@ import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.*;
 
 /**
- * Simple JsonNode representation supporting objects, arrays, strings, numbers,
- * booleans and null. This replaces the previous generic HashMap-based class.
+ * Simple JsonNode representation supporting objects, arrays, strings, numbers, booleans and null. This replaces the
+ * previous generic HashMap-based class.
  *
  * Note: JsonClass may be attached to OBJECT nodes to aid editing/debugging.
  *

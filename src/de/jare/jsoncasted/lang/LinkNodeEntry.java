@@ -11,8 +11,9 @@ import java.util.Objects;
 /**
  * Represents a link node entry that associates a JsonNode with its wood link and path.
  *
- * <p>This class is used by {@link LinkingSet} to track nodes that have
- * cross-resource references ({@code _woodLink}) and their locations in the JSON tree.</p>
+ * <p>
+ * This class is used by {@link LinkingSet} to track nodes that have cross-resource references ({@code _woodLink}) and
+ * their locations in the JSON tree.</p>
  *
  * @author Janusch Rentenatus
  */
@@ -65,7 +66,7 @@ public final class LinkNodeEntry {
 
     @Override
     public String toString() {
-        return "LinkNodeEntry{" 
+        return "LinkNodeEntry{"
                 + "woodLink='" + woodLink + '\''
                 + ", path='" + path + '\''
                 + '}';

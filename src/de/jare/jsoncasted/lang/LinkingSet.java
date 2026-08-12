@@ -18,15 +18,17 @@ import java.util.Set;
 /**
  * Manages object identities and links within a JSON resource for cross-referencing.
  *
- * <p>A LinkingSet tracks:</p>
+ * <p>
+ * A LinkingSet tracks:</p>
  * <ul>
- *   <li>Object IDs and their corresponding nodes ({@link #getObjectIdMap()})</li>
- *   <li>Link references and their target nodes ({@link #getLinkMap()})</li>
- *   <li>Unconnected links that cannot be resolved</li>
- *   <li>Scan exceptions that occurred during linking</li>
+ * <li>Object IDs and their corresponding nodes ({@link #getObjectIdMap()})</li>
+ * <li>Link references and their target nodes ({@link #getLinkMap()})</li>
+ * <li>Unconnected links that cannot be resolved</li>
+ * <li>Scan exceptions that occurred during linking</li>
  * </ul>
  *
- * <p>This is used to resolve cross-resource references in the Wood Json Jack system.</p>
+ * <p>
+ * This is used to resolve cross-resource references in the Wood Json Jack system.</p>
  */
 public class LinkingSet {
 
@@ -216,7 +218,7 @@ public class LinkingSet {
 
     @Override
     public String toString() {
-        return "LinkingSet{" 
+        return "LinkingSet{"
                 + "providerName='" + providerName + '\''
                 + ", objectIdMapSize=" + (objectIdMap != null ? objectIdMap.size() : 0)
                 + ", linkMapSize=" + (linkMap != null ? linkMap.size() : 0)

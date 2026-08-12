@@ -10,8 +10,7 @@ package de.jare.jsoncasted.lang;
  * Enumeration of JSON node types supported by the jsonCasted system.
  *
  * <p>
- * Each value represents a distinct JSON data type that can be parsed and
- * processed.</p>
+ * Each value represents a distinct JSON data type that can be parsed and processed.</p>
  *
  * @author Janusch Rentenatus
  */
