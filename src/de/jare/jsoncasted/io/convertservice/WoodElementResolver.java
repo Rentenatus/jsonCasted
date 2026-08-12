@@ -158,12 +158,12 @@ public final class WoodElementResolver {
         }
 
         try {
-//            String linkKey = node.getLink(providerName);
-//            if (linkKey != null) {
-//                if (!resolution.getUnmodifiableResolvedObjects().containsKey(linkKey)) {
-//                    return false;
-//                }
-//            }
+            String linkKey = node.getLink(providerName);
+            if (linkKey != null) {
+                if (!resolution.getUnmodifiableResolvedObjects().containsKey(linkKey)) {
+                    return false;
+                }
+            }
             String idKey = node.getObjectId(providerName);
             if (idKey != null) {
                 if (!resolution.getUnmodifiableResolvedObjects().containsKey(idKey)) {

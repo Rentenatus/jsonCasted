@@ -8,6 +8,7 @@ package de.jare.jsoncasted.io.convertservice;
 
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.io.JsonParseException;
+import static de.jare.jsoncasted.lang.JsonTerms.COLONCOLON;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,9 +20,10 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * The WoodResolution class manages the resolution state for converting JSON objects
- * with wood (object reference) support. It tracks resolved objects, unresolved keys,
- * and any exceptions that occurred during the resolution process.
+ * The WoodResolution class manages the resolution state for converting JSON
+ * objects with wood (object reference) support. It tracks resolved objects,
+ * unresolved keys, and any exceptions that occurred during the resolution
+ * process.
  *
  * @author Janusch Rentenatus
  */
@@ -43,7 +45,8 @@ public class WoodResolution {
     /**
      * Checks if all objects have been resolved and no exceptions occurred.
      *
-     * @return true if fully resolved (no unresolved keys and no exceptions), false otherwise.
+     * @return true if fully resolved (no unresolved keys and no exceptions),
+     * false otherwise.
      */
     public boolean isFullyResolved() {
         return unresolvedKeys.isEmpty() && exceptions.isEmpty();
@@ -160,15 +163,15 @@ public class WoodResolution {
     }
 
     /**
-     * Extracts the provider names from unresolved keys.
-     * Keys with the format "provider::key" will have the provider part extracted.
+     * Extracts the provider names from unresolved keys. Keys with the format
+     * "provider::key" will have the provider part extracted.
      *
      * @return A set of unresolved provider names.
      */
     public Set<String> unresolvedProvider() {
         Set<String> unresolvedProvider = new LinkedHashSet<>();
         for (String un : unresolvedKeys) {
-            int index = un.indexOf("::");
+            int index = un.indexOf(COLONCOLON);
             if (index > 0) {
                 unresolvedProvider.add(un.substring(0, index));
             }
