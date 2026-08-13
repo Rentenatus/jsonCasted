@@ -8,6 +8,7 @@ package de.jare.impltest;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonItemWriter;
 import de.jare.jsoncasted.io.JsonNodeWriter;
 import de.jare.jsoncasted.io.JsonObjectWriter;
 import de.jare.jsoncasted.io.JsonParseException;
@@ -119,7 +120,15 @@ public class TestBoxNGTest2 {
         try {
             JsonNodeWriter.write(node, System.out);
         } catch (IOException | JsonParseException ex) {
-            Logger.getLogger(TestBoxNGTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        }
+        System.out.println();
+        System.out.println("Target=============================================== Print item");
+        try {
+            JsonItemWriter.write(obj1, System.out);
+        } catch (IOException | JsonParseException | JsonWriteException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
         System.out.println();
@@ -191,7 +200,7 @@ public class TestBoxNGTest2 {
         try {
             JsonNodeWriter.write(node, System.out);
         } catch (IOException | JsonParseException ex) {
-            Logger.getLogger(TestBoxNGTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
         System.out.println();

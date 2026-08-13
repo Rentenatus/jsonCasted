@@ -8,19 +8,14 @@
 package de.jare.jsoncasted.item;
 
 import de.jare.jsoncasted.item.builder.BuilderService;
-import de.jare.jsoncasted.item.JsonItem;
-import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.model.JsonBuildException;
-import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.model.item.JsonClass;
 import java.util.Iterator;
 import java.util.Set;
 
 /**
- * The JsonValue class represents a primitive or single-value JSON element. It
- * stores a basic value, such as a string or number, and provides methods for
- * retrieval.
+ * The JsonValue class represents a primitive or single-value JSON element. It stores a basic value, such as a string or
+ * number, and provides methods for retrieval.
  *
  * @author Janusch Rentenatus
  */
@@ -36,8 +31,7 @@ public class JsonValue implements JsonItem {
      * Constructs a JsonValue instance with an associated class type.
      *
      * @param value The raw JSON value as a string.
-     * @param contextClass The JSON class description used for instance
-     * creation.
+     * @param contextClass The JSON class description used for instance creation.
      */
     public JsonValue(String value, JsonTypeDescriptor contextClass) {
         this.contextClass = contextClass;
@@ -51,8 +45,7 @@ public class JsonValue implements JsonItem {
      * Constructs a JsonValue instance with an associated class type.
      *
      * @param value The raw JSON value as a Double.
-     * @param contextClass The JSON class description used for instance
-     * creation.
+     * @param contextClass The JSON class description used for instance creation.
      */
     public JsonValue(Double value, JsonTypeDescriptor contextClass) {
         this.contextClass = contextClass;
@@ -66,8 +59,7 @@ public class JsonValue implements JsonItem {
      * Constructs a JsonValue instance with an associated class type.
      *
      * @param value The raw JSON value as a Boolean.
-     * @param contextClass The JSON class description used for instance
-     * creation.
+     * @param contextClass The JSON class description used for instance creation.
      */
     public JsonValue(Boolean value, JsonTypeDescriptor contextClass) {
         this.contextClass = contextClass;
@@ -78,12 +70,10 @@ public class JsonValue implements JsonItem {
     }
 
     /**
-     * Constructs a JsonValue instance with a Long value and an associated class
-     * type.
+     * Constructs a JsonValue instance with a Long value and an associated class type.
      *
      * @param value The raw JSON value as a Long.
-     * @param contextClass The JSON class description used for instance
-     * creation.
+     * @param contextClass The JSON class description used for instance creation.
      */
     public JsonValue(Long value, JsonTypeDescriptor contextClass) {
         this.contextClass = contextClass;
@@ -96,8 +86,7 @@ public class JsonValue implements JsonItem {
     /**
      * Constructs a JsonValue instance with an associated class type.
      *
-     * @param contextClass The JSON class description used for instance
-     * creation.
+     * @param contextClass The JSON class description used for instance creation.
      */
     public JsonValue(JsonTypeDescriptor contextClass) {
         this.contextClass = contextClass;
@@ -210,8 +199,8 @@ public class JsonValue implements JsonItem {
     }
 
     /**
-     * Retrieves a JSON property by its key. Since this class represents a
-     * single value, no key-based retrieval is available.
+     * Retrieves a JSON property by its key. Since this class represents a single value, no key-based retrieval is
+     * available.
      *
      * @param key The property name.
      * @return null, as JSON values do not store key-value mappings.
@@ -223,8 +212,8 @@ public class JsonValue implements JsonItem {
     }
 
     /**
-     * Retrieves the set of all keys available in the JSON object. Since this
-     * class represents a single value, it does not maintain keys.
+     * Retrieves the set of all keys available in the JSON object. Since this class represents a single value, it does
+     * not maintain keys.
      *
      * @return null, as JSON values do not have parameter names.
      */
@@ -244,9 +233,8 @@ public class JsonValue implements JsonItem {
     }
 
     /**
-     * Returns an iterator over the object's single element. Since a primitive
-     * value cannot be iterated over, this iterator always returns false for
-     * hasNext().
+     * Returns an iterator over the object's single element. Since a primitive value cannot be iterated over, this
+     * iterator always returns false for hasNext().
      *
      * @return An iterator with no elements.
      */
@@ -266,8 +254,8 @@ public class JsonValue implements JsonItem {
     }
 
     /**
-     * Retrieves the number of elements within the JSON item. Since a primitive
-     * value does not contain multiple elements, this always returns 0.
+     * Retrieves the number of elements within the JSON item. Since a primitive value does not contain multiple
+     * elements, this always returns 0.
      *
      * @return 0, indicating a single value.
      */

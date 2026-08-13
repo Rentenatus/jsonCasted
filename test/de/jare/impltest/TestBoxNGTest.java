@@ -117,7 +117,7 @@ public class TestBoxNGTest {
         try {
             JsonNodeWriter.write(node, System.out);
         } catch (IOException | JsonParseException ex) {
-            Logger.getLogger(TestBoxNGTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
         System.out.println();
@@ -199,7 +199,7 @@ public class TestBoxNGTest {
         try {
             JsonNodeWriter.write(node, System.out);
         } catch (IOException | JsonParseException ex) {
-            Logger.getLogger(TestBoxNGTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
         System.out.println();
@@ -223,7 +223,7 @@ public class TestBoxNGTest {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         } catch (JsonWriteException ex) {
-            Logger.getLogger(TestBoxNGTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
         System.out.println("Target=============================================== Comment");
         assertNull(root.getOne());
