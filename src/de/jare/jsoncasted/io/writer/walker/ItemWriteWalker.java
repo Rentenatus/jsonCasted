@@ -11,6 +11,7 @@ import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonList;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.item.JsonValue;
+import de.jare.jsoncasted.lang.JsonTerms;
 import java.util.Set;
 
 /**
@@ -89,6 +90,9 @@ public class ItemWriteWalker {
         boolean hasFieldKeys = false;
         try {
             Set<String> keys = object.getParamSet();
+            if (object.getWoodKey() != null) {
+                keys.add(JsonTerms.TERM_WOOD_OBJECT_ID);
+            }
 
             java.util.Iterator<String> it = keys.iterator();
             hasFieldKeys = it.hasNext();
@@ -99,6 +103,12 @@ public class ItemWriteWalker {
             WriteNodePath childIndent = iString.append("  ");
             while (it.hasNext()) {
                 final String nextName = it.next();
+                if (JsonTerms.TERM_WOOD_OBJECT_ID.equals(nextName)) {
+                    strategie.writeAttrName(null, isFollowing, nextName, childIndent);
+                    strategie.writeNodeValue(object.getWoodKey(), iString);
+                    continue;
+                }
+
                 JsonItem attr = object.getParam(nextName);
 
                 strategie.writeAttrName(null, isFollowing, nextName, childIndent);
@@ -122,7 +132,7 @@ public class ItemWriteWalker {
 
                 writeType(next, childIndent);
                 if (it.hasNext()) {
-                    strategie.writeArraySeparator(false, iString);
+                    strategie.writeArraySeparator(false, childIndent);
                 }
 
                 isFollowing = true;

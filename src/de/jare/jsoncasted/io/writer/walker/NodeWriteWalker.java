@@ -184,7 +184,7 @@ public class NodeWriteWalker {
 
                 writeNode(next, childIndent);
                 if (it.hasNext()) {
-                    strategie.writeArraySeparator(false, iString);
+                    strategie.writeArraySeparator(false, childIndent);
                 }
 
                 isFollowing = true;
