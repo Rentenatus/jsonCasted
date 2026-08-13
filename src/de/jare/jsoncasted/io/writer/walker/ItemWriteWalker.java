@@ -106,7 +106,7 @@ public class ItemWriteWalker {
                 writeType(attr, childIndent);
             }
         } finally {
-            strategie.writeEnd(null, object, isFollowing, hasFieldKeys, intentPath);
+            strategie.writeEnd(null, object, isFollowing, hasFieldKeys, iString);
         }
     }
 

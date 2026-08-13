@@ -145,7 +145,7 @@ public class NodeWriteWalker {
                 writeNode(attr, childIndent);
             }
         } finally {
-            strategie.writeEnd(null, node, isFollowing, hasFieldKeys, intentPath);
+            strategie.writeEnd(null, node, isFollowing, hasFieldKeys, iString);
         }
     }
 
