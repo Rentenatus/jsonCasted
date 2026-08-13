@@ -11,6 +11,7 @@ import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonList;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.item.JsonValue;
+import java.util.Set;
 
 /**
  *
@@ -83,15 +84,77 @@ public class ItemWriteWalker {
     }
 
     protected void writeObject(JsonObject object, WriteNodePath iString) {
-        // Todo, see writeNodeObject
+        strategie.writeStart(null, object, null, null, false, false, iString);
+        boolean isFollowing = false;
+        boolean hasFieldKeys = false;
+        try {
+            Set<String> keys = object.getParamSet();
+
+            java.util.Iterator<String> it = keys.iterator();
+            hasFieldKeys = it.hasNext();
+            if (hasFieldKeys) {
+                strategie.writeHasFieldKeys(null, object, iString);
+            }
+
+            WriteNodePath childIndent = iString.append("  ");
+            while (it.hasNext()) {
+                final String nextName = it.next();
+                JsonItem attr = object.getParam(nextName);
+
+                strategie.writeAttrName(null, isFollowing, nextName, childIndent);
+                isFollowing = true;
+                writeType(attr, childIndent);
+            }
+        } finally {
+            strategie.writeEnd(null, object, isFollowing, hasFieldKeys, intentPath);
+        }
     }
 
     protected void writeList(JsonList list, WriteNodePath iString) {
-        // Todo, see writeNodeObject
+        strategie.writeStartArray(null, list, false, iString);
+        boolean isFollowing = false;
+        try {
+            java.util.Iterator<JsonItem> it = list.listIterator();
+
+            WriteNodePath childIndent = iString.append("  ");
+            while (it.hasNext()) {
+                JsonItem next = it.next();
+
+                writeType(next, childIndent);
+                if (it.hasNext()) {
+                    strategie.writeArraySeparator(false, iString);
+                }
+
+                isFollowing = true;
+            }
+        } finally {
+            strategie.writeEndArray(list, false, isFollowing, iString);
+        }
     }
 
     protected void writeValue(JsonValue value, WriteNodePath iString) {
-        // Todo, see writeNodeObject
+        Object val = extractValue(value);
+        if (val != null) {
+            strategie.writeNodeValue(val, iString);
+        } else {
+            strategie.writeAttrNull(iString);
+        }
+    }
+
+    private Object extractValue(JsonValue value) {
+        if (value.getStringValue() != null) {
+            return '"' + escape(value.getStringValue()) + '"';
+        }
+        if (value.getBooleanValue() != null) {
+            return value.getBooleanValue();
+        }
+        if (value.getLongValue() != null) {
+            return value.getLongValue();
+        }
+        if (value.getNumberValue() != null) {
+            return value.getNumberValue();
+        }
+        return null;
     }
 
     /**
