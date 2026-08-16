@@ -12,6 +12,9 @@ import de.jare.jsoncasted.item.JsonList;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.item.JsonValue;
 import de.jare.jsoncasted.lang.JsonTerms;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -89,10 +92,14 @@ public class ItemWriteWalker {
         boolean isFollowing = false;
         boolean hasFieldKeys = false;
         try {
-            Set<String> keys = object.getParamSet();
+            Collection<String> keys = new ArrayList<>();
             if (object.getWoodKey() != null) {
-                keys.add(JsonTerms.TERM_WOOD_OBJECT_ID);
+                keys.add("::i::");
             }
+            if (object.getPrintClassName() != null) {
+                keys.add(".:c:.");
+            }
+            keys.addAll(object.getParamSet());
 
             java.util.Iterator<String> it = keys.iterator();
             hasFieldKeys = it.hasNext();
@@ -103,9 +110,16 @@ public class ItemWriteWalker {
             WriteNodePath childIndent = iString.append("  ");
             while (it.hasNext()) {
                 final String nextName = it.next();
-                if (JsonTerms.TERM_WOOD_OBJECT_ID.equals(nextName)) {
-                    strategie.writeAttrName(null, isFollowing, nextName, childIndent);
-                    strategie.writeNodeValue(object.getWoodKey(), iString);
+                if ("::i::".equals(nextName)) {
+                    strategie.writeAttrName(null, isFollowing, JsonTerms.TERM_WOOD_OBJECT_ID, childIndent);
+                    strategie.writeNodeValue('"' + object.getWoodKey() + '"', iString);
+                    isFollowing = true;
+                    continue;
+                }
+                if (".:c:.".equals(nextName)) {
+                    strategie.writeAttrName(null, isFollowing, JsonTerms.TERM_CLASS, childIndent);
+                    strategie.writeNodeValue('"' + object.getPrintClassName() + '"', iString);
+                    isFollowing = true;
                     continue;
                 }
 
