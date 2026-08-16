@@ -7,6 +7,7 @@
 package de.jare.jsoncasted.item.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.JsonItemStore;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModel;
 
@@ -20,6 +21,7 @@ import de.jare.jsoncasted.model.JsonModel;
 public class JsonBuilder {
 
     private final JsonItem rootItem;
+    private final JsonItemStore itemStore;
     private BuilderService builderService;
 
     /**
@@ -37,6 +39,23 @@ public class JsonBuilder {
         BuilderService builderService = new BuilderService(model, throwClassEx);
         return builderService.build(rootItem);
     }
+    
+    /**
+     * Builds a Java object instance from a JSON item using the specified model and item store.
+     * This version supports the new ItemStore architecture for proxy reference resolution.
+     *
+     * @param model The JSON model containing type definitions and mappings.
+     * @param throwClassEx If true, throws exceptions when classes are not found;
+     *        if false, uses default handling.
+     * @param rootItem The root JSON item to build from.
+     * @param itemStore The JsonItemStore for proxy reference resolution.
+     * @return The constructed Java object.
+     * @throws JsonBuildException If object construction fails.
+     */
+    public static Object buildInstance(JsonModel model, boolean throwClassEx, JsonItem rootItem, JsonItemStore itemStore) throws JsonBuildException {
+        BuilderService builderService = new BuilderService(model, throwClassEx, itemStore);
+        return builderService.build(rootItem);
+    }
 
     /**
      * Constructs a JsonBuilder instance with the specified root JSON item.
@@ -45,6 +64,20 @@ public class JsonBuilder {
      */
     public JsonBuilder(JsonItem rootItem) {
         this.rootItem = rootItem;
+        this.itemStore = null;
+        this.builderService = null;
+    }
+    
+    /**
+     * Constructs a JsonBuilder instance with the specified root JSON item and item store.
+     * This version supports the new ItemStore architecture.
+     *
+     * @param rootItem The root JSON item to build from.
+     * @param itemStore The JsonItemStore for proxy reference resolution.
+     */
+    public JsonBuilder(JsonItem rootItem, JsonItemStore itemStore) {
+        this.rootItem = rootItem;
+        this.itemStore = itemStore;
         this.builderService = null;
     }
 
@@ -58,7 +91,23 @@ public class JsonBuilder {
      * @throws JsonBuildException If object construction fails.
      */
     public Object buildInstance(JsonModel model, boolean throwClassEx) throws JsonBuildException {
-        builderService = new BuilderService(model, throwClassEx);
+        builderService = new BuilderService(model, throwClassEx, itemStore);
+        return builderService.build(rootItem);
+    }
+    
+    /**
+     * Builds a Java object instance from the root JSON item using the specified model and custom item store.
+     * The custom item store overrides the one set in the constructor.
+     *
+     * @param model The JSON model containing type definitions and mappings.
+     * @param throwClassEx If true, throws exceptions when classes are not found;
+     *        if false, uses default handling.
+     * @param customItemStore The custom JsonItemStore to use (overrides constructor's itemStore).
+     * @return The constructed Java object.
+     * @throws JsonBuildException If object construction fails.
+     */
+    public Object buildInstance(JsonModel model, boolean throwClassEx, JsonItemStore customItemStore) throws JsonBuildException {
+        builderService = new BuilderService(model, throwClassEx, customItemStore);
         return builderService.build(rootItem);
     }
 
@@ -69,6 +118,15 @@ public class JsonBuilder {
      */
     public JsonItem getRootItem() {
         return rootItem;
+    }
+
+    /**
+     * Returns the JsonItemStore associated with this builder.
+     *
+     * @return The JsonItemStore, or null if not set.
+     */
+    public JsonItemStore getItemStore() {
+        return itemStore;
     }
 
     /**

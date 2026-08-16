@@ -7,6 +7,7 @@
 package de.jare.jsoncasted.item.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.JsonItemStore;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModel;
@@ -14,8 +15,10 @@ import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonInter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +41,11 @@ public class BuilderService {
     private final JsonModel model;
     private final boolean throwClassEx;
     private final Map<String, Object> builtObjectsByWoodKey = new HashMap<>();
+    
+    // For cycle detection during building
+    private final Set<String> buildingItems = new HashSet<>();
+    // Optional item store for proxy resolution
+    private JsonItemStore itemStore;
 
     /**
      * Constructs a BuilderService with the specified model and exception configuration.
@@ -49,6 +57,21 @@ public class BuilderService {
     public BuilderService(JsonModel model, boolean throwClassEx) {
         this.model = model;
         this.throwClassEx = throwClassEx;
+        this.itemStore = null;
+    }
+    
+    /**
+     * Constructs a BuilderService with the specified model, exception configuration, and item store.
+     *
+     * @param model the JSON model containing type definitions.
+     * @param throwClassEx if {@code true}, throws exceptions when unknown classes are encountered;
+     *                   otherwise logs warnings and continues.
+     * @param itemStore the JsonItemStore for proxy reference resolution.
+     */
+    public BuilderService(JsonModel model, boolean throwClassEx, JsonItemStore itemStore) {
+        this.model = model;
+        this.throwClassEx = throwClassEx;
+        this.itemStore = itemStore;
     }
 
     /**
@@ -59,16 +82,87 @@ public class BuilderService {
     public JsonModel getModel() {
         return model;
     }
-
+    
+    /**
+     * Returns the JsonItemStore associated with this builder service.
+     *
+     * @return the JsonItemStore, or null if not set.
+     */
+    public JsonItemStore getItemStore() {
+        return itemStore;
+    }
+    
+    /**
+     * Sets the JsonItemStore for this builder service.
+     *
+     * @param itemStore the JsonItemStore to set.
+     */
+    public void setItemStore(JsonItemStore itemStore) {
+        this.itemStore = itemStore;
+    }
+    
     /**
      * Builds an object from the given JSON item.
+     * This method handles proxy references by resolving them through the itemStore.
      *
      * @param item the JSON item to build from.
      * @return the constructed object, or {@code null} if the item is null.
      * @throws JsonBuildException if object construction fails and throwClassEx is true.
      */
     public Object build(JsonItem item) throws JsonBuildException {
-        return item == null ? null : item.buildInstance(this);
+        if (item == null) {
+            return null;
+        }
+        
+        // Check if this is a proxy reference
+        if (item.hasLinkId()) {
+            return buildProxyItem(item);
+        }
+        
+        // Normal item - build directly
+        return item.buildInstance(this);
+    }
+    
+    /**
+     * Builds an object from a proxy reference item.
+     * Resolves the linkId through the itemStore and builds the target item.
+     *
+     * @param proxyItem the proxy JSON item containing a linkId.
+     * @return the constructed object from the resolved target, or null if resolution fails.
+     * @throws JsonBuildException if resolution fails or cycle detection occurs.
+     */
+    private Object buildProxyItem(JsonItem proxyItem) throws JsonBuildException {
+        String linkId = proxyItem.getLinkId();
+        JsonItemStore store = proxyItem.getItemStore();
+        
+        // Use the builder's itemStore if the proxy doesn't have one
+        if (store == null) {
+            store = this.itemStore;
+        }
+        
+        if (store == null) {
+            throw new JsonBuildException("Proxy item has linkId but no itemStore: " + linkId);
+        }
+        
+        JsonItem targetItem = store.getItem(linkId);
+        if (targetItem == null) {
+            throw new JsonBuildException("Cannot resolve linkId: " + linkId);
+        }
+        
+        // Cycle detection
+        if (buildingItems.contains(linkId)) {
+            // Cycle detected - object is already being built
+            // Return null for now (can be enhanced later with placeholder objects)
+            return null;
+        }
+        
+        buildingItems.add(linkId);
+        try {
+            Object result = build(targetItem);
+            return result;
+        } finally {
+            buildingItems.remove(linkId);
+        }
     }
 
     /**

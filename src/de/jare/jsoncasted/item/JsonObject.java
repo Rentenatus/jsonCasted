@@ -25,6 +25,10 @@ public class JsonObject implements JsonItem {
     private final HashMap<String, JsonItem> map;
     private final JsonTypeDescriptor contextClass;
     private String woodKey;
+    
+    // New fields for ItemStore support
+    private String linkId;
+    private JsonItemStore itemStore;
 
     /**
      * Constructs a JsonObject instance with an associated class type.
@@ -35,6 +39,8 @@ public class JsonObject implements JsonItem {
         this.contextClass = aClassDescriptor;
         this.map = new HashMap<>();
         this.woodKey = null;
+        this.linkId = null;
+        this.itemStore = null;
     }
 
     /**
@@ -180,5 +186,27 @@ public class JsonObject implements JsonItem {
     @Override
     public Object buildInstance(BuilderService builderService) throws JsonBuildException {
         return builderService.getOrBuild(this, contextClass);
+    }
+    
+    // ===== New methods for JsonItemStore support =====
+    
+    @Override
+    public String getLinkId() {
+        return linkId;
+    }
+    
+    @Override
+    public JsonItemStore getItemStore() {
+        return itemStore;
+    }
+    
+    @Override
+    public void setLinkId(String linkId) {
+        this.linkId = linkId;
+    }
+    
+    @Override
+    public void setItemStore(JsonItemStore itemStore) {
+        this.itemStore = itemStore;
     }
 }

@@ -8,6 +8,7 @@ package de.jare.jsoncasted.io.convertservice;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.JsonItemStore;
 import de.jare.jsoncasted.item.JsonList;
 import de.jare.jsoncasted.item.JsonValue;
 import de.jare.jsoncasted.lang.JsonNode;
@@ -48,6 +49,23 @@ public class JsonNodeConverter {
      * @throws JsonParseException If conversion fails.
      */
     public static JsonItem convert(JsonResource res, String cName, JsonModelDescriptor descriptor, WoodResolution resolution, JsonDebugLevel debugLevel) throws JsonParseException {
+        return convert(res, cName, descriptor, resolution, debugLevel, null);
+    }
+    
+    /**
+     * Converts a JSON resource into a JsonItem using the specified context class, service, and item store.
+     * This version supports the new ItemStore architecture for proxy reference resolution.
+     *
+     * @param res The JSON resource to convert.
+     * @param cName The name of the context class for type resolution.
+     * @param descriptor The model descriptor containing type definitions.
+     * @param resolution The wood resolution for handling object references.
+     * @param debugLevel The debug level for controlling debug output.
+     * @param itemStore The JsonItemStore for storing all JsonItems (can be null for backward compatibility).
+     * @return The converted JsonItem, or null if input is null or empty.
+     * @throws JsonParseException If conversion fails.
+     */
+    public static JsonItem convert(JsonResource res, String cName, JsonModelDescriptor descriptor, WoodResolution resolution, JsonDebugLevel debugLevel, JsonItemStore itemStore) throws JsonParseException {
         if (res == null) {
             return null;
         }
@@ -58,7 +76,7 @@ public class JsonNodeConverter {
         if (contextClass == null) {
             return null;
         }
-        ConvertService service = new ConvertService(res, descriptor, resolution, debugLevel);
+        ConvertService service = new ConvertService(res, descriptor, resolution, debugLevel, itemStore);
         return convert(res.getRoot(), contextClass, service);
     }
 
@@ -76,6 +94,20 @@ public class JsonNodeConverter {
         if (node == null) {
             return null;
         }
+        JsonItem item = convertInternal(node, contextClass, service);
+        
+        // Set itemStore reference on the created item if available
+        if (item != null && service != null && service.hasItemStore()) {
+            item.setItemStore(service.getItemStore());
+        }
+        
+        return item;
+    }
+    
+    /**
+     * Internal conversion method that dispatches based on node type.
+     */
+    private static JsonItem convertInternal(JsonNode node, JsonTypeDescriptor contextClass, ConvertService service) throws JsonParseException {
         switch (node.getType()) {
             case OBJECT:
                 return JsonObjectConverter.convertObject(node, contextClass, service);

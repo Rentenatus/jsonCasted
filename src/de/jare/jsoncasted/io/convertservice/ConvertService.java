@@ -9,6 +9,7 @@ package de.jare.jsoncasted.io.convertservice;
 import de.jare.debug.DebugTuple;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.JsonItemStore;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.LinkingSet;
@@ -30,6 +31,7 @@ public class ConvertService {
     private JsonModelDescriptor descriptor;
     private WoodResolution resolution;
     private JsonDebugLevel debugLevel;
+    private JsonItemStore itemStore;
 
     /**
      * Constructs a ConvertService instance with the specified components.
@@ -47,6 +49,28 @@ public class ConvertService {
         this.descriptor = Objects.requireNonNull(descriptor, "descriptor must not be null");
         this.resolution = Objects.requireNonNull(resolution, "resolution must not be null");
         this.debugLevel = Objects.requireNonNull(debugLevel, "debugLevel must not be null");
+        this.itemStore = null;
+    }
+    
+    /**
+     * Constructs a ConvertService instance with the specified components including an item store.
+     *
+     * @param res The JSON resource containing the JSON data to convert.
+     * @param descriptor The model descriptor containing type definitions.
+     * @param resolution The wood resolution for handling object references.
+     * @param debugLevel The debug level for controlling debug output.
+     * @param itemStore The item store for storing all JsonItems during conversion.
+     */
+    public ConvertService(JsonResource res,
+            JsonModelDescriptor descriptor,
+            WoodResolution resolution,
+            JsonDebugLevel debugLevel,
+            JsonItemStore itemStore) {
+        this.res = Objects.requireNonNull(res, "res must not be null");
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor must not be null");
+        this.resolution = Objects.requireNonNull(resolution, "resolution must not be null");
+        this.debugLevel = Objects.requireNonNull(debugLevel, "debugLevel must not be null");
+        this.itemStore = itemStore;
     }
 
     /**
@@ -121,15 +145,6 @@ public class ConvertService {
         this.debugLevel = Objects.requireNonNull(debugLevel, "debugLevel must not be null");
     }
 
-    @Override
-    public String toString() {
-        return "ConvertService{"
-                + "hasResource=" + (res != null)
-                + ", hasDescriptor=" + (descriptor != null)
-                + ", hasResolution=" + (resolution != null)
-                + ", debugLevel=" + debugLevel
-                + '}';
-    }
 
     /**
      * Logs an informational message using the configured debug level.
@@ -205,5 +220,42 @@ public class ConvertService {
      */
     boolean containsResolutionKey(String aKey) {
         return getResolution().containsKey(aKey);
+    }
+    
+    /**
+     * Returns the JsonItemStore associated with this service.
+     *
+     * @return The JsonItemStore, or null if not set.
+     */
+    public JsonItemStore getItemStore() {
+        return itemStore;
+    }
+    
+    /**
+     * Sets the JsonItemStore for this service.
+     *
+     * @param itemStore The JsonItemStore to set.
+     */
+    public void setItemStore(JsonItemStore itemStore) {
+        this.itemStore = itemStore;
+    }
+    
+    /**
+     * Checks if this service has an associated JsonItemStore.
+     *
+     * @return true if an item store is set, false otherwise.
+     */
+    public boolean hasItemStore() {
+        return itemStore != null;
+    }
+    
+    @Override
+    public String toString() {
+        return "ConvertService{" + "hasResource=" + (res != null)
+                + ", hasDescriptor=" + (descriptor != null)
+                + ", hasResolution=" + (resolution != null)
+                + ", debugLevel=" + debugLevel
+                + ", hasItemStore=" + (itemStore != null)
+                + '}';
     }
 }
