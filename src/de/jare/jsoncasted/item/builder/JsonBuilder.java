@@ -27,6 +27,10 @@ public class JsonBuilder {
     /**
      * Builds a Java object instance from a JSON item using the specified model.
      * This is a static convenience method that creates a BuilderService internally.
+     * 
+     * This method now automatically uses the JsonItemStore from the rootItem if available,
+     * enabling proxy resolution for the new ItemStore architecture while maintaining
+     * backward compatibility.
      *
      * @param model The JSON model containing type definitions and mappings.
      * @param throwClassEx If true, throws exceptions when classes are not found;
@@ -36,7 +40,9 @@ public class JsonBuilder {
      * @throws JsonBuildException If object construction fails.
      */
     public static Object buildInstance(JsonModel model, boolean throwClassEx, JsonItem rootItem) throws JsonBuildException {
-        BuilderService builderService = new BuilderService(model, throwClassEx);
+        // Use the itemStore from rootItem if available (new architecture)
+        JsonItemStore itemStore = rootItem != null ? rootItem.getItemStore() : null;
+        BuilderService builderService = new BuilderService(model, throwClassEx, itemStore);
         return builderService.build(rootItem);
     }
     
@@ -83,6 +89,10 @@ public class JsonBuilder {
 
     /**
      * Builds a Java object instance from the root JSON item using the specified model.
+     * 
+     * This method now automatically uses the JsonItemStore from the rootItem if the
+     * builder was created without an explicit itemStore, enabling backward compatibility
+     * with the new ItemStore architecture.
      *
      * @param model The JSON model containing type definitions and mappings.
      * @param throwClassEx If true, throws exceptions when classes are not found;
@@ -91,7 +101,9 @@ public class JsonBuilder {
      * @throws JsonBuildException If object construction fails.
      */
     public Object buildInstance(JsonModel model, boolean throwClassEx) throws JsonBuildException {
-        builderService = new BuilderService(model, throwClassEx, itemStore);
+        // Use explicit itemStore if set, otherwise try to get it from rootItem
+        JsonItemStore effectiveStore = itemStore != null ? itemStore : (rootItem != null ? rootItem.getItemStore() : null);
+        builderService = new BuilderService(model, throwClassEx, effectiveStore);
         return builderService.build(rootItem);
     }
     
