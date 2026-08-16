@@ -119,14 +119,13 @@ public class CyclicDependencyTest {
         objA.putParam("bRef", proxyB);
         objB.putParam("aRef", proxyA);
         
-        // Create BuilderService with ItemStore
+        // Create BuilderService
         // Note: We can't easily test the full building without a proper JsonModel,
         // but we can verify the cycle detection mechanism exists
         JsonModel model = null;  // Would need a proper model
-        BuilderService builderService = new BuilderService(model, false, store);
+        BuilderService builderService = new BuilderService(model, false);
         
         assertNotNull(builderService);
-        assertSame(builderService.getItemStore(), store);
     }
 
     /**

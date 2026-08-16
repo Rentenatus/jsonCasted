@@ -138,14 +138,14 @@ RootConverter.convert()
     ├─ Alle JsonNodes → JsonItems konvertieren
     ├─ JsonItems in Store registrieren
     ├─ Proxy-Referenzen als linkId speichern (nicht sofort auflösen)
-    └─ rootItem + itemStore zurückgeben
+    └─ rootItem zurückgeben (ItemStore ist in Items gespeichert)
         ↓
-JsonItem rootItem (MIT linkIds zu Proxy-Items)
+JsonItem rootItem (MIT linkIds zu Proxy-Items + ItemStore-Referenz)
 JsonItemStore (enthält ALLE Items inkl. Proxy-Items)
     ↓
-JsonBuilder.buildInstance(rootItem, itemStore)
+JsonBuilder.buildInstance(rootItem)
     ↓
-BuilderService (löst linkIds über itemStore auf)
+BuilderService (löst linkIds über itemStore aus den Items auf)
     ↓
 Java-Objekte (vollständig mit allen Referenzen)
 ```
@@ -262,11 +262,18 @@ public interface JsonItem {
     
     /**
      * Setzt die Link-ID (für interne Verwendung beim Parsen).
+     * Hinweis: JsonValue (primitive Werte) ignoriert diese Operation,
+     * da Primitivwerte keine Proxy-Referenzen darstellen können.
      */
     default void setLinkId(String linkId) { }
     
     /**
      * Setzt den ItemStore (für interne Verwendung beim Parsen).
+     * Hinweis: JsonValue (primitive Werte) ignoriert diese Operation,
+     * da Primitivwerte keinen Store-Zugriff benötigen.
+     * 
+     * Der ItemStore wird für JsonObject und JsonList genutzt, um Proxy-Referenzen
+     * aufzulösen. Er wird automatisch durch den Parsing-Prozess in die Items injiziert.
      */
     default void setItemStore(JsonItemStore itemStore) { }
 }
@@ -335,11 +342,27 @@ public class JsonValue implements JsonItem {
     private final Object value;
     private final JsonTypeDescriptor contextClass;
     
-    // === NEUE FELDER === 
-    private String linkId;
-    private JsonItemStore itemStore;
+    // === NEUE FELDER ===
+    // JsonValue ist primitiv und kann KEINE LinkId tragen.
+    // Die Methoden getLinkId() und getItemStore() geben immer null zurück.
+    // Dies ist eine bewusste Design-Entscheidung: Primitivwerte (Strings, Numbers, Booleans)
+    // repräsentieren keine Objekt-Referenzen und benötigen daher keine Proxy-Auflösung.
     
-    // ... (ähnliche Implementierung)
+    @Override
+    public String getLinkId() { return null; }  // Primitiv - keine LinkId möglich
+    
+    @Override
+    public JsonItemStore getItemStore() { return null; }  // Primitiv - kein Store-Zugriff
+    
+    @Override
+    public void setLinkId(String linkId) { 
+        // Keine Operation - JsonValue kann keine LinkId tragen
+    }
+    
+    @Override
+    public void setItemStore(JsonItemStore itemStore) { 
+        // Keine Operation - JsonValue benötigt keinen Store
+    }
 }
 ```
 
@@ -568,22 +591,15 @@ public static JsonItem convert(JsonNode node, JsonTypeDescriptor contextClass,
 
 ## 6. Building-Prozess mit ItemStore
 
-### 6.1 JsonBuilder - Angepasste API
+### 6.1 JsonBuilder - Vereinfachte API
 
 ```java
 public class JsonBuilder {
     private final JsonItem rootItem;
-    private final JsonItemStore itemStore;  // NEU
     
-    // Constructor mit ItemStore
-    public JsonBuilder(JsonItem rootItem, JsonItemStore itemStore) {
-        this.rootItem = rootItem;
-        this.itemStore = itemStore;
-    }
-    
-    // Bestehende Methode (überladen für Rückwärtskompatibilität)
+    // Einziger Constructor - ItemStore wird aus rootItem extrahiert
     public JsonBuilder(JsonItem rootItem) {
-        this(rootItem, null);
+        this.rootItem = rootItem;
     }
     
     public Object buildInstance(JsonModel model, boolean throwClassEx) 
@@ -591,19 +607,10 @@ public class JsonBuilder {
         BuilderService builderService = new BuilderService(model, throwClassEx);
         return builderService.build(rootItem);
     }
-    
-    // Neue Methode mit explizitem ItemStore
-    public Object buildInstance(JsonModel model, boolean throwClassEx, 
-                               JsonItemStore customStore) throws JsonBuildException {
-        // customStore überschreibt das Standard-itemStore
-        JsonItemStore effectiveStore = customStore != null ? customStore : this.itemStore;
-        BuilderService builderService = new BuilderService(model, throwClassEx);
-        return builderService.buildWithStore(rootItem, effectiveStore);
-    }
 }
 ```
 
-### 6.2 BuilderService - Vollständige Implementierung
+### 6.2 BuilderService - Vereinfachte Implementierung
 
 ```java
 public class BuilderService {
@@ -619,7 +626,8 @@ public class BuilderService {
     
     /**
      * Hauptmethode - baut ein Objekt aus einem JsonItem.
-     * Löst automatisch Proxy-Referenzen auf.
+     * Löst automatisch Proxy-Referenzen auf, indem der ItemStore
+     * aus dem Proxy-Item selbst extrahiert wird.
      */
     public Object build(JsonItem item) throws JsonBuildException {
         if (item == null) {
@@ -632,25 +640,12 @@ public class BuilderService {
         }
         
         // Normales Item
-        return buildDirectItem(item);
-    }
-    
-    /**
-     * Baut ein direktes Item (keine Proxy-Referenz).
-     */
-    private Object buildDirectItem(JsonItem item) throws JsonBuildException {
-        try {
-            return item.buildInstance(this);
-        } catch (Exception e) {
-            if (throwClassEx) {
-                throw new JsonBuildException("Failed to build item: " + item.getPrintClassName(), e);
-            }
-            return null;
-        }
+        return item.buildInstance(this);
     }
     
     /**
      * Löst eine Proxy-Referenz auf und baut das Zielobjekt.
+     * Der ItemStore wird aus dem Proxy-Item selbst erhalten.
      */
     private Object buildProxyItem(JsonItem proxyItem) throws JsonBuildException {
         String linkId = proxyItem.getLinkId();
@@ -704,7 +699,7 @@ public class BuilderService {
 ### Phase 2: Kernkomponenten (2-3 Tage)
 - [ ] `JsonItemStore` Klasse implementieren
 - [ ] `JsonItem`-Interface um neue Methoden erweitern
-- [ ] `JsonObject`, `JsonList`, `JsonValue` anpassen
+- [ ] `JsonObject` und `JsonList` anpassen (JsonValue bleibt unverändert - primitiv, keine LinkId-Unterstützung nötig)
 
 ### Phase 3: Parsing-Anpassungen (2-3 Tage)
 - [ ] `JsonNodeConverter` für ItemStore-Unterstützung anpassen
@@ -712,9 +707,9 @@ public class BuilderService {
 - [ ] `RootConverter` für ItemStore-Integration anpassen
 - [ ] `ConvertService` ggf. erweitern
 
-### Phase 4: Building-Anpassungen (2-3 Tage)
-- [ ] `BuilderService` für Proxy-Auflösung erweitern
-- [ ] `JsonBuilder` für ItemStore-Unterstützung anpassen
+### Phase 4: Building-Anpassungen (1-2 Tage)
+- [x] `BuilderService` für Proxy-Auflösung vereinfachen (ItemStore wird aus Items extrahiert)
+- [x] `JsonBuilder` vereinfachen (kein ItemStore-Parameter mehr nötig)
 
 ### Phase 5: Testing (3-5 Tage)
 - [ ] Unit-Tests für `JsonItemStore`
@@ -979,27 +974,26 @@ if (buildingItems.contains(linkId)) {
 
 ### 12.1 Rückwärtskompatibilität
 
-Um besteenden Code nicht zu brechen:
+Die vereinfachte Architektur ist voll rückwärtskompatibel:
 
 ```java
-// Alte API (bleibt erhalten)
+// Einfache API - funktioniert mit und ohne ItemStore
 public class JsonBuilder {
     public JsonBuilder(JsonItem rootItem) {
-        this(rootItem, null);  // Ohne ItemStore
+        this.rootItem = rootItem;
     }
     
     public Object buildInstance(JsonModel model, boolean throwClassEx) {
-        // Fallback: Wenn kein ItemStore, normales Verhalten
-        if (this.itemStore == null) {
-            BuilderService builderService = new BuilderService(model, throwClassEx);
-            return builderService.build(rootItem);
-        }
-        // Neues Verhalten
+        // ItemStore wird automatisch aus rootItem extrahiert
         BuilderService builderService = new BuilderService(model, throwClassEx);
-        return builderService.buildWithStore(rootItem);
+        return builderService.build(rootItem);
     }
 }
 ```
+
+**Hinweis:** Da der ItemStore in jedem JsonItem gespeichert ist, ist keine spezielle
+Rückwärtskompatibilitäts-Logik mehr nötig. Die neue Architektur funktioniert
+transparant für bestehenden Code.
 
 ### 12.2 Adapter-Pattern
 
@@ -1049,6 +1043,25 @@ public class JsonItemStoreAdapter {
 - `src/de/jare/jsoncasted/io/convertservice/JsonObjectConverter.java`
 - `src/de/jare/jsoncasted/io/convertservice/RootConverter.java`
 - `src/de/jare/jsoncasted/lang/JsonResource.java`
+
+---
+
+## Anhang C: Vereinfachung der ItemStore-Architektur
+
+### Durchgeführte Optimierungen
+
+Im Rahmen der Implementierung wurde die Architektur vereinfacht:
+
+1. **ItemStore wird in JsonItems gespeichert** – Jedes JsonObject und JsonList erhält während des Parsens
+   eine Referenz auf den ItemStore via `setItemStore()`. JsonValue (primitive Werte) ignoriert diese.
+
+2. **BuilderService vereinfacht** – Das eigene `itemStore` Feld wurde entfernt. Der BuilderService
+   extrahiert den Store bei Bedarf aus dem Proxy-Item selbst (`proxyItem.getItemStore()`).
+
+3. **JsonBuilder vereinfacht** – Der ItemStore wird nicht mehr als Parameter durchgereicht.
+   Alle Methoden nutzen den Store aus dem rootItem.
+
+4. **Vorteil** – Weniger Parameter, klarere Verantwortlichkeiten, einfacherer Code.
 
 ---
 

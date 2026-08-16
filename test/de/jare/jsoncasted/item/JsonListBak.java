@@ -15,8 +15,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * The JsonList class represents a JSON array structure. It stores a list of
- * JSON items and provides methods to access and manipulate them.
+ * The JsonList class represents a JSON array structure. It stores a list of JSON items and provides methods to access
+ * and manipulate them.
  *
  * @author Janusch Rentenatus
  */
@@ -27,12 +27,10 @@ public class JsonListBak implements JsonItem {
     private final boolean asList;
 
     /**
-     * Constructs a JsonList instance with the specified items and type
-     * information.
+     * Constructs a JsonList instance with the specified items and type information.
      *
      * @param list The list of JSON items.
-     * @param asList Indicates whether the list is structured as a typical JSON
-     * array.
+     * @param asList Indicates whether the list is structured as a typical JSON array.
      * @param jType The JSON type used for instance creation.
      */
     public JsonListBak(ArrayList<JsonItem> list, boolean asList, JsonType jType) {
@@ -132,8 +130,7 @@ public class JsonListBak implements JsonItem {
     }
 
     /**
-     * Retrieves a JSON property by key. Since this class represents an array,
-     * no key-based retrieval is available.
+     * Retrieves a JSON property by key. Since this class represents an array, no key-based retrieval is available.
      *
      * @param key The property name.
      * @return null, as JSON lists do not store key-value mappings.
@@ -144,8 +141,8 @@ public class JsonListBak implements JsonItem {
     }
 
     /**
-     * Retrieves the set of all keys available in the JSON object. Since this
-     * class represents an array, it does not maintain keys.
+     * Retrieves the set of all keys available in the JSON object. Since this class represents an array, it does not
+     * maintain keys.
      *
      * @return null, as JSON lists do not have parameter names.
      */
@@ -166,5 +163,15 @@ public class JsonListBak implements JsonItem {
             return null;
         }
         return jType.build(builderService, listIterator(), asList, listSize());
+    }
+
+    @Override
+    public String getLinkId() {
+        return null;
+    }
+
+    @Override
+    public JsonItemStore getItemStore() {
+        return null;
     }
 }

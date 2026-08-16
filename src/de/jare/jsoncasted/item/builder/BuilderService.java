@@ -44,8 +44,6 @@ public class BuilderService {
     
     // For cycle detection during building
     private final Set<String> buildingItems = new HashSet<>();
-    // Optional item store for proxy resolution
-    private JsonItemStore itemStore;
 
     /**
      * Constructs a BuilderService with the specified model and exception configuration.
@@ -54,24 +52,17 @@ public class BuilderService {
      * @param throwClassEx if {@code true}, throws exceptions when unknown classes are encountered;
      *                   otherwise logs warnings and continues.
      */
-    public BuilderService(JsonModel model, boolean throwClassEx) {
-        this.model = model;
-        this.throwClassEx = throwClassEx;
-        this.itemStore = null;
-    }
-    
     /**
-     * Constructs a BuilderService with the specified model, exception configuration, and item store.
+     * Constructs a BuilderService with the specified model and exception configuration.
+     * The itemStore is obtained from JsonItems when needed for proxy resolution.
      *
      * @param model the JSON model containing type definitions.
      * @param throwClassEx if {@code true}, throws exceptions when unknown classes are encountered;
      *                   otherwise logs warnings and continues.
-     * @param itemStore the JsonItemStore for proxy reference resolution.
      */
-    public BuilderService(JsonModel model, boolean throwClassEx, JsonItemStore itemStore) {
+    public BuilderService(JsonModel model, boolean throwClassEx) {
         this.model = model;
         this.throwClassEx = throwClassEx;
-        this.itemStore = itemStore;
     }
 
     /**
@@ -84,26 +75,9 @@ public class BuilderService {
     }
     
     /**
-     * Returns the JsonItemStore associated with this builder service.
-     *
-     * @return the JsonItemStore, or null if not set.
-     */
-    public JsonItemStore getItemStore() {
-        return itemStore;
-    }
-    
-    /**
-     * Sets the JsonItemStore for this builder service.
-     *
-     * @param itemStore the JsonItemStore to set.
-     */
-    public void setItemStore(JsonItemStore itemStore) {
-        this.itemStore = itemStore;
-    }
-    
-    /**
      * Builds an object from the given JSON item.
-     * This method handles proxy references by resolving them through the itemStore.
+     * This method handles proxy references by resolving them through the itemStore
+     * obtained from the proxy item itself.
      *
      * @param item the JSON item to build from.
      * @return the constructed object, or {@code null} if the item is null.
@@ -134,11 +108,6 @@ public class BuilderService {
     private Object buildProxyItem(JsonItem proxyItem) throws JsonBuildException {
         String linkId = proxyItem.getLinkId();
         JsonItemStore store = proxyItem.getItemStore();
-        
-        // Use the builder's itemStore if the proxy doesn't have one
-        if (store == null) {
-            store = this.itemStore;
-        }
         
         if (store == null) {
             throw new JsonBuildException("Proxy item has linkId but no itemStore: " + linkId);

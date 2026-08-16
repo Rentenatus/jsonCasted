@@ -119,37 +119,19 @@ public class ItemStoreIntegrationTest {
     }
 
     /**
-     * Test JsonBuilder with ItemStore.
-     * This tests the basic integration of ItemStore with the builder.
+     * Test JsonBuilder with rootItem.
+     * The ItemStore is now obtained from the rootItem when building.
      */
     @Test
-    public void testJsonBuilderWithItemStore() {
-        // Create a simple JsonObject
-        JsonObject obj = new JsonObject(null);
-        JsonItemStore store = new JsonItemStore();
-        
-        // Create a JsonBuilder with ItemStore
-        JsonBuilder builder = new JsonBuilder(obj, store);
-        
-        assertNotNull(builder);
-        assertSame(builder.getRootItem(), obj);
-        assertSame(builder.getItemStore(), store);
-    }
-
-    /**
-     * Test JsonBuilder backward compatibility (without ItemStore).
-     */
-    @Test
-    public void testJsonBuilderBackwardCompatibility() {
+    public void testJsonBuilderWithRootItem() {
         // Create a simple JsonObject
         JsonObject obj = new JsonObject(null);
         
-        // Create a JsonBuilder without ItemStore (old API)
+        // Create a JsonBuilder with rootItem
         JsonBuilder builder = new JsonBuilder(obj);
         
         assertNotNull(builder);
         assertSame(builder.getRootItem(), obj);
-        assertNull(builder.getItemStore());
     }
 
     /**
