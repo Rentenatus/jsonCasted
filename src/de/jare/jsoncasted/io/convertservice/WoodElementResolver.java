@@ -9,7 +9,6 @@ package de.jare.jsoncasted.io.convertservice;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.item.JsonItem;
-import de.jare.jsoncasted.item.JsonItemStore;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonTerms;
@@ -23,15 +22,13 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * The WoodResolver class handles the resolution of wood (object reference)
- * structures in JSON resources. It manages the loading of external resources
- * referenced via wood providers and coordinates the resolution process across
- * multiple resources.
+ * The WoodResolver class handles the resolution of wood (object reference) structures in JSON resources. It manages the
+ * loading of external resources referenced via wood providers and coordinates the resolution process across multiple
+ * resources.
  *
  * <p>
- * This class uses repository descriptors from the main descriptor to resolve
- * types for external resources, without requiring direct access to the
- * JsonModel instances.
+ * This class uses repository descriptors from the main descriptor to resolve types for external resources, without
+ * requiring direct access to the JsonModel instances.
  * </p>
  *
  * @author Janusch Rentenatus
@@ -48,23 +45,20 @@ public final class WoodElementResolver {
     }
 
     /**
-     * Resolves all wood references in a JsonSystem.This method attempts to
-     * resolve all object references within the system, loading external
-     * resources as needed when providers are not found.Attempts to resolve all
-     * wood references in a JsonSystem.This method processes the main resource
-     * and all registered resources, resolving object references in an iterative
-     * manner.<p>
-     * Repository descriptors are retrieved directly from the main descriptor's
-     * repoDescriptor map, without accessing the JsonModel instances.
+     * Resolves all wood references in a JsonSystem.This method attempts to resolve all object references within the
+     * system, loading external resources as needed when providers are not found.Attempts to resolve all wood references
+     * in a JsonSystem.This method processes the main resource and all registered resources, resolving object references
+     * in an iterative manner.<p>
+     * Repository descriptors are retrieved directly from the main descriptor's repoDescriptor map, without accessing
+     * the JsonModel instances.
      * </p>
-     * 
+     *
      * @param container
      * @param resourceDescriptor
      * @param debugLevel The debug level for controlling debug output.
-     * @return The WoodResolution containing resolved objects, unresolved keys,
-     * and exceptions.
+     * @return The WoodResolution containing resolved objects, unresolved keys, and exceptions.
      */
-    public static WoodResolution resolve(JsonResource container, JsonModelDescriptor resourceDescriptor, JsonDebugLevel debugLevel, JsonItemStore itemStore) {
+    public static WoodResolution resolve(JsonResource container, JsonModelDescriptor resourceDescriptor, JsonDebugLevel debugLevel) {
 
         LinkingSet linkingSet = Objects.requireNonNull(container.getLinkingSet(),
                 "container.linkingSet must not be null");
@@ -72,7 +66,7 @@ public final class WoodElementResolver {
         Set<String> remainingKeys = new LinkedHashSet<>(linkingSet.getObjectIdMap().keySet());
         boolean progress = !remainingKeys.isEmpty();
 
-        ConvertService service = new ConvertService(container, resourceDescriptor, resolution, debugLevel, itemStore);
+        ConvertService service = new ConvertService(container, resourceDescriptor, resolution, debugLevel);
 
         while (progress) {
             progress = resolveLoop(remainingKeys, service);
@@ -89,8 +83,7 @@ public final class WoodElementResolver {
      *
      * @param remainingKeys The set of keys that still need to be resolved.
      * @param service The convert service for resolution.
-     * @return true if any progress was made (objects were resolved == the set
-     * has shrunk), false otherwise.
+     * @return true if any progress was made (objects were resolved == the set has shrunk), false otherwise.
      */
     private static boolean resolveLoop(Set<String> remainingKeys, ConvertService service) {
         boolean progress = false;
@@ -125,8 +118,7 @@ public final class WoodElementResolver {
     }
 
     /**
-     * Checks if a JSON node can be converted now, i.e., all its dependencies
-     * are resolved.
+     * Checks if a JSON node can be converted now, i.e., all its dependencies are resolved.
      *
      * @param node The JSON node to check.
      * @param linkingSet The linking set for resolving object references.
@@ -204,14 +196,12 @@ public final class WoodElementResolver {
     }
 
     /**
-     * Resolves the context class for a JSON node by extracting the _class
-     * field.
+     * Resolves the context class for a JSON node by extracting the _class field.
      *
      * @param node The JSON node to resolve the class for.
      * @param descriptor The model descriptor for type lookup.
      * @return The resolved type descriptor.
-     * @throws JsonParseException If the node is not an object, missing _class,
-     * or type not found.
+     * @throws JsonParseException If the node is not an object, missing _class, or type not found.
      */
     private static JsonTypeDescriptor resolveContextClass(JsonNode node, JsonModelDescriptor descriptor)
             throws JsonParseException {

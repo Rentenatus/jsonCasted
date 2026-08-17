@@ -8,7 +8,6 @@
 package de.jare.jsoncasted.item.bak;
 
 import de.jare.jsoncasted.item.JsonItem;
-import de.jare.jsoncasted.item.JsonItemStore;
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonType;
@@ -167,13 +166,4 @@ public class JsonListBak implements JsonItem {
         return jType.build(builderService, listIterator(), asList, listSize());
     }
 
-    @Override
-    public String getLinkId() {
-        return null;
-    }
-
-    @Override
-    public JsonItemStore getItemStore() {
-        return null;
-    }
 }

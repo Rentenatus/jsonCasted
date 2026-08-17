@@ -7,7 +7,6 @@
 package de.jare.jsoncasted.item.builder;
 
 import de.jare.jsoncasted.item.JsonItem;
-import de.jare.jsoncasted.item.JsonItemStore;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModel;
@@ -25,23 +24,25 @@ import java.util.logging.Logger;
 /**
  * Service class responsible for building Java objects from JSON structures.
  *
- * <p>The BuilderService coordinates the object construction process by:</p>
+ * <p>
+ * The BuilderService coordinates the object construction process by:</p>
  * <ul>
- *   <li>Managing the JSON model and type registry</li>
- *   <li>Tracking built objects by wood key for reference resolution</li>
- *   <li>Dispatching build requests to appropriate builders based on type information</li>
- *   <li>Handling object caching to prevent duplicate instantiation</li>
+ * <li>Managing the JSON model and type registry</li>
+ * <li>Tracking built objects by wood key for reference resolution</li>
+ * <li>Dispatching build requests to appropriate builders based on type information</li>
+ * <li>Handling object caching to prevent duplicate instantiation</li>
  * </ul>
  *
- * <p>This service is the central component in the object building pipeline, connecting
- * parsed JSON structures ({@link JsonItem}) with actual Java object instantiation.</p>
+ * <p>
+ * This service is the central component in the object building pipeline, connecting parsed JSON structures
+ * ({@link JsonItem}) with actual Java object instantiation.</p>
  */
 public class BuilderService {
 
     private final JsonModel model;
     private final boolean throwClassEx;
     private final Map<String, Object> builtObjectsByWoodKey = new HashMap<>();
-    
+
     // For cycle detection during building
     private final Set<String> buildingItems = new HashSet<>();
 
@@ -49,16 +50,16 @@ public class BuilderService {
      * Constructs a BuilderService with the specified model and exception configuration.
      *
      * @param model the JSON model containing type definitions.
-     * @param throwClassEx if {@code true}, throws exceptions when unknown classes are encountered;
-     *                   otherwise logs warnings and continues.
+     * @param throwClassEx if {@code true}, throws exceptions when unknown classes are encountered; otherwise logs
+     * warnings and continues.
      */
     /**
-     * Constructs a BuilderService with the specified model and exception configuration.
-     * The itemStore is obtained from JsonItems when needed for proxy resolution.
+     * Constructs a BuilderService with the specified model and exception configuration. The itemStore is obtained from
+     * JsonItems when needed for proxy resolution.
      *
      * @param model the JSON model containing type definitions.
-     * @param throwClassEx if {@code true}, throws exceptions when unknown classes are encountered;
-     *                   otherwise logs warnings and continues.
+     * @param throwClassEx if {@code true}, throws exceptions when unknown classes are encountered; otherwise logs
+     * warnings and continues.
      */
     public BuilderService(JsonModel model, boolean throwClassEx) {
         this.model = model;
@@ -73,11 +74,10 @@ public class BuilderService {
     public JsonModel getModel() {
         return model;
     }
-    
+
     /**
-     * Builds an object from the given JSON item.
-     * This method handles proxy references by resolving them through the itemStore
-     * obtained from the proxy item itself.
+     * Builds an object from the given JSON item. This method handles proxy references by resolving them through the
+     * itemStore obtained from the proxy item itself.
      *
      * @param item the JSON item to build from.
      * @return the constructed object, or {@code null} if the item is null.
@@ -87,51 +87,7 @@ public class BuilderService {
         if (item == null) {
             return null;
         }
- 
-        // Check if this is a proxy reference
-        if (item.hasLinkId()) {
-            return buildProxyItem(item);
-        }
-        
-        // Normal item - build directly
         return item.buildInstance(this);
-    }
-    
-    /**
-     * Builds an object from a proxy reference item.
-     * Resolves the linkId through the itemStore and builds the target item.
-     *
-     * @param proxyItem the proxy JSON item containing a linkId.
-     * @return the constructed object from the resolved target, or null if resolution fails.
-     * @throws JsonBuildException if resolution fails or cycle detection occurs.
-     */
-    private Object buildProxyItem(JsonItem proxyItem) throws JsonBuildException {
-        String linkId = proxyItem.getLinkId();
-        JsonItemStore store = proxyItem.getItemStore();
-        
-        if (store == null) {
-            throw new JsonBuildException("Proxy item has linkId but no itemStore: " + linkId);
-        }
-        
-        JsonItem targetItem = store.getItem(linkId);
-        if (targetItem == null) {
-            throw new JsonBuildException("Cannot resolve linkId: " + linkId);
-        }
-        
-        // Cycle detection
-        if (buildingItems.contains(linkId)) {
-            // Cycle detected - object is already being built
-            // Return null for now (can be enhanced later with placeholder objects)
-            return null;
-        }
-        
-        buildingItems.add(linkId);
-        try {
-            Object result = build(targetItem);
-            return result;
-        } finally {
-            buildingItems.remove(linkId);
-        }
     }
 
     /**
@@ -159,8 +115,9 @@ public class BuilderService {
     /**
      * Builds or retrieves an object from the cache using its wood key.
      *
-     * <p>If the object has already been built and cached under the wood key,
-     * the cached instance is returned. Otherwise, a new object is built and cached.</p>
+     * <p>
+     * If the object has already been built and cached under the wood key, the cached instance is returned. Otherwise, a
+     * new object is built and cached.</p>
      *
      * @param jsonObject the JSON object to build from.
      * @param contextClass the type descriptor for the target class.

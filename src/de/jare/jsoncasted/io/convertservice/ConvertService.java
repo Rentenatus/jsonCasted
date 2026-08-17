@@ -9,7 +9,6 @@ package de.jare.jsoncasted.io.convertservice;
 import de.jare.debug.DebugTuple;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
-import de.jare.jsoncasted.item.JsonItemStore;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.LinkingSet;
@@ -31,7 +30,6 @@ public class ConvertService {
     private final JsonModelDescriptor descriptor;
     private final WoodResolution resolution;
     private JsonDebugLevel debugLevel;
-    private final JsonItemStore itemStore;
 
     /**
      * Constructs a ConvertService instance with the specified components including an item store.
@@ -40,18 +38,15 @@ public class ConvertService {
      * @param descriptor The model descriptor containing type definitions.
      * @param resolution The wood resolution for handling object references.
      * @param debugLevel The debug level for controlling debug output.
-     * @param itemStore The item store for storing all JsonItems during conversion.
      */
     public ConvertService(JsonResource res,
             JsonModelDescriptor descriptor,
             WoodResolution resolution,
-            JsonDebugLevel debugLevel,
-            JsonItemStore itemStore) {
+            JsonDebugLevel debugLevel) {
         this.res = Objects.requireNonNull(res, "res must not be null");
         this.descriptor = Objects.requireNonNull(descriptor, "descriptor must not be null");
         this.resolution = Objects.requireNonNull(resolution, "resolution must not be null");
         this.debugLevel = Objects.requireNonNull(debugLevel, "debugLevel must not be null");
-        this.itemStore = itemStore;
     }
 
     /**
@@ -175,31 +170,12 @@ public class ConvertService {
         return getResolution().containsKey(aKey);
     }
 
-    /**
-     * Returns the JsonItemStore associated with this service.
-     *
-     * @return The JsonItemStore, or null if not set.
-     */
-    public JsonItemStore getItemStore() {
-        return itemStore;
-    }
-
-    /**
-     * Checks if this service has an associated JsonItemStore.
-     *
-     * @return true if an item store is set, false otherwise.
-     */
-    public boolean hasItemStore() {
-        return itemStore != null;
-    }
-
     @Override
     public String toString() {
         return "ConvertService{" + "hasResource=" + (res != null)
                 + ", hasDescriptor=" + (descriptor != null)
                 + ", hasResolution=" + (resolution != null)
                 + ", debugLevel=" + debugLevel
-                + ", hasItemStore=" + (itemStore != null)
                 + '}';
     }
 }

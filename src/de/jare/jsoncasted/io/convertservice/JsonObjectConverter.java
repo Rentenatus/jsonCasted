@@ -14,7 +14,6 @@ import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_LINK;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_OBJECT_ID;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
-import de.jare.jsoncasted.item.JsonItemStore;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.io.JsonParseException;
@@ -68,14 +67,7 @@ public class JsonObjectConverter {
             converter.setCastedContext(castedChildType);
         }
 
-        JsonItem result = converter.convertObject();
-
-        // Register the JsonItem in the ItemStore if it has a woodKey
-        if (node != null && node.isObject()) {
-            registerJsonItemInStore(result, node, service);
-        }
-
-        return result;
+        return converter.convertObject();
     }
 
     /**
@@ -323,41 +315,6 @@ public class JsonObjectConverter {
                 : JsonNodeConverter.convert(childNode, childType, service);
         myObject.putParam(paramName, paramObject);
 
-    }
-
-    /**
-     * Registers a JsonItem in the ItemStore with its woodKey and linkId. This ensures that proxy references can be
-     * resolved during the building phase.
-     *
-     * @param jsonItem The JsonItem to register.
-     * @param node The source JsonNode containing wood metadata.
-     * @param service The convert service providing access to the ItemStore.
-     */
-    private static void registerJsonItemInStore(JsonItem jsonItem, JsonNode node, ConvertService service) {
-        if (jsonItem == null || node == null || !service.hasItemStore()) {
-            return;
-        }
-
-        try {
-            String providerName = service.getLinkingSet().getProviderName();
-            if (providerName == null) {
-                return;
-            }
-
-            String woodKey = node.getObjectId(providerName);
-
-            if (woodKey != null) {
-                jsonItem.setWoodKey(woodKey);
-                jsonItem.setItemStore(service.getItemStore());
-                service.getItemStore().addItem(woodKey, jsonItem);
-            }
-
-        } catch (JsonParseException e) {
-            service.warning(() -> new DebugTuple(
-                    "Failed to register JsonItem in ItemStore: {0}",
-                    e.getMessage()
-            ));
-        }
     }
 
 }

@@ -275,25 +275,4 @@ public class JsonValue implements JsonItem {
         return builderService.buildValue(this, contextClass);
     }
 
-    /**
-     * JsonValue represents primitive values and cannot have links or be stored in ItemStore
-     *
-     * @return null, Primitive values cannot have link IDs
-     */
-    @Override
-    public String getLinkId() {
-        return null;  // Primitive values cannot have link IDs
-    }
-
-    /**
-     * JsonValue represents primitive values and cannot have links or be stored in ItemStore
-     *
-     * @return null, Primitive values cannot have link IDs
-     */
-    @Override
-    public JsonItemStore getItemStore() {
-        return null;  // Primitive values are not stored in ItemStore
-    }
-
-    // setLinkId() and setItemStore() use default no-op implementations from JsonItem interface
 }

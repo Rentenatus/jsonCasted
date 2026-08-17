@@ -7,6 +7,7 @@
 package de.jare.jsoncasted.io.convertservice;
 
 import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonList;
 import de.jare.jsoncasted.item.JsonValue;
@@ -15,10 +16,7 @@ import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.io.JsonParseException;
-import de.jare.jsoncasted.item.JsonItemStore;
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Converter to transform a JsonNode tree into the library's JsonItem model. This class provides the core conversion
@@ -50,7 +48,7 @@ public class JsonNodeConverter {
      * @return The converted JsonItem, or null if input is null or empty.
      * @throws JsonParseException If conversion fails.
      */
-    public static JsonItem convert(JsonResource res, String cNameOrNull, JsonModelDescriptor descriptor, WoodResolution resolution, JsonDebugLevel debugLevel, JsonItemStore itemStore) throws JsonParseException {
+    public static JsonItem convert(JsonResource res, String cNameOrNull, JsonModelDescriptor descriptor, WoodResolution resolution, JsonDebugLevel debugLevel) throws JsonParseException {
         if (res == null) {
             return null;
         }
@@ -68,7 +66,7 @@ public class JsonNodeConverter {
                 return null;
             }
         }
-        ConvertService service = new ConvertService(res, descriptor, resolution, debugLevel, itemStore);
+        ConvertService service = new ConvertService(res, descriptor, resolution, debugLevel);
         return convert(node, contextClass, service);
     }
 
