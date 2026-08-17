@@ -10,6 +10,7 @@ import de.jare.jsoncasted.lang.JsonNode;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_DEFINITIONS;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 
 /**
@@ -78,6 +79,10 @@ public final class JsonWoodProviderScanner {
 
             if (TERM_WOOD_PROVIDERS.equals(key)) {
                 result.registerProviderNode(childNode, path);
+            }
+
+            if (TERM_WOOD_DEFINITIONS.equals(key)) {
+                result.registerDefinitionNode(childNode, path);
             }
 
             scanNode(childNode, childPath, result);

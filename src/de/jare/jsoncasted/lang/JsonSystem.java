@@ -6,9 +6,9 @@
  */
 package de.jare.jsoncasted.lang;
 
+import de.jare.jsoncasted.io.parserservice.WoodIdFinder;
 import de.jare.jsoncasted.wood.WoodProvider;
 import de.jare.jsoncasted.wood.WoodProviderBox;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,9 +18,8 @@ import java.util.Objects;
  * Represents a complete JSON system with multiple resources and providers.
  *
  * <p>
- * A JsonSystem manages a collection of {@link JsonResource} instances along
- * with their associated provider configurations. It serves as the top-level
- * container for JSON-based object graphs with cross-resource references.</p>
+ * A JsonSystem manages a collection of {@link JsonResource} instances along with their associated provider
+ * configurations. It serves as the top-level container for JSON-based object graphs with cross-resource references.</p>
  *
  * <p>
  * Key features:</p>
@@ -36,9 +35,18 @@ public final class JsonSystem {
     private WoodProviderBox providerBox;
     private JsonResource mainResource;
     private List<JsonResource> resources;
+    private List<String> sortedSynonyms;
 
     private JsonSystem() {
         this.resources = new ArrayList<>();
+    }
+
+    public List<String> getSortedSynonyms() {
+        return sortedSynonyms;
+    }
+
+    public void setSortedSynonyms(List<String> sortedSynonyms) {
+        this.sortedSynonyms = sortedSynonyms;
     }
 
     /**
@@ -72,6 +80,20 @@ public final class JsonSystem {
         system.setProviderBox(providerBox != null ? providerBox : new WoodProviderBox(new ArrayList<>()));
         List<JsonResource> resources = new ArrayList<>();
         resources.add(mainResource);
+
+        // Add definitions as separate resources
+        if (mainResource != null && mainResource.hasDefinitionNodes()) {
+            String providerName = mainResource.getProviderName();
+            for (JsonNode defNode : mainResource.getDefinitionNodes()) {
+                JsonResource defResource = JsonResource.forRoot(defNode);
+                defResource.setProviderName(providerName);
+                defResource.setResourceFile(mainResource.getResourceFile() + "[definitions]");
+                // Create LinkingSet for Definitions resource
+                defResource.setLinkingSet(WoodIdFinder.buildLinkingSet(defNode, providerName, null));
+                resources.add(defResource);
+            }
+        }
+
         system.setResources(resources);
         system.setMainResource(mainResource);
         if (mainResource != null && !system.resources.contains(mainResource)) {

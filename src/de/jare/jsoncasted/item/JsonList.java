@@ -9,19 +9,14 @@ package de.jare.jsoncasted.item;
 
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
-import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.model.item.JsonInter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- * The JsonList class represents a JSON array structure. It stores a list of
- * JSON items and provides methods to access and manipulate them.
+ * The JsonList class represents a JSON array structure. It stores a list of JSON items and provides methods to access
+ * and manipulate them.
  *
  * @author Janusch Rentenatus
  */
@@ -32,12 +27,10 @@ public class JsonList implements JsonItem {
     private final boolean asList;
 
     /**
-     * Constructs a JsonList instance with the specified items and type
-     * information.
+     * Constructs a JsonList instance with the specified items and type information.
      *
      * @param list The list of JSON items.
-     * @param asList Indicates whether the list is structured as a typical JSON
-     * array.
+     * @param asList Indicates whether the list is structured as a typical JSON array.
      * @param contextClass The JSON type description used for instance creation.
      */
     public JsonList(ArrayList<JsonItem> list, boolean asList, JsonTypeDescriptor contextClass) {
@@ -137,8 +130,7 @@ public class JsonList implements JsonItem {
     }
 
     /**
-     * Retrieves a JSON property by key. Since this class represents an array,
-     * no key-based retrieval is available.
+     * Retrieves a JSON property by key. Since this class represents an array, no key-based retrieval is available.
      *
      * @param key The property name.
      * @return null, as JSON lists do not store key-value mappings.
@@ -149,8 +141,8 @@ public class JsonList implements JsonItem {
     }
 
     /**
-     * Retrieves the set of all keys available in the JSON object. Since this
-     * class represents an array, it does not maintain keys.
+     * Retrieves the set of all keys available in the JSON object. Since this class represents an array, it does not
+     * maintain keys.
      *
      * @return null, as JSON lists do not have parameter names.
      */
@@ -169,4 +161,5 @@ public class JsonList implements JsonItem {
     public Object buildInstance(BuilderService builderService) throws JsonBuildException {
         return builderService.buildList(this, asList, contextClass);
     }
+
 }

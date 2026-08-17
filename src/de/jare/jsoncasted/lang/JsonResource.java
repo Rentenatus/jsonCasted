@@ -6,6 +6,7 @@
  */
 package de.jare.jsoncasted.lang;
 
+import static de.jare.jsoncasted.lang.JsonTerms.SELF_SYNONYM;
 import de.jare.jsoncasted.wood.WoodProviderBox;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,8 +26,7 @@ import java.util.List;
  * </ul>
  *
  * <p>
- * Resources can be created empty, from files, or with pre-parsed JSON
- * nodes.</p>
+ * Resources can be created empty, from files, or with pre-parsed JSON nodes.</p>
  */
 public final class JsonResource {
 
@@ -36,12 +36,13 @@ public final class JsonResource {
     private WoodProviderBox expectedBox;
     private List<String> importedProviderSynonyms;
     private final List<JsonExceptionEntry> exceptions = new ArrayList<>();
+    private List<JsonNode> definitionNodes;
 
     private LinkingSet linkingSet;
 
     private JsonResource() {
         this.importedProviderSynonyms = new ArrayList<>();
-        this.providerName = "self";
+        this.providerName = SELF_SYNONYM;
     }
 
     /**
@@ -92,8 +93,7 @@ public final class JsonResource {
     }
 
     /**
-     * Creates a JsonResource with file path, root node, and imported provider
-     * synonyms.
+     * Creates a JsonResource with file path, root node, and imported provider synonyms.
      *
      * @param resourceFile the path to the JSON file.
      * @param root the root JsonNode of the parsed structure.
@@ -192,8 +192,7 @@ public final class JsonResource {
     /**
      * Sets the list of imported provider synonyms.
      *
-     * @param importedProviderSynonyms the list of synonyms to set, or
-     * {@code null} to clear.
+     * @param importedProviderSynonyms the list of synonyms to set, or {@code null} to clear.
      */
     public void setImportedProviderSynonyms(List<String> importedProviderSynonyms) {
         if (importedProviderSynonyms == null) {
@@ -206,8 +205,7 @@ public final class JsonResource {
     /**
      * Adds a single imported provider synonym.
      *
-     * @param importedProviderSynonym the synonym to add (ignored if null or
-     * blank).
+     * @param importedProviderSynonym the synonym to add (ignored if null or blank).
      */
     public void addImportedProviderSynonym(String importedProviderSynonym) {
         if (importedProviderSynonym == null || importedProviderSynonym.isBlank()) {
@@ -217,10 +215,51 @@ public final class JsonResource {
     }
 
     /**
+     * Returns an unmodifiable list of definition nodes.
+     *
+     * @return unmodifiable list of definition nodes, or empty list if none.
+     */
+    public List<JsonNode> getDefinitionNodes() {
+        return definitionNodes != null ? Collections.unmodifiableList(definitionNodes) : Collections.emptyList();
+    }
+
+    /**
+     * Sets the list of definition nodes.
+     *
+     * @param definitionNodes the list of definition nodes to set, or null to clear.
+     */
+    public void setDefinitionNodes(List<JsonNode> definitionNodes) {
+        this.definitionNodes = definitionNodes != null ? new ArrayList<>(definitionNodes) : new ArrayList<>();
+    }
+
+    /**
+     * Adds a definition node.
+     *
+     * @param node the definition node to add (ignored if null).
+     */
+    public void addDefinitionNode(JsonNode node) {
+        if (node == null) {
+            return;
+        }
+        if (this.definitionNodes == null) {
+            this.definitionNodes = new ArrayList<>();
+        }
+        this.definitionNodes.add(node);
+    }
+
+    /**
+     * Checks if this resource has any definition nodes.
+     *
+     * @return true if definition nodes exist, false otherwise.
+     */
+    public boolean hasDefinitionNodes() {
+        return definitionNodes != null && !definitionNodes.isEmpty();
+    }
+
+    /**
      * Checks if this resource has any imported provider synonyms.
      *
-     * @return {@code true} if there are imported synonyms, {@code false}
-     * otherwise.
+     * @return {@code true} if there are imported synonyms, {@code false} otherwise.
      */
     public boolean hasImportedProviderSynonyms() {
         return importedProviderSynonyms != null && !importedProviderSynonyms.isEmpty();
@@ -256,8 +295,7 @@ public final class JsonResource {
     /**
      * Checks if this resource is unsaved (has root but no file).
      *
-     * @return {@code true} if has root but no resource file, {@code false}
-     * otherwise.
+     * @return {@code true} if has root but no resource file, {@code false} otherwise.
      */
     public boolean isUnsaved() {
         return root != null && (resourceFile == null || resourceFile.isBlank());

@@ -13,9 +13,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * The JsonItem interface represents a generic JSON structure element. It
- * provides methods to access values, nested elements, and structured data
- * within a JSON representation.
+ * The JsonItem interface represents a generic JSON structure element. It provides methods to access values, nested
+ * elements, and structured data within a JSON representation.
  *
  * @author Janusch Rentenatus
  */
@@ -81,8 +80,7 @@ public interface JsonItem {
      * Retrieves a JSON property by its key.
      *
      * @param key The name of the property.
-     * @return The corresponding JsonItem value or null if the key does not
-     * exist.
+     * @return The corresponding JsonItem value or null if the key does not exist.
      */
     public JsonItem getParam(String key);
 

@@ -18,16 +18,13 @@ import java.util.List;
  * </p>
  * <ul>
  * <li>{@link #ATTRIBUTE} – simple value field, not referencing objects</li>
- * <li>{@link #CONTAINMENT} – ownership/containment field, child is part of
- * parent tree</li>
- * <li>{@link #REFERENCE} – reference field, pointing to another object via
- * ID/link</li>
+ * <li>{@link #CONTAINMENT} – ownership/containment field, child is part of parent tree</li>
+ * <li>{@link #REFERENCE} – reference field, pointing to another object via ID/link</li>
  * </ul>
  *
  * <p>
- * Utility methods are provided to retrieve an enumerator by literal string, by
- * name, or by integer value. A public unmodifiable list of all values is also
- * available via {@link #VALUES}.
+ * Utility methods are provided to retrieve an enumerator by literal string, by name, or by integer value. A public
+ * unmodifiable list of all values is also available via {@link #VALUES}.
  * </p>
  */
 public enum FieldKind {
@@ -35,26 +32,31 @@ public enum FieldKind {
     /**
      * Simple value field, not referencing objects.
      */
-    ATTRIBUTE(0, "Attribute", "ATTRIBUTE", false, false),
+    ATTRIBUTE(0, "Attribute", "ATTRIBUTE", false, false, false),
     /**
      * Ownership/containment field, child is part of parent tree.
      */
-    CONTAINMENT(1, "Containment", "CONTAINMENT", true, false),
+    CONTAINMENT(1, "Containment", "CONTAINMENT", true, false, false),
     /**
-     * Reference field, pointing to another object via ID/link.
+     * Reference field, can pointing to another object via ID/link.
      */
-    REFERENCE(2, "Reference", "REFERENCE", false, true);
+    REFERENCE(2, "Reference", "REFERENCE", false, true, false),
+    /**
+     * Reference field, can pointing to another object via ID/link.
+     */
+    DEFINITIONAL(3, "Definiitional", "DEFINITIONAL", false, true, true);
 
     // --- Integer values for each literal ---
     public static final int ATTRIBUTE_VALUE = 0;
     public static final int CONTAINMENT_VALUE = 1;
     public static final int REFERENCE_VALUE = 2;
+    public static final int DEFINITIONAL_VALUE = 3;
 
     /**
      * Internal array of all enumerators.
      */
     private static final FieldKind[] VALUES_ARRAY = new FieldKind[]{
-        ATTRIBUTE, CONTAINMENT, REFERENCE
+        ATTRIBUTE, CONTAINMENT, REFERENCE, DEFINITIONAL
     };
 
     /**
@@ -112,6 +114,8 @@ public enum FieldKind {
                 return CONTAINMENT;
             case REFERENCE_VALUE:
                 return REFERENCE;
+            case DEFINITIONAL_VALUE:
+                return DEFINITIONAL;
             default:
                 return null;
         }
@@ -123,6 +127,7 @@ public enum FieldKind {
     private final String literal;
     private final boolean owned;
     private final boolean externalReference;
+    private final boolean definitional;
 
     /**
      * Private constructor for enum constants.
@@ -132,13 +137,15 @@ public enum FieldKind {
             String name,
             String literal,
             boolean owned,
-            boolean externalReference
+            boolean externalReference,
+            boolean definitional
     ) {
         this.value = value;
         this.name = name;
         this.literal = literal;
         this.owned = owned;
         this.externalReference = externalReference;
+        this.definitional = definitional;
     }
 
     /**
@@ -174,6 +181,10 @@ public enum FieldKind {
      */
     public boolean isExternalReference() {
         return externalReference;
+    }
+
+    public boolean isDefinitional() {
+        return definitional;
     }
 
     /**

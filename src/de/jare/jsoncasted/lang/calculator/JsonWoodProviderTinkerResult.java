@@ -15,9 +15,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * The JsonWoodProviderTinkerResult class contains the results of building WoodProviderBox
- * instances from a scan result. It stores all successfully built provider boxes and
- * any exceptions that occurred during the build process.
+ * The JsonWoodProviderTinkerResult class contains the results of building WoodProviderBox instances from a scan result.
+ * It stores all successfully built provider boxes and any exceptions that occurred during the build process.
  *
  * @author Janusch Rentenatus
  */
@@ -26,6 +25,7 @@ public final class JsonWoodProviderTinkerResult {
     private final List<BuildEntry> entries = new ArrayList<>();
     private final List<JsonExceptionEntry> exceptions = new ArrayList<>();
     private WoodProviderBox woodProviderBox = null;
+    private final List<JsonWoodProviderScanResult.DefinitionsNodeEntry> definitionEntries = new ArrayList<>();
 
     /**
      * Registers a successfully built WoodProviderBox.
@@ -52,6 +52,17 @@ public final class JsonWoodProviderTinkerResult {
      */
     void registerException(JsonWoodProviderScanResult.ProviderNodeEntry scanEntry, Exception exception) {
         exceptions.add(new JsonExceptionEntry(scanEntry.getOwnerNode(), scanEntry.getPath(), exception));
+    }
+
+    /**
+     * Registers a definitions node entry found during scanning.
+     *
+     * @param scanEntry The scan entry containing the definitions node.
+     * @throws NullPointerException If scanEntry is null.
+     */
+    void registerDefinitionEntry(JsonWoodProviderScanResult.DefinitionsNodeEntry scanEntry) {
+        Objects.requireNonNull(scanEntry, "scanEntry must not be null");
+        definitionEntries.add(scanEntry);
     }
 
     /**
@@ -109,8 +120,26 @@ public final class JsonWoodProviderTinkerResult {
     }
 
     /**
-     * The BuildEntry class represents a single successfully built WoodProviderBox.
-     * It stores the scan entry that produced the box and the box itself.
+     * Returns an unmodifiable list of all definitions node entries.
+     *
+     * @return An unmodifiable list of definitions node entries.
+     */
+    public List<JsonWoodProviderScanResult.DefinitionsNodeEntry> getDefinitionEntries() {
+        return Collections.unmodifiableList(definitionEntries);
+    }
+
+    /**
+     * Checks if any definitions node entries were registered.
+     *
+     * @return true if at least one definitions entry was registered, false otherwise.
+     */
+    public boolean hasDefinitionEntries() {
+        return !definitionEntries.isEmpty();
+    }
+
+    /**
+     * The BuildEntry class represents a single successfully built WoodProviderBox. It stores the scan entry that
+     * produced the box and the box itself.
      */
     public static final class BuildEntry {
 

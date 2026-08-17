@@ -14,21 +14,22 @@ import static de.jare.jsoncasted.lang.JsonNodeType.NULL;
 import static de.jare.jsoncasted.lang.JsonNodeType.NUMBER;
 import static de.jare.jsoncasted.lang.JsonNodeType.OBJECT;
 import static de.jare.jsoncasted.lang.JsonNodeType.STRING;
+import static de.jare.jsoncasted.lang.JsonTerms.COLONCOLON;
+import static de.jare.jsoncasted.lang.JsonTerms.PREFIX_THIS;
+import static de.jare.jsoncasted.lang.JsonTerms.PREFIX_SELF;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.*;
 
 /**
- * Simple JsonNode representation supporting objects, arrays, strings, numbers,
- * booleans and null. This replaces the previous generic HashMap-based class.
+ * Simple JsonNode representation supporting objects, arrays, strings, numbers, booleans and null. This replaces the
+ * previous generic HashMap-based class.
  *
  * Note: JsonClass may be attached to OBJECT nodes to aid editing/debugging.
  *
  * @author Janusch Renteantus
  */
 public class JsonNode {
-
-    private static final String PREFIX_THIS = "this::";
-    private static final String PREFIX_SELF = "self::";
 
     private final JsonNodeType type;
     private final Map<String, JsonNode> objectValue;
@@ -252,10 +253,25 @@ public class JsonNode {
             return null;
         }
         final String id = idNode.toText();
-        if (id.contains("::")) {
+        if (id.contains(COLONCOLON)) {
             throw new JsonParseException("IDs must not contain a provider name or a :: sign (" + id + ").");
         }
-        return providerName + "::" + id;
+        return providerName + COLONCOLON + id;
+    }
+
+    public String getCast() {
+        if (!isObject()) {
+            return null;
+        }
+        Map<String, JsonNode> values = asObjectValues();
+        if (values == null) {
+            return null;
+        }
+        JsonNode cast = values.get(TERM_CLASS);
+        if (cast == null) {
+            return null;
+        }
+        return cast.asText();
     }
 
     public String getLink(String providerName) throws JsonParseException {
@@ -271,10 +287,10 @@ public class JsonNode {
             return null;
         }
         if (linkKey.startsWith(PREFIX_THIS)) {
-            return providerName + "::" + linkKey.substring(PREFIX_THIS.length());
+            return providerName + COLONCOLON + linkKey.substring(PREFIX_THIS.length());
         }
         if (linkKey.startsWith(PREFIX_SELF)) {
-            return providerName + "::" + linkKey.substring(PREFIX_SELF.length());
+            return providerName + COLONCOLON + linkKey.substring(PREFIX_SELF.length());
         }
         return linkKey;
     }

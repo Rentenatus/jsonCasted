@@ -14,8 +14,11 @@ import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.io.JsonItemDefinition;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
-import de.jare.jsoncasted.io.JsonWriter;
+import de.jare.jsoncasted.io.JsonObjectWriter;
+import de.jare.jsoncasted.io.JsonWriteException;
+import de.jare.jsoncasted.io.convertservice.WoodResolution;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,9 +36,11 @@ public class PostJsonClient {
         String post = "{}";
         boolean hasWrite = request != null && writeClass != null;
         if (hasWrite) try {
-            post = JsonWriter.writeToString(request, definition, writeClass);
+            post = JsonObjectWriter.writeToString(request, definition, writeClass);
         } catch (JsonParseException | IOException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
+        } catch (JsonWriteException ex) {
+            Logger.getLogger(PostJsonClient.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         // Erstellen Sie eine URL, die auf den lokalen Server zeigt
@@ -64,9 +69,16 @@ public class PostJsonClient {
     public Object buildObject(String answer, JsonItemDefinition definition, final JsonClass readClass) throws JsonBuildException, IOException {
         JsonItem obj = null;
         try {
-            obj = JsonParser.parse(answer, definition.getDescriptor(), readClass.getcName());
+            WoodResolution reso = JsonParser.parse(answer, definition.getDescriptor(), readClass.getcName());
+            if (reso.hasExceptions()) {
+                final List<JsonParseException> exceptions = reso.getUnmodifiableExceptions();
+                for (Exception exception : exceptions) {
+                    Logger.getGlobal().log(Level.SEVERE, "Parsing error: ", exception);
+                }
+            }
+            obj = reso.getAnswer();
         } catch (JsonParseException ex) {
-            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, "Error caught during parsing: ", ex);
         }
         return JsonBuilder.buildInstance(definition.getModel(), true, obj);
     }

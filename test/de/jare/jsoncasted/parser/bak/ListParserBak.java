@@ -1,0 +1,112 @@
+/* <copyright>
+ * Copyright (C) 2022 Janusch Rentenatus & Thomas Weber
+ * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
+ */
+package de.jare.jsoncasted.parser.bak;
+
+import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.bak.JsonListBak;
+import de.jare.jsoncasted.item.bak.JsonValueBak;
+import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.io.parserservice.ParseStreamReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import de.jare.jsoncasted.io.JsonItemDefinition;
+
+/**
+ * Legacy parser for JSON array structures.
+ * Parses JSON arrays and their elements from the stream.
+ *
+ * @author Janusch Rentenatus
+ * @deprecated Replaced by JsonNode-based parsing pipeline.
+ */
+@Deprecated
+public class ListParserBak {
+
+    private final JsonItemDefinition definition;
+    private final JsonType jType;
+    private JsonClass castClass;
+    private final ArrayList<JsonItem> list;
+
+    /**
+     * Constructs a ListParserBak instance.
+     *
+     * @param definition The JSON item definition.
+     * @param jType The JSON type for list elements.
+     */
+    public ListParserBak(JsonItemDefinition definition, JsonType jType) {
+        this.definition = definition;
+        this.jType = jType;
+        this.list = new ArrayList<>();
+        this.castClass = null;
+    }
+
+    /**
+     * Parses a JSON array from the stream.
+     *
+     * @param psr The ParseStreamReader to read from.
+     * @param asList If true, the result will be treated as a list.
+     * @return The parsed JsonListBak.
+     * @throws IOException If I/O errors occur.
+     * @throws JsonParseException If parsing fails.
+     */
+    public JsonItem parse(ParseStreamReader psr, boolean asList) throws IOException, JsonParseException {
+        castClass = (jType == null) ? castClass : jType.getDirectClass();
+        JsonItem item = null;
+        StringBuilder sb = new StringBuilder();
+        while (psr.hasNext()) {
+            char c = psr.next();
+            if (c == ']') {
+                addItem(item, sb);
+                return new JsonListBak(list, asList, jType);
+            }
+            if (c == '(') {
+                castClass = new CastingParserBak(definition, jType).parse(psr);
+            } else if (c == '{') {
+                item = new ObjectParserBak(definition, castClass).parse(psr);
+            } else if (c == '"') {
+                item = new StringParserBak(definition, castClass).parse(psr);
+            } else if (c == ',') {
+                addItem(item, sb);
+                item = null;
+                sb = new StringBuilder();
+                if (jType != null) {
+                    castClass = jType.getDirectClass();
+                }
+            } else {
+                sb.append(c);
+            }
+        }
+        throw new JsonParseException("End of file without end of list.");
+    }
+
+    /**
+     * Adds an item to the list.
+     *
+     * @param item The JsonItem to add, or null if a primitive value.
+     * @param sb The StringBuilder containing accumulated characters.
+     */
+    private void addItem(JsonItem item, StringBuilder sb) {
+        if (item != null) {
+            list.add(item);
+            return;
+        }
+        final String toString = sb.toString().trim();
+        if (toString.isEmpty()) {
+            return;
+        }
+        if ("null".equals(toString.trim())) {
+            list.add(new JsonValueBak(toString, null));
+        } else if (castClass != null) {
+            list.add(new JsonValueBak(toString, castClass));
+        } else {
+            throw new RuntimeException("JsonClass not found.");
+        }
+    }
+
+}

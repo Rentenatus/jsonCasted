@@ -19,8 +19,8 @@ import de.jare.jsoncasted.model.JsonCollectionType;
 import de.jare.jsoncasted.model.JsonEnumTemplate;
 import de.jare.jsoncasted.model.JsonModellClassBuilder;
 import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.model.JsonTypeVisibility;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
-import de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.lang.reflect.InvocationTargetException;
@@ -59,8 +59,10 @@ public class JsonClass implements JsonType {
     private final JsonModellClassBuilder builder;
     private boolean skippingNulls;
     private final JsonNodeType nodeType;
+    private JsonTypeVisibility visibility;
     private JsonClass parent;
     private JsonEnumTemplate[] valuesArray;
+    private boolean reflective;
     private boolean definitional;
 
     /**
@@ -88,7 +90,9 @@ public class JsonClass implements JsonType {
         this.keys = new ArrayList<>();
         this.skippingNulls = false;
         this.parent = null;
+        this.reflective = false;
         this.definitional = false;
+        this.visibility = JsonTypeVisibility.PUBLIC; // Default visibility
     }
 
     /**
@@ -119,7 +123,9 @@ public class JsonClass implements JsonType {
         this.fields = new HashMap<>();
         this.keys = new ArrayList<>();
         this.parent = null;
+        this.reflective = false;
         this.definitional = false;
+        this.visibility = JsonTypeVisibility.PUBLIC; // Default visibility
     }
 
     @Override
@@ -161,15 +167,58 @@ public class JsonClass implements JsonType {
     }
 
     @Override
+    public boolean isReflective() {
+        return reflective;
+    }
+
+    public void setReflective(boolean reflective) {
+        if (isBoxOrPrimitive() && reflective) {
+            throw new IllegalArgumentException("A class cannot be both primitive and reflective at the same time.");
+        }
+        this.reflective = reflective;
+    }
+
     public boolean isDefinitional() {
         return definitional;
     }
 
     public void setDefinitional(boolean definitional) {
-        if (isPrimitive() && definitional) {
+        if (isBoxOrPrimitive() && definitional) {
             throw new IllegalArgumentException("A class cannot be both primitive and definitional at the same time.");
         }
         this.definitional = definitional;
+    }
+
+    /**
+     * Returns the visibility of this type.
+     *
+     * @return
+     */
+    @Override
+    public JsonTypeVisibility getVisibility() {
+        return visibility;
+    }
+
+    /**
+     * Sets the visibility of this type.
+     *
+     * @return itself
+     */
+    @Override
+    public JsonClass asPublic() {
+        this.visibility = JsonTypeVisibility.PUBLIC;
+        return this;
+    }
+
+    /**
+     * Sets the visibility of this type.
+     *
+     * @return itself
+     */
+    @Override
+    public JsonClass asProtected() {
+        this.visibility = JsonTypeVisibility.PROTECTED;
+        return this;
     }
 
     /**
@@ -293,7 +342,7 @@ public class JsonClass implements JsonType {
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 String msg = "Getter method '" + next.getGetter() + "' failed for field: " + ex.getMessage();
                 if (debugLevel != null) {
-                    debugLevel.warning(() -> new DebugTuple(msg, ex));
+                    debugLevel.warning(() -> new DebugTuple(msg));
                 }
                 Logger.getGlobal().log(Level.SEVERE, msg, ex);
             }
@@ -620,8 +669,8 @@ public class JsonClass implements JsonType {
     }
 
     @Override
-    public boolean isPrimitive() {
-        return builder == null ? true : builder.isPrimitive();
+    public boolean isBoxOrPrimitive() {
+        return builder == null ? true : builder.isBoxOrPrimitive();
     }
 
     @Override
@@ -691,8 +740,8 @@ public class JsonClass implements JsonType {
                 .withNodeType(getNodeType())
                 .withPermittedValues(builder.permittedValues(getValuesArray()))
                 .withSkippingNulls(isSkippingNulls())
-                .withPrimitive(isPrimitive())
-                .withRecursive(isDefinitional());
+                .withPrimitive(isBoxOrPrimitive())
+                .withReflective(isReflective());
     }
 
     /**

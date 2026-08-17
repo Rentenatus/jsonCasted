@@ -7,19 +7,25 @@
 package de.jare.impltest;
 
 import de.jare.debug.JsonDebugLevel;
+import de.jare.impltest.lib.ImplTestDefinition2;
+import de.jare.impltest.lib.TestBox;
+import de.jare.impltest.lib.ValueInterface;
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonItemWriter;
+import de.jare.jsoncasted.io.JsonNodeWriter;
+import de.jare.jsoncasted.io.JsonObjectWriter;
+import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.io.JsonParser;
+import de.jare.jsoncasted.io.JsonWriteException;
+import de.jare.jsoncasted.io.parserservice.JsonParserService;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonRepo;
-import de.jare.jsoncasted.model.JsonRepoEntity;
 import de.jare.jsoncasted.model.JsonRepoModel;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
-import de.jare.jsoncasted.io.parserservice.JsonParserService;
-import de.jare.jsoncasted.io.JsonParseException;
-import de.jare.jsoncasted.io.JsonParser;
-import de.jare.jsoncasted.io.writer.RootObjectWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -33,8 +39,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * Test class for the TestBox implementation. Tests parsing and building of
- * complex JSON structures with the ImplTestDefinition.
+ * Test class for the TestBox implementation. Tests parsing and building of complex JSON structures with the
+ * ImplTestDefinition.
  *
  * @author Janusch Rentenatus
  */
@@ -88,8 +94,7 @@ public class TestBoxNGTest2 {
     }
 
     /**
-     * Tests parsing and building with a valid testbox configuration. Target
-     * version using the new parser pipeline.
+     * Tests parsing and building with a valid testbox configuration. Target version using the new parser pipeline.
      *
      * @param configFile The configuration file to parse.
      * @param definition The ImplTestDefinition to use.
@@ -108,15 +113,28 @@ public class TestBoxNGTest2 {
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
             final JsonModelDescriptor descriptor = definition.getDescriptor();
-            obj1 = JsonParser.parse(res, descriptor, definition.getTestBox().getcName(), JsonDebugLevel.INFO);
+            obj1 = JsonParser.parse(res, descriptor, definition.getTestBox().getcName(), JsonDebugLevel.INFO).getAnswer();
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
         assertNotNull(obj1);
         System.out.println("Target=============================================== Print node");
-        RootObjectWriter writer = new RootObjectWriter(definition, definition.getTestBox());
-        writer.writeNode(System.out, node);
+        try {
+            JsonNodeWriter.write(node, System.out);
+        } catch (IOException | JsonParseException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        }
+        System.out.println();
+        System.out.println("Target=============================================== Print item");
+        try {
+            JsonItemWriter.write(obj1, System.out);
+        } catch (IOException | JsonParseException | JsonWriteException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        }
+        System.out.println();
         System.out.println("Target=============================================== Config Class");
         System.out.println(obj1.getClass());
 
@@ -131,8 +149,13 @@ public class TestBoxNGTest2 {
             fail(ex.getMessage(), ex);
         }
         System.out.println("Target=============================================== Print object");
-        writer.write(System.out, definition.getTestBox(), root);
-
+        try {
+            JsonObjectWriter.write(root, System.out, definition, definition.getTestBox());
+        } catch (IOException | JsonParseException | JsonWriteException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        }
+        System.out.println();
         System.out.println("Target=============================================== Comment");
         assertNotNull(root.getOne());
         assertNotNull(root.getList());
@@ -151,8 +174,7 @@ public class TestBoxNGTest2 {
     }
 
     /**
-     * Tests parsing and building with a valid testbox configuration. Target
-     * version using the new parser pipeline.
+     * Tests parsing and building with a valid testbox configuration. Target version using the new parser pipeline.
      *
      * @param configFile The configuration file to parse.
      * @param definition The ImplTestDefinition to use.
@@ -171,17 +193,22 @@ public class TestBoxNGTest2 {
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
             final JsonModelDescriptor descriptor = definition.getDescriptor().getRepoDescriptor("save");
-            obj1 = JsonParser.parse(res, descriptor, definition.getRepo().getcName(), JsonDebugLevel.INFO);
+            obj1 = JsonParser.parse(res, descriptor, definition.getRepo().getcName(), JsonDebugLevel.INFO).getAnswer();
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
         assertNotNull(obj1);
         System.out.println("Target=============================================== Print node");
-        final JsonRepoModel repoModel = definition.getModel().getRepoModel("save");
-        RootObjectWriter writer = new RootObjectWriter(repoModel, definition.getRepo(), definition.getCastingLevel());
-        writer.writeNode(System.out, node);
+        try {
+            JsonNodeWriter.write(node, System.out);
+        } catch (IOException | JsonParseException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        }
+        System.out.println();
         System.out.println("Target=============================================== Repo Class");
+        final JsonRepoModel repoModel = definition.getModel().getRepoModel("save");
         System.out.println(obj1.getClass());
 
         JsonRepo root = null;
@@ -195,10 +222,15 @@ public class TestBoxNGTest2 {
             fail(ex.getMessage(), ex);
         }
         System.out.println("Target=============================================== Print object");
-        writer.write(System.out, definition.getRepo(), root);
-
+        try {
+            JsonObjectWriter.write(root, System.out, repoModel, JsonCastingLevel.NECESSARY_CLASS_DEF, definition.getRepo());
+        } catch (IOException | JsonParseException | JsonWriteException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        }
+        System.out.println();
         System.out.println("Target=============================================== Comment");
-        for (JsonRepoEntity elem : root.getContents()) {
+        for (Object elem : root.getContents()) {
             System.out.println("repo.elem  > " + ((ValueInterface) elem).getText());
         }
 

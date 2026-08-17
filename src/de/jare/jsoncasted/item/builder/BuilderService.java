@@ -14,23 +14,28 @@ import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonInter;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Service class responsible for building Java objects from JSON structures.
  *
- * <p>The BuilderService coordinates the object construction process by:</p>
+ * <p>
+ * The BuilderService coordinates the object construction process by:</p>
  * <ul>
- *   <li>Managing the JSON model and type registry</li>
- *   <li>Tracking built objects by wood key for reference resolution</li>
- *   <li>Dispatching build requests to appropriate builders based on type information</li>
- *   <li>Handling object caching to prevent duplicate instantiation</li>
+ * <li>Managing the JSON model and type registry</li>
+ * <li>Tracking built objects by wood key for reference resolution</li>
+ * <li>Dispatching build requests to appropriate builders based on type information</li>
+ * <li>Handling object caching to prevent duplicate instantiation</li>
  * </ul>
  *
- * <p>This service is the central component in the object building pipeline, connecting
- * parsed JSON structures ({@link JsonItem}) with actual Java object instantiation.</p>
+ * <p>
+ * This service is the central component in the object building pipeline, connecting parsed JSON structures
+ * ({@link JsonItem}) with actual Java object instantiation.</p>
  */
 public class BuilderService {
 
@@ -42,8 +47,8 @@ public class BuilderService {
      * Constructs a BuilderService with the specified model and exception configuration.
      *
      * @param model the JSON model containing type definitions.
-     * @param throwClassEx if {@code true}, throws exceptions when unknown classes are encountered;
-     *                   otherwise logs warnings and continues.
+     * @param throwClassEx if {@code true}, throws exceptions when unknown classes are encountered; otherwise logs
+     * warnings and continues.
      */
     public BuilderService(JsonModel model, boolean throwClassEx) {
         this.model = model;
@@ -67,7 +72,10 @@ public class BuilderService {
      * @throws JsonBuildException if object construction fails and throwClassEx is true.
      */
     public Object build(JsonItem item) throws JsonBuildException {
-        return item == null ? null : item.buildInstance(this);
+        if (item == null) {
+            return null;
+        }
+        return item.buildInstance(this);
     }
 
     /**
@@ -95,8 +103,9 @@ public class BuilderService {
     /**
      * Builds or retrieves an object from the cache using its wood key.
      *
-     * <p>If the object has already been built and cached under the wood key,
-     * the cached instance is returned. Otherwise, a new object is built and cached.</p>
+     * <p>
+     * If the object has already been built and cached under the wood key, the cached instance is returned. Otherwise, a
+     * new object is built and cached.</p>
      *
      * @param jsonObject the JSON object to build from.
      * @param contextClass the type descriptor for the target class.
@@ -163,7 +172,8 @@ public class BuilderService {
         }
         JsonInter jInter = model.getJsonInter(typeName);
         if (jInter != null) {
-            return jInter.build(this, jsonValue.listIterator(), asList, jsonValue.listSize());
+            final Iterator<JsonItem> listIterator = jsonValue.listIterator();
+            return jInter.build(this, listIterator, asList, jsonValue.listSize());
         }
         buildException("JsonClass " + typeName + " is unknown.");
         return null;

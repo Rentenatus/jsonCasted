@@ -9,7 +9,7 @@ package de.jare.jsoncasted.model.descriptor;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonWriteException;
-import de.jare.jsoncasted.io.JsonWriter;
+import de.jare.jsoncasted.io.JsonObjectWriter;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
 import java.io.File;
@@ -220,6 +220,19 @@ public class JsonModelDescriptor {
             return null;
         }
         return repoDescriptors.get(synonym);
+    }
+
+    /**
+     * Returns the repository descriptor for the specified synonym.
+     *
+     * @param synonym the repository synonym to look up.
+     * @return the repository descriptor, or {@code this} if not found.
+     */
+    public JsonModelDescriptor getRepoDescriptorOrThis(String synonym) {
+        if (synonym == null) {
+            return this;
+        }
+        return repoDescriptors.getOrDefault(synonym, this);
     }
 
     /**
@@ -491,7 +504,7 @@ public class JsonModelDescriptor {
      */
     public void saveAs(String filename) throws JsonParseException, JsonWriteException, IOException {
         File file = new File(filename);
-        JsonWriter.write(this, file, JsonDescriptorDefinition.INSTANCE, JsonDescriptorDefinition.getInstance().getDescriptModel());
+        JsonObjectWriter.write(this, file, JsonDescriptorDefinition.INSTANCE, JsonDescriptorDefinition.getInstance().getDescriptModel());
     }
 
     /**
@@ -505,7 +518,7 @@ public class JsonModelDescriptor {
      */
     public void saveAs(String filename, JsonDebugLevel debugLevel) throws JsonParseException, JsonWriteException, IOException {
         File file = new File(filename);
-        JsonWriter.write(this, file, JsonDescriptorDefinition.INSTANCE, JsonDescriptorDefinition.getInstance().getDescriptModel(), debugLevel);
+        JsonObjectWriter.write(this, file, JsonDescriptorDefinition.INSTANCE, JsonDescriptorDefinition.getInstance().getDescriptModel(), debugLevel);
     }
 
     @Override

@@ -6,40 +6,29 @@
  */
 package de.jare.jsoncasted.model;
 
-import de.jare.jsoncasted.lang.JsonNodeType;
 import static de.jare.jsoncasted.model.JsonCollectionType.LIST;
-import de.jare.jsoncasted.model.builder.JsonBooleanBuilder;
-import de.jare.jsoncasted.model.builder.JsonBooleanObjBuilder;
-import de.jare.jsoncasted.model.builder.JsonDoubleBuilder;
-import de.jare.jsoncasted.model.builder.JsonDoubleObjBuilder;
-import de.jare.jsoncasted.model.builder.JsonFloatBuilder;
-import de.jare.jsoncasted.model.builder.JsonFloatObjBuilder;
-import de.jare.jsoncasted.model.builder.JsonIntBuilder;
-import de.jare.jsoncasted.model.builder.JsonIntegerObjBuilder;
-import de.jare.jsoncasted.model.builder.JsonLongBuilder;
-import de.jare.jsoncasted.model.builder.JsonLongObjBuilder;
-import de.jare.jsoncasted.model.builder.JsonStringBuilder;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonInter;
+import de.jare.jsoncasted.model.item.JsonUnknown;
 import java.util.Iterator;
 
 /**
  * Repository model that extends JsonModel and implements JsonRepoEntity.
  *
  * <p>
- * This model is used for managing types from external JSON resources, ensuring
- * that all registered classes implement the JsonRepoEntity interface for
- * cross-resource referencing support.</p>
+ * This model is used for managing types from external JSON resources, ensuring that all registered classes implement
+ * the JsonRepoEntity interface for cross-resource referencing support.</p>
  *
  * @author Janusch Rentenatus
  */
-public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
+public class JsonRepoModel extends JsonModel {
+
+    private JsonClass repo;
 
     /**
-     * Constructs a JsonRepoModel with the specified model name. Creates a
-     * repository model that can only contain JsonClass instances whose
-     * underlying classes implement JsonRepoEntity.
+     * Constructs a JsonRepoModel with the specified model name. Creates a repository model that can only contain
+     * JsonClass instances whose underlying classes implement JsonRepoEntity.
      *
      * @param mName The name of the repository model.
      */
@@ -48,8 +37,8 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
     }
 
     /**
-     * Recursively adds a JSON type and all its referenced types to the model.
-     * Handles JsonEnum, JsonInter, and JsonClass types appropriately.
+     * Recursively adds a JSON type and all its referenced types to the model. Handles JsonEnum, JsonInter, and
+     * JsonClass types appropriately.
      *
      * @param parent Parent model that knows recursive JsonType.
      * @param jType The JSON type to add recursively.
@@ -86,50 +75,31 @@ public class JsonRepoModel extends JsonModel implements JsonRepoEntity {
             if (getJsonInter(cName) == null) {
                 addInterface(parentInter);
             }
-            for (JsonClass jt : parentInter) {
+            for (JsonClass jt : parentInter.iterable()) {
                 addRecursive(parent, jt);
             }
         }
     }
 
     /**
-     * Populates the model with basic data types used in JSON processing.
-     * <p>
-     * This override adds the same basic types as
-     * {@link JsonModel#addBasicModel()} but uses super.addClass() to bypass the
-     * JsonRepoEntity validation.</p>
-     * <p>
-     * Registers primitive wrapper types (String, Integer, Long, Float, Double,
-     * Boolean) and their primitive counterparts (int, long, float, double,
-     * boolean).</p>
-     */
-    @Override
-    public void addBasicModel() {
-        super.addClass(new JsonClass("String", JsonNodeType.STRING, new JsonStringBuilder()));
-        super.addClass(new JsonClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder()));
-        super.addClass(new JsonClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder()));
-        super.addClass(new JsonClass("Float", JsonNodeType.NUMBER, new JsonFloatObjBuilder()));
-        super.addClass(new JsonClass("Double", JsonNodeType.NUMBER, new JsonDoubleObjBuilder()));
-        super.addClass(new JsonClass("Boolean", JsonNodeType.BOOLEAN, new JsonBooleanObjBuilder()));
-        super.addClass(new JsonClass("int", JsonNodeType.LONG, new JsonIntBuilder()));
-        super.addClass(new JsonClass("long", JsonNodeType.LONG, new JsonLongBuilder()));
-        super.addClass(new JsonClass("float", JsonNodeType.NUMBER, new JsonFloatBuilder()));
-        super.addClass(new JsonClass("double", JsonNodeType.NUMBER, new JsonDoubleBuilder()));
-        super.addClass(new JsonClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder()));
-    }
-
-    /**
-     * Creates a new JsonClass for representing a JsonRepo with the specified
-     * content type.
+     * Creates a new JsonClass for representing a JsonRepo.
      *
-     * @param repoName Name of this repo.
-     * @param repoContent The interface type for the repository contents.
      * @return A JsonClass configured for JsonRepo serialization.
      */
-    public JsonClass newJsonRepo(String repoName, JsonInter repoContent) {
-        JsonClass repo = newJsonReflectIndividually(JsonRepo.class, "JsonRepo'" + repoName + "'");
+    public JsonClass getOrCreateRepo() {
+        if (repo != null) {
+            return repo;
+        }
+        JsonInter asObject = getJsonInter("Object");
+        if (asObject == null) {
+            addInterface(asObject = new JsonUnknown("Object"));
+        }
+        repo = newJsonReflectIndividually(JsonRepo.class, "JsonRepo");
         repo.addCParam("repoName", getJsonClass("String"));
-        repo.addField("contents", repoContent, LIST);
+        repo.addField("contents", asObject, LIST);
+        repo.addField("subRepos", repo, LIST);
+        repo.setDefinitional(true);
         return repo;
     }
+
 }

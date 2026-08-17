@@ -14,8 +14,10 @@ import de.jare.jsoncasted.model.builder.*;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.item.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -47,6 +49,7 @@ public class JsonModel {
     final HashMap<String, JsonInter> interfaces;
     final HashMap<String, JsonClass> enums;
     final JsonDefinitions definitionsRoot;
+    private final Set<String> exports;
     private final HashMap<String, JsonRepoModel> repoModels;
     private final String mName;
     private JsonModelDescriptor descriptor;
@@ -62,6 +65,7 @@ public class JsonModel {
         this.classes = new HashMap<>();
         this.interfaces = new HashMap<>();
         this.enums = new HashMap<>();
+        this.exports = new HashSet<>();
         this.repoModels = new HashMap<>();
         this.definitionsRoot = new JsonDefinitions(mName + JsonTerms.DEFINITIONS_SUFFIX);
     }
@@ -247,7 +251,7 @@ public class JsonModel {
      * @param inter The JSON interface to register.
      */
     public void addInterface(JsonInter inter) {
-        for (JsonClass jc : inter) {
+        for (JsonClass jc : inter.iterable()) {
             if (classes.containsKey(jc.getcName())) {
                 continue;
             }
@@ -388,6 +392,7 @@ public class JsonModel {
      * Integer, Long, Float, Double, Boolean) and their primitive counterparts (int, long, float, double, boolean).
      */
     public void addBasicModel() {
+        addInterface(new JsonUnknown("Object"));
         addClass(new JsonClass("String", JsonNodeType.STRING, new JsonStringBuilder()));
         addClass(new JsonClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder()));
         addClass(new JsonClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder()));
@@ -399,6 +404,68 @@ public class JsonModel {
         addClass(new JsonClass("float", JsonNodeType.NUMBER, new JsonFloatBuilder()));
         addClass(new JsonClass("double", JsonNodeType.NUMBER, new JsonDoubleBuilder()));
         addClass(new JsonClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder()));
+    }
+
+    public List<String> getExports() {
+        return new ArrayList<>(exports);
+    }
+
+    public Set<String> getExportSet() {
+        return Collections.unmodifiableSet(exports);
+    }
+
+    public JsonModel addExport(String export) {
+        JsonClass jc = getJsonClass(export); // Ensure the class exists in the model before exporting
+        if (jc == null) {
+            JsonInter ji = getJsonInter(export);
+            if (ji == null) {
+                throw new IllegalArgumentException("Cannot export unknown type: " + export);
+            } else {
+                ji.asPublic();
+            }
+        } else {
+            jc.asPublic();
+        }
+        exports.add(export);
+        return this;
+    }
+
+    public JsonModel addAllPublic() {
+        return addAllPublicClasses().addAllPublicInterfaces();
+    }
+
+    public JsonModel addAllPublicClasses() {
+        for (JsonClass jc : classes.values()) {
+            if (JsonTypeVisibility.isPublic(jc.getVisibility())) {
+                exports.add(jc.getcName());
+            }
+        }
+        return this;
+    }
+
+    public JsonModel addAllPublicInterfaces() {
+        for (JsonInter ji : interfaces.values()) {
+            if (JsonTypeVisibility.isPublic(ji.getVisibility())) {
+                exports.add(ji.getcName());
+            }
+
+        }
+        return this;
+    }
+
+    public JsonModel addExportFrom(JsonModel otherModel) {
+        Set<String> export = otherModel.getExportSet();
+        for (JsonClass jc : otherModel.getClassesList()) {
+            if (JsonTypeVisibility.isPublic(jc.getVisibility()) && export.contains(jc.getcName())) {
+                exports.add(jc.getcName());
+            }
+        }
+        for (JsonInter ji : otherModel.getInterfacesList()) {
+            if (JsonTypeVisibility.isPublic(ji.getVisibility()) && export.contains(ji.getcName())) {
+                exports.add(ji.getcName());
+            }
+        }
+        return this;
     }
 
     // Methods for dynamically creating JSON class definitions
@@ -672,7 +739,7 @@ public class JsonModel {
         if (cNameOrNull == null) {
             cNameOrNull = clazz.getTypeName();
         }
-        final JsonInter ret = new JsonInter(cNameOrNull, new JsonReflectBuilder(clazz), jClass);
+        final JsonInter ret = new JsonInterface(cNameOrNull, new JsonReflectBuilder(clazz), jClass);
         interfaces.put(ret.getcName(), ret);
         return ret;
     }
@@ -837,6 +904,44 @@ public class JsonModel {
     }
 
     /**
+     * Returns a list of all registered classes, with simple-named classes first, followed by fully-qualified class
+     * names. This ordering prioritizes more commonly used simple names.
+     *
+     * @return An ordered list of JsonClass instances.
+     */
+    private List<JsonType> getTypeList() {
+        List<JsonType> ordered = new ArrayList<>(classes.size());
+        for (JsonClass jc : classes.values()) {
+            if (!jc.getcName().contains(".")) {
+                ordered.add(jc);
+            }
+        }
+        for (JsonClass jc : classes.values()) {
+            if (jc.getcName().contains(".")) {
+                ordered.add(jc);
+            }
+        }
+        for (JsonInter ji : interfaces.values()) {
+            ordered.add(ji);
+        }
+        return ordered;
+    }
+
+    /**
+     * Returns a list of all registered classes, with simple-named classes first, followed by fully-qualified class
+     * names. This ordering prioritizes more commonly used simple names.
+     *
+     * @return An ordered list of JsonClass instances.
+     */
+    private List<JsonInter> getInterfacesList() {
+        List<JsonInter> ordered = new ArrayList<>(interfaces.size());
+        for (JsonInter ji : interfaces.values()) {
+            ordered.add(ji);
+        }
+        return ordered;
+    }
+
+    /**
      * Returns a sorted list of all registered interfaces. Interfaces are sorted alphabetically by their class name.
      *
      * @return An ordered list of JsonInter instances, sorted by class name.
@@ -866,7 +971,7 @@ public class JsonModel {
         }
 
         for (JsonInter jsonInter : orderedInterfaces) {
-            for (JsonClass next : jsonInter) {
+            for (JsonClass next : jsonInter.iterable()) {
                 if (!context.containsType(next.getcName())) {
                     context.addType(next.describeHead(context));
                     orderedClasses.add(next);

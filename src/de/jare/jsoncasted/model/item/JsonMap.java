@@ -149,12 +149,12 @@ public class JsonMap extends JsonClass implements JsonType {
     }
 
     @Override
-    public boolean isPrimitive() {
+    public boolean isBoxOrPrimitive() {
         return false;
     }
 
     @Override
-    public boolean isDefinitional() {
+    public boolean isReflective() {
         return false;
     }
 
