@@ -26,6 +26,9 @@ public class JsonObject implements JsonItem {
     private final JsonTypeDescriptor contextClass;
     private String woodKey;
 
+    // New fields for ItemStore support
+    private String linkId;
+
     /**
      * Constructs a JsonObject instance with an associated class type.
      *
@@ -35,6 +38,7 @@ public class JsonObject implements JsonItem {
         this.contextClass = aClassDescriptor;
         this.map = new HashMap<>();
         this.woodKey = null;
+        this.linkId = null;
     }
 
     /**
@@ -181,4 +185,5 @@ public class JsonObject implements JsonItem {
     public Object buildInstance(BuilderService builderService) throws JsonBuildException {
         return builderService.getOrBuild(this, contextClass);
     }
+
 }

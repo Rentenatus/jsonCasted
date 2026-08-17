@@ -4,7 +4,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.impltest;
+package de.jare.impltest.lib;
 
 /**
  * Value class representing an integer value for testing.

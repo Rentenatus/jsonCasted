@@ -6,10 +6,9 @@
  */
 package de.jare.jsoncasted.lang;
 
+import de.jare.jsoncasted.io.parserservice.WoodIdFinder;
 import de.jare.jsoncasted.wood.WoodProvider;
 import de.jare.jsoncasted.wood.WoodProviderBox;
-import de.jare.jsoncasted.io.parserservice.WoodIdFinder;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

@@ -5,10 +5,10 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.parser.inner;
+package de.jare.jsoncasted.parser.bak;
 
 import de.jare.jsoncasted.item.JsonItem;
-import de.jare.jsoncasted.item.JsonValueBak;
+import de.jare.jsoncasted.item.bak.JsonValueBak;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.io.JsonParseException;

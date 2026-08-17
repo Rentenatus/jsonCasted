@@ -36,7 +36,7 @@ public final class RootConverter {
     }
 
     /**
-     * Converts a JSON resource into a JsonItem using the specified context class name and model.This is the primary
+     * Converts a JSON resource into a JsonItem using the specified context class name and model. This is the primary
      * method for converting JSON resources to the internal JsonItem model.
      *
      * @param res The JSON resource to convert.
@@ -48,6 +48,7 @@ public final class RootConverter {
      */
     public static JsonItem convert(JsonResource res, String cName, JsonModelDescriptor descriptor,
             JsonDebugLevel debugLevel) throws JsonParseException {
+
         if (res == null) {
             return null;
         }
@@ -78,9 +79,14 @@ public final class RootConverter {
         for (JsonResource itemRes : sortedResources) {
             String resName = itemRes.getProviderName();
             JsonModelDescriptor repoDesc = descriptor.getRepoDescriptorOrThis(resName);
-            WoodElementResolver.resolve(sys, itemRes, repoDesc, debugLevel);
-
+            WoodResolution itemResolution = WoodElementResolver.resolve(itemRes, repoDesc, debugLevel);
+            System.out.println(itemResolution);
+            resolution.merge(itemResolution);
+            if (itemRes != res) {
+                JsonNodeConverter.convert(itemRes, null, repoDesc, resolution, debugLevel);
+            }
         }
+
         return JsonNodeConverter.convert(res, cName, descriptor, resolution, debugLevel);
     }
 

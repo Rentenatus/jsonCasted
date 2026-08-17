@@ -274,4 +274,5 @@ public class JsonValue implements JsonItem {
     public Object buildInstance(BuilderService builderService) throws JsonBuildException {
         return builderService.buildValue(this, contextClass);
     }
+
 }

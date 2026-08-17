@@ -18,21 +18,21 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * The ConvertService class provides a central service for JSON to Java object conversion.
- * It manages the resource, model descriptor, wood resolution, and debug level required
- * for the conversion process, and provides utility methods for accessing these components.
+ * The ConvertService class provides a central service for JSON to Java object conversion. It manages the resource,
+ * model descriptor, wood resolution, and debug level required for the conversion process, and provides utility methods
+ * for accessing these components.
  *
  * @author Janusch Rentenatus
  */
 public class ConvertService {
 
-    private JsonResource res;
-    private JsonModelDescriptor descriptor;
-    private WoodResolution resolution;
+    private final JsonResource res;
+    private final JsonModelDescriptor descriptor;
+    private final WoodResolution resolution;
     private JsonDebugLevel debugLevel;
 
     /**
-     * Constructs a ConvertService instance with the specified components.
+     * Constructs a ConvertService instance with the specified components including an item store.
      *
      * @param res The JSON resource containing the JSON data to convert.
      * @param descriptor The model descriptor containing type definitions.
@@ -59,15 +59,6 @@ public class ConvertService {
     }
 
     /**
-     * Sets the JSON resource for this service.
-     *
-     * @param res The JSON resource to set.
-     */
-    public void setRes(JsonResource res) {
-        this.res = Objects.requireNonNull(res, "res must not be null");
-    }
-
-    /**
      * Returns the model descriptor associated with this service.
      *
      * @return The model descriptor.
@@ -77,30 +68,12 @@ public class ConvertService {
     }
 
     /**
-     * Sets the model descriptor for this service.
-     *
-     * @param descriptor The model descriptor to set.
-     */
-    public void setDescriptor(JsonModelDescriptor descriptor) {
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor must not be null");
-    }
-
-    /**
      * Returns the wood resolution associated with this service.
      *
      * @return The wood resolution.
      */
     public WoodResolution getResolution() {
         return resolution;
-    }
-
-    /**
-     * Sets the wood resolution for this service.
-     *
-     * @param resolution The wood resolution to set.
-     */
-    public void setResolution(WoodResolution resolution) {
-        this.resolution = Objects.requireNonNull(resolution, "resolution must not be null");
     }
 
     /**
@@ -119,16 +92,6 @@ public class ConvertService {
      */
     public void setDebugLevel(JsonDebugLevel debugLevel) {
         this.debugLevel = Objects.requireNonNull(debugLevel, "debugLevel must not be null");
-    }
-
-    @Override
-    public String toString() {
-        return "ConvertService{"
-                + "hasResource=" + (res != null)
-                + ", hasDescriptor=" + (descriptor != null)
-                + ", hasResolution=" + (resolution != null)
-                + ", debugLevel=" + debugLevel
-                + '}';
     }
 
     /**
@@ -205,5 +168,14 @@ public class ConvertService {
      */
     boolean containsResolutionKey(String aKey) {
         return getResolution().containsKey(aKey);
+    }
+
+    @Override
+    public String toString() {
+        return "ConvertService{" + "hasResource=" + (res != null)
+                + ", hasDescriptor=" + (descriptor != null)
+                + ", hasResolution=" + (resolution != null)
+                + ", debugLevel=" + debugLevel
+                + '}';
     }
 }

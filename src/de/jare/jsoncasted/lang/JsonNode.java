@@ -17,6 +17,7 @@ import static de.jare.jsoncasted.lang.JsonNodeType.STRING;
 import static de.jare.jsoncasted.lang.JsonTerms.COLONCOLON;
 import static de.jare.jsoncasted.lang.JsonTerms.PREFIX_THIS;
 import static de.jare.jsoncasted.lang.JsonTerms.PREFIX_SELF;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.*;
 
@@ -256,6 +257,21 @@ public class JsonNode {
             throw new JsonParseException("IDs must not contain a provider name or a :: sign (" + id + ").");
         }
         return providerName + COLONCOLON + id;
+    }
+
+    public String getCast() {
+        if (!isObject()) {
+            return null;
+        }
+        Map<String, JsonNode> values = asObjectValues();
+        if (values == null) {
+            return null;
+        }
+        JsonNode cast = values.get(TERM_CLASS);
+        if (cast == null) {
+            return null;
+        }
+        return cast.asText();
     }
 
     public String getLink(String providerName) throws JsonParseException {

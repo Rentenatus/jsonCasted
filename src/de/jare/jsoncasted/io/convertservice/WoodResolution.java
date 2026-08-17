@@ -6,10 +6,9 @@
  */
 package de.jare.jsoncasted.io.convertservice;
 
-import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.item.JsonItem;
 import static de.jare.jsoncasted.lang.JsonTerms.COLONCOLON;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -183,6 +182,11 @@ public class WoodResolution {
                 + ", unresolvedKeysSize=" + unresolvedKeys.size()
                 + ", exceptionsSize=" + exceptions.size()
                 + '}';
+    }
+
+    protected void merge(WoodResolution itemResolution) {
+        exceptions.addAll(itemResolution.getUnmodifiableExceptions());
+        resolvedObjects.putAll(itemResolution.getUnmodifiableResolvedObjects());
     }
 
 }
