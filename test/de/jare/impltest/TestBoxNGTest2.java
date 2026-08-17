@@ -7,6 +7,9 @@
 package de.jare.impltest;
 
 import de.jare.debug.JsonDebugLevel;
+import de.jare.impltest.lib.ImplTestDefinition2;
+import de.jare.impltest.lib.TestBox;
+import de.jare.impltest.lib.ValueInterface;
 import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.JsonItemWriter;
 import de.jare.jsoncasted.io.JsonNodeWriter;

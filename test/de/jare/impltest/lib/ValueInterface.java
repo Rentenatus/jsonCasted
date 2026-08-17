@@ -4,7 +4,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.impltest;
+package de.jare.impltest.lib;
 
 /**
  * Interface for value objects that can provide text representation. All test value classes implement this interface.

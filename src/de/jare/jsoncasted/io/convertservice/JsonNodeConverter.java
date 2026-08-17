@@ -69,24 +69,7 @@ public class JsonNodeConverter {
             }
         }
         ConvertService service = new ConvertService(res, descriptor, resolution, debugLevel, itemStore);
-        convertResourceNodeTree(node, contextClass, descriptor, service, itemStore);
         return convert(node, contextClass, service);
-    }
-
-    /**
-     *
-     *
-     * @param node The JSON node to convert.
-     * @param descriptor The model descriptor for the current resource.
-     * @param service The convert service.
-     * @param itemStore The JsonItemStore to register items in.
-     * @return The converted JsonItem.
-     * @throws JsonParseException If conversion fails.
-     */
-    private static void convertResourceNodeTree(JsonNode node, JsonTypeDescriptor contextClass, JsonModelDescriptor descriptor,
-            ConvertService service, JsonItemStore itemStore) throws JsonParseException {
-
-        // todo: LinkingSet abarbeiten! 
     }
 
     /**

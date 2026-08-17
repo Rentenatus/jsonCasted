@@ -87,7 +87,7 @@ public class BuilderService {
         if (item == null) {
             return null;
         }
-        
+ 
         // Check if this is a proxy reference
         if (item.hasLinkId()) {
             return buildProxyItem(item);
