@@ -13,6 +13,7 @@ import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
+import de.jare.jsoncasted.io.convertservice.WoodResolution;
 import de.jare.jsoncasted.tools.SimpleStringSplitter;
 import de.jare.jsonconfig.def.JsonConfigDefinition;
 import de.jare.jsonconfig.item.ConfigFeature;
@@ -22,6 +23,7 @@ import de.jare.jsonconfig.item.ConfigRoot;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,17 +46,25 @@ public class JsonConfigHelper implements SimpleStringSplitter {
         JsonConfigDefinition definition = JsonConfigDefinition.getInstance();
         JsonItem obj1 = null;
         try {
-            obj1 = JsonParser.parse(configFile,
+            WoodResolution reso = JsonParser.parse(configFile,
                     definition.getDescriptor(), definition.getConfigRoot().getcName());
+
+            if (reso.hasExceptions()) {
+                final List<JsonParseException> exceptions = reso.getUnmodifiableExceptions();
+                for (Exception exception : exceptions) {
+                    Logger.getGlobal().log(Level.SEVERE, "Parsing error: ", exception);
+                }
+            }
+            obj1 = reso.getAnswer();
         } catch (JsonParseException | IOException | NullPointerException ex) {
-            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, "Error caught during parsing: ", ex);
         }
         try {
             final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), true, obj1);
             System.out.println(buildInstance1.getClass().getName());
             root = (ConfigRoot) buildInstance1;
         } catch (JsonBuildException | NullPointerException ex) {
-            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, "An error occurred during the build process: ", ex);
         }
         if (root == null) {
             return;

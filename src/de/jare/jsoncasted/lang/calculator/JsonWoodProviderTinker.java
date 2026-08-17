@@ -14,16 +14,17 @@ import de.jare.jsoncasted.lang.LinkingSet;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
+import de.jare.jsoncasted.io.convertservice.WoodResolution;
 import static de.jare.jsoncasted.lang.JsonTerms.SELF_SYNONYM;
 import de.jare.jsoncasted.wood.WoodProviderBox;
 import de.jare.jsoncasted.wood.WoodProviderDefinition;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 /**
- * The JsonWoodProviderTinker class builds WoodProviderBox instances from scan results.
- * It processes the results of scanning JSON for wood provider definitions and converts
- * them into usable WoodProviderBox objects.
+ * The JsonWoodProviderTinker class builds WoodProviderBox instances from scan results. It processes the results of
+ * scanning JSON for wood provider definitions and converts them into usable WoodProviderBox objects.
  *
  * @author Janusch Rentenatus
  */
@@ -90,8 +91,15 @@ public final class JsonWoodProviderTinker {
         try {
             JsonResource res = JsonResource.forRoot(entry.getOwnerNode());
             res.setLinkingSet(new LinkingSet(SELF_SYNONYM));
-            JsonItem jsonItem = JsonParser.parse(res,
+            WoodResolution reso = JsonParser.parse(res,
                     definition.getDescriptor(), definition.getWoodProviderBox().getcName(), debugLevel);
+            if (reso.hasExceptions()) {
+                final List<JsonParseException> exceptions = reso.getUnmodifiableExceptions();
+                for (Exception exception : exceptions) {
+                    result.registerException(entry, exception);
+                }
+            }
+            JsonItem jsonItem = reso.getAnswer();
             Object instance = JsonBuilder.buildInstance(definition.getModel(), true, jsonItem);
 
             if (!(instance instanceof WoodProviderBox)) {

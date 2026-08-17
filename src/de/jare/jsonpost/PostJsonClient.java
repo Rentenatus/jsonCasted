@@ -16,7 +16,9 @@ import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
 import de.jare.jsoncasted.io.JsonObjectWriter;
 import de.jare.jsoncasted.io.JsonWriteException;
+import de.jare.jsoncasted.io.convertservice.WoodResolution;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -67,9 +69,16 @@ public class PostJsonClient {
     public Object buildObject(String answer, JsonItemDefinition definition, final JsonClass readClass) throws JsonBuildException, IOException {
         JsonItem obj = null;
         try {
-            obj = JsonParser.parse(answer, definition.getDescriptor(), readClass.getcName());
+            WoodResolution reso = JsonParser.parse(answer, definition.getDescriptor(), readClass.getcName());
+            if (reso.hasExceptions()) {
+                final List<JsonParseException> exceptions = reso.getUnmodifiableExceptions();
+                for (Exception exception : exceptions) {
+                    Logger.getGlobal().log(Level.SEVERE, "Parsing error: ", exception);
+                }
+            }
+            obj = reso.getAnswer();
         } catch (JsonParseException ex) {
-            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, "Error caught during parsing: ", ex);
         }
         return JsonBuilder.buildInstance(definition.getModel(), true, obj);
     }

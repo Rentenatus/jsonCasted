@@ -43,10 +43,10 @@ public final class RootConverter {
      * @param cName The name of the context/root class for type resolution.
      * @param descriptor The model descriptor containing type definitions.
      * @param debugLevel The debug level for controlling debug output.
-     * @return The converted JsonItem, or null if the resource or its root is null.
+     * @return The converted JsonItem in WoodResolution, or null if the resource or its root is null.
      * @throws JsonParseException If conversion fails.
      */
-    public static JsonItem convert(JsonResource res, String cName, JsonModelDescriptor descriptor,
+    public static WoodResolution convert(JsonResource res, String cName, JsonModelDescriptor descriptor,
             JsonDebugLevel debugLevel) throws JsonParseException {
 
         if (res == null) {
@@ -87,7 +87,8 @@ public final class RootConverter {
             }
         }
 
-        return JsonNodeConverter.convert(res, cName, descriptor, resolution, debugLevel);
+        resolution.setAnswer(JsonNodeConverter.convert(res, cName, descriptor, resolution, debugLevel));
+        return resolution;
     }
 
     /**

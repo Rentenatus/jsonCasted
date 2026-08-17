@@ -15,9 +15,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * The JsonWoodProviderTinkerResult class contains the results of building WoodProviderBox
- * instances from a scan result. It stores all successfully built provider boxes and
- * any exceptions that occurred during the build process.
+ * The JsonWoodProviderTinkerResult class contains the results of building WoodProviderBox instances from a scan result.
+ * It stores all successfully built provider boxes and any exceptions that occurred during the build process.
  *
  * @author Janusch Rentenatus
  */
@@ -139,8 +138,8 @@ public final class JsonWoodProviderTinkerResult {
     }
 
     /**
-     * The BuildEntry class represents a single successfully built WoodProviderBox.
-     * It stores the scan entry that produced the box and the box itself.
+     * The BuildEntry class represents a single successfully built WoodProviderBox. It stores the scan entry that
+     * produced the box and the box itself.
      */
     public static final class BuildEntry {
 

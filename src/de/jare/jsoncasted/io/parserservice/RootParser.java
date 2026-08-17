@@ -70,14 +70,14 @@ public class RootParser {
         }
         container.setExpectedBox(result.getWoodProviderBox());
 
-        // Definitions aus dem TinkerResult extrahieren und in die Resource aufnehmen
+        //Extract definitions from the TinkerResult and include them in the resource.
         if (result.hasDefinitionEntries()) {
             for (JsonWoodProviderScanResult.DefinitionsNodeEntry defEntry : result.getDefinitionEntries()) {
-                // Den _woodDefinitions-Knoten extrahieren
+                // Extract the _woodDefinitions node
                 JsonNode ownerNode = defEntry.getOwnerNode();
                 JsonNode defsNode = ownerNode.asObjectValues().get(JsonTerms.TERM_WOOD_DEFINITIONS);
                 if (defsNode != null && defsNode.isObject() && defsNode.asObjectValues() != null) {
-                    // Alle Kinder des _woodDefinitions-Objekts als einzelne Definition-Nodes hinzufügen
+                    // Add all children of the _woodDefinitions object as individual definition nodes.
                     for (JsonNode childNode : defsNode.asObjectValues().values()) {
                         container.addDefinitionNode(childNode);
                     }

@@ -19,8 +19,10 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * The WoodResolution class manages the resolution state for converting JSON objects with wood (object reference)
- * support. It tracks resolved objects, unresolved keys, and any exceptions that occurred during the resolution process.
+ * The WoodResolution class manages the resolution state for converting JSON
+ * objects with wood (object reference)
+ * support. It tracks resolved objects, unresolved keys, and any exceptions that
+ * occurred during the resolution process.
  *
  * @author Janusch Rentenatus
  */
@@ -29,6 +31,7 @@ public class WoodResolution {
     private final Map<String, JsonItem> resolvedObjects;
     private final Set<String> unresolvedKeys;
     private final List<JsonParseException> exceptions;
+    private JsonItem answer;
 
     /**
      * Constructs a new WoodResolution instance with empty collections.
@@ -37,12 +40,14 @@ public class WoodResolution {
         this.resolvedObjects = new LinkedHashMap<>();
         this.unresolvedKeys = new LinkedHashSet<>();
         this.exceptions = new ArrayList<>();
+        this.answer = null;
     }
 
     /**
      * Checks if all objects have been resolved and no exceptions occurred.
      *
-     * @return true if fully resolved (no unresolved keys and no exceptions), false otherwise.
+     * @return true if fully resolved (no unresolved keys and no exceptions), false
+     *         otherwise.
      */
     public boolean isFullyResolved() {
         return unresolvedKeys.isEmpty() && exceptions.isEmpty();
@@ -78,7 +83,7 @@ public class WoodResolution {
     /**
      * Adds a resolved object to the resolution with the specified key.
      *
-     * @param key The key to associate with the resolved object.
+     * @param key   The key to associate with the resolved object.
      * @param entry The resolved JsonItem.
      * @throws NullPointerException If key is null.
      */
@@ -159,7 +164,8 @@ public class WoodResolution {
     }
 
     /**
-     * Extracts the provider names from unresolved keys. Keys with the format "provider::key" will have the provider
+     * Extracts the provider names from unresolved keys. Keys with the format
+     * "provider::key" will have the provider
      * part extracted.
      *
      * @return A set of unresolved provider names.
@@ -175,10 +181,19 @@ public class WoodResolution {
         return unresolvedProvider;
     }
 
+    public JsonItem getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(JsonItem answer) {
+        this.answer = answer;
+    }
+
     @Override
     public String toString() {
         return "WoodResolution{"
-                + "resolvedObjectsSize=" + resolvedObjects.size()
+                + "answer={" + answer
+                + "}, resolvedObjectsSize=" + resolvedObjects.size()
                 + ", unresolvedKeysSize=" + unresolvedKeys.size()
                 + ", exceptionsSize=" + exceptions.size()
                 + '}';
