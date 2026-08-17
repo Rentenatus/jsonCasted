@@ -11,9 +11,8 @@ import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.JsonModel;
 
 /**
- * The JsonBuilder class provides functionality for building Java objects from
- * JSON data. It works as a wrapper around the BuilderService to convert JSON
- * items into their corresponding Java object representations.
+ * The JsonBuilder class provides functionality for building Java objects from JSON data. It works as a wrapper around
+ * the BuilderService to convert JSON items into their corresponding Java object representations.
  *
  * @author Janusch Rentenatus
  */
@@ -23,13 +22,11 @@ public class JsonBuilder {
     private BuilderService builderService;
 
     /**
-     * Builds a Java object instance from a JSON item using the specified model.
-     * This is a static convenience method that creates a BuilderService internally.
-     * The itemStore is obtained from the rootItem, enabling proxy resolution for the ItemStore architecture.
+     * Builds a Java object instance from a JSON item using the specified model. This is a static convenience method
+     * that creates a BuilderService internally.
      *
      * @param model The JSON model containing type definitions and mappings.
-     * @param throwClassEx If true, throws exceptions when classes are not found;
-     *        if false, uses default handling.
+     * @param throwClassEx If true, throws exceptions when classes are not found; if false, uses default handling.
      * @param rootItem The root JSON item to build from.
      * @return The constructed Java object.
      * @throws JsonBuildException If object construction fails.
@@ -41,7 +38,6 @@ public class JsonBuilder {
 
     /**
      * Constructs a JsonBuilder instance with the specified root JSON item.
-     * The itemStore is obtained from the rootItem when building.
      *
      * @param rootItem The root JSON item to build from.
      */
@@ -52,11 +48,9 @@ public class JsonBuilder {
 
     /**
      * Builds a Java object instance from the root JSON item using the specified model.
-     * The itemStore is obtained from the rootItem, enabling proxy resolution.
      *
      * @param model The JSON model containing type definitions and mappings.
-     * @param throwClassEx If true, throws exceptions when classes are not found;
-     *        if false, uses default handling.
+     * @param throwClassEx If true, throws exceptions when classes are not found; if false, uses default handling.
      * @return The constructed Java object.
      * @throws JsonBuildException If object construction fails.
      */

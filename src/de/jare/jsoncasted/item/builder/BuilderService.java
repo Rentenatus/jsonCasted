@@ -43,19 +43,8 @@ public class BuilderService {
     private final boolean throwClassEx;
     private final Map<String, Object> builtObjectsByWoodKey = new HashMap<>();
 
-    // For cycle detection during building
-    private final Set<String> buildingItems = new HashSet<>();
-
     /**
      * Constructs a BuilderService with the specified model and exception configuration.
-     *
-     * @param model the JSON model containing type definitions.
-     * @param throwClassEx if {@code true}, throws exceptions when unknown classes are encountered; otherwise logs
-     * warnings and continues.
-     */
-    /**
-     * Constructs a BuilderService with the specified model and exception configuration. The itemStore is obtained from
-     * JsonItems when needed for proxy resolution.
      *
      * @param model the JSON model containing type definitions.
      * @param throwClassEx if {@code true}, throws exceptions when unknown classes are encountered; otherwise logs
@@ -76,8 +65,7 @@ public class BuilderService {
     }
 
     /**
-     * Builds an object from the given JSON item. This method handles proxy references by resolving them through the
-     * itemStore obtained from the proxy item itself.
+     * Builds an object from the given JSON item.
      *
      * @param item the JSON item to build from.
      * @return the constructed object, or {@code null} if the item is null.

@@ -44,7 +44,6 @@ public class JsonNodeConverter {
      * @param descriptor The model descriptor containing type definitions.
      * @param resolution The wood resolution for handling object references.
      * @param debugLevel The debug level for controlling debug output.
-     * @param itemStore
      * @return The converted JsonItem, or null if input is null or empty.
      * @throws JsonParseException If conversion fails.
      */

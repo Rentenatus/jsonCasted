@@ -26,9 +26,6 @@ public class JsonList implements JsonItem {
     private final JsonTypeDescriptor contextClass;
     private final boolean asList;
 
-    // New fields for ItemStore support
-    private String linkId;
-
     /**
      * Constructs a JsonList instance with the specified items and type information.
      *
@@ -40,7 +37,6 @@ public class JsonList implements JsonItem {
         this.contextClass = contextClass;
         this.list = list;
         this.asList = asList;
-        this.linkId = null;
     }
 
     /**
