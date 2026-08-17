@@ -12,7 +12,7 @@ import de.jare.jsoncasted.io.JsonItemDefinition;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.parser.inner.RootParserBak;
+import de.jare.jsoncasted.parser.bak.RootParserBak;
 import de.jare.jsoncasted.io.parserservice.ParseStreamReader;
 import java.io.BufferedReader;
 import java.io.File;

@@ -26,6 +26,10 @@ public class JsonList implements JsonItem {
     private final JsonTypeDescriptor contextClass;
     private final boolean asList;
 
+    // New fields for ItemStore support
+    private String linkId;
+    private JsonItemStore itemStore;
+
     /**
      * Constructs a JsonList instance with the specified items and type information.
      *
@@ -37,6 +41,8 @@ public class JsonList implements JsonItem {
         this.contextClass = contextClass;
         this.list = list;
         this.asList = asList;
+        this.linkId = null;
+        this.itemStore = null;
     }
 
     /**
@@ -160,5 +166,45 @@ public class JsonList implements JsonItem {
     @Override
     public Object buildInstance(BuilderService builderService) throws JsonBuildException {
         return builderService.buildList(this, asList, contextClass);
+    }
+
+    /**
+     * Methods for JsonItemStore support
+     *
+     * @return
+     */
+    @Override
+    public String getLinkId() {
+        return linkId;
+    }
+
+    /**
+     * Methods for JsonItemStore support
+     *
+     * @return
+     */
+    @Override
+    public JsonItemStore getItemStore() {
+        return itemStore;
+    }
+
+    /**
+     * Methods for JsonItemStore support
+     *
+     * @param linkId
+     */
+    @Override
+    public void setLinkId(String linkId) {
+        this.linkId = linkId;
+    }
+
+    /**
+     * Methods for JsonItemStore support
+     *
+     * @param itemStore
+     */
+    @Override
+    public void setItemStore(JsonItemStore itemStore) {
+        this.itemStore = itemStore;
     }
 }

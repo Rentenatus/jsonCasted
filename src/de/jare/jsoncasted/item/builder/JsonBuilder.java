@@ -25,6 +25,7 @@ public class JsonBuilder {
     /**
      * Builds a Java object instance from a JSON item using the specified model.
      * This is a static convenience method that creates a BuilderService internally.
+     * The itemStore is obtained from the rootItem, enabling proxy resolution for the ItemStore architecture.
      *
      * @param model The JSON model containing type definitions and mappings.
      * @param throwClassEx If true, throws exceptions when classes are not found;
@@ -40,6 +41,7 @@ public class JsonBuilder {
 
     /**
      * Constructs a JsonBuilder instance with the specified root JSON item.
+     * The itemStore is obtained from the rootItem when building.
      *
      * @param rootItem The root JSON item to build from.
      */
@@ -50,6 +52,7 @@ public class JsonBuilder {
 
     /**
      * Builds a Java object instance from the root JSON item using the specified model.
+     * The itemStore is obtained from the rootItem, enabling proxy resolution.
      *
      * @param model The JSON model containing type definitions and mappings.
      * @param throwClassEx If true, throws exceptions when classes are not found;

@@ -9,6 +9,7 @@ package de.jare.jsoncasted.lang;
 import de.jare.jsoncasted.wood.WoodProvider;
 import de.jare.jsoncasted.wood.WoodProviderBox;
 import de.jare.jsoncasted.io.parserservice.WoodIdFinder;
+import de.jare.jsoncasted.item.JsonItemStore;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,9 +38,11 @@ public final class JsonSystem {
     private JsonResource mainResource;
     private List<JsonResource> resources;
     private List<String> sortedSynonyms;
+    private final JsonItemStore itemStore;
 
     private JsonSystem() {
         this.resources = new ArrayList<>();
+        this.itemStore = new JsonItemStore();
     }
 
     public List<String> getSortedSynonyms() {
@@ -240,6 +243,10 @@ public final class JsonSystem {
      */
     public int size() {
         return resources.size();
+    }
+
+    public JsonItemStore getItemStore() {
+        return itemStore;
     }
 
 }

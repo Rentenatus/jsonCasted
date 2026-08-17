@@ -16,7 +16,9 @@ import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.item.JsonItemStore;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Converter to transform a JsonNode tree into the library's JsonItem model. This class provides the core conversion
@@ -36,30 +38,55 @@ public class JsonNodeConverter {
     }
 
     /**
-     * Converts a JSON resource into a JsonItem using the specified context class and service. This is the main entry
+     * Converts a JSON resource into a JsonItem using the specified context class and service.This is the main entry
      * point for converting JSON resources.
      *
      * @param res The JSON resource to convert.
-     * @param cName The name of the context class for type resolution.
+     * @param cNameOrNull The name of the context class for type resolution.
      * @param descriptor The model descriptor containing type definitions.
      * @param resolution The wood resolution for handling object references.
      * @param debugLevel The debug level for controlling debug output.
+     * @param itemStore
      * @return The converted JsonItem, or null if input is null or empty.
      * @throws JsonParseException If conversion fails.
      */
-    public static JsonItem convert(JsonResource res, String cName, JsonModelDescriptor descriptor, WoodResolution resolution, JsonDebugLevel debugLevel) throws JsonParseException {
+    public static JsonItem convert(JsonResource res, String cNameOrNull, JsonModelDescriptor descriptor, WoodResolution resolution, JsonDebugLevel debugLevel, JsonItemStore itemStore) throws JsonParseException {
         if (res == null) {
             return null;
         }
-        if (res.getRoot() == null) {
+        final JsonNode node = res.getRoot();
+        if (node == null) {
             return null;
         }
-        JsonTypeDescriptor contextClass = descriptor.getType(cName);
+        JsonTypeDescriptor contextClass = descriptor.getType(cNameOrNull);
         if (contextClass == null) {
-            return null;
+            String className = res.getRoot().getCast();
+            if (className != null) {
+                contextClass = descriptor.getType(className);
+            }
+            if (contextClass == null) {
+                return null;
+            }
         }
-        ConvertService service = new ConvertService(res, descriptor, resolution, debugLevel);
-        return convert(res.getRoot(), contextClass, service);
+        ConvertService service = new ConvertService(res, descriptor, resolution, debugLevel, itemStore);
+        convertResourceNodeTree(node, contextClass, descriptor, service, itemStore);
+        return convert(node, contextClass, service);
+    }
+
+    /**
+     *
+     *
+     * @param node The JSON node to convert.
+     * @param descriptor The model descriptor for the current resource.
+     * @param service The convert service.
+     * @param itemStore The JsonItemStore to register items in.
+     * @return The converted JsonItem.
+     * @throws JsonParseException If conversion fails.
+     */
+    private static void convertResourceNodeTree(JsonNode node, JsonTypeDescriptor contextClass, JsonModelDescriptor descriptor,
+            ConvertService service, JsonItemStore itemStore) throws JsonParseException {
+
+        // todo: LinkingSet abarbeiten! 
     }
 
     /**

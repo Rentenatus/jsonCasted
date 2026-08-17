@@ -5,8 +5,11 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.item;
+package de.jare.jsoncasted.item.bak;
 
+import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.JsonItemStore;
+import de.jare.jsoncasted.item.OneItemIterator;
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.item.JsonClass;
@@ -15,8 +18,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * The JsonObject class represents a JSON object structure. It stores key-value
- * pairs and provides methods for accessing and manipulating properties.
+ * The JsonObject class represents a JSON object structure. It stores key-value pairs and provides methods for accessing
+ * and manipulating properties.
  *
  * @author Janusch Rentenatus
  */
@@ -59,8 +62,7 @@ public class JsonObjectBak implements JsonItem {
      * Retrieves a JSON property by its key.
      *
      * @param key The name of the property.
-     * @return The corresponding JsonItem value or null if the key does not
-     * exist.
+     * @return The corresponding JsonItem value or null if the key does not exist.
      */
     @Override
     public JsonItem getParam(String key) {
@@ -78,9 +80,8 @@ public class JsonObjectBak implements JsonItem {
     }
 
     /**
-     * Retrieves the string representation of the JSON object's value. Since
-     * this class represents an object structure, it does not return a simple
-     * string value.
+     * Retrieves the string representation of the JSON object's value. Since this class represents an object structure,
+     * it does not return a simple string value.
      *
      * @return null, as objects typically have nested properties.
      */
@@ -140,8 +141,8 @@ public class JsonObjectBak implements JsonItem {
     }
 
     /**
-     * Returns an iterator over the object's single element. A JSON object does
-     * not function as a list but can be wrapped for iteration.
+     * Returns an iterator over the object's single element. A JSON object does not function as a list but can be
+     * wrapped for iteration.
      *
      * @return A OneItemIterator containing this object.
      */
@@ -151,9 +152,8 @@ public class JsonObjectBak implements JsonItem {
     }
 
     /**
-     * Retrieves the number of elements within the JSON object. While an object
-     * contains multiple properties, it is counted as a single structured
-     * entity.
+     * Retrieves the number of elements within the JSON object. While an object contains multiple properties, it is
+     * counted as a single structured entity.
      *
      * @return 1, representing a single JSON object.
      */
@@ -174,5 +174,15 @@ public class JsonObjectBak implements JsonItem {
             return null;
         }
         return jClass.build(this, builderService);
+    }
+
+    @Override
+    public String getLinkId() {
+        return null;
+    }
+
+    @Override
+    public JsonItemStore getItemStore() {
+        return null;
     }
 }

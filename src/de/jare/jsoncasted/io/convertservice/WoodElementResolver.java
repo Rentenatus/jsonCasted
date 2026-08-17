@@ -9,16 +9,15 @@ package de.jare.jsoncasted.io.convertservice;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.item.JsonItemStore;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
-import de.jare.jsoncasted.lang.JsonSystem;
 import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.lang.LinkNodeEntry;
 import de.jare.jsoncasted.lang.LinkingSet;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -58,15 +57,14 @@ public final class WoodElementResolver {
      * Repository descriptors are retrieved directly from the main descriptor's
      * repoDescriptor map, without accessing the JsonModel instances.
      * </p>
-     *
-     * @param sys The JsonSystem containing resources to resolve.
+     * 
      * @param container
      * @param resourceDescriptor
      * @param debugLevel The debug level for controlling debug output.
      * @return The WoodResolution containing resolved objects, unresolved keys,
      * and exceptions.
      */
-    public static WoodResolution resolve(JsonSystem sys, JsonResource container, JsonModelDescriptor resourceDescriptor, JsonDebugLevel debugLevel) {
+    public static WoodResolution resolve(JsonResource container, JsonModelDescriptor resourceDescriptor, JsonDebugLevel debugLevel, JsonItemStore itemStore) {
 
         LinkingSet linkingSet = Objects.requireNonNull(container.getLinkingSet(),
                 "container.linkingSet must not be null");
@@ -74,7 +72,7 @@ public final class WoodElementResolver {
         Set<String> remainingKeys = new LinkedHashSet<>(linkingSet.getObjectIdMap().keySet());
         boolean progress = !remainingKeys.isEmpty();
 
-        ConvertService service = new ConvertService(container, resourceDescriptor, resolution, debugLevel);
+        ConvertService service = new ConvertService(container, resourceDescriptor, resolution, debugLevel, itemStore);
 
         while (progress) {
             progress = resolveLoop(remainingKeys, service);

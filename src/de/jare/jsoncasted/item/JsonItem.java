@@ -113,4 +113,42 @@ public interface JsonItem {
         //NoOp
     }
 
+    /**
+     * Returns the link ID if this item represents a proxy reference.
+     * The ID has the format: {providerName}::{objectId}
+     *
+     * @return the link ID, or null if this is not a proxy reference
+     */
+    String getLinkId();
+    
+    /**
+     * Returns the associated JsonItemStore for this item.
+     *
+     * @return the JsonItemStore, or null if not set
+     */
+    JsonItemStore getItemStore();
+    
+    /**
+     * Checks if this item represents a proxy reference.
+     *
+     * @return true if getLinkId() returns a non-null value
+     */
+    default boolean hasLinkId() {
+        return getLinkId() != null;
+    }
+    
+    /**
+     * Sets the link ID for this item (for internal use during parsing).
+     *
+     * @param linkId the link ID to set
+     */
+    default void setLinkId(String linkId) { }
+    
+    /**
+     * Sets the JsonItemStore for this item (for internal use during parsing).
+     *
+     * @param itemStore the JsonItemStore to associate with this item
+     */
+    default void setItemStore(JsonItemStore itemStore) { }
+
 }
