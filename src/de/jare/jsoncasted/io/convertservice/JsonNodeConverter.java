@@ -118,7 +118,7 @@ public class JsonNodeConverter {
         for (JsonNode child : node.asArray()) {
             list.add(convert(child, contextClass, service));
         }
-        return new JsonList(list, asList, contextClass);
+        return new JsonList(list, asList, contextClass, service.incrementAtomicLong());
     }
 
     /**

@@ -111,4 +111,18 @@ public interface JsonItem {
         //NoOp
     }
 
+    /**
+     * Retrieves the resolver ID associated with this JSON item.
+     *
+     * @return The resolver ID as a long.
+     */
+    public long getResolverId();
+
+    /**
+     * Sets the resolver ID for this JSON item.
+     *
+     * @param resolverId The resolver ID to set.
+     */
+    public void setResolverId(long resolverId);
+
 }

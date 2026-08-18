@@ -99,6 +99,9 @@ public class ItemWriteWalker {
             if (object.getPrintClassName() != null) {
                 keys.add(".:c:.");
             }
+            if (object.getResolverId() >= 0) {
+                keys.add("_:r:_");
+            }
             keys.addAll(object.getParamSet());
 
             java.util.Iterator<String> it = keys.iterator();
@@ -119,6 +122,12 @@ public class ItemWriteWalker {
                 if (".:c:.".equals(nextName)) {
                     strategie.writeAttrName(null, isFollowing, JsonTerms.TERM_CLASS, childIndent);
                     strategie.writeNodeValue('"' + object.getPrintClassName() + '"', iString);
+                    isFollowing = true;
+                    continue;
+                }
+                if ("_:r:_".equals(nextName)) {
+                    strategie.writeAttrName(null, isFollowing, JsonTerms.TERM_RESOLVER_ID, childIndent);
+                    strategie.writeNodeValue(object.getResolverId(), iString);
                     isFollowing = true;
                     continue;
                 }

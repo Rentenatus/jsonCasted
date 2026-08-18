@@ -140,7 +140,7 @@ public class JsonObjectConverter {
         if (contextClass == null) {
             throw new JsonParseException("No Class.");
         }
-        this.myObject = new JsonObject(contextClass);
+        this.myObject = new JsonObject(contextClass, service.incrementAtomicLong());
         this.service = service;
     }
 
@@ -151,7 +151,7 @@ public class JsonObjectConverter {
      */
     private void setCastedContext(JsonTypeDescriptor castedChildType) {
         this.contextClass = castedChildType;
-        this.myObject = new JsonObject(castedChildType);
+        this.myObject = new JsonObject(castedChildType, service.incrementAtomicLong());
     }
 
     /**

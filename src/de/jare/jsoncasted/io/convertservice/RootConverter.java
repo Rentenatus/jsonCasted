@@ -79,9 +79,7 @@ public final class RootConverter {
         for (JsonResource itemRes : sortedResources) {
             String resName = itemRes.getProviderName();
             JsonModelDescriptor repoDesc = descriptor.getRepoDescriptorOrThis(resName);
-            WoodResolution itemResolution = WoodElementResolver.resolve(itemRes, repoDesc, debugLevel);
-            System.out.println(itemResolution);
-            resolution.merge(itemResolution);
+            WoodElementResolver.resolve(itemRes, repoDesc, resolution, debugLevel);
             if (itemRes != res) {
                 JsonNodeConverter.convert(itemRes, null, repoDesc, resolution, debugLevel);
             }

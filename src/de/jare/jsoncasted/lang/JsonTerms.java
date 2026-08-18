@@ -38,6 +38,8 @@ public class JsonTerms {
      */
     public static final String TERM_WOOD_LINK = "_woodLink";
 
+    public static final String TERM_RESOLVER_ID = "_resolverId";
+
     /**
      * Property name for external resource provider definitions.
      * <p>

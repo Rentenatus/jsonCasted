@@ -26,6 +26,7 @@ public class JsonValue implements JsonItem {
     private final Long longValue;
     private final Boolean boolValue;
     private final JsonTypeDescriptor contextClass;
+    private long resolverId = Long.MIN_VALUE;
 
     /**
      * Constructs a JsonValue instance with an associated class type.
@@ -273,6 +274,16 @@ public class JsonValue implements JsonItem {
     @Override
     public Object buildInstance(BuilderService builderService) throws JsonBuildException {
         return builderService.buildValue(this, contextClass);
+    }
+
+    @Override
+    public long getResolverId() {
+        return resolverId;
+    }
+
+    @Override
+    public void setResolverId(long resolverId) {
+        this.resolverId = resolverId;
     }
 
 }

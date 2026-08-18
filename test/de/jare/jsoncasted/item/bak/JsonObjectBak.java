@@ -175,4 +175,13 @@ public class JsonObjectBak implements JsonItem {
         return jClass.build(this, builderService);
     }
 
+    @Override
+    public long getResolverId() {
+        return Long.MIN_VALUE;
+    }
+
+    @Override
+    public void setResolverId(long resolverId) {
+        // NoOp
+    }
 }

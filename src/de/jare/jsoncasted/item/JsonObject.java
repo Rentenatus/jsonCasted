@@ -25,16 +25,19 @@ public class JsonObject implements JsonItem {
     private final HashMap<String, JsonItem> map;
     private final JsonTypeDescriptor contextClass;
     private String woodKey;
+    private long resolverId;
 
     /**
      * Constructs a JsonObject instance with an associated class type.
      *
      * @param aClassDescriptor The JSON class used for instance creation.
+     * @param resolverId
      */
-    public JsonObject(JsonTypeDescriptor aClassDescriptor) {
+    public JsonObject(JsonTypeDescriptor aClassDescriptor, long resolverId) {
         this.contextClass = aClassDescriptor;
         this.map = new HashMap<>();
         this.woodKey = null;
+        this.resolverId = resolverId;
     }
 
     /**
@@ -169,6 +172,16 @@ public class JsonObject implements JsonItem {
 
     public String getWoodKey() {
         return woodKey;
+    }
+
+    @Override
+    public long getResolverId() {
+        return resolverId;
+    }
+
+    @Override
+    public void setResolverId(long resolverId) {
+        this.resolverId = resolverId;
     }
 
     /**
