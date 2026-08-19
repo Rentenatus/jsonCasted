@@ -101,9 +101,7 @@ public final class WoodElementResolver {
 
             try {
                 JsonTypeDescriptor typeDescriptor = resolveContextClass(node, service.getDescriptor());
-                JsonItem convertedObject = JsonObjectConverter.convertObject(node, typeDescriptor, service);
-                convertedObject.setWoodKey(key);
-                service.getResolution().putResolvedObject(key, convertedObject);
+                JsonObjectConverter.convertObject(node, key, typeDescriptor, service);
                 resolvedThisRound.add(key);
                 progress = true;
             } catch (JsonParseException ex) {

@@ -34,15 +34,6 @@ import java.util.logging.Logger;
 public class JsonObjectConverter {
 
     /**
-     * Private constructor to prevent instantiation of this utility class.
-     *
-     * @throws IllegalStateException Always thrown as this is a utility class.
-     */
-    private JsonObjectConverter() {
-        throw new IllegalStateException("Utility class");
-    }
-
-    /**
      * Converts a JSON object node into a JsonItem. This is the main entry point for object conversion, handling caching
      * and type casting.
      *
@@ -53,6 +44,25 @@ public class JsonObjectConverter {
      * @throws JsonParseException If conversion fails.
      */
     public static JsonItem convertObject(JsonNode node, JsonTypeDescriptor contextClass,
+            ConvertService service) throws JsonParseException {
+        return convertObject(node,
+                node.getObjectId(service.getRes().getProviderName()),
+                contextClass,
+                service);
+    }
+
+    /**
+     * Converts a JSON object node into a JsonItem.This is the main entry point for object conversion, handling caching
+     * and type casting.
+     *
+     * @param node The JSON node to convert.
+     * @param keyOrNull key if known.
+     * @param contextClass The context class for type resolution.
+     * @param service The convert service providing access to resources.
+     * @return The converted JsonItem.
+     * @throws JsonParseException If conversion fails.
+     */
+    public static JsonItem convertObject(JsonNode node, String keyOrNull, JsonTypeDescriptor contextClass,
             ConvertService service) throws JsonParseException {
 
         JsonItem cached = findCachedObject(node, service);
@@ -67,7 +77,7 @@ public class JsonObjectConverter {
             converter.setCastedContext(castedChildType);
         }
 
-        return converter.convertObject();
+        return converter.convertObject(keyOrNull);
     }
 
     /**
@@ -155,13 +165,24 @@ public class JsonObjectConverter {
     }
 
     /**
-     * Converts the JSON object into a JsonItem. Processes all fields, handles exceptions, and aggregates any conversion
+     * Converts the JSON object into a JsonItem.Processes all fields, handles exceptions, and aggregates any conversion
      * errors.
      *
+     * @param keyOrNull
      * @return The converted JsonObject.
      * @throws JsonParseException If conversion fails for any field.
      */
-    public JsonItem convertObject() throws JsonParseException {
+    public JsonItem convertObject(String keyOrNull) throws JsonParseException {
+        myObject.setWoodKey(keyOrNull);
+        if (keyOrNull != null) {
+            // We want to register the object before the parameters are read, 
+            // so that this as-yet-incomplete object can be integrated into cycles.
+            service.getResolution().putResolvedObject(keyOrNull, myObject);
+            // Unfortunately, at this point we do not yet know which parameters belong to the constructor 
+            // and which are simple fields with setters.
+            // Therefore, we cannot yet distinguish between valid and invalid cycles here.
+        }
+
         ArrayList<JsonParseException> exList = new ArrayList<>();
         values.forEach((paramName, childNode) -> {
             try {
