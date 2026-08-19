@@ -6,13 +6,13 @@
  */
 package de.jare.impltest.lib;
 
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonItemDefinition;
 import static de.jare.jsoncasted.model.JsonCollectionType.ARRAY;
 import static de.jare.jsoncasted.model.JsonCollectionType.LIST;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonInter;
-import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.JsonItemDefinition;
 
 /**
  * Definition class for implementation tests. Sets up the JSON model structure

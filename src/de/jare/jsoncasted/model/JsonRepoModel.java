@@ -46,6 +46,10 @@ public class JsonRepoModel extends JsonModel {
     public void addRecursive(JsonModel parent, final JsonType jType) {
         final String cName = jType.getcName();
 
+        if (classes.containsKey(cName) || enums.containsKey(cName) || interfaces.containsKey(cName)) {
+            return;
+        }
+
         final JsonClass parentClass = parent.getJsonClass(cName);
         if (parentClass != null) {
             if (getJsonClass(cName) == null) {

@@ -251,13 +251,14 @@ public class JsonModel {
      * @param inter The JSON interface to register.
      */
     public void addInterface(JsonInter inter) {
+        interfaces.put(inter.getcName(), inter);
+        // First the interface, then the classes, in case the classes recursively reference the interface.
         for (JsonClass jc : inter.iterable()) {
             if (classes.containsKey(jc.getcName())) {
                 continue;
             }
             addClass(jc);
         }
-        interfaces.put(inter.getcName(), inter);
 
     }
 
