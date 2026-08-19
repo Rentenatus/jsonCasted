@@ -175,7 +175,7 @@ JsonSystem.of()
 WoodProxyResolver.resolveProviders()  → NEW: Topological sort + cycle detection
     ↓
 ⬛ Phase 1: Load all external providers (from _woodProviders) in dependency order
-⬛ Phase 2: Merge LinkingSets from loaded providers into main resource
+⬛ Phase 2: Apply Shared LinkingSet Strategy - all resources share access to object IDs and links
     ↓
 WoodElementResolver.resolve()  → NEW: Separate resolver for element references
     ↓
@@ -219,7 +219,7 @@ Final JsonItem
 
 | Class | Responsibility | Key Methods |
 |-------|---------------|-------------|
-| `WoodProxyResolver` | **NEW:** Resolves and loads external providers with topological sorting | `resolveProviders()`, `load()`, `mergeLinkingSets()` |
+| `WoodProxyResolver` | **NEW:** Resolves and loads external providers with topological sorting using Shared LinkingSet Strategy | `resolveProviders()`, `load()` |
 | `WoodElementResolver` | **NEW:** Resolves object references within resources | `resolve()`, `isConvertibleNow()`, `resolveLoop()` |
 | `WoodResolution` | Tracks resolution state | `resolvedObjects`, `unresolvedKeys`, `exceptions` |
 
@@ -360,7 +360,7 @@ Map<String, LinkNodeEntry> linkMap;       // "provider::id" → LinkNodeEntry
    - Skip already loaded resources
    - Load provider file via RootParser.parse()
    - Add to JsonSystem.resources
-   - Merge LinkingSets into main resource
+   - Apply Shared LinkingSet Strategy for cross-resource access
 5. Store sorted synonyms in JsonSystem for ordered processing
 ```
 
@@ -562,7 +562,7 @@ The **key insight** is that **providers must be loaded before definitions can be
 - ✅ **Topological Sorting**: Kahn's algorithm ensures correct provider loading order
 - ✅ **Cycle Detection**: Explicit `JsonParseException` when circular provider dependencies exist
 - ✅ **Separate Resolvers**: `WoodProxyResolver` (providers) + `WoodElementResolver` (elements) for clearer separation of concerns
-- ✅ **LinkingSet Merging**: Automatic integration of external resource IDs into main LinkingSet via `mergeLinkingSets()`
+- ✅ **Shared LinkingSet Strategy**: All resources share a unified view of object IDs and links, eliminating the need for merging
 - ✅ **Enhanced Error Handling**: Each phase tracks its own exceptions with clear context
 - ✅ **Improved Processing Flow**: Five distinct phases (Parsing → System Creation → Provider Resolution → Element Resolution → Final Conversion)
 - ✅ **Updated Integration API**: Uses `RootParser.parse()` instead of `JsonParserService.parse()`
