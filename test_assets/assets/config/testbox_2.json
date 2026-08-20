@@ -61,6 +61,19 @@
       },
       {
         "_woodLink": "save::123456" 
+      },
+      {
+        "_class": "ValueEntry",
+        "_woodObjectId": "44",
+        "text": "Cycle 1",
+        "item": {
+          "_class": "ValueEntry",
+          "_woodObjectId": "45",
+          "text": "Cycle 2",
+          "item": {
+            "_woodLink": "this::44" 
+          }
+        }
       }
     ]
 

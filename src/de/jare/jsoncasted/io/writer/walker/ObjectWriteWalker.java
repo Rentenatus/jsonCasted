@@ -7,16 +7,17 @@ package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
 import de.jare.jsoncasted.io.writer.getter.GetterFieldInfo;
 import de.jare.jsoncasted.io.writer.getter.ObjectGetter;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
+import java.util.Collections;
 import java.util.List;
-import de.jare.jsoncasted.io.writer.WriteStrategy;
 
 /**
  *
@@ -44,7 +45,7 @@ public class ObjectWriteWalker {
      */
     public ObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, JsonField parentField, Object parent, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         this.strategie = strategie;
-        this.intentPath = new WriteNodePath("");
+        this.intentPath = new WriteNodePath("", Collections.emptyList());
         this.objectGetter = new ObjectGetter(definitionsContext, castingLevel, jType, debugLevel);
         this.woodMetadata = null;
         this.parentField = parentField;
