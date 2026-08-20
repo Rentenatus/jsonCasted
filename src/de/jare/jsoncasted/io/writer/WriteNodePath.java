@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author Janusch Renteantus
  */
-public record WriteNodePath(String path, List<Long> ids) {
+public record WriteNodePath(String path, List<Object> ids) {
 
     public WriteNodePath append(String... text) {
         StringBuilder sb = new StringBuilder(path);
@@ -22,9 +22,17 @@ public record WriteNodePath(String path, List<Long> ids) {
         return new WriteNodePath(sb.toString(), ids);
     }
 
-    public WriteNodePath append(long... id) {
-        ArrayList<Long> idList = new ArrayList<>(ids);
+    public WriteNodePath appendId(long... id) {
+        ArrayList<Object> idList = new ArrayList<>(ids);
         for (long item : id) {
+            idList.add(item);
+        }
+        return new WriteNodePath(path, idList);
+    }
+
+    public WriteNodePath appendOb(Object... id) {
+        ArrayList<Object> idList = new ArrayList<>(ids);
+        for (Object item : id) {
             idList.add(item);
         }
         return new WriteNodePath(path, idList);

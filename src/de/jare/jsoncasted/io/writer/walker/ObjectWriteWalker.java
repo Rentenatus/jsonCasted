@@ -12,11 +12,14 @@ import de.jare.jsoncasted.io.writer.WriteStrategy;
 import de.jare.jsoncasted.io.writer.getter.GetterFieldInfo;
 import de.jare.jsoncasted.io.writer.getter.ObjectGetter;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
+import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.model.builder.JsonIntegerObjBuilder;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,6 +27,8 @@ import java.util.List;
  * @author Janusch Renteantus
  */
 public class ObjectWriteWalker {
+
+    private static final JsonClass JSON_CLASS_INTEGER = new JsonClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder());
 
     final WriteNodePath intentPath;
     final WriteStrategy strategie;
@@ -45,7 +50,7 @@ public class ObjectWriteWalker {
      */
     public ObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, JsonField parentField, Object parent, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         this.strategie = strategie;
-        this.intentPath = new WriteNodePath("", Collections.emptyList());
+        this.intentPath = new WriteNodePath("", new ArrayList<>());
         this.objectGetter = new ObjectGetter(definitionsContext, castingLevel, jType, debugLevel);
         this.woodMetadata = null;
         this.parentField = parentField;
@@ -114,20 +119,35 @@ public class ObjectWriteWalker {
             return;
         }
 
-        WriteNodePath iString = intentPath.append("  ");
-        writeStart(jClass, ob, iString);
-        if (WoodMetadataInjection.hasInjection(woodMetadata)) {
-            woodMetadata.popWood(strategie, iString, objectGetter.getDebugLevel());
-            woodMetadata = null;
+        if (intentPath.ids().contains(ob)) {
+            try {
+                WriteNodePath iString = intentPath.append("  ");
+                writeStart(jClass, ob, iString);
+                strategie.writeHasFieldKeys(jClass, ob, iString);
+                strategie.writeAttrName(jClass, false, JsonTerms.TERM_CYCLE_HASHCODE, iString);
+                strategie.writePrimitive(JSON_CLASS_INTEGER, ob.hashCode(), iString);
+            } finally {
+                strategie.writeEnd(jClass, ob, true, true, intentPath);
+            }
+            return;
         }
 
         boolean isFollowing = false;
         boolean hasFieldKeys = false;
+        WriteNodePath iString = intentPath.append("  ").appendOb(ob);
         try {
+            writeStart(jClass, ob, iString);
+            if (WoodMetadataInjection.hasInjection(woodMetadata)) {
+                woodMetadata.popWood(strategie, iString, objectGetter.getDebugLevel());
+                woodMetadata = null;
+            }
 
             hasFieldKeys = objectGetter.hasFieldKeys(jClass, ob);
             if (hasFieldKeys) {
                 strategie.writeHasFieldKeys(jClass, ob, iString);
+                strategie.writeAttrName(jClass, isFollowing, JsonTerms.TERM_HASHCODE, iString);
+                strategie.writePrimitive(JSON_CLASS_INTEGER, ob.hashCode(), iString);
+                isFollowing = true;
             }
 
             List< GetterFieldInfo> fieldInfos = objectGetter.extractFields(jClass, ob);

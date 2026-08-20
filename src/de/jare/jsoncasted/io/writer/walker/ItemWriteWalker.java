@@ -118,7 +118,7 @@ public class ItemWriteWalker {
                 strategie.writeHasFieldKeys(null, object, iString);
             }
 
-            WriteNodePath childIndent = iString.append("  ").append(object.getResolverId());
+            WriteNodePath childIndent = iString.append("  ").appendId(object.getResolverId());
             while (it.hasNext()) {
                 final String nextName = it.next();
                 if ("::i::".equals(nextName)) {
@@ -163,7 +163,7 @@ public class ItemWriteWalker {
         try {
             java.util.Iterator<JsonItem> it = list.listIterator();
 
-            WriteNodePath childIndent = iString.append("  ").append(list.getResolverId());
+            WriteNodePath childIndent = iString.append("  ").appendId(list.getResolverId());
             while (it.hasNext()) {
                 JsonItem next = it.next();
 
