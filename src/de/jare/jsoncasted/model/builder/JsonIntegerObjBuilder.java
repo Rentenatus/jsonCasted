@@ -47,7 +47,7 @@ public class JsonIntegerObjBuilder implements JsonModellClassBuilder {
      * undefined.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
+    public Object construct(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
         final Long value = jsonItem.getLongValue();
         return value == null ? null : value.intValue();
     }

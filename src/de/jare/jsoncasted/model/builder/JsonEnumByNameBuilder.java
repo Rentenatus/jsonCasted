@@ -69,7 +69,7 @@ public class JsonEnumByNameBuilder implements JsonModellClassBuilder, SimpleStri
      * @throws JsonBuildException If the enum cannot be retrieved.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
+    public Object construct(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
         return buildFromString(jsonItem, jClass.getValuesArray());
     }
 

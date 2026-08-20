@@ -276,7 +276,7 @@ public class JsonValueBak implements JsonItem {
         if (jClass == null) {
             return null;
         }
-        return jClass.build(this, builderService);
+        return jClass.construct(this, builderService);
     }
 
     @Override

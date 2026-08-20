@@ -78,14 +78,19 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If object creation fails.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
+    public Object construct(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
         if (singular == null) {
             singular = jClass.createOrGetSing();
             if (singular == null) {
                 return null;
             }
         }
-        Object ob = createInstance(jClass, jsonItem, builderService);
+        return createInstance(jClass, jsonItem, builderService);
+    }
+
+    @Override
+    public Object buildFields(Object ob, JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
+
         Iterator<String> it = jClass.keysForBuildIterator();
         while (it.hasNext()) {
             try {
@@ -210,11 +215,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
     }
 
     protected Constructor<?> calculateConstructor(ArrayList<JsonField> params, ArrayList<Object> paramObjects) throws SecurityException {
-        Constructor<?> constructor = null;
         for (Constructor<?> cons : singular.getConstructors()) {
-            if (constructor != null) {
-                break;
-            }
             if (cons.getParameterCount() != params.size()) {
                 continue;
             }
@@ -227,10 +228,10 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
                 }
             }
             if (okay) {
-                constructor = cons;
+                return cons;
             }
         }
-        return constructor;
+        return null;
     }
 
     protected void throwConstructorException(ArrayList<JsonField> params) throws JsonBuildException {

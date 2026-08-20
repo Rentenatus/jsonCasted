@@ -285,15 +285,28 @@ public class JsonClass implements JsonType {
     }
 
     /**
-     * Builds an object instance from a JSON item using the configured builder.
+     * Builds an object instance from a JSON item without field using the configured builder.
      *
      * @param jsonItem The JSON item to build from.
      * @param builderService The builder service for managing object construction.
      * @return The constructed object, or null if builder is not configured.
      * @throws JsonBuildException If object construction fails.
      */
-    public Object build(JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
-        return builder == null ? null : builder.build(this, jsonItem, builderService);
+    public Object construct(JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
+        return builder == null ? null : builder.construct(this, jsonItem, builderService);
+    }
+
+    /**
+     * Builds fields for an object instance from a JSON item using the configured builder.
+     *
+     * @param constructed in construct constructed object.
+     * @param jsonItem The JSON item to build from.
+     * @param builderService The builder service for managing object construction.
+     * @return The constructed object, or null if builder is not configured.
+     * @throws JsonBuildException If object construction fails.
+     */
+    public Object buildFields(Object constructed, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
+        return builder == null ? null : builder.buildFields(constructed, this, jsonItem, builderService);
     }
 
     @Override

@@ -45,7 +45,7 @@ public class JsonLongBuilder implements JsonModellClassBuilder {
      * @return The long representation of the JSON value.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
+    public Object construct(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
         return jsonItem.getLongValue();
     }
 

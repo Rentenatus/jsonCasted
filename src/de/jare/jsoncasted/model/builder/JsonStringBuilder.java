@@ -47,7 +47,7 @@ public class JsonStringBuilder implements JsonModellClassBuilder, SimpleStringSp
      * @return The processed string representation of the JSON value.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
+    public Object construct(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
         return buildString(jsonItem);
     }
 

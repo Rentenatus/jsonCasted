@@ -46,7 +46,7 @@ public class JsonFloatObjBuilder implements JsonModellClassBuilder {
      * @return A Float object representing the JSON value, or null if undefined.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
+    public Object construct(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
         return jsonItem.getFloatValue();
     }
 
