@@ -25,6 +25,7 @@ public class JsonList implements JsonItem {
     private final ArrayList<JsonItem> list;
     private final JsonTypeDescriptor contextClass;
     private final boolean asList;
+    private long resolverId;
 
     /**
      * Constructs a JsonList instance with the specified items and type information.
@@ -32,11 +33,13 @@ public class JsonList implements JsonItem {
      * @param list The list of JSON items.
      * @param asList Indicates whether the list is structured as a typical JSON array.
      * @param contextClass The JSON type description used for instance creation.
+     * @param resolverId
      */
-    public JsonList(ArrayList<JsonItem> list, boolean asList, JsonTypeDescriptor contextClass) {
+    public JsonList(ArrayList<JsonItem> list, boolean asList, JsonTypeDescriptor contextClass, long resolverId) {
         this.contextClass = contextClass;
         this.list = list;
         this.asList = asList;
+        this.resolverId = resolverId;
     }
 
     /**
@@ -160,6 +163,16 @@ public class JsonList implements JsonItem {
     @Override
     public Object buildInstance(BuilderService builderService) throws JsonBuildException {
         return builderService.buildList(this, asList, contextClass);
+    }
+
+    @Override
+    public long getResolverId() {
+        return resolverId;
+    }
+
+    @Override
+    public void setResolverId(long resolverId) {
+        this.resolverId = resolverId;
     }
 
 }

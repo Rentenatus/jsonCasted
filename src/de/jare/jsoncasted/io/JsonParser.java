@@ -8,13 +8,13 @@
 package de.jare.jsoncasted.io;
 
 import de.jare.debug.JsonDebugLevel;
-import de.jare.jsoncasted.item.JsonItem;
+import de.jare.jsoncasted.io.convertservice.RootConverter;
+import de.jare.jsoncasted.io.convertservice.WoodResolution;
+import de.jare.jsoncasted.io.parserservice.JsonParserService;
+import de.jare.jsoncasted.io.writer.walker.ItemCircleScannerWalker;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.io.parserservice.JsonParserService;
-import de.jare.jsoncasted.io.convertservice.RootConverter;
-import de.jare.jsoncasted.io.convertservice.WoodResolution;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -191,6 +191,14 @@ public class JsonParser {
      */
     public static WoodResolution parse(File file, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException {
         return parse(file, definition.getDescriptor(), root.getcName());
+    }
+
+    public static void checkCycles(WoodResolution resolution) {
+        ItemCircleScannerWalker walker = new ItemCircleScannerWalker();
+        walker.writeType(resolution.getAnswer());
+        for (JsonWriteException ex : walker.getExceptions()) {
+            resolution.addException(new JsonParseException(ex.getMessage(), ex));
+        }
     }
 
 }

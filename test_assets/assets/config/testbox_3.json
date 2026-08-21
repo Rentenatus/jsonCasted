@@ -1,0 +1,27 @@
+{
+    "subsub": {
+      "_class": "ValueStringSubSub",
+      "text": "subsub",
+      "frage": true
+    },
+    "one": {
+        "_class": "ValueBoolean", 
+        "frage": true
+    },
+    "arr": [
+      {
+        "_class": "ValueEntry",
+        "_woodObjectId": "44",
+        "text": "Cycle 1",
+        "item": {
+          "_class": "ValueEntry",
+          "_woodObjectId": "45",
+          "text": "Cycle 2",
+          "context": {
+            "_woodLink": "this::44" 
+          }
+        }
+      }
+    ]
+
+}

@@ -33,7 +33,7 @@ public class ItemWriteWalker {
      */
     public ItemWriteWalker(WriteStrategy strategie) {
         this.strategie = strategie;
-        this.intentPath = new WriteNodePath("");
+        this.intentPath = new WriteNodePath("", new ArrayList<>());
     }
 
     /**
@@ -55,7 +55,7 @@ public class ItemWriteWalker {
      */
     public ItemWriteWalker(WriteStrategy strategie, String intentString) {
         this.strategie = strategie;
-        this.intentPath = new WriteNodePath(intentString);
+        this.intentPath = new WriteNodePath(intentString, new ArrayList<>());
     }
 
     /**
@@ -99,7 +99,18 @@ public class ItemWriteWalker {
             if (object.getPrintClassName() != null) {
                 keys.add(".:c:.");
             }
-            keys.addAll(object.getParamSet());
+            final long resolverId = object.getResolverId();
+            if (resolverId >= 0) {
+
+                if (iString.ids().contains(resolverId)) {
+                    keys.add("_:c:_");
+                } else {
+                    keys.add("_:r:_");
+                    keys.addAll(object.getParamSet());
+                }
+            } else {
+                keys.addAll(object.getParamSet());
+            }
 
             java.util.Iterator<String> it = keys.iterator();
             hasFieldKeys = it.hasNext();
@@ -107,7 +118,7 @@ public class ItemWriteWalker {
                 strategie.writeHasFieldKeys(null, object, iString);
             }
 
-            WriteNodePath childIndent = iString.append("  ");
+            WriteNodePath childIndent = iString.append("  ").appendId(object.getResolverId());
             while (it.hasNext()) {
                 final String nextName = it.next();
                 if ("::i::".equals(nextName)) {
@@ -119,6 +130,18 @@ public class ItemWriteWalker {
                 if (".:c:.".equals(nextName)) {
                     strategie.writeAttrName(null, isFollowing, JsonTerms.TERM_CLASS, childIndent);
                     strategie.writeNodeValue('"' + object.getPrintClassName() + '"', iString);
+                    isFollowing = true;
+                    continue;
+                }
+                if ("_:r:_".equals(nextName)) {
+                    strategie.writeAttrName(null, isFollowing, JsonTerms.TERM_RESOLVER_ID, childIndent);
+                    strategie.writeNodeValue(object.getResolverId(), iString);
+                    isFollowing = true;
+                    continue;
+                }
+                if ("_:c:_".equals(nextName)) {
+                    strategie.writeAttrName(null, isFollowing, JsonTerms.TERM_CYCLE_RESOLVER_ID, childIndent);
+                    strategie.writeNodeValue(object.getResolverId(), iString);
                     isFollowing = true;
                     continue;
                 }
@@ -140,7 +163,7 @@ public class ItemWriteWalker {
         try {
             java.util.Iterator<JsonItem> it = list.listIterator();
 
-            WriteNodePath childIndent = iString.append("  ");
+            WriteNodePath childIndent = iString.append("  ").appendId(list.getResolverId());
             while (it.hasNext()) {
                 JsonItem next = it.next();
 

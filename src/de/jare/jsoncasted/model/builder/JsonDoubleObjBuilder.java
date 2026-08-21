@@ -47,7 +47,7 @@ public class JsonDoubleObjBuilder implements JsonModellClassBuilder {
      * undefined.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
+    public Object construct(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) {
         return jsonItem.getNumberValue();
     }
 

@@ -9,6 +9,7 @@ package de.jare.jsoncasted.item;
 
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
+import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,16 +26,19 @@ public class JsonObject implements JsonItem {
     private final HashMap<String, JsonItem> map;
     private final JsonTypeDescriptor contextClass;
     private String woodKey;
+    private long resolverId;
 
     /**
      * Constructs a JsonObject instance with an associated class type.
      *
      * @param aClassDescriptor The JSON class used for instance creation.
+     * @param resolverId
      */
-    public JsonObject(JsonTypeDescriptor aClassDescriptor) {
+    public JsonObject(JsonTypeDescriptor aClassDescriptor, long resolverId) {
         this.contextClass = aClassDescriptor;
         this.map = new HashMap<>();
         this.woodKey = null;
+        this.resolverId = resolverId;
     }
 
     /**
@@ -67,6 +71,11 @@ public class JsonObject implements JsonItem {
     @Override
     public JsonItem getParam(String key) {
         return map.get(key);
+    }
+
+    @Override
+    public JsonFieldDescriptor getField(String key) {
+        return contextClass.getField(key);
     }
 
     /**
@@ -169,6 +178,16 @@ public class JsonObject implements JsonItem {
 
     public String getWoodKey() {
         return woodKey;
+    }
+
+    @Override
+    public long getResolverId() {
+        return resolverId;
+    }
+
+    @Override
+    public void setResolverId(long resolverId) {
+        this.resolverId = resolverId;
     }
 
     /**

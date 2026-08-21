@@ -7,6 +7,7 @@ package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import static de.jare.jsoncasted.lang.JsonNodeType.ARRAY;
@@ -16,10 +17,11 @@ import static de.jare.jsoncasted.lang.JsonNodeType.NULL;
 import static de.jare.jsoncasted.lang.JsonNodeType.NUMBER;
 import static de.jare.jsoncasted.lang.JsonNodeType.OBJECT;
 import static de.jare.jsoncasted.lang.JsonNodeType.STRING;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import de.jare.jsoncasted.io.writer.WriteStrategy;
 
 /**
  *
@@ -39,7 +41,7 @@ public class NodeWriteWalker {
      */
     public NodeWriteWalker(WriteStrategy strategie, JsonDebugLevel debugLevel) {
         this.strategie = strategie;
-        this.intentPath = new WriteNodePath("");
+        this.intentPath = new WriteNodePath("", new ArrayList<>());
         this.debugLevel = debugLevel;
     }
 
@@ -65,7 +67,7 @@ public class NodeWriteWalker {
      */
     public NodeWriteWalker(WriteStrategy strategie, String intentString, JsonDebugLevel debugLevel) {
         this.strategie = strategie;
-        this.intentPath = new WriteNodePath(intentString);
+        this.intentPath = new WriteNodePath(intentString, Collections.emptyList());
         this.debugLevel = debugLevel;
     }
 

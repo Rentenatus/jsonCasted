@@ -172,10 +172,15 @@ JsonSystem.of()
 ⬛ Adds definition nodes as separate JsonResources
 ⬛ Each definition resource gets its own LinkingSet
     ↓
-WoodResolver.resolve()
+WoodProxyResolver.resolveProviders()  → NEW: Topological sort + cycle detection
     ↓
-⬛ Phase 1: Load all external providers (from _woodProviders)
-⬛ Phase 2: Resolve all object references (including definitions)
+⬛ Phase 1: Load all external providers (from _woodProviders) in dependency order
+⬛ Phase 2: Apply Shared LinkingSet Strategy - all resources share access to object IDs and links
+    ↓
+WoodElementResolver.resolve()  → NEW: Separate resolver for element references
+    ↓
+⬛ Iterative resolution with multiple passes
+⬛ Tracks resolved objects and unresolved keys
     ↓
 WoodResolution (with resolvedObjects, unresolvedKeys)
     ↓
@@ -207,14 +212,15 @@ Final JsonItem
 | Class | Responsibility | Key Fields |
 |-------|---------------|------------|
 | `JsonResource` | Container for parsed JSON with metadata | `root`, `linkingSet`, `expectedBox`, `definitionNodes` |
-| `LinkingSet` | Manages object IDs and links for cross-referencing | `objectIdMap`, `linkMap`, `providerName` |
-| `JsonSystem` | Top-level container for multiple resources | `mainResource`, `resources`, `providerBox` |
+| `LinkingSet` | Manages object IDs and links for cross-referencing | `objectIdMap`, `linkMap`, `providerName`, `providerSynonyms` |
+| `JsonSystem` | Top-level container for multiple resources | `mainResource`, `resources`, `providerBox`, `sortedSynonyms` |
 
 ### Resolution Classes
 
 | Class | Responsibility | Key Methods |
 |-------|---------------|-------------|
-| `WoodResolver` | Resolves cross-resource references | `resolve()`, `load()`, `attempt()` |
+| `WoodProxyResolver` | **NEW:** Resolves and loads external providers with topological sorting using Shared LinkingSet Strategy | `resolveProviders()`, `load()` |
+| `WoodElementResolver` | **NEW:** Resolves object references within resources | `resolve()`, `isConvertibleNow()`, `resolveLoop()` |
 | `WoodResolution` | Tracks resolution state | `resolvedObjects`, `unresolvedKeys`, `exceptions` |
 
 ---
@@ -227,11 +233,11 @@ The **critical dependency order** must be respected:
 1. PROVIDERS FIRST
    └─ External resources from _woodProviders must be loaded
    └─ Their objects become available in JsonSystem.resources
-   
+  
 2. DEFINITIONS SECOND  
    └─ Definitions can reference objects from loaded providers
    └─ Each definition node is treated as a separate JsonResource
-   
+  
 3. MAIN RESOURCE LAST
    └─ Main content can reference both providers and definitions
    └─ All dependencies are now resolvable
@@ -247,7 +253,7 @@ Consider this JSON:
   "_woodDefinitions": {
     "objA": {
       "_woodObjectId": "a1",
-      "ref": {"_woodLink": "ext::external_obj"}  ← Depends on provider!
+      "ref": {"_woodLink": "ext::external_obj"}
     }
   }
 }
@@ -292,7 +298,7 @@ Map<String, LinkNodeEntry> linkMap;       // "provider::id" → LinkNodeEntry
 
 3. **Resolution:**
    ```java
-   // In WoodResolver.resolveLoop():
+   // In WoodElementResolver.resolveLoop():
    LinkNodeEntry entry = linkingSet.getObjectIdMap().get(key);  // Find by ID
    // If found, object can be converted
    ```
@@ -316,7 +322,8 @@ Map<String, LinkNodeEntry> linkMap;       // "provider::id" → LinkNodeEntry
 4. JsonWoodProviderTinker.build(scanResult) → JsonWoodProviderTinkerResult
    - Builds WoodProviderBox from _woodProviders
    - Registers _woodDefinitions entries
-5. Store results in JsonResource:
+5. Extract definition nodes from TinkerResult and add to container
+6. Store results in JsonResource:
    - container.setRoot(rootNode)
    - container.setLinkingSet(linkingSet)
    - container.setExpectedBox(providerBox)
@@ -338,21 +345,53 @@ Map<String, LinkNodeEntry> linkMap;       // "provider::id" → LinkNodeEntry
 4. Return JsonSystem with main + definition resources
 ```
 
-### Phase 3: Resolution (WoodResolver.resolve)
+### Phase 3: Provider Resolution (WoodProxyResolver.resolveProviders) - **NEW**
 
 ```java
-// WoodResolver.resolve(JsonSystem, descriptor, debugLevel):
-1. attempt() - Try to resolve all references
-   - Creates ConvertService for each resource (including definitions)
-   - Resolves objects iteratively
-   
-2. For unresolved providers:
-   - Load external resource via WoodResolver.load()
+// WoodProxyResolver.resolveProviders(JsonSystem, debugLevel):
+1. Collect all provider synonyms from main resource and existing resources
+2. Build dependency graph (provider -> dependent resources)
+3. Apply Kahn's algorithm for topological sorting:
+   - Compute in-degree for each provider node
+   - Start with nodes having in-degree 0
+   - Process nodes, reducing in-degree of dependents
+   - Detect cycles if sorted list < total providers
+4. Load providers in topological order:
+   - Skip already loaded resources
+   - Load provider file via RootParser.parse()
    - Add to JsonSystem.resources
-   - Merge provider boxes
-   - Recursively call resolve()
-   
-3. Return WoodResolution with resolved objects
+   - Apply Shared LinkingSet Strategy for cross-resource access
+5. Store sorted synonyms in JsonSystem for ordered processing
+```
+
+### Phase 4: Element Resolution (WoodElementResolver.resolve)
+
+```java
+// WoodElementResolver.resolve(JsonResource, descriptor, debugLevel):
+1. Initialize ConvertService with container, descriptor, and resolution
+2. Create set of remainingKeys from objectIdMap
+3. While progress is made:
+   a. resolveLoop() - Process all remaining keys
+      - For each key, check if node is convertible (all dependencies resolved)
+      - If convertible: convert node to JsonItem and store in resolution
+   b. Remove resolved keys from remainingKeys
+4. Add unresolved keys to WoodResolution
+5. Return WoodResolution with resolved objects, unresolved keys, and exceptions
+```
+
+### Phase 5: Final Conversion (RootConverter.convert)
+
+```java
+// RootConverter.convert(JsonResource, cName, descriptor, debugLevel):
+1. Create JsonSystem from main resource
+2. Call WoodProxyResolver.resolveProviders() to load external providers
+3. Reorder resources in topological order using sortedSynonyms
+4. For each resource in sorted order:
+   - Get appropriate descriptor (repo descriptor or main descriptor)
+   - Call WoodElementResolver.resolve() for that resource
+   - Merge resolution results
+   - Convert resource to JsonItem
+5. Return final JsonItem for main resource
 ```
 
 ---
@@ -382,7 +421,7 @@ Final:
 An object is **convertible** when:
 
 ```java
-// In WoodResolver.isConvertibleNow():
+// In WoodElementResolver.isConvertibleNow():
 1. If node has _woodLink:
    - The linked object MUST exist in resolution.getResolvedObjects()
    
@@ -449,6 +488,7 @@ Errors are tracked at multiple levels:
 - The system **supports circular references** between objects
 - Resolution uses iterative passes to handle dependencies
 - Circular dependencies at the **provider level** (file A references file B which references file A) are NOT supported and cause infinite loops
+- **IMPROVED:** Cycle detection now throws explicit `JsonParseException` with unsortable providers
 
 ### 4. Performance Considerations
 
@@ -456,6 +496,7 @@ Errors are tracked at multiple levels:
 - Resolution complexity depends on dependency graph depth
 - Each definition becomes a **separate resource** in JsonSystem
 - For large JSON files, consider splitting into multiple provider files
+- **IMPROVED:** Topological sorting ensures optimal loading order
 
 ---
 
@@ -465,7 +506,7 @@ Errors are tracked at multiple levels:
 
 ```java
 // Parsing JSON with Wood support:
-JsonResource resource = JsonParserService.parse(file, debugLevel);
+JsonResource resource = RootParser.parse(psr, JsonResource.forFile(file), debugLevel);
 JsonItem result = RootConverter.convert(resource, "MyClass", descriptor, debugLevel);
 ```
 
@@ -515,3 +556,13 @@ The Wood system provides a **powerful cross-resource reference mechanism** with:
 - ✅ **Extensible architecture** for new special terms
 
 The **key insight** is that **providers must be loaded before definitions can be resolved**, ensuring that all referenced objects are available when needed.
+
+**IMPROVEMENTS OVER ORIGINAL DOCUMENTATION:**
+
+- ✅ **Topological Sorting**: Kahn's algorithm ensures correct provider loading order
+- ✅ **Cycle Detection**: Explicit `JsonParseException` when circular provider dependencies exist
+- ✅ **Separate Resolvers**: `WoodProxyResolver` (providers) + `WoodElementResolver` (elements) for clearer separation of concerns
+- ✅ **Shared LinkingSet Strategy**: All resources share a unified view of object IDs and links, eliminating the need for merging
+- ✅ **Enhanced Error Handling**: Each phase tracks its own exceptions with clear context
+- ✅ **Improved Processing Flow**: Five distinct phases (Parsing → System Creation → Provider Resolution → Element Resolution → Final Conversion)
+- ✅ **Updated Integration API**: Uses `RootParser.parse()` instead of `JsonParserService.parse()`

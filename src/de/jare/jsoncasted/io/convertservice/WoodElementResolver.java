@@ -55,14 +55,13 @@ public final class WoodElementResolver {
      *
      * @param container
      * @param resourceDescriptor
+     * @param resolution The WoodResolution containing resolved objects, unresolved keys, and exceptions.
      * @param debugLevel The debug level for controlling debug output.
-     * @return The WoodResolution containing resolved objects, unresolved keys, and exceptions.
      */
-    public static WoodResolution resolve(JsonResource container, JsonModelDescriptor resourceDescriptor, JsonDebugLevel debugLevel) {
+    public static void resolve(JsonResource container, JsonModelDescriptor resourceDescriptor, WoodResolution resolution, JsonDebugLevel debugLevel) {
 
         LinkingSet linkingSet = Objects.requireNonNull(container.getLinkingSet(),
                 "container.linkingSet must not be null");
-        WoodResolution resolution = new WoodResolution();
         Set<String> remainingKeys = new LinkedHashSet<>(linkingSet.getObjectIdMap().keySet());
         boolean progress = !remainingKeys.isEmpty();
 
@@ -75,7 +74,6 @@ public final class WoodElementResolver {
         for (String unresolved : remainingKeys) {
             resolution.addUnresolvedKey(unresolved);
         }
-        return resolution;
     }
 
     /**
@@ -103,9 +101,7 @@ public final class WoodElementResolver {
 
             try {
                 JsonTypeDescriptor typeDescriptor = resolveContextClass(node, service.getDescriptor());
-                JsonItem convertedObject = JsonObjectConverter.convertObject(node, typeDescriptor, service);
-                convertedObject.setWoodKey(key);
-                service.getResolution().putResolvedObject(key, convertedObject);
+                JsonObjectConverter.convertObject(node, key, typeDescriptor, service);
                 resolvedThisRound.add(key);
                 progress = true;
             } catch (JsonParseException ex) {

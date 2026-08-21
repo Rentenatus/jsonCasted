@@ -17,12 +17,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * The WoodResolution class manages the resolution state for converting JSON
- * objects with wood (object reference)
- * support. It tracks resolved objects, unresolved keys, and any exceptions that
- * occurred during the resolution process.
+ * The WoodResolution class manages the resolution state for converting JSON objects with wood (object reference)
+ * support. It tracks resolved objects, unresolved keys, and any exceptions that occurred during the resolution process.
  *
  * @author Janusch Rentenatus
  */
@@ -32,6 +31,7 @@ public class WoodResolution {
     private final Set<String> unresolvedKeys;
     private final List<JsonParseException> exceptions;
     private JsonItem answer;
+    private final AtomicLong atomicLong;
 
     /**
      * Constructs a new WoodResolution instance with empty collections.
@@ -41,13 +41,26 @@ public class WoodResolution {
         this.unresolvedKeys = new LinkedHashSet<>();
         this.exceptions = new ArrayList<>();
         this.answer = null;
+        this.atomicLong = new AtomicLong(100);
+    }
+
+    /**
+     * Constructs a new WoodResolution instance with empty collections.
+     *
+     * @param parentWoodResolution
+     */
+    public WoodResolution(WoodResolution parentWoodResolution) {
+        this.resolvedObjects = new LinkedHashMap<>();
+        this.unresolvedKeys = new LinkedHashSet<>();
+        this.exceptions = new ArrayList<>();
+        this.answer = null;
+        this.atomicLong = parentWoodResolution.atomicLong;
     }
 
     /**
      * Checks if all objects have been resolved and no exceptions occurred.
      *
-     * @return true if fully resolved (no unresolved keys and no exceptions), false
-     *         otherwise.
+     * @return true if fully resolved (no unresolved keys and no exceptions), false otherwise.
      */
     public boolean isFullyResolved() {
         return unresolvedKeys.isEmpty() && exceptions.isEmpty();
@@ -83,7 +96,7 @@ public class WoodResolution {
     /**
      * Adds a resolved object to the resolution with the specified key.
      *
-     * @param key   The key to associate with the resolved object.
+     * @param key The key to associate with the resolved object.
      * @param entry The resolved JsonItem.
      * @throws NullPointerException If key is null.
      */
@@ -164,8 +177,7 @@ public class WoodResolution {
     }
 
     /**
-     * Extracts the provider names from unresolved keys. Keys with the format
-     * "provider::key" will have the provider
+     * Extracts the provider names from unresolved keys. Keys with the format "provider::key" will have the provider
      * part extracted.
      *
      * @return A set of unresolved provider names.
@@ -189,6 +201,14 @@ public class WoodResolution {
         this.answer = answer;
     }
 
+    public long getAtomicLong() {
+        return atomicLong.get();
+    }
+
+    public long incrementAtomicLong() {
+        return atomicLong.incrementAndGet();
+    }
+
     @Override
     public String toString() {
         return "WoodResolution{"
@@ -197,11 +217,6 @@ public class WoodResolution {
                 + ", unresolvedKeysSize=" + unresolvedKeys.size()
                 + ", exceptionsSize=" + exceptions.size()
                 + '}';
-    }
-
-    protected void merge(WoodResolution itemResolution) {
-        exceptions.addAll(itemResolution.getUnmodifiableExceptions());
-        resolvedObjects.putAll(itemResolution.getUnmodifiableResolvedObjects());
     }
 
 }

@@ -46,7 +46,7 @@ public class JsonBooleanBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If an error occurs during conversion.
      */
     @Override
-    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
+    public Object construct(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
         return jsonItem.getBooleanValue();
     }
 

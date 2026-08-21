@@ -166,4 +166,14 @@ public class JsonListBak implements JsonItem {
         return jType.build(builderService, listIterator(), asList, listSize());
     }
 
+    @Override
+    public long getResolverId() {
+        return Long.MIN_VALUE;
+    }
+
+    @Override
+    public void setResolverId(long resolverId) {
+        // NoOp
+    }
+
 }

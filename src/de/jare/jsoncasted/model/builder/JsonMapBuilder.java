@@ -162,7 +162,7 @@ public class JsonMapBuilder implements JsonModellClassBuilder {
      * @throws JsonBuildException If instance creation fails.
      */
     @Override
-    public Object build(JsonClass aThis, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
+    public Object construct(JsonClass aThis, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
         return buildMap((JsonMap) aThis, jsonItem, builderService);
     }
 

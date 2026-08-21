@@ -76,6 +76,10 @@ public class ConvertService {
         return resolution;
     }
 
+    public long incrementAtomicLong() {
+        return resolution.incrementAtomicLong();
+    }
+
     /**
      * Returns the debug level associated with this service.
      *

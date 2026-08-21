@@ -38,6 +38,12 @@ public class JsonTerms {
      */
     public static final String TERM_WOOD_LINK = "_woodLink";
 
+    public static final String TERM_RESOLVER_ID = "_resolverId";
+    public static final String TERM_HASHCODE = "_hashcode";
+
+    public static final String TERM_CYCLE_RESOLVER_ID = "_cycle_resolverId";
+    public static final String TERM_CYCLE_HASHCODE = "_cycle_hashcode";
+
     /**
      * Property name for external resource provider definitions.
      * <p>

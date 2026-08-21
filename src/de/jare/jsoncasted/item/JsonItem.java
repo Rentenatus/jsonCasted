@@ -9,6 +9,7 @@ package de.jare.jsoncasted.item;
 
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
+import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -85,6 +86,16 @@ public interface JsonItem {
     public JsonItem getParam(String key);
 
     /**
+     * Get the field descriptor of his context class.
+     *
+     * @param key field / param name
+     * @return null or JsonFieldDescriptor if this is an object and his description contains this field.
+     */
+    default JsonFieldDescriptor getField(String key) {
+        return null;
+    }
+
+    /**
      * Retrieves the set of all keys available in the JSON object.
      *
      * @return A set of property names.
@@ -110,5 +121,19 @@ public interface JsonItem {
     default void setWoodKey(String key) {
         //NoOp
     }
+
+    /**
+     * Retrieves the resolver ID associated with this JSON item.
+     *
+     * @return The resolver ID as a long.
+     */
+    public long getResolverId();
+
+    /**
+     * Sets the resolver ID for this JSON item.
+     *
+     * @param resolverId The resolver ID to set.
+     */
+    public void setResolverId(long resolverId);
 
 }

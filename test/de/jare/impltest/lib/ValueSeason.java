@@ -7,8 +7,7 @@
 package de.jare.impltest.lib;
 
 /**
- * Value class representing a season enum value for testing.
- * Implements ValueInterface to provide text representation.
+ * Value class representing a season enum value for testing. Implements ValueInterface to provide text representation.
  *
  * @author Janusch Rentenatus
  */
@@ -23,6 +22,10 @@ public class ValueSeason implements ValueInterface {
      */
     public ValueSeason(EnumSeason season) {
         this.season = season;
+    }
+
+    public EnumSeason getSeason() {
+        return season;
     }
 
     @Override

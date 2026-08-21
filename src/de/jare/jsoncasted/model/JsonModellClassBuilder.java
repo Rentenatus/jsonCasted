@@ -44,7 +44,7 @@ public interface JsonModellClassBuilder {
     public Class<?> getSingularClass();
 
     /**
-     * Builds a single object from a JSON item.
+     * Constructs a single object from a JSON item.
      *
      * @param jClass the JsonClass defining the target type.
      * @param jsonItem the JSON item to build from.
@@ -52,7 +52,22 @@ public interface JsonModellClassBuilder {
      * @return the constructed object.
      * @throws JsonBuildException if object construction fails.
      */
-    public Object build(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException;
+    public Object construct(JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException;
+
+    /**
+     * Builds his fields of a single object.
+     *
+     * @param constructed in construct constructed object.
+     * @param jClass the JsonClass defining the target type.
+     * @param jsonItem the JSON item to build from.
+     * @param builderService the builder service for nested object construction.
+     * @return the constructed object.
+     * @throws JsonBuildException if object construction fails.
+     */
+    default Object buildFields(Object constructed, JsonClass jClass, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
+        // if the simple implementations do not recognize fields.
+        return constructed;
+    }
 
     /**
      * Builds a List from a JSON array.

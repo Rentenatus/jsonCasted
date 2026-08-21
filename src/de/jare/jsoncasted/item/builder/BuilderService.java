@@ -6,6 +6,8 @@
  */
 package de.jare.jsoncasted.item.builder;
 
+import de.jare.jsoncasted.io.JsonWriteException;
+import de.jare.jsoncasted.io.writer.walker.ItemCircleScannerWalker;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.model.JsonBuildException;
@@ -14,10 +16,8 @@ import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonInter;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,7 +25,8 @@ import java.util.logging.Logger;
  * Service class responsible for building Java objects from JSON structures.
  *
  * <p>
- * The BuilderService coordinates the object construction process by:</p>
+ * The BuilderService coordinates the object construction process by:
+ * </p>
  * <ul>
  * <li>Managing the JSON model and type registry</li>
  * <li>Tracking built objects by wood key for reference resolution</li>
@@ -35,13 +36,14 @@ import java.util.logging.Logger;
  *
  * <p>
  * This service is the central component in the object building pipeline, connecting parsed JSON structures
- * ({@link JsonItem}) with actual Java object instantiation.</p>
+ * ({@link JsonItem}) with actual Java object instantiation.
+ * </p>
  */
 public class BuilderService {
-
+    
     private final JsonModel model;
     private final boolean throwClassEx;
-    private final Map<String, Object> builtObjectsByWoodKey = new HashMap<>();
+    private final Map<Long, Object> buildObjectsById = new HashMap<>();
 
     /**
      * Constructs a BuilderService with the specified model and exception configuration.
@@ -75,29 +77,22 @@ public class BuilderService {
         if (item == null) {
             return null;
         }
+        checkCycles(item);
         return item.buildInstance(this);
     }
-
-    /**
-     * Retrieves a previously built object by its wood key.
-     *
-     * @param woodKey the wood key identifying the object.
-     * @return the cached object, or {@code null} if not found or key is null.
-     */
-    public Object getBuiltObject(String woodKey) {
-        return woodKey == null ? null : builtObjectsByWoodKey.get(woodKey);
-    }
-
-    /**
-     * Caches a built object with its wood key for future reference resolution.
-     *
-     * @param woodKey the wood key to associate with the object.
-     * @param value the built object to cache.
-     */
-    public void putBuiltObject(String woodKey, Object value) {
-        if (woodKey != null && value != null) {
-            builtObjectsByWoodKey.put(woodKey, value);
+    
+    public void checkCycles(JsonItem item) throws JsonBuildException {
+        ItemCircleScannerWalker walker = new ItemCircleScannerWalker();
+        walker.writeType(item);
+        boolean okay = true;
+        for (JsonWriteException ex : walker.getExceptions()) {
+            Logger.getGlobal().log(Level.SEVERE, ex.getMessage(), ex);
+            okay = false;
         }
+        if (okay) {
+            return;
+        }
+        buildException("Item serialization contains a disallowed cycle.");
     }
 
     /**
@@ -105,7 +100,8 @@ public class BuilderService {
      *
      * <p>
      * If the object has already been built and cached under the wood key, the cached instance is returned. Otherwise, a
-     * new object is built and cached.</p>
+     * new object is built and cached.
+     * </p>
      *
      * @param jsonObject the JSON object to build from.
      * @param contextClass the type descriptor for the target class.
@@ -113,34 +109,34 @@ public class BuilderService {
      * @throws JsonBuildException if object construction fails and throwClassEx is true.
      */
     public Object getOrBuild(JsonObject jsonObject, JsonTypeDescriptor contextClass) throws JsonBuildException {
-        String woodKey = jsonObject.getWoodKey();
-        if (woodKey != null) {
-            Object cached = builtObjectsByWoodKey.get(woodKey);
+        final long resolverId = jsonObject.getResolverId();
+        if (resolverId > 0) {
+            Object cached = buildObjectsById.get(resolverId);
             if (cached != null) {
                 return cached;
             }
         }
-
-        Object built = buildObject(jsonObject, contextClass);
-        if (woodKey != null && built != null) {
-            builtObjectsByWoodKey.put(woodKey, built);
-        }
-        return built;
+        return buildObject(jsonObject, contextClass);
     }
 
     /**
      * Builds an object from a JSON value using the specified type descriptor.
      *
-     * @param jsonValue the JSON item containing the value.
+     * @param jsonItem the JSON item containing the value.
      * @param contextClass the type descriptor for the target class.
      * @return the constructed object, or {@code null} if the type is not found.
      * @throws JsonBuildException if object construction fails and throwClassEx is true.
      */
-    public Object buildObject(JsonItem jsonValue, JsonTypeDescriptor contextClass) throws JsonBuildException {
+    public Object buildObject(JsonItem jsonItem, JsonTypeDescriptor contextClass) throws JsonBuildException {
         final String typeName = contextClass.getTypeName();
         JsonClass jType = model.getJsonClass(typeName);
         if (jType != null) {
-            return jType.build(jsonValue, this);
+            Object constructed = jType.construct(jsonItem, this);
+            final long resolverId = jsonItem.getResolverId();
+            if (resolverId > 0) {
+                buildObjectsById.put(resolverId, constructed);
+            }
+            return jType.buildFields(constructed, jsonItem, this);
         }
         JsonInter jInter = model.getJsonInter(typeName);
         if (jInter != null) {
@@ -150,6 +146,8 @@ public class BuilderService {
         buildException("JsonClass " + typeName + " is unknown.");
         return null;
     }
+    
+    private Object construct;
 
     /**
      * Builds a list or array from a JSON value using the specified type descriptor.
@@ -191,15 +189,15 @@ public class BuilderService {
         final String typeName = contextClass.getTypeName();
         JsonClass jType = model.getJsonClass(typeName);
         if (jType != null) {
-            return jType.build(jsonValue, this);
+            return jType.construct(jsonValue, this);
         }
         JsonClass jEnum = model.getJsonEnum(typeName);
         if (jEnum != null) {
-            return jEnum.build(jsonValue, this);
+            return jEnum.construct(jsonValue, this);
         }
         buildException("JsonClass " + typeName + " is unknown.");
         return null;
-
+        
     }
 
     /**
