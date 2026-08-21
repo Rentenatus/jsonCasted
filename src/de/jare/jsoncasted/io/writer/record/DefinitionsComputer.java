@@ -29,7 +29,7 @@ public class DefinitionsComputer {
 
         for (DefinitionsContextObjectRecord record : values) {
             if (record.isFinding() || record.getContainer() != null) {
-                continue; // Skip records that are 'onlsy' findings or have 'alredy' a container
+                continue; // Skip records that are allredy findings or have 'alredy' a container
             }
             JsonType type = record.getJsonType();
             JsonRepo repo = repos.get(type.getcName());
@@ -39,7 +39,6 @@ public class DefinitionsComputer {
                 }
                 repo = new JsonRepo(type.getcName());
                 repos.put(type.getcName(), repo);
-                 
 
             }
             repo.addItem(record.getObject());

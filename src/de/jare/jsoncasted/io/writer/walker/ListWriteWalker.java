@@ -129,7 +129,6 @@ public class ListWriteWalker {
      *
      * @param jMap The JSON type of the object.
      * @param attr The object to serialize.
-     * @param ownerType
      * @param iString The indentation string for formatted output.
      */
     protected void writeMap(JsonMap jMap, Object attr, WriteNodePath iString) {
