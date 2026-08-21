@@ -1,7 +1,9 @@
 {
+  "_hashcode": 230528013,
   "modelName": "Seed",
   "describedTypes": {
     "de.jare.jsoncasted.model.descriptor.JsonModelDescriptor": {
+      "_hashcode": 392781299,
       "typeName": "de.jare.jsoncasted.model.descriptor.JsonModelDescriptor",
       "nodeType": "OBJECT",
       "skippingNulls": false,
@@ -11,6 +13,7 @@
       "parent":  null
     },
     "double": {
+      "_hashcode": 1822383117,
       "typeName": "double",
       "nodeType": "NUMBER",
       "skippingNulls": false,
@@ -20,6 +23,7 @@
       "parent":  null
     },
     "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor": {
+      "_hashcode": 233021551,
       "typeName": "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor",
       "nodeType": "OBJECT",
       "skippingNulls": false,
@@ -29,6 +33,7 @@
       "parent":  null
     },
     "String": {
+      "_hashcode": 1991313236,
       "typeName": "String",
       "nodeType": "STRING",
       "skippingNulls": false,
@@ -38,6 +43,7 @@
       "parent":  null
     },
     "float": {
+      "_hashcode": 736778932,
       "typeName": "float",
       "nodeType": "NUMBER",
       "skippingNulls": false,
@@ -47,6 +53,7 @@
       "parent":  null
     },
     "Double": {
+      "_hashcode": 1032000752,
       "typeName": "Double",
       "nodeType": "NUMBER",
       "skippingNulls": false,
@@ -56,6 +63,7 @@
       "parent":  null
     },
     "int": {
+      "_hashcode": 770911223,
       "typeName": "int",
       "nodeType": "LONG",
       "skippingNulls": false,
@@ -65,6 +73,7 @@
       "parent":  null
     },
     "long": {
+      "_hashcode": 1392906938,
       "typeName": "long",
       "nodeType": "LONG",
       "skippingNulls": false,
@@ -74,18 +83,21 @@
       "parent":  null
     },
     "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor>": {
+      "_hashcode": 708890004,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor>",
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
       "recursive": false,
       "mappingAllFields": {
+        "_hashcode": 255944888,
         "typeName": "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor",
         "collectionType": "NONE"
       },
       "parent":  null
     },
     "Integer": {
+      "_hashcode": 294184992,
       "typeName": "Integer",
       "nodeType": "LONG",
       "skippingNulls": false,
@@ -95,6 +107,7 @@
       "parent":  null
     },
     "de.jare.jsoncasted.lang.JsonNodeType": {
+      "_hashcode": 793315160,
       "typeName": "de.jare.jsoncasted.lang.JsonNodeType",
       "nodeType": "STRING",
       "skippingNulls": false,
@@ -104,6 +117,7 @@
       "parent":  null
     },
     "Float": {
+      "_hashcode": 270397815,
       "typeName": "Float",
       "nodeType": "NUMBER",
       "skippingNulls": false,
@@ -113,6 +127,7 @@
       "parent":  null
     },
     "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor": {
+      "_hashcode": 376416077,
       "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor",
       "nodeType": "OBJECT",
       "skippingNulls": false,
@@ -120,6 +135,7 @@
       "recursive": false,
       "mappingAllFields":  null,
       "parent": {
+        "_hashcode": 1089504328,
         "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote",
         "nodeType": "OBJECT",
         "skippingNulls": false,
@@ -130,6 +146,7 @@
       }
     },
     "boolean": {
+      "_hashcode": 660879561,
       "typeName": "boolean",
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
@@ -139,6 +156,7 @@
       "parent":  null
     },
     "de.jare.jsoncasted.model.JsonCollectionType": {
+      "_hashcode": 1485697819,
       "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
       "nodeType": "STRING",
       "skippingNulls": false,
@@ -148,6 +166,7 @@
       "parent":  null
     },
     "Long": {
+      "_hashcode": 867398280,
       "typeName": "Long",
       "nodeType": "LONG",
       "skippingNulls": false,
@@ -157,18 +176,21 @@
       "parent":  null
     },
     "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor>": {
+      "_hashcode": 2007331442,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor>",
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
       "recursive": false,
       "mappingAllFields": {
+        "_hashcode": 1904324159,
         "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor",
         "collectionType": "NONE"
       },
       "parent":  null
     },
     "Object": {
+      "_hashcode": 1176735295,
       "typeName": "Object",
       "nodeType": "OBJECT",
       "skippingNulls": false,
@@ -178,6 +200,7 @@
       "parent":  null
     },
     "Boolean": {
+      "_hashcode": 1848415041,
       "typeName": "Boolean",
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
@@ -187,6 +210,7 @@
       "parent":  null
     },
     "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote": {
+      "_hashcode": 1089504328,
       "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote",
       "nodeType": "OBJECT",
       "skippingNulls": false,

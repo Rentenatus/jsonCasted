@@ -85,7 +85,8 @@ public class ItemCircleScannerWalker {
 
             JsonItem attr = object.getParam(nextName);
             final JsonFieldDescriptor field = object.getField(nextName);
-            writeType(attr, preChildIndent.append(field.isConstructorParam() ? "c" : "f"));
+            writeType(attr, preChildIndent.append(
+                    field == null ? "n" : (field.isConstructorParam() ? "c" : "f")));
         }
 
     }
