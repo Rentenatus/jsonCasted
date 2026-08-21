@@ -100,7 +100,13 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
                 }
                 JsonItem para = jsonItem.getParam(next.getfName());
                 if (para != null) {
-                    Object inst = para.buildInstance(builderService);
+                    Object inst = null;
+                    if (para.getParamSet() == null || !para.getParamSet().isEmpty()) {
+                        inst = para.buildInstance(builderService);
+                    } else if (!jClass.isSkippingNulls()) {
+                        throw new JsonBuildException("Param " + para.getPrintClassName() + " " + next.getfName() + " is empty, but " + jClass.getcName() + " does not allow a null value.");
+                    }
+
                     Method getterMeth = null;
                     Method setterMeth = null;
                     boolean suchtNoch = true;
@@ -185,11 +191,11 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
     protected Object useConstructorWith(JsonClass jClass, ArrayList<JsonField> params, JsonItem jsonItem, BuilderService builderService) throws SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, IllegalArgumentException, NoSuchMethodException, JsonBuildException {
         ArrayList<Object> paramObjects = calculateParamObjects(params, jsonItem, builderService, jClass);
 
-        Constructor<?> constructor = calculateConstructor(params, paramObjects);
-
-        if (constructor == null) {
-            throwConstructorException(params);
+        ArrayList<Constructor<?>> list = calculateConstructor(params, paramObjects, jClass.isSkippingNulls());
+        if (list.size() != 1) {
+            throwConstructorException(params, list.size());
         }
+        final Constructor<?> constructor = list.get(0);
         return constructor.newInstance(paramObjects.toArray());
     }
 
@@ -214,7 +220,8 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
         return paramObjects;
     }
 
-    protected Constructor<?> calculateConstructor(ArrayList<JsonField> params, ArrayList<Object> paramObjects) throws SecurityException {
+    protected ArrayList<Constructor<?>> calculateConstructor(ArrayList<JsonField> params, ArrayList<Object> paramObjects, boolean skippingNulls) throws SecurityException {
+        ArrayList<Constructor<?>> ret = new ArrayList<>();
         for (Constructor<?> cons : singular.getConstructors()) {
             if (cons.getParameterCount() != params.size()) {
                 continue;
@@ -222,19 +229,24 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
             boolean okay = true;
             Class<?>[] types = cons.getParameterTypes();
             for (int i = 0; okay && i < types.length; i++) {
-                okay = types[i].isInstance(paramObjects.get(i));
+                final Object ob_i = paramObjects.get(i);
+                if (ob_i == null) {
+                    okay = skippingNulls;
+                    continue;
+                }
+                okay = types[i].isInstance(ob_i);
                 if (!okay && primitiveWrapperMap.get(types[i]) != null) {
-                    okay = primitiveWrapperMap.get(types[i]).isInstance(paramObjects.get(i));
+                    okay = primitiveWrapperMap.get(types[i]).isInstance(ob_i);
                 }
             }
             if (okay) {
-                return cons;
+                ret.add(cons);
             }
         }
-        return null;
+        return ret;
     }
 
-    protected void throwConstructorException(ArrayList<JsonField> params) throws JsonBuildException {
+    protected void throwConstructorException(ArrayList<JsonField> params, int findings) throws JsonBuildException {
         if (params.isEmpty()) {
             throw new JsonBuildException("Constructor of " + singular.getSimpleName() + " without params not found.");
         }
@@ -247,7 +259,11 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
             }
             paramsString.append(", ");
         }
-        throw new JsonBuildException("Constructor of " + singular.getSimpleName() + " with " + params.size() + " params (" + paramsString + ") not found.");
+        if (findings == 0) {
+            throw new JsonBuildException("Constructor of " + singular.getSimpleName() + " with " + params.size() + " params (" + paramsString + ") not found.");
+        } else {
+            throw new JsonBuildException(findings + " constructors of " + singular.getSimpleName() + " with " + params.size() + " params (" + paramsString + ") found.");
+        }
     }
 
     /**

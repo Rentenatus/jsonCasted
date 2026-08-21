@@ -6,6 +6,8 @@
  */
 package de.jare.jsoncasted.item.builder;
 
+import de.jare.jsoncasted.io.JsonWriteException;
+import de.jare.jsoncasted.io.writer.walker.ItemCircleScannerWalker;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.model.JsonBuildException;
@@ -23,7 +25,8 @@ import java.util.logging.Logger;
  * Service class responsible for building Java objects from JSON structures.
  *
  * <p>
- * The BuilderService coordinates the object construction process by:</p>
+ * The BuilderService coordinates the object construction process by:
+ * </p>
  * <ul>
  * <li>Managing the JSON model and type registry</li>
  * <li>Tracking built objects by wood key for reference resolution</li>
@@ -33,10 +36,11 @@ import java.util.logging.Logger;
  *
  * <p>
  * This service is the central component in the object building pipeline, connecting parsed JSON structures
- * ({@link JsonItem}) with actual Java object instantiation.</p>
+ * ({@link JsonItem}) with actual Java object instantiation.
+ * </p>
  */
 public class BuilderService {
-
+    
     private final JsonModel model;
     private final boolean throwClassEx;
     private final Map<Long, Object> buildObjectsById = new HashMap<>();
@@ -73,7 +77,22 @@ public class BuilderService {
         if (item == null) {
             return null;
         }
+        checkCycles(item);
         return item.buildInstance(this);
+    }
+    
+    public void checkCycles(JsonItem item) throws JsonBuildException {
+        ItemCircleScannerWalker walker = new ItemCircleScannerWalker();
+        walker.writeType(item);
+        boolean okay = true;
+        for (JsonWriteException ex : walker.getExceptions()) {
+            Logger.getGlobal().log(Level.SEVERE, ex.getMessage(), ex);
+            okay = false;
+        }
+        if (okay) {
+            return;
+        }
+        buildException("Item serialization contains a disallowed cycle.");
     }
 
     /**
@@ -81,7 +100,8 @@ public class BuilderService {
      *
      * <p>
      * If the object has already been built and cached under the wood key, the cached instance is returned. Otherwise, a
-     * new object is built and cached.</p>
+     * new object is built and cached.
+     * </p>
      *
      * @param jsonObject the JSON object to build from.
      * @param contextClass the type descriptor for the target class.
@@ -126,6 +146,7 @@ public class BuilderService {
         buildException("JsonClass " + typeName + " is unknown.");
         return null;
     }
+    
     private Object construct;
 
     /**
@@ -176,7 +197,7 @@ public class BuilderService {
         }
         buildException("JsonClass " + typeName + " is unknown.");
         return null;
-
+        
     }
 
     /**

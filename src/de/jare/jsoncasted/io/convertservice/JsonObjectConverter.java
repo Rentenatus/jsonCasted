@@ -7,6 +7,7 @@
 package de.jare.jsoncasted.io.convertservice;
 
 import de.jare.debug.DebugTuple;
+import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.lang.JsonNode;
@@ -15,9 +16,8 @@ import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_LINK;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_OBJECT_ID;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
-import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
-import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote;
+import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -247,7 +247,6 @@ public class JsonObjectConverter {
                 ? JsonNodeConverter.convertArray(childNode, castedChildType, field.isAsList(), service)
                 : JsonNodeConverter.convert(childNode, castedChildType, service);
         myObject.putParam(paramName, paramObject);
-
     }
 
     /**
@@ -335,7 +334,6 @@ public class JsonObjectConverter {
                 ? JsonNodeConverter.convertArray(childNode, childType, field.isAsList(), service)
                 : JsonNodeConverter.convert(childNode, childType, service);
         myObject.putParam(paramName, paramObject);
-
     }
 
 }

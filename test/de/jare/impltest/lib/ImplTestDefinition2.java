@@ -83,6 +83,8 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
         // ValueStringSub implements ValueInterface, but isn't registered.
         JsonInter valueIx = model.newJsonInterfaceIndividually(ValueInterface.class, (String) null, valueBoolean, valueInteger, valueString, valueStringSubSub, valueSeason, valueEntry);
 
+        valueEntry.setSkippingNulls(true);
+        valueEntry.addCParam("context", valueIx);
         valueEntry.addField("item", valueIx);
 
         testBox = model.newJsonReflectIndividually(TestBox.class, (String) null);

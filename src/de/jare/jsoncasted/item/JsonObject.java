@@ -9,6 +9,7 @@ package de.jare.jsoncasted.item;
 
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
+import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -70,6 +71,11 @@ public class JsonObject implements JsonItem {
     @Override
     public JsonItem getParam(String key) {
         return map.get(key);
+    }
+
+    @Override
+    public JsonFieldDescriptor getField(String key) {
+        return contextClass.getField(key);
     }
 
     /**

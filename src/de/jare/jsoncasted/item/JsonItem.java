@@ -9,6 +9,7 @@ package de.jare.jsoncasted.item;
 
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.model.JsonBuildException;
+import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -83,6 +84,16 @@ public interface JsonItem {
      * @return The corresponding JsonItem value or null if the key does not exist.
      */
     public JsonItem getParam(String key);
+
+    /**
+     * Get the field descriptor of his context class.
+     *
+     * @param key field / param name
+     * @return null or JsonFieldDescriptor if this is an object and his description contains this field.
+     */
+    default JsonFieldDescriptor getField(String key) {
+        return null;
+    }
 
     /**
      * Retrieves the set of all keys available in the JSON object.

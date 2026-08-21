@@ -14,6 +14,7 @@ package de.jare.impltest.lib;
 public class ValueEntry implements ValueInterface {
 
     private final String text;
+    private final ValueInterface context;
     private ValueInterface item;
 
     /**
@@ -21,8 +22,9 @@ public class ValueEntry implements ValueInterface {
      *
      * @param text The string value.
      */
-    public ValueEntry(String text) {
+    public ValueEntry(String text, ValueInterface context) {
         this.text = text;
+        this.context = context;
     }
 
     @Override
@@ -36,6 +38,10 @@ public class ValueEntry implements ValueInterface {
 
     public ValueInterface getItem() {
         return item;
+    }
+
+    public ValueInterface getContext() {
+        return context;
     }
 
 }

@@ -245,7 +245,7 @@ public class TestBoxNGTest2 {
     @Test
     public void testModel3() {
         System.out.println("===============================================");
-        System.out.println("testModel3");
+        System.out.println("testModel2");
         System.out.println("===============================================");
 
         File configFile = new File("./assets/config/testbox_2.json");
