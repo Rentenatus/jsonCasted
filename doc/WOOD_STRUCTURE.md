@@ -483,12 +483,186 @@ Errors are tracked at multiple levels:
 - Ensure external files exist and are accessible
 - External provider files should also use the Wood structure
 
-### 3. Circular References
+### 3. Circular References and Cycle Handling
 
-- The system **supports circular references** between objects
-- Resolution uses iterative passes to handle dependencies
-- Circular dependencies at the **provider level** (file A references file B which references file A) are NOT supported and cause infinite loops
-- **IMPROVED:** Cycle detection now throws explicit `JsonParseException` with unsortable providers
+The system distinguishes between **three levels** of cycles, each with different rules:
+
+#### 3.1 Model Level: Type Definition Cycles
+
+**Definition:** Cycles in the **type system** - when type definitions allow recursive or circular type relationships.
+
+| Aspect | Status | Explanation |
+|--------|--------|-------------|
+| **Circular type references** | ✅ **ALLOWED** | Type definitions may reference themselves through interfaces or inheritance. This enables recursive data structures (trees, graphs). Example: `ValueEntry` implements `ValueInterface`, which can contain `ValueEntry` as an implementation. |
+| **Structural definition hierarchy cycles** | ❌ **FORBIDDEN** | `JsonDefinitions` or `JsonDefinitionsDescriptor` cannot contain circular parent-child relationships. Example: `JsonDefinitions A` adds `B` as child, `B` adds `A` as child. Detected via `isAncestorOf()` check. |
+| **Self-inheritance** | ❌ **FORBIDDEN** | A `JsonClass` cannot be its own superclass. Detected in `JsonClass.addFromSuperclass()`. |
+
+**Key Insight:** Type definitions that **enable** circular references are legal. They only define the **possibility** of cycles, not the requirement. Whether actual cycles occur depends on the concrete instances.
+
+**Example - Legal Type Definition (ImplTestDefinition2.java):**
+```java
+// ValueInterface can contain ValueEntry as implementation
+JsonInter valueIx = model.newJsonInterfaceIndividually(
+    ValueInterface.class, null, valueBoolean, valueInteger, ..., valueEntry);
+
+// ValueEntry has fields of type ValueInterface
+JsonClass valueEntry = model.newJsonReflectIndividually(ValueEntry.class, null);
+valueEntry.addCParam("text", asString);
+valueEntry.addCParam("context", valueIx);  // Constructor parameter
+valueEntry.addField("item", valueIx);        // Setter field
+```
+This is **legal** because it defines that `ValueEntry` can have fields referencing `ValueInterface`, which can be implemented by `ValueEntry` itself. It does **not** force any instance to create a cycle.
+
+**Example - Illegal Type Definition:**
+```java
+JsonDefinitions defA = new JsonDefinitions("A");
+JsonDefinitions defB = new JsonDefinitions("B");
+defA.addChild(defB);  // A contains B
+defB.addChild(defA);  // B contains A -> IllegalArgumentException!
+```
+
+#### 3.2 JsonItem Level: Parsed Structure Cycles
+
+**Definition:** Cycles in the **JsonItem structure** after parsing, before building Java objects.
+
+| Aspect | Status | Explanation |
+|--------|--------|-------------|
+| **Field-only cycles** | ✅ **ALLOWED** | Cycles through fields/setters only. Path contains only `'f'` (field) and `'i'` (list element) markers. |
+| **Constructor parameter cycles** | ❌ **FORBIDDEN** | Cycles involving constructor parameters. Path contains `'c'` (constructor) marker. Cannot be resolved because constructor parameters must be set during object creation. |
+
+**Cycle Detection Mechanism:** `ItemCircleScannerWalker` traverses the JsonItem structure, tracking `resolverId` of each object. When a duplicate `resolverId` is found, it checks the path segment between occurrences for the `'c'` marker.
+
+**Path Markers:**
+- `'f'` = Field (setter)
+- `'c'` = Constructor parameter
+- `'n'` = Unknown field
+- `'i'` = List element
+
+**Example - Allowed JsonItem Cycle:**
+```json
+{
+  "_woodObjectId": "1",
+  "text": "Node 1",
+  "next": {
+    "_woodObjectId": "2",
+    "text": "Node 2",
+    "prev": { "_woodLink": "this::1" }  // Field reference back to Node 1
+  }
+}
+```
+Path: `1 → f(next) → 2 → f(prev) → 1` (only `'f'` markers) → **ALLOWED**
+
+**Example - Forbidden JsonItem Cycle:**
+```json
+{
+  "_woodObjectId": "44",
+  "text": "Cycle 1",
+  "context": {                            // Constructor parameter!
+    "_woodObjectId": "45",
+    "text": "Cycle 2",
+    "context": { "_woodLink": "this::44" }
+  }
+}
+```
+Path: `44 → c(context) → 45 → c(context) → 44` (contains `'c'` markers) → **FORBIDDEN**
+
+#### 3.3 Object Level: Deserialization Cycles
+
+**Definition:** Cycles during **building Java objects** from JsonItem structures.
+
+| Aspect | Status | Explanation |
+|--------|--------|-------------|
+| **Field-based cycles** | ✅ **ALLOWED** | Cycles through setter fields. Supported via early registration and caching. |
+| **Constructor parameter cycles** | ❌ **FORBIDDEN** | Cycles through constructor parameters. Detected before building via `ItemCircleScannerWalker`. |
+
+**Support Mechanisms for Allowed Cycles:**
+
+1. **Early Registration (`JsonObjectConverter.convertObject()`):**
+   - Objects are registered in the resolution **before** all parameters are read
+   - Allows incomplete objects to be referenced by later nodes
+   - Code: `service.getResolution().putResolvedObject(keyOrNull, myObject)`
+
+2. **Object Caching (`BuilderService.getOrBuild()`):**
+   - Already built objects are cached by `resolverId`
+   - Prevents duplicate instantiation and breaks cycles
+   - Code: `buildObjectsById.get(resolverId)`
+
+**Example - Allowed Object Cycle (Field-based):**
+```java
+// JSON:
+{
+  "_woodObjectId": "A",
+  "name": "Node A",
+  "friend": { "_woodLink": "this::B" }
+}
+{
+  "_woodObjectId": "B", 
+  "name": "Node B",
+  "friend": { "_woodLink": "this::A" }  // Mutual reference via fields
+}
+```
+Result: Both objects are built successfully. The `friend` references are set after construction via setters.
+
+**Example - Forbidden Object Cycle (Constructor-based):**
+```java
+// If ValueEntry has context as constructor parameter:
+public class ValueEntry {
+    private final ValueInterface context;  // Constructor parameter!
+    
+    public ValueEntry(String text, ValueInterface context) {
+        this.context = context;  // Cannot be null if referencing itself
+    }
+}
+
+// JSON with cycle through constructor parameter is FORBIDDEN
+```
+
+#### 3.4 Provider Level: File Dependency Cycles
+
+**Definition:** Cycles in **file/resource dependencies** via `_woodProviders`.
+
+| Aspect | Status | Explanation |
+|--------|--------|-------------|
+| **Circular provider dependencies** | ❌ **FORBIDDEN** | File A references file B, file B references file A. Causes infinite loading loop. |
+
+**Detection Mechanism:** `WoodProxyResolver.resolveProviders()` uses **Kahn's algorithm** for topological sorting. If the sorted list contains fewer nodes than total providers, a cycle exists.
+
+**Example - Forbidden Provider Cycle:**
+```json
+// fileA.json
+{
+  "_woodProviders": [{"synonym": "b", "filename": "fileB.json"}],
+  "data": { "_woodLink": "b::obj1" }
+}
+
+// fileB.json
+{
+  "_woodProviders": [{"synonym": "a", "filename": "fileA.json"}],  // CYCLE!
+  "obj1": { "value": 42 }
+}
+```
+Error: `JsonParseException: Cycle detected in provider dependencies: [a, b]`
+
+---
+
+**Summary Table: Cycle Handling at All Levels**
+
+| Level | Cycle Type | Status | Detection | Error |
+|-------|------------|--------|-----------|-------|
+| **Model** | Circular type references | ✅ Allowed | None (feature) | - |
+| **Model** | Structural definition hierarchy | ❌ Forbidden | `isAncestorOf()` | `IllegalArgumentException` |
+| **Model** | Self-inheritance | ❌ Forbidden | Direct check | `IllegalArgumentException` |
+| **JsonItem** | Field-only cycles | ✅ Allowed | None | - |
+| **JsonItem** | Constructor parameter cycles | ❌ Forbidden | `ItemCircleScannerWalker` + path analysis | `JsonWriteException` |
+| **Object** | Field-based cycles | ✅ Allowed | None (early registration) | - |
+| **Object** | Constructor parameter cycles | ❌ Forbidden | Pre-build check via `ItemCircleScannerWalker` | `JsonBuildException` |
+| **Provider** | Circular file dependencies | ❌ Forbidden | Topological sort (Kahn's algorithm) | `JsonParseException` |
+
+**Key Design Principles:**
+1. Type definitions **enable** circular structures but do **not** enforce them
+2. Instance-level cycles through **fields/setters** are supported via early registration
+3. Instance-level cycles through **constructor parameters** are forbidden (technically impossible)
+4. Provider-level cycles are forbidden (would cause infinite loading)
 
 ### 4. Performance Considerations
 
