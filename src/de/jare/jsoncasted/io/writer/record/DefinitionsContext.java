@@ -17,24 +17,24 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Janusch Renteantus
  */
 public class DefinitionsContext {
-
+    
     private final JsonModel model;
 
     // Atomic counter for generating unique IDs within this context.
-    private final AtomicLong idCounter = new AtomicLong(0);
+    private final AtomicLong idCounter = new AtomicLong(1);
 
     // All objects found that are candidates for a reference ID or found that are going to be serialized are collected here. They
     private final Map<Object, DefinitionsContextObjectRecord> recordMap;
-
+    
     public DefinitionsContext(de.jare.jsoncasted.model.JsonModel model) {
         this.model = model;
         this.recordMap = new IdentityHashMap<>();
     }
-
+    
     public JsonModel getModel() {
         return model;
     }
-
+    
     Map<Object, DefinitionsContextObjectRecord> getRecordMap() {
         return recordMap;
     }
@@ -106,7 +106,7 @@ public class DefinitionsContext {
         record.asCandidate();
         return record;
     }
-
+    
     public DefinitionsContextObjectRecord moveToFindings(Object ob) {
         DefinitionsContextObjectRecord record = recordMap.get(ob);
         if (record == null) {
@@ -115,7 +115,7 @@ public class DefinitionsContext {
         record.asFinding();
         return record;
     }
-
+    
     public DefinitionsContextObjectRecord moveToAssigned(Object ob, JsonType parentType, Object parent) {
         DefinitionsContextObjectRecord record = recordMap.get(ob);
         if (record == null) {
@@ -126,7 +126,7 @@ public class DefinitionsContext {
         record.asContainer();
         return record;
     }
-
+    
     public DefinitionsContextObjectRecord addToAssigned(JsonType jType, Object ob, JsonType parentType, Object parent) {
         DefinitionsContextObjectRecord record = getOrCreate(jType, ob);
         record.setContainer(parent);
@@ -134,7 +134,7 @@ public class DefinitionsContext {
         record.asContainer();
         return record;
     }
-
+    
     public DefinitionsContextObjectRecord getOrCreate(JsonType jType, Object ob) {
         DefinitionsContextObjectRecord record = recordMap.get(ob);
         if (record == null) {
@@ -178,5 +178,9 @@ public class DefinitionsContext {
     public void resetIdCounter() {
         idCounter.set(0);
     }
-
+    
+    public DefinitionsContextObjectRecord getRecord(Object ob) {
+        return recordMap.get(ob);
+    }
+    
 }

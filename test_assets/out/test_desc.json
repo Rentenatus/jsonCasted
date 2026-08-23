@@ -1,9 +1,11 @@
 {
-  "_hashcode": 2015781843,
+  "_hashcode": 415186196,
+  "_woodObjectId": 1,
   "modelName": "TestModel",
   "describedTypes": {
     "java.lang.String": {
-      "_hashcode": 789219251,
+      "_hashcode": 1312884893,
+      "_woodObjectId": 3,
       "typeName": "java.lang.String",
       "nodeType": "STRING",
       "skippingNulls": false,

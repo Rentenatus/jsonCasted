@@ -12,10 +12,12 @@ import de.jare.jsoncasted.io.writer.WriteStrategy;
 import de.jare.jsoncasted.io.writer.getter.GetterFieldInfo;
 import de.jare.jsoncasted.io.writer.getter.ObjectGetter;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonIntegerObjBuilder;
+import de.jare.jsoncasted.model.builder.JsonLongObjBuilder;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
@@ -29,6 +31,7 @@ import java.util.List;
 public class ObjectWriteWalker {
 
     private static final JsonClass JSON_CLASS_INTEGER = new JsonClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder());
+   private static final JsonClass JSON_CLASS_LONG = new JsonClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder());
 
     final WriteNodePath intentPath;
     final WriteStrategy strategie;
@@ -126,6 +129,16 @@ public class ObjectWriteWalker {
                 strategie.writeHasFieldKeys(jClass, ob, iString);
                 strategie.writeAttrName(jClass, false, JsonTerms.TERM_CYCLE_HASHCODE, iString);
                 strategie.writePrimitive(JSON_CLASS_INTEGER, ob.hashCode(), iString);
+
+                // Write _woodObjectId if a local ID is assigned in DefinitionsContext
+                DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
+                if (record != null) {
+                    long localId = record.getLocalId();
+                    if (localId >= 0) {
+                        strategie.writeAttrName(jClass, true, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
+                        strategie.writePrimitive(JSON_CLASS_LONG, localId, iString);
+                    }
+                }
             } finally {
                 strategie.writeEnd(jClass, ob, true, true, intentPath);
             }
@@ -148,6 +161,17 @@ public class ObjectWriteWalker {
                 strategie.writeAttrName(jClass, isFollowing, JsonTerms.TERM_HASHCODE, iString);
                 strategie.writePrimitive(JSON_CLASS_INTEGER, ob.hashCode(), iString);
                 isFollowing = true;
+
+                // Write _woodObjectId if a local ID is assigned in DefinitionsContext
+                DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
+                if (record != null) {
+                    long localId = record.getLocalId();
+                    if (localId >= 0) {
+                        strategie.writeAttrName(jClass, isFollowing, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
+                        strategie.writePrimitive(JSON_CLASS_LONG, localId, iString);
+                        isFollowing = true;
+                    }
+                }
             }
 
             List< GetterFieldInfo> fieldInfos = objectGetter.extractFields(jClass, ob);
