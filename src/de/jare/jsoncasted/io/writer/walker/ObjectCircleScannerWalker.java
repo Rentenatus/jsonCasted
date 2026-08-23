@@ -9,7 +9,6 @@ import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.JsonWriteException;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
-import de.jare.jsoncasted.model.FieldKind;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
@@ -30,7 +29,6 @@ public class ObjectCircleScannerWalker {
 
     final WriteNodePath intentPath;
     final Set<Object> findings;
-    final Set<Object> containmentObjects;
     final Set<JsonWriteException> exceptions;
     final DefinitionsContext definitionsContext;
     final JsonCastingLevel castingLevel;
@@ -44,7 +42,6 @@ public class ObjectCircleScannerWalker {
     public ObjectCircleScannerWalker(DefinitionsContext definitionsContext, JsonCastingLevel castingLevel) {
         this.intentPath = new WriteNodePath("", new ArrayList<>());
         this.findings = new HashSet<>();
-        this.containmentObjects = new HashSet<>();
         this.exceptions = new HashSet<>();
         this.definitionsContext = definitionsContext;
         this.castingLevel = castingLevel;
@@ -66,17 +63,6 @@ public class ObjectCircleScannerWalker {
      */
     public Collection<Object> getFindings() {
         return Collections.unmodifiableCollection(findings);
-    }
-
-    /**
-     * Returns the collection of objects that are connected via containment relationships.
-     * These are objects where the connection from parent to child is marked as FieldKind.CONTAINMENT
-     * in the model (child is part of parent tree / ownership relationship).
-     *
-     * @return An unmodifiable collection of containment objects.
-     */
-    public Collection<Object> getContainmentObjects() {
-        return Collections.unmodifiableCollection(containmentObjects);
     }
 
     /**
@@ -108,6 +94,10 @@ public class ObjectCircleScannerWalker {
         if (path.ids().contains(objectId)) {
             checkCycle(ob, path);
             findings.add(ob);
+            // Add to DefinitionsContext findings
+            if (jClass != null) {
+                definitionsContext.addToCandidates(jClass, ob);
+            }
             return;
         }
 
@@ -142,6 +132,10 @@ public class ObjectCircleScannerWalker {
                 // Without JsonField context, we can only use the runtime class
                 // This is a fallback for raw collections without type information
                 JsonClass itemClass = definitionsContext.getModel().getJsonClass(item.getClass());
+                // Add collection item to DefinitionsContext candidates
+                if (itemClass != null) {
+                    definitionsContext.addToCandidates(itemClass, item);
+                }
                 scan(item, itemClass, listPath);
             }
         }
@@ -168,6 +162,10 @@ public class ObjectCircleScannerWalker {
             if (item != null) {
                 // Without JsonField context, use the array component type
                 JsonClass itemClass = definitionsContext.getModel().getJsonClass(componentType);
+                // Add array item to DefinitionsContext candidates
+                if (itemClass != null) {
+                    definitionsContext.addToCandidates(itemClass, item);
+                }
                 scan(item, itemClass, arrayPath);
             }
         }
@@ -194,12 +192,6 @@ public class ObjectCircleScannerWalker {
                 if (!fieldType.isBoxOrPrimitive()) {
                     JsonClass fieldClass = definitionsContext.getModel().getJsonClass(fieldType.getcName());
                     boolean isConstructorParam = jsonField.isConstructorParam();
-
-                    // Track containment objects
-                    FieldKind kind = jsonField.getKind();
-                    if (kind == FieldKind.CONTAINMENT) {
-                        containmentObjects.add(fieldValue);
-                    }
 
                     WriteNodePath fieldPath = path.append(isConstructorParam ? "c" : "f");
                     scan(fieldValue, fieldClass, fieldPath);

@@ -210,18 +210,7 @@ public class JsonObjectWriter {
      */
     public static void write(Object ob, OutputStream out, JsonModel model, JsonCastingLevel castingLevel, JsonClass root, JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
         final DefinitionsContext definitionsContext = new DefinitionsContext(model);
-        
-        // Pre-scan for cycles and containment objects
-        final ObjectCircleScannerWalker cycleScanner = new ObjectCircleScannerWalker(definitionsContext, castingLevel);
-        if (ob != null && root != null) {
-            cycleScanner.scan(ob, root);
-            
-            // Throw exception if forbidden cycles detected
-            if (!cycleScanner.getExceptions().isEmpty()) {
-                throw cycleScanner.getExceptions().iterator().next();
-            }
-        }
-        
+
         final PrintWriter prn = new PrintWriter(out);
         final PrintStrategy strategie = new PrintStrategy(prn);
         final WoodMetadataInjection injection = writeInjection(ob, definitionsContext, root, castingLevel, debugLevel);
@@ -230,12 +219,25 @@ public class JsonObjectWriter {
         prn.flush();
     }
 
-    protected static WoodMetadataInjection writeInjection(Object ob, DefinitionsContext definitionsContext, JsonClass root, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+    protected static WoodMetadataInjection writeInjection(Object ob, DefinitionsContext definitionsContext, JsonClass root, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) throws JsonWriteException {
+        // Pre-scan for cycles and containment objects
+        final ObjectCircleScannerWalker cycleScanner = new ObjectCircleScannerWalker(definitionsContext, castingLevel);
+        if (ob != null && root != null) {
+            // Add root object to DefinitionsContext candidates
+            definitionsContext.addToCandidates(root, ob);
+            cycleScanner.scan(ob, root);
+
+            // Throw exception if forbidden cycles detected
+            if (!cycleScanner.getExceptions().isEmpty()) {
+                throw cycleScanner.getExceptions().iterator().next();
+            }
+        }
+
         final DefinitionalStrategy strategie = new DefinitionalStrategy(definitionsContext);
         new RootObjectWriteWalker(strategie, definitionsContext, root, castingLevel, debugLevel).write(ob);
-       return new WoodMetadataInjection(  null      );
+        return new WoodMetadataInjection(null);
     }
- 
+
     /**
      * Serializes an object and writes it to a file with debug level.
      *
