@@ -18,6 +18,7 @@ import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonIntegerObjBuilder;
 import de.jare.jsoncasted.model.builder.JsonLongObjBuilder;
+import de.jare.jsoncasted.model.builder.JsonStringBuilder;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
@@ -32,6 +33,7 @@ public class ObjectWriteWalker {
 
     private static final JsonClass JSON_CLASS_INTEGER = new JsonClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder());
     private static final JsonClass JSON_CLASS_LONG = new JsonClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder());
+    private static final JsonClass JSON_CLASS_STRING = new JsonClass("String", JsonNodeType.STRING, new JsonStringBuilder());
 
     final WriteNodePath intentPath;
     final WriteStrategy strategy;
@@ -123,13 +125,20 @@ public class ObjectWriteWalker {
                 strategy.writeAttrName(jClass, false, JsonTerms.TERM_CYCLE_HASHCODE, iString);
                 strategy.writePrimitive(JSON_CLASS_INTEGER, ob.hashCode(), iString);
 
-                // Write _woodObjectId if a local ID is assigned in DefinitionsContext
-                DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
-                if (record != null) {
-                    long localId = record.getLocalId();
-                    if (localId >= 0) {
-                        strategy.writeAttrName(jClass, true, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
-                        strategy.writePrimitive(JSON_CLASS_LONG, localId, iString);
+                // Write _woodLink with repository key when available, otherwise write _woodObjectId
+                String repoKey = objectGetter.getDefinitionsContext().getRepositoryKey(ob);
+                if (repoKey != null) {
+                    strategy.writeAttrName(jClass, true, JsonTerms.TERM_WOOD_LINK, iString);
+                    strategy.writePrimitive(JSON_CLASS_STRING, repoKey, iString);
+                } else {
+                    // Write _woodObjectId if a local ID is assigned in DefinitionsContext
+                    DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
+                    if (record != null) {
+                        long localId = record.getLocalId();
+                        if (localId >= 0) {
+                            strategy.writeAttrName(jClass, true, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
+                            strategy.writePrimitive(JSON_CLASS_LONG, localId, iString);
+                        }
                     }
                 }
             } finally {
