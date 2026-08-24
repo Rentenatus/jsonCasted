@@ -24,13 +24,13 @@ public class MapWriteWalker extends ObjectWriteWalker {
     private final JsonMap jMap;
 
     /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
+     * Constructs a MapWriteWalker instance.
      *
-     * @param strategie
-     * @param definitionsContext
+     * @param strategie the write strategy to use
+     * @param definitionsContext the context for definitions
      * @param castingLevel the casting level for serialization
-     * @param parent
-     * @param jMap The JSON type used for serialization.
+     * @param parent the parent object
+     * @param jMap The JSON map type used for serialization.
      * @param intentPath The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
@@ -71,7 +71,7 @@ public class MapWriteWalker extends ObjectWriteWalker {
                     continue;
                 }
                 // Skip if already processed
-                if (strategy.skippProzess(jMap.getItemClass(), attr)) {
+                if (strategy.skipProcess(jMap.getItemClass(), attr)) {
                     continue;
                 }
 

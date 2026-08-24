@@ -118,8 +118,8 @@ public class WoodDefinitionWriteStrategy implements WriteStrategy {
     }
 
     @Override
-    public boolean skippProzess(JsonType jTypeOrNull, Object ob) {
-        return delegate.skippProzess(jTypeOrNull, ob);
+    public boolean skipProcess(JsonType jTypeOrNull, Object ob) {
+        return delegate.skipProcess(jTypeOrNull, ob);
     }
 
     @Override

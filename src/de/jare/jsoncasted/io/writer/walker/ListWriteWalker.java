@@ -31,12 +31,12 @@ public class ListWriteWalker {
     final private Object parent;
 
     /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
+     * Constructs a ListWriteWalker instance.
      *
-     * @param strategy
-     * @param definitionsContext
+     * @param strategy the write strategy to use
+     * @param definitionsContext the context for definitions
      * @param castingLevel the casting level for serialization
-     * @param parentField
+     * @param parentField the parent JSON field
      * @param jType The JSON type used for serialization.
      * @param intentPath The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
@@ -65,7 +65,7 @@ public class ListWriteWalker {
                 Object next = it.next();
 
                 // Skip if already processed
-                if (strategy.skippProzess(listGetter.getjType(), next)) {
+                if (strategy.skipProcess(listGetter.getjType(), next)) {
                     continue;
                 }
 

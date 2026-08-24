@@ -28,8 +28,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The JsonWriter class provides utility methods for serializing Java objects into JSON format. It supports writing to
- * strings, files, and output streams with configurable character encoding.
+ * The JsonObjectWriter class provides utility methods for serializing Java objects into JSON format. It supports
+ * writing to strings, files, and output streams with configurable character encoding.
  *
  * @author Janusch Rentenatus
  */
@@ -46,12 +46,12 @@ public class JsonObjectWriter {
      * @return JSON string representation of the object.
      * @throws JsonParseException If parsing fails during serialization.
      * @throws IOException If an I/O error occurs during writing.
-     * @throws de.jare.jsoncasted.io.JsonWriteException
+     * @throws JsonWriteException
      */
     public static String writeToString(Object ob, JsonItemDefinition definition, JsonClass root, String charsetName) throws JsonParseException, IOException, JsonWriteException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(ob, out, definition, root);
-        return new String(out.toByteArray(), charsetName);
+        return new String(out.toByteArray(), java.nio.charset.Charset.forName(charsetName));
     }
 
     /**
@@ -63,12 +63,12 @@ public class JsonObjectWriter {
      * @return JSON string representation of the object.
      * @throws JsonParseException If parsing fails during serialization.
      * @throws IOException If an I/O error occurs during writing.
-     * @throws de.jare.jsoncasted.io.JsonWriteException
+     * @throws JsonWriteException
      */
     public static String writeToString(Object ob, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException, JsonWriteException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(ob, out, definition, root);
-        return new String(out.toByteArray());
+        return new String(out.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
     }
 
     /**
@@ -80,7 +80,7 @@ public class JsonObjectWriter {
      * @param root The root JSON class for the object.
      * @throws JsonParseException If parsing fails during serialization.
      * @throws IOException If an I/O error occurs during writing.
-     * @throws de.jare.jsoncasted.io.JsonWriteException
+     * @throws JsonWriteException
      */
     public static void write(Object ob, File file, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException, JsonWriteException {
         FileOutputStream out;
@@ -89,7 +89,7 @@ public class JsonObjectWriter {
             write(ob, out, definition, root);
             out.close();
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE, "Failed to create output file for JSON writing", ex);
         }
     }
 
@@ -103,12 +103,12 @@ public class JsonObjectWriter {
      * @return JSON string representation of the object.
      * @throws JsonParseException If parsing fails during serialization.
      * @throws IOException If an I/O error occurs during writing.
-     * @throws de.jare.jsoncasted.io.JsonWriteException
+     * @throws JsonWriteException
      */
     public static String writeToString(Object ob, JsonItemDefinition definition, String charsetName) throws JsonParseException, IOException, JsonWriteException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(ob, out, definition, null);
-        return new String(out.toByteArray(), charsetName);
+        return new String(out.toByteArray(), java.nio.charset.Charset.forName(charsetName));
     }
 
     /**
@@ -120,12 +120,12 @@ public class JsonObjectWriter {
      * @return JSON string representation of the object.
      * @throws JsonParseException If parsing fails during serialization.
      * @throws IOException If an I/O error occurs during writing.
-     * @throws de.jare.jsoncasted.io.JsonWriteException
+     * @throws JsonWriteException
      */
     public static String writeToString(Object ob, JsonItemDefinition definition) throws JsonParseException, IOException, JsonWriteException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(ob, out, definition, null);
-        return new String(out.toByteArray());
+        return new String(out.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
     }
 
     /**
@@ -144,7 +144,7 @@ public class JsonObjectWriter {
             write(ob, out, definition, null);
             out.close();
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE, "Failed to create output file for JSON writing", ex);
         }
     }
 
@@ -157,11 +157,10 @@ public class JsonObjectWriter {
      * @param root The root JSON class for the object.
      * @throws IOException If an I/O error occurs during writing.
      * @throws JsonParseException If parsing fails during serialization.
-     * @throws de.jare.jsoncasted.io.JsonWriteException
+     * @throws JsonWriteException
      */
     public static void write(Object ob, OutputStream out, JsonItemDefinition definition, JsonClass root) throws IOException, JsonParseException, JsonWriteException {
         write(ob, out, definition.getModel(), definition.getCastingLevel(), root, JsonDebugLevel.SIMPLE);
-
     }
 
     /**
@@ -190,7 +189,7 @@ public class JsonObjectWriter {
      * @param root The root JSON class for the object.
      * @throws IOException If an I/O error occurs during writing.
      * @throws JsonParseException If parsing fails during serialization.
-     * @throws de.jare.jsoncasted.io.JsonWriteException
+     * @throws JsonWriteException
      */
     public static void write(Object ob, OutputStream out, JsonModel model, JsonCastingLevel castingLevel, JsonClass root) throws IOException, JsonParseException, JsonWriteException {
         write(ob, out, model, castingLevel, root, JsonDebugLevel.SIMPLE);
@@ -263,7 +262,7 @@ public class JsonObjectWriter {
             write(ob, out, definition, root, debugLevel);
             out.close();
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE, "Failed to create output file for JSON writing", ex);
         }
     }
 
@@ -282,7 +281,7 @@ public class JsonObjectWriter {
     public static String writeToString(Object ob, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws JsonWriteException, JsonParseException, IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(ob, out, definition, root, debugLevel);
-        return new String(out.toByteArray());
+        return new String(out.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
     }
 
     /**
@@ -300,7 +299,7 @@ public class JsonObjectWriter {
     public static String writeToString(Object ob, JsonItemDefinition definition, JsonDebugLevel debugLevel) throws JsonWriteException, JsonParseException, IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(ob, out, definition, null, debugLevel);
-        return new String(out.toByteArray());
+        return new String(out.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
     }
 
     /**
@@ -321,7 +320,7 @@ public class JsonObjectWriter {
             write(ob, out, definition, null, debugLevel);
             out.close();
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE, "Failed to create output file for JSON writing", ex);
         }
     }
 

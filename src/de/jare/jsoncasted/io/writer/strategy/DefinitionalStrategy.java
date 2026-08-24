@@ -110,7 +110,7 @@ public class DefinitionalStrategy implements WriteStrategy {
     }
 
     @Override
-    public boolean skippProzess(final JsonType jType, final Object ob) {
+    public boolean skipProcess(final JsonType jType, final Object ob) {
         if (ob == null) {
             return true;
         }

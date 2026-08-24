@@ -28,8 +28,7 @@ public class ItemCircleScannerWalker {
     final Set<JsonWriteException> exceptions;
 
     /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
-     *
+     * Constructs an ItemCircleScannerWalker instance.
      */
     public ItemCircleScannerWalker() {
         this.intentPath = new WriteNodePath("", new ArrayList<>());

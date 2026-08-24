@@ -25,10 +25,10 @@ import java.util.List;
 public class RootObjectWriteWalker extends ObjectWriteWalker {
 
     /**
-     * Constructs an ObjectWriter instance with default indentation.
+     * Constructs a RootObjectWriteWalker instance with default indentation.
      *
-     * @param strategie
-     * @param definitionsContext
+     * @param strategie the write strategy to use
+     * @param definitionsContext the context for definitions
      * @param castingLevel the casting level for serialization
      * @param jType The JSON type used for serialization.
      * @param debugLevel The debug level for controlling debug output.
@@ -38,10 +38,10 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
     }
 
     /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
+     * Constructs a RootObjectWriteWalker instance with a specified indentation string.
      *
-     * @param strategie
-     * @param definitionsContext
+     * @param strategie the write strategy to use
+     * @param definitionsContext the context for definitions
      * @param castingLevel the casting level for serialization
      * @param jType The JSON type used for serialization.
      * @param intentPath The indentation string for formatted output.

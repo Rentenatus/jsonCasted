@@ -40,13 +40,13 @@ public class ObjectWriteWalker {
     final private Object parent;
 
     /**
-     * Constructs an ObjectWriter instance with default indentation.
+     * Constructs an ObjectWriteWalker instance with default indentation.
      *
-     * @param strategy
-     * @param definitionsContext
+     * @param strategy the write strategy to use
+     * @param definitionsContext the context for definitions
      * @param castingLevel the casting level for serialization
-     * @param parentField
-     * @param parent
+     * @param parentField the parent JSON field
+     * @param parent the parent object
      * @param jType The JSON type used for serialization.
      * @param debugLevel The debug level for controlling debug output.
      */
@@ -59,13 +59,13 @@ public class ObjectWriteWalker {
     }
 
     /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
+     * Constructs an ObjectWriteWalker instance with a specified indentation string.
      *
-     * @param strategy
-     * @param definitionsContext
+     * @param strategy the write strategy to use
+     * @param definitionsContext the context for definitions
      * @param castingLevel the casting level for serialization
-     * @param parentField
-     * @param parent
+     * @param parentField the parent JSON field
+     * @param parent the parent object
      * @param jType The JSON type used for serialization.
      * @param intentPath The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
@@ -111,7 +111,7 @@ public class ObjectWriteWalker {
      */
     public void writeObject(JsonClass jClass, final Object ob) {
         // Skip if already processed
-        if (strategy.skippProzess(jClass, ob)) {
+        if (strategy.skipProcess(jClass, ob)) {
             return;
         }
 
