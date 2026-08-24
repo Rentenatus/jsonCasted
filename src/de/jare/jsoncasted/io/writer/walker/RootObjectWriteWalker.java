@@ -19,36 +19,39 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * A walker that writes the root object and handles the _woodDefinitions container.
+ * This walker extends ObjectWriteWalker to provide specialized handling for root-level
+ * objects, including writing object definitions in the _woodDefinitions section.
  *
- * @author Janusch Renteantus
+ * @author Janusch Rentenatus
  */
 public class RootObjectWriteWalker extends ObjectWriteWalker {
 
     /**
      * Constructs a RootObjectWriteWalker instance with default indentation.
      *
-     * @param strategie the write strategy to use
+     * @param strategy the write strategy to use
      * @param definitionsContext the context for definitions
      * @param castingLevel the casting level for serialization
      * @param jType The JSON type used for serialization.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public RootObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        super(strategie, definitionsContext, jType, null, null, castingLevel, debugLevel);
+    public RootObjectWriteWalker(WriteStrategy strategy, DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        super(strategy, definitionsContext, jType, null, null, castingLevel, debugLevel);
     }
 
     /**
      * Constructs a RootObjectWriteWalker instance with a specified indentation string.
      *
-     * @param strategie the write strategy to use
+     * @param strategy the write strategy to use
      * @param definitionsContext the context for definitions
      * @param castingLevel the casting level for serialization
      * @param jType The JSON type used for serialization.
      * @param intentPath The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public RootObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        super(strategie, definitionsContext, jType, null, null, intentPath, castingLevel, debugLevel);
+    public RootObjectWriteWalker(WriteStrategy strategy, DefinitionsContext definitionsContext, JsonType jType, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        super(strategy, definitionsContext, jType, null, null, intentPath, castingLevel, debugLevel);
     }
 
     @Override
@@ -115,8 +118,10 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
 
     /**
      * Writes an individual JSON entry, handling primitive and object types.
+     * For definitions, always writes class information unless casting level is NEVER.
      *
      * @param entry The object to serialize.
+     * @param jsonType The JSON type of the entry.
      * @param iString The indentation string for formatted output.
      */
     protected void writeDefinitionEntry(Object entry, JsonType jsonType, WriteNodePath iString) {
@@ -128,12 +133,27 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
 
         if (entry == null) {
             strategy.writeAttrNull(iString);
+        } else {
+            // For definitions, ensure class information is always written unless casting is NEVER
+            JsonCastingLevel effectiveCastingLevel = objectGetter.getCastingLevel();
+            if (effectiveCastingLevel != JsonCastingLevel.NEVER) {
+                effectiveCastingLevel = JsonCastingLevel.ALWAYS_CLASS_DEF;
+            }
 
-        } else if (jsonType instanceof JsonMap jMap) {
-            super.writeMap(jMap, entry, null, iString);
-        } else if (jsonType instanceof JsonClass jClass) {
-            ObjectWriteWalker reWriter = new ObjectWriteWalker(strategy, objectGetter.getDefinitionsContext(), jsonType, null, null, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
-            reWriter.writeObject(jClass, entry);
+            if (jsonType instanceof JsonMap jMap) {
+                MapWriteWalker mapWriter = new MapWriteWalker(
+                        strategy,
+                        objectGetter.getDefinitionsContext(),
+                        jMap, null,
+                        iString,
+                        effectiveCastingLevel,
+                        objectGetter.getDebugLevel()
+                );
+                mapWriter.writeObject(mapWriter.calculateJsonClass(entry), entry);
+            } else if (jsonType instanceof JsonClass jClass) {
+                ObjectWriteWalker reWriter = new ObjectWriteWalker(strategy, objectGetter.getDefinitionsContext(), jsonType, null, null, iString, effectiveCastingLevel, objectGetter.getDebugLevel());
+                reWriter.writeObject(jClass, entry);
+            }
         }
     }
 }

@@ -91,8 +91,8 @@ public class JsonItemWriter {
      */
     public static void write(JsonItem ob, OutputStream out) throws IOException, JsonWriteException, JsonParseException {
         final PrintWriter prn = new PrintWriter(out);
-        final PrintStrategy strategie = new PrintStrategy(prn);
-        new ItemWriteWalker(strategie, "").writeType(ob);
+        final PrintStrategy strategy = new PrintStrategy(prn);
+        new ItemWriteWalker(strategy, "").writeType(ob);
         prn.flush();
     }
 

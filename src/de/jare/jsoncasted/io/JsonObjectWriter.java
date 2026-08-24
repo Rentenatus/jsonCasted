@@ -14,7 +14,6 @@ import de.jare.jsoncasted.io.writer.strategy.PrintStrategy;
 import de.jare.jsoncasted.io.writer.strategy.WoodDefinitionWriteStrategy;
 import de.jare.jsoncasted.io.writer.walker.ObjectCircleScannerWalker;
 import de.jare.jsoncasted.io.writer.walker.RootObjectWriteWalker;
-import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.io.ByteArrayOutputStream;
@@ -239,8 +238,8 @@ public class JsonObjectWriter {
             }
         }
 
-        final DefinitionalStrategy strategie = new DefinitionalStrategy(definitionsContext);
-        new RootObjectWriteWalker(strategie, definitionsContext, root, castingLevel, debugLevel).write(ob);
+        final DefinitionalStrategy strategy = new DefinitionalStrategy(definitionsContext);
+        new RootObjectWriteWalker(strategy, definitionsContext, root, castingLevel, debugLevel).write(ob);
     }
 
     /**
