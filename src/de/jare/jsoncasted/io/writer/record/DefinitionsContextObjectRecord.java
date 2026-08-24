@@ -179,6 +179,30 @@ public class DefinitionsContextObjectRecord {
     }
 
     /**
+     * Generates a repository key for this object if not already set.
+     * Uses the format "self::" followed by the localId.
+     *
+     * @return the generated or existing repository key
+     */
+    public String getOrGenerateRepositoryKey() {
+        if (repositoryKey == null && localId >= 0) {
+            repositoryKey = "self::" + localId;
+        }
+        return repositoryKey;
+    }
+
+    /**
+     * Checks if this object should be written as a definition.
+     * Objects are written as definitions if they are candidates or findings
+     * (i.e., they have been detected during scanning and are not inlined).
+     *
+     * @return true if this object should be written as a definition
+     */
+    public boolean isDefinition() {
+        return disposition == Disposition.CANDIDATE || disposition == Disposition.FINDING;
+    }
+
+    /**
      * Returns the current disposition of this object.
      *
      * @return the disposition

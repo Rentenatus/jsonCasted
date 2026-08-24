@@ -28,7 +28,7 @@ public class WoodMetadataInjection {
     }
 
     public boolean hasToDo() {
-        return !carried;
+        return woodResource != null && !carried;
     }
 
     public void carriedOut() {

@@ -8,8 +8,10 @@ package de.jare.jsoncasted.io.writer.walker;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.getter.ListGetter;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonMap;
 import java.util.Iterator;
@@ -92,6 +94,12 @@ public class ListWriteWalker {
      * @param iString The indentation string for formatted output.
      */
     protected void writeEntry(Object entry, WriteNodePath iString) {
+        // Check if this object should be written as a link reference
+        if (shouldWriteAsLink(entry)) {
+            writeAsLink(entry, iString);
+            return;
+        }
+        
         if (entry == null) {
             strategie.writeAttrNull(iString);
         } else if (listGetter.isPrimitive()) {
@@ -100,6 +108,42 @@ public class ListWriteWalker {
             writeMap(jMap, entry, iString);
         } else {
             writeObject(listGetter.getjType(), entry, iString);
+        }
+    }
+
+    /**
+     * Checks if an object should be written as a link reference instead of inline.
+     *
+     * @param entry the object to check
+     * @return true if the object should be written as a link
+     */
+    protected boolean shouldWriteAsLink(Object entry) {
+        if (entry == null) {
+            return false;
+        }
+        DefinitionsContext context = listGetter.getDefinitionsContext();
+        DefinitionsContextObjectRecord record = context.getRecord(entry);
+        return record != null && record.isAssigned();
+    }
+
+    /**
+     * Writes an object as a _woodLink reference.
+     *
+     * @param entry the object to write as link
+     * @param iString the indentation path
+     */
+    protected void writeAsLink(Object entry, WriteNodePath iString) {
+        DefinitionsContext context = listGetter.getDefinitionsContext();
+        String repoKey = context.getRepositoryKey(entry);
+        if (repoKey != null) {
+            // Write as a simple object with _woodLink
+            strategie.writeStart(null, entry, null, null, false, false, iString);
+            strategie.writeHasFieldKeys(null, entry, iString.append("  "));
+            strategie.writeAttrName(null, false, JsonTerms.TERM_WOOD_LINK, iString.append("  "));
+            strategie.writePrimitive(null, '"' + repoKey + '"', iString.append("  "));
+            strategie.writeEnd(null, entry, true, true, iString);
+        } else {
+            strategie.writeAttrNull(iString);
         }
     }
 

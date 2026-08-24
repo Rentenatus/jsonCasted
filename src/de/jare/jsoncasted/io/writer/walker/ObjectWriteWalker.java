@@ -13,6 +13,7 @@ import de.jare.jsoncasted.io.writer.getter.GetterFieldInfo;
 import de.jare.jsoncasted.io.writer.getter.ObjectGetter;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
@@ -222,12 +223,50 @@ public class ObjectWriteWalker {
     }
 
     public void writeSingle(final JsonType fieldType, Object attr, JsonField jField, Object definitionalOwner, WriteNodePath iString) {
+        // Check if this object should be written as a link reference
+        if (shouldWriteAsLink(attr)) {
+            writeAsLink(attr, iString);
+            return;
+        }
+        
         if (fieldType.isBoxOrPrimitive()) {
             strategie.writePrimitive(fieldType, attr, iString);
         } else if (fieldType instanceof JsonMap jMap) {
             writeMap(jMap, attr, definitionalOwner, iString);
         } else {
             writeObject(fieldType, attr, jField, definitionalOwner, iString);
+        }
+    }
+
+    /**
+     * Checks if an object should be written as a link reference instead of inline.
+     * An object is written as a link if it is assigned in the definitions context.
+     *
+     * @param attr the object to check
+     * @return true if the object should be written as a link
+     */
+    protected boolean shouldWriteAsLink(Object attr) {
+        if (attr == null) {
+            return false;
+        }
+        DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(attr);
+        return record != null && record.isAssigned();
+    }
+
+    /**
+     * Writes an object as a _woodLink reference.
+     *
+     * @param attr the object to write as link
+     * @param iString the indentation path
+     */
+    protected void writeAsLink(Object attr, WriteNodePath iString) {
+        String repoKey = objectGetter.getDefinitionsContext().getRepositoryKey(attr);
+        if (repoKey != null) {
+            strategie.writeAttrName(null, false, JsonTerms.TERM_WOOD_LINK, iString);
+            strategie.writePrimitive(null, '"' + repoKey + '"', iString);
+        } else {
+            // Fallback: write as null if no repository key
+            strategie.writeAttrNull(iString);
         }
     }
 

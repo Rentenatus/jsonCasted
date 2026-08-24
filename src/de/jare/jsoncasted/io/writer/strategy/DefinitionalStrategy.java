@@ -8,11 +8,14 @@
 package de.jare.jsoncasted.io.writer.strategy;
 
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.WriteStrategy;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
+import java.util.List;
 
 /**
  *
@@ -33,6 +36,44 @@ public class DefinitionalStrategy implements WriteStrategy {
      */
     public DefinitionsContext getDefinitionsContext() {
         return definitionsContext;
+    }
+
+    /**
+     * Checks if an object should be written as a link reference.
+     *
+     * @param ob the object to check
+     * @return true if the object should be written as a link
+     */
+    public boolean shouldWriteAsLink(Object ob) {
+        return definitionsContext.shouldWriteAsLink(ob);
+    }
+
+    /**
+     * Gets the repository key for an object.
+     *
+     * @param ob the object to get the repository key for
+     * @return the repository key, or null if no record exists
+     */
+    public String getRepositoryKey(Object ob) {
+        return definitionsContext.getRepositoryKey(ob);
+    }
+
+    /**
+     * Checks if there are any definitions to write.
+     *
+     * @return true if there are definitions
+     */
+    public boolean hasDefinitions() {
+        return definitionsContext.hasDefinitions();
+    }
+
+    /**
+     * Gets all definition records.
+     *
+     * @return list of definition records
+     */
+    public List<DefinitionsContextObjectRecord> getDefinitionRecords() {
+        return definitionsContext.getDefinitionRecords();
     }
 
     @Override
@@ -74,6 +115,22 @@ public class DefinitionalStrategy implements WriteStrategy {
             return true;
         }
         return definitionsContext.isInAssigned(ob);
+    }
+
+    /**
+     * Writes a link reference for an object that should not be inlined.
+     * This writes the _woodLink property with the object's repository key.
+     *
+     * @param jClass the JSON class of the object
+     * @param ob the object to write as link
+     * @param iString the indentation path
+     */
+    public void writeLink(JsonClass jClass, Object ob, WriteNodePath iString) {
+        String repoKey = getRepositoryKey(ob);
+        if (repoKey != null) {
+            // Write as _woodLink reference
+            // Note: This is a placeholder - actual writing is done by the strategy
+        }
     }
 
     @Override

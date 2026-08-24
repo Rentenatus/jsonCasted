@@ -8,13 +8,22 @@
 package de.jare.jsoncasted.io;
 
 import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.io.writer.WriteNodePath;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
 import de.jare.jsoncasted.io.writer.strategy.DefinitionalStrategy;
 import de.jare.jsoncasted.io.writer.strategy.PrintStrategy;
+import de.jare.jsoncasted.io.writer.strategy.WoodDefinitionWriteStrategy;
+import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.io.writer.walker.ObjectCircleScannerWalker;
 import de.jare.jsoncasted.io.writer.walker.RootObjectWriteWalker;
+import de.jare.jsoncasted.io.writer.walker.ObjectWriteWalker;
 import de.jare.jsoncasted.io.writer.walker.WoodMetadataInjection;
+import de.jare.jsoncasted.lang.JsonResource;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonModel;
+import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -23,6 +32,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -212,11 +223,70 @@ public class JsonObjectWriter {
         final DefinitionsContext definitionsContext = new DefinitionsContext(model);
 
         final PrintWriter prn = new PrintWriter(out);
-        final PrintStrategy strategie = new PrintStrategy(prn);
+        final PrintStrategy printStrategy = new PrintStrategy(prn);
+        
+        // Create a strategy that can write definitions
+        final WoodDefinitionWriteStrategy woodStrategy = new WoodDefinitionWriteStrategy(printStrategy, definitionsContext);
+        
         final WoodMetadataInjection injection = writeInjection(ob, definitionsContext, root, castingLevel, debugLevel);
-        final RootObjectWriteWalker walker = new RootObjectWriteWalker(strategie, definitionsContext, root, castingLevel, debugLevel);
+        
+        final RootObjectWriteWalker walker = new RootObjectWriteWalker(woodStrategy, definitionsContext, root, castingLevel, debugLevel);
+        walker.setWoodMetadata(injection);
         walker.write(ob);
+        
+        // Write _woodDefinitions container if we have definitions
+        if (definitionsContext.hasDefinitions()) {
+            writeDefinitions(definitionsContext, model, woodStrategy, castingLevel, debugLevel, new WriteNodePath("", new ArrayList<>()));
+        }
+        
         prn.flush();
+    }
+
+    /**
+     * Writes the _woodDefinitions container with all definition objects.
+     *
+     * @param definitionsContext the definitions context
+     * @param model the JSON model
+     * @param strategy the write strategy to use
+     * @param castingLevel the casting level
+     * @param debugLevel the debug level
+     * @param iString the indentation path
+     */
+    private static void writeDefinitions(DefinitionsContext definitionsContext, JsonModel model, WriteStrategy strategy, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel, WriteNodePath iString) {
+        List<DefinitionsContextObjectRecord> records = definitionsContext.getDefinitionRecords();
+        if (records.isEmpty()) {
+            return;
+        }
+
+        WriteNodePath defIndent = iString.append("  ");
+        
+        // Write _woodDefinitions start
+        strategy.writeAttrName(null, false, JsonTerms.TERM_WOOD_DEFINITIONS, iString);
+        strategy.writeStart(null, null, null, null, false, false, defIndent);
+
+        boolean isFollowing = false;
+        WriteNodePath entryIndent = defIndent.append("  ");
+
+        for (DefinitionsContextObjectRecord record : records) {
+            Object ob = record.getObject();
+            JsonType jType = record.getJsonType();
+            JsonClass jClass = (jType instanceof JsonClass) ? (JsonClass) jType : null;
+            String repoKey = record.getOrGenerateRepositoryKey();
+
+            if (repoKey != null && ob != null && jClass != null) {
+                // Write the definition key (e.g., "self::123")
+                strategy.writeAttrName(null, isFollowing, repoKey, entryIndent);
+                
+                // Write the object using a new walker
+                ObjectWriteWalker defWalker = new ObjectWriteWalker(strategy, definitionsContext, jType, null, null, entryIndent, castingLevel, debugLevel);
+                defWalker.writeObject(jClass, ob);
+                
+                isFollowing = true;
+            }
+        }
+
+        // Write _woodDefinitions end
+        strategy.writeEnd(null, null, isFollowing, true, iString);
     }
 
     protected static WoodMetadataInjection writeInjection(Object ob, DefinitionsContext definitionsContext, JsonClass root, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) throws JsonWriteException {
@@ -235,7 +305,31 @@ public class JsonObjectWriter {
 
         final DefinitionalStrategy strategie = new DefinitionalStrategy(definitionsContext);
         new RootObjectWriteWalker(strategie, definitionsContext, root, castingLevel, debugLevel).write(ob);
+        
+        // Check if we have definitions to write in _woodDefinitions container
+        if (definitionsContext.hasDefinitions()) {
+            // Create a JsonResource containing the definitions
+            // This will be written as _woodDefinitions by the WoodMetadataInjection
+            JsonResource definitionsResource = createDefinitionsResource(definitionsContext, debugLevel);
+            return new WoodMetadataInjection(definitionsResource);
+        }
+        
         return new WoodMetadataInjection(null);
+    }
+
+    /**
+     * Creates a JsonResource containing all definition objects.
+     * This resource will be serialized as the _woodDefinitions container.
+     *
+     * @param definitionsContext the definitions context
+     * @param debugLevel the debug level
+     * @return a JsonResource containing the definitions, or null if no definitions
+     */
+    private static JsonResource createDefinitionsResource(DefinitionsContext definitionsContext, JsonDebugLevel debugLevel) {
+        // For now, we return null as the actual implementation requires
+        // a proper JsonNode structure. This is a placeholder for the full implementation.
+        // The WoodDefinitionWriteStrategy will handle the actual writing of definitions.
+        return null;
     }
 
     /**

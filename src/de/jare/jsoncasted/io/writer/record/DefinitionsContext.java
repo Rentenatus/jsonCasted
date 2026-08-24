@@ -8,7 +8,9 @@ package de.jare.jsoncasted.io.writer.record;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -182,5 +184,65 @@ public class DefinitionsContext {
     public DefinitionsContextObjectRecord getRecord(Object ob) {
         return recordMap.get(ob);
     }
+
+    /**
+     * Gets all records that should be written as definitions.
+     * These are records that are candidates or findings (not assigned/inlined).
+     *
+     * @return list of records that should be written as definitions
+     */
+    public List<DefinitionsContextObjectRecord> getDefinitionRecords() {
+        List<DefinitionsContextObjectRecord> definitions = new ArrayList<>();
+        for (DefinitionsContextObjectRecord record : recordMap.values()) {
+            if (record.isDefinition()) {
+                definitions.add(record);
+            }
+        }
+        return definitions;
+    }
+
+    /**
+     * Checks if there are any objects that should be written as definitions.
+     *
+     * @return true if there are definition records
+     */
+    public boolean hasDefinitions() {
+        for (DefinitionsContextObjectRecord record : recordMap.values()) {
+            if (record.isDefinition()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Gets the repository key for an object, generating it if necessary.
+     *
+     * @param ob the object to get the repository key for
+     * @return the repository key, or null if no record exists
+     */
+    public String getRepositoryKey(Object ob) {
+        DefinitionsContextObjectRecord record = getRecord(ob);
+        if (record != null) {
+            return record.getOrGenerateRepositoryKey();
+        }
+        return null;
+    }
+
+    /**
+     * Checks if an object should be written as a link reference instead of inline.
+     * An object should be written as a link if it is assigned (already processed as definition).
+     *
+     * @param ob the object to check
+     * @return true if the object should be written as a link
+     */
+    public boolean shouldWriteAsLink(Object ob) {
+        if (ob == null) {
+            return false;
+        }
+        DefinitionsContextObjectRecord record = getRecord(ob);
+        return record != null && record.isAssigned();
+    }
+
     
 }
