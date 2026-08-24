@@ -91,9 +91,7 @@ The Wood system uses reserved property names to convey type information, object 
 | `TERM_WOOD_OBJECT_ID` | `_woodObjectId` | Object identifier within a resource | `"_woodObjectId": "123456"` |
 | `TERM_WOOD_LINK` | `_woodLink` | Cross-resource reference | `"_woodLink": "save::123456"` |
 | `TERM_RESOLVER_ID` | `_resolverId` | Resolver identity metadata | `"_resolverId": "..."` |
-| `TERM_HASHCODE` | `_hashcode` | Hash-code metadata | `"_hashcode": "..."` |
 | `TERM_CYCLE_RESOLVER_ID` | `_cycle_resolverId` | Cycle-analysis resolver identity | `"_cycle_resolverId": "..."` |
-| `TERM_CYCLE_HASHCODE` | `_cycle_hashcode` | Cycle-analysis hash metadata | `"_cycle_hashcode": "..."` |
 | `TERM_WOOD_PROVIDERS` | `_woodProviders` | External resource provider definitions | `"_woodProviders": [...]` |
 | `TERM_WOOD_DEFINITIONS` | `_woodDefinitions` | Container for object definitions | `"_woodDefinitions": {...}` |
 
