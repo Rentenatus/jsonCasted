@@ -1,10 +1,46 @@
 {
-  "_hashcode": 415186196,
+  "_woodDefinitions": [{
+      "_cycle_hashcode": 1337344609,
+      "_woodObjectId": 1
+    }, 
+    {
+      "_hashcode": 1983025922,
+      "_woodObjectId": 3,
+      "typeName": "java.lang.String",
+      "nodeType": "STRING",
+      "skippingNulls": false,
+      "primitive": true,
+      "recursive": false,
+      "mappingAllFields":  null,
+      "parent":  null
+    }, 
+    {
+      "_hashcode": 0,
+      "_woodObjectId": 4,
+      "collectionType":  null,
+      "typeName":  null,
+      "fieldName":  null,
+      "required":  null,
+      "constructorParam":  null,
+      "getter":  null,
+      "setter":  null
+    }, 
+    {
+      "_hashcode": 822912359,
+      "_woodObjectId": 2,
+      "typeName":  null,
+      "nodeType":  null,
+      "skippingNulls":  null,
+      "primitive":  null,
+      "recursive":  null,
+      "mappingAllFields":  null,
+      "parent":  null
+    }]  "_hashcode": 1337344609,
   "_woodObjectId": 1,
   "modelName": "TestModel",
   "describedTypes": {
     "java.lang.String": {
-      "_hashcode": 1312884893,
+      "_hashcode": 1983025922,
       "_woodObjectId": 3,
       "typeName": "java.lang.String",
       "nodeType": "STRING",

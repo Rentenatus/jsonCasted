@@ -53,19 +53,6 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
 
     @Override
     public void write(Object ob) throws NullPointerException, ClassCastException {
-        write(ob, woodMetadata);
-    }
-
-    /**
-     * Writes an root object as a JSON structure.
-     *
-     * @param ob The object to serialize.
-     * @param woodMetadata
-     * @throws NullPointerException If the object has no associated JSON class.
-     * @throws ClassCastException If the object does not match the expected JSON type.
-     */
-    protected void write(Object ob, WoodMetadataInjection woodMetadata) throws NullPointerException, ClassCastException {
-        setWoodMetadata(woodMetadata);
         if (!(ob instanceof List<?>)) {
             super.write(ob);
             return;

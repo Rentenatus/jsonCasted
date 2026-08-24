@@ -27,7 +27,6 @@ public class ListWriteWalker {
     final WriteNodePath intentPath;
     final WriteStrategy strategy;
     final ListGetter listGetter;
-    WoodMetadataInjection woodMetadata;
     final private JsonField parentField;
     final private Object parent;
 
@@ -48,11 +47,6 @@ public class ListWriteWalker {
         this.parent = parent;
         this.intentPath = intentPath;
         this.listGetter = new ListGetter(definitionsContext, jType, castingLevel, debugLevel);
-        this.woodMetadata = null;
-    }
-
-    public void setWoodMetadata(WoodMetadataInjection woodMetadata) {
-        this.woodMetadata = woodMetadata;
     }
 
     /**
@@ -147,27 +141,6 @@ public class ListWriteWalker {
         }
     }
 
-//
-// Array as Item of Array 
-//
-//
-//    /**
-//     * Writes a JSON list representation.
-//     *
-//     * @param jTypeItem The JSON type of list items.
-//     * @param attr The list to serialize.
-//     * @param iString The indentation string for formatted output.
-//     */
-//    protected void writeList(JsonType jTypeItem, Object attr, WriteNodePath iString) {
-//        ListWriteWalker reWriter = new ListWriteWalker(strategie, listGetter.getDefinitionsContext(), jTypeItem, iString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
-//            if (WoodMetadataInjection.hasInjection(woodMetadata)) reWriter.setWoodMetadata(woodMetadata);
-//        reWriter.writeList(attr);
-//    }
-//
-//
-// Array as Item of Array 
-//
-//
     /**
      * Writes a JSON object representation.
      *
@@ -176,10 +149,15 @@ public class ListWriteWalker {
      * @param iString The indentation string for formatted output.
      */
     protected void writeMap(JsonMap jMap, Object attr, WriteNodePath iString) {
-        MapWriteWalker reWriter = new MapWriteWalker(strategy, listGetter.getDefinitionsContext(), jMap, null, iString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
-        if (WoodMetadataInjection.hasInjection(woodMetadata)) {
-            reWriter.setWoodMetadata(woodMetadata);
-        }
+        MapWriteWalker reWriter = new MapWriteWalker(
+                strategy,
+                listGetter.getDefinitionsContext(),
+                jMap,
+                null,
+                iString,
+                listGetter.getCastingLevel(),
+                listGetter.getDebugLevel()
+        );
         reWriter.writeObject(reWriter.calculateJsonClass(attr), attr);
     }
 
@@ -191,10 +169,14 @@ public class ListWriteWalker {
      * @param iString The indentation string for formatted output.
      */
     protected void writeObject(JsonType jTypeItem, Object attr, WriteNodePath iString) {
-        ObjectWriteWalker reWriter = new ObjectWriteWalker(strategy, listGetter.getDefinitionsContext(), jTypeItem, parentField, parent, iString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
-        if (WoodMetadataInjection.hasInjection(woodMetadata)) {
-            reWriter.setWoodMetadata(woodMetadata);
-        }
+        ObjectWriteWalker reWriter = new ObjectWriteWalker(
+                strategy,
+                listGetter.getDefinitionsContext(),
+                jTypeItem,
+                parentField,
+                parent, iString, listGetter.getCastingLevel(),
+                listGetter.getDebugLevel()
+        );
         reWriter.writeObject(reWriter.calculateJsonClass(attr), attr);
     }
 
