@@ -13,7 +13,6 @@ import de.jare.jsoncasted.io.writer.getter.GetterFieldInfo;
 import de.jare.jsoncasted.io.writer.getter.ObjectGetter;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
-import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
@@ -32,10 +31,10 @@ import java.util.List;
 public class ObjectWriteWalker {
 
     private static final JsonClass JSON_CLASS_INTEGER = new JsonClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder());
-   private static final JsonClass JSON_CLASS_LONG = new JsonClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder());
+    private static final JsonClass JSON_CLASS_LONG = new JsonClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder());
 
     final WriteNodePath intentPath;
-    final WriteStrategy strategie;
+    final WriteStrategy strategy;
     final ObjectGetter objectGetter;
     WoodMetadataInjection woodMetadata;
     final private JsonField parentField;
@@ -44,7 +43,7 @@ public class ObjectWriteWalker {
     /**
      * Constructs an ObjectWriter instance with default indentation.
      *
-     * @param strategie
+     * @param strategy
      * @param definitionsContext
      * @param castingLevel the casting level for serialization
      * @param parentField
@@ -52,8 +51,8 @@ public class ObjectWriteWalker {
      * @param jType The JSON type used for serialization.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public ObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, JsonField parentField, Object parent, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        this.strategie = strategie;
+    public ObjectWriteWalker(WriteStrategy strategy, DefinitionsContext definitionsContext, JsonType jType, JsonField parentField, Object parent, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        this.strategy = strategy;
         this.intentPath = new WriteNodePath("", new ArrayList<>());
         this.objectGetter = new ObjectGetter(definitionsContext, castingLevel, jType, debugLevel);
         this.woodMetadata = null;
@@ -64,7 +63,7 @@ public class ObjectWriteWalker {
     /**
      * Constructs an ObjectWriter instance with a specified indentation string.
      *
-     * @param strategie
+     * @param strategy
      * @param definitionsContext
      * @param castingLevel the casting level for serialization
      * @param parentField
@@ -73,8 +72,8 @@ public class ObjectWriteWalker {
      * @param intentPath The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public ObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, JsonField parentField, Object parent, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        this.strategie = strategie;
+    public ObjectWriteWalker(WriteStrategy strategy, DefinitionsContext definitionsContext, JsonType jType, JsonField parentField, Object parent, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        this.strategy = strategy;
         this.intentPath = intentPath;
         this.objectGetter = new ObjectGetter(definitionsContext, castingLevel, jType, debugLevel);
         this.woodMetadata = null;
@@ -95,7 +94,7 @@ public class ObjectWriteWalker {
      */
     protected void write(Object ob) throws NullPointerException, ClassCastException {
         JsonClass jClass = calculateJsonClass(ob);
-        strategie.writePath(intentPath);
+        strategy.writePath(intentPath);
         writeObject(jClass, ob);
     }
 
@@ -119,7 +118,7 @@ public class ObjectWriteWalker {
      */
     public void writeObject(JsonClass jClass, final Object ob) {
         // Skip if already processed
-        if (strategie.skippProzess(jClass, ob)) {
+        if (strategy.skippProzess(jClass, ob)) {
             return;
         }
 
@@ -127,21 +126,21 @@ public class ObjectWriteWalker {
             try {
                 WriteNodePath iString = intentPath.append("  ");
                 writeStart(jClass, ob, iString);
-                strategie.writeHasFieldKeys(jClass, ob, iString);
-                strategie.writeAttrName(jClass, false, JsonTerms.TERM_CYCLE_HASHCODE, iString);
-                strategie.writePrimitive(JSON_CLASS_INTEGER, ob.hashCode(), iString);
+                strategy.writeHasFieldKeys(jClass, ob, iString);
+                strategy.writeAttrName(jClass, false, JsonTerms.TERM_CYCLE_HASHCODE, iString);
+                strategy.writePrimitive(JSON_CLASS_INTEGER, ob.hashCode(), iString);
 
                 // Write _woodObjectId if a local ID is assigned in DefinitionsContext
                 DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
                 if (record != null) {
                     long localId = record.getLocalId();
                     if (localId >= 0) {
-                        strategie.writeAttrName(jClass, true, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
-                        strategie.writePrimitive(JSON_CLASS_LONG, localId, iString);
+                        strategy.writeAttrName(jClass, true, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
+                        strategy.writePrimitive(JSON_CLASS_LONG, localId, iString);
                     }
                 }
             } finally {
-                strategie.writeEnd(jClass, ob, true, true, intentPath);
+                strategy.writeEnd(jClass, ob, true, true, intentPath);
             }
             return;
         }
@@ -152,15 +151,16 @@ public class ObjectWriteWalker {
         try {
             writeStart(jClass, ob, iString);
             if (WoodMetadataInjection.hasInjection(woodMetadata)) {
-                woodMetadata.popWood(strategie, iString, objectGetter.getDebugLevel());
+                woodMetadata.popWood(strategy, iString, objectGetter.getDebugLevel());
                 woodMetadata = null;
             }
 
-            hasFieldKeys = objectGetter.hasFieldKeys(jClass, ob);
+            hasFieldKeys = hasFieldKeys(jClass, ob);
             if (hasFieldKeys) {
-                strategie.writeHasFieldKeys(jClass, ob, iString);
-                strategie.writeAttrName(jClass, isFollowing, JsonTerms.TERM_HASHCODE, iString);
-                strategie.writePrimitive(JSON_CLASS_INTEGER, ob.hashCode(), iString);
+                strategy.writeHasFieldKeys(jClass, ob, iString);
+                writeDefinitions(iString);
+                strategy.writeAttrName(jClass, isFollowing, JsonTerms.TERM_HASHCODE, iString);
+                strategy.writePrimitive(JSON_CLASS_INTEGER, ob.hashCode(), iString);
                 isFollowing = true;
 
                 // Write _woodObjectId if a local ID is assigned in DefinitionsContext
@@ -168,8 +168,8 @@ public class ObjectWriteWalker {
                 if (record != null) {
                     long localId = record.getLocalId();
                     if (localId >= 0) {
-                        strategie.writeAttrName(jClass, isFollowing, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
-                        strategie.writePrimitive(JSON_CLASS_LONG, localId, iString);
+                        strategy.writeAttrName(jClass, isFollowing, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
+                        strategy.writePrimitive(JSON_CLASS_LONG, localId, iString);
                         isFollowing = true;
                     }
                 }
@@ -184,19 +184,27 @@ public class ObjectWriteWalker {
                     continue;
                 }
 
-                strategie.writeAttrName(jClass, isFollowing, next.getfName(), iString);
+                strategy.writeAttrName(jClass, isFollowing, next.getfName(), iString);
                 writeAttr(next, attr, ob, iString);
                 isFollowing = true;
             }
         } finally {
-            strategie.writeEnd(jClass, ob, isFollowing, hasFieldKeys, intentPath);
+            strategy.writeEnd(jClass, ob, isFollowing, hasFieldKeys, intentPath);
         }
+    }
+
+    public boolean hasFieldKeys(JsonClass jClass, final Object ob) {
+        return objectGetter.hasFieldKeys(jClass, ob);
     }
 
     void writeStart(final JsonClass jClass, final Object ob, WriteNodePath iString) {
         final boolean needsCast = objectGetter.needsCast(jClass);
         final boolean needsClassDef = !needsCast && objectGetter.needsClassDef(jClass);
-        strategie.writeStart(jClass, ob, parentField, parent, needsCast, needsClassDef, iString);
+        strategy.writeStart(jClass, ob, parentField, parent, needsCast, needsClassDef, iString);
+    }
+    
+    protected void writeDefinitions(WriteNodePath iString){
+        // NoOp, only for roots
     }
 
     /**
@@ -209,7 +217,7 @@ public class ObjectWriteWalker {
      */
     protected void writeAttr(JsonField jField, Object attr, Object owner, WriteNodePath iString) {
         if (attr == null) {
-            strategie.writeAttrNull(iString);
+            strategy.writeAttrNull(iString);
             return;
         }
         final JsonType attrType = jField.getjType();
@@ -228,9 +236,9 @@ public class ObjectWriteWalker {
             writeAsLink(attr, iString);
             return;
         }
-        
+
         if (fieldType.isBoxOrPrimitive()) {
-            strategie.writePrimitive(fieldType, attr, iString);
+            strategy.writePrimitive(fieldType, attr, iString);
         } else if (fieldType instanceof JsonMap jMap) {
             writeMap(jMap, attr, definitionalOwner, iString);
         } else {
@@ -239,8 +247,8 @@ public class ObjectWriteWalker {
     }
 
     /**
-     * Checks if an object should be written as a link reference instead of inline.
-     * An object is written as a link if it is assigned in the definitions context.
+     * Checks if an object should be written as a link reference instead of inline. An object is written as a link if it
+     * is assigned in the definitions context.
      *
      * @param attr the object to check
      * @return true if the object should be written as a link
@@ -262,11 +270,11 @@ public class ObjectWriteWalker {
     protected void writeAsLink(Object attr, WriteNodePath iString) {
         String repoKey = objectGetter.getDefinitionsContext().getRepositoryKey(attr);
         if (repoKey != null) {
-            strategie.writeAttrName(null, false, JsonTerms.TERM_WOOD_LINK, iString);
-            strategie.writePrimitive(null, '"' + repoKey + '"', iString);
+            strategy.writeAttrName(null, false, JsonTerms.TERM_WOOD_LINK, iString);
+            strategy.writePrimitive(null, '"' + repoKey + '"', iString);
         } else {
             // Fallback: write as null if no repository key
-            strategie.writeAttrNull(iString);
+            strategy.writeAttrNull(iString);
         }
     }
 
@@ -280,7 +288,7 @@ public class ObjectWriteWalker {
      * @param iString The indentation string for formatted output.
      */
     protected void writeList(JsonType jTypeItem, Object attr, JsonField jField, Object definitionalOwner, WriteNodePath iString) {
-        ListWriteWalker reWriter = new ListWriteWalker(strategie, objectGetter.getDefinitionsContext(), jTypeItem, jField, definitionalOwner, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
+        ListWriteWalker reWriter = new ListWriteWalker(strategy, objectGetter.getDefinitionsContext(), jTypeItem, jField, definitionalOwner, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         if (WoodMetadataInjection.hasInjection(woodMetadata)) {
             reWriter.setWoodMetadata(woodMetadata);
         }
@@ -296,7 +304,7 @@ public class ObjectWriteWalker {
      * @param iString The indentation string for formatted output.
      */
     protected void writeMap(JsonMap jMap, Object attr, Object definitionalOwner, WriteNodePath iString) {
-        MapWriteWalker reWriter = new MapWriteWalker(strategie, objectGetter.getDefinitionsContext(), jMap, definitionalOwner, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
+        MapWriteWalker reWriter = new MapWriteWalker(strategy, objectGetter.getDefinitionsContext(), jMap, definitionalOwner, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         if (WoodMetadataInjection.hasInjection(woodMetadata)) {
             reWriter.setWoodMetadata(woodMetadata);
         }
@@ -313,7 +321,7 @@ public class ObjectWriteWalker {
      * @param iString The indentation string for formatted output.
      */
     protected void writeObject(JsonType jTypeItem, Object attr, JsonField jField, Object definitionalOwner, WriteNodePath iString) {
-        ObjectWriteWalker reWriter = new ObjectWriteWalker(strategie, objectGetter.getDefinitionsContext(), jTypeItem, jField, definitionalOwner, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
+        ObjectWriteWalker reWriter = new ObjectWriteWalker(strategy, objectGetter.getDefinitionsContext(), jTypeItem, jField, definitionalOwner, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
         if (WoodMetadataInjection.hasInjection(woodMetadata)) {
             reWriter.setWoodMetadata(woodMetadata);
         }

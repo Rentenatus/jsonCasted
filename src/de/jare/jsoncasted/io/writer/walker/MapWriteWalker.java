@@ -7,14 +7,13 @@ package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
 import java.util.Iterator;
-import de.jare.jsoncasted.io.writer.WriteStrategy;
-import de.jare.jsoncasted.model.JsonType;
 
 /**
  *
@@ -55,7 +54,7 @@ public class MapWriteWalker extends ObjectWriteWalker {
         WriteNodePath iString = intentPath.append("  ");
         writeStart(jClass, ob, iString);
         if (WoodMetadataInjection.hasInjection(woodMetadata)) {
-            woodMetadata.popWood(strategie, iString, objectGetter.getDebugLevel());
+            woodMetadata.popWood(strategy, iString, objectGetter.getDebugLevel());
             woodMetadata = null;
         }
 
@@ -65,7 +64,7 @@ public class MapWriteWalker extends ObjectWriteWalker {
             Iterator<String> it = inst.keySet().iterator();
             hasFieldKeys = it.hasNext();
             if (hasFieldKeys) {
-                strategie.writeHasFieldKeys(jClass, ob, iString);
+                strategy.writeHasFieldKeys(jClass, ob, iString);
             }
 
             while (it.hasNext()) {
@@ -76,11 +75,11 @@ public class MapWriteWalker extends ObjectWriteWalker {
                     continue;
                 }
                 // Skip if already processed
-                if (strategie.skippProzess(jMap.getItemClass(), attr)) {
+                if (strategy.skippProzess(jMap.getItemClass(), attr)) {
                     continue;
                 }
 
-                strategie.writeAttrName(jMap.getItemClass(), isFollowing, nextName, iString);
+                strategy.writeAttrName(jMap.getItemClass(), isFollowing, nextName, iString);
                 isFollowing = true;
 
                 if (jMap.isAsListOrArray()) {
@@ -90,7 +89,7 @@ public class MapWriteWalker extends ObjectWriteWalker {
                 }
             }
         } finally {
-            strategie.writeEnd(jClass, ob, isFollowing, hasFieldKeys, intentPath);
+            strategy.writeEnd(jClass, ob, isFollowing, hasFieldKeys, intentPath);
         }
     }
 

@@ -25,7 +25,7 @@ import de.jare.jsoncasted.model.item.JsonField;
 public class ListWriteWalker {
 
     final WriteNodePath intentPath;
-    final WriteStrategy strategie;
+    final WriteStrategy strategy;
     final ListGetter listGetter;
     WoodMetadataInjection woodMetadata;
     final private JsonField parentField;
@@ -34,7 +34,7 @@ public class ListWriteWalker {
     /**
      * Constructs an ObjectWriter instance with a specified indentation string.
      *
-     * @param strategie
+     * @param strategy
      * @param definitionsContext
      * @param castingLevel the casting level for serialization
      * @param parentField
@@ -42,8 +42,8 @@ public class ListWriteWalker {
      * @param intentPath The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public ListWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, JsonField parentField, Object parent, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        this.strategie = strategie;
+    public ListWriteWalker(WriteStrategy strategy, DefinitionsContext definitionsContext, JsonType jType, JsonField parentField, Object parent, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        this.strategy = strategy;
         this.parentField = parentField;
         this.parent = parent;
         this.intentPath = intentPath;
@@ -62,7 +62,7 @@ public class ListWriteWalker {
      */
     public void writeList(final Object ob) {
         WriteNodePath iString = intentPath.append("  ");
-        strategie.writeStartArray(listGetter.getjType(), ob, listGetter.isPrimitive(), iString);
+        strategy.writeStartArray(listGetter.getjType(), ob, listGetter.isPrimitive(), iString);
         boolean isFollowing = false;
         try {
             Iterator<?> it = listGetter.iterator(ob);
@@ -71,26 +71,26 @@ public class ListWriteWalker {
                 Object next = it.next();
 
                 // Skip if already processed
-                if (strategie.skippProzess(listGetter.getjType(), next)) {
+                if (strategy.skippProzess(listGetter.getjType(), next)) {
                     continue;
                 }
 
                 writeEntry(next, iString);
                 if (it.hasNext()) {
-                    strategie.writeArraySeparator(listGetter.isPrimitive(), iString);
+                    strategy.writeArraySeparator(listGetter.isPrimitive(), iString);
                 }
 
                 isFollowing = true;
             }
         } finally {
-            strategie.writeEndArray(ob, listGetter.isPrimitive(), isFollowing, iString);
+            strategy.writeEndArray(ob, listGetter.isPrimitive(), isFollowing, iString);
         }
     }
 
     /**
      * Writes an individual JSON entry, handling primitive and object types.
      *
-     * @param entry The object to serialize. 
+     * @param entry The object to serialize.
      * @param iString The indentation string for formatted output.
      */
     protected void writeEntry(Object entry, WriteNodePath iString) {
@@ -99,11 +99,11 @@ public class ListWriteWalker {
             writeAsLink(entry, iString);
             return;
         }
-        
+
         if (entry == null) {
-            strategie.writeAttrNull(iString);
+            strategy.writeAttrNull(iString);
         } else if (listGetter.isPrimitive()) {
-            strategie.writePrimitive(listGetter.getjType(), entry, iString);
+            strategy.writePrimitive(listGetter.getjType(), entry, iString);
         } else if (listGetter.getjType() instanceof JsonMap jMap) {
             writeMap(jMap, entry, iString);
         } else {
@@ -137,13 +137,13 @@ public class ListWriteWalker {
         String repoKey = context.getRepositoryKey(entry);
         if (repoKey != null) {
             // Write as a simple object with _woodLink
-            strategie.writeStart(null, entry, null, null, false, false, iString);
-            strategie.writeHasFieldKeys(null, entry, iString.append("  "));
-            strategie.writeAttrName(null, false, JsonTerms.TERM_WOOD_LINK, iString.append("  "));
-            strategie.writePrimitive(null, '"' + repoKey + '"', iString.append("  "));
-            strategie.writeEnd(null, entry, true, true, iString);
+            strategy.writeStart(null, entry, null, null, false, false, iString);
+            strategy.writeHasFieldKeys(null, entry, iString.append("  "));
+            strategy.writeAttrName(null, false, JsonTerms.TERM_WOOD_LINK, iString.append("  "));
+            strategy.writePrimitive(null, '"' + repoKey + '"', iString.append("  "));
+            strategy.writeEnd(null, entry, true, true, iString);
         } else {
-            strategie.writeAttrNull(iString);
+            strategy.writeAttrNull(iString);
         }
     }
 
@@ -176,7 +176,7 @@ public class ListWriteWalker {
      * @param iString The indentation string for formatted output.
      */
     protected void writeMap(JsonMap jMap, Object attr, WriteNodePath iString) {
-        MapWriteWalker reWriter = new MapWriteWalker(strategie, listGetter.getDefinitionsContext(), jMap, null, iString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
+        MapWriteWalker reWriter = new MapWriteWalker(strategy, listGetter.getDefinitionsContext(), jMap, null, iString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
         if (WoodMetadataInjection.hasInjection(woodMetadata)) {
             reWriter.setWoodMetadata(woodMetadata);
         }
@@ -191,11 +191,10 @@ public class ListWriteWalker {
      * @param iString The indentation string for formatted output.
      */
     protected void writeObject(JsonType jTypeItem, Object attr, WriteNodePath iString) {
-        ObjectWriteWalker reWriter = new ObjectWriteWalker(strategie, listGetter.getDefinitionsContext(), jTypeItem, parentField, parent, iString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
+        ObjectWriteWalker reWriter = new ObjectWriteWalker(strategy, listGetter.getDefinitionsContext(), jTypeItem, parentField, parent, iString, listGetter.getCastingLevel(), listGetter.getDebugLevel());
         if (WoodMetadataInjection.hasInjection(woodMetadata)) {
             reWriter.setWoodMetadata(woodMetadata);
         }
-
         reWriter.writeObject(reWriter.calculateJsonClass(attr), attr);
     }
 

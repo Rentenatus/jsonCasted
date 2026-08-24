@@ -7,12 +7,16 @@ package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.item.JsonMap;
+import java.util.Iterator;
 import java.util.List;
-import de.jare.jsoncasted.io.writer.WriteStrategy;
 
 /**
  *
@@ -68,9 +72,9 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         }
         List<?> myList = (List<?>) ob;
         if (myList.isEmpty()) {
-            strategie.writePath(intentPath);
-            strategie.writeStartArray(null, ob, true, intentPath);
-            strategie.writeEndArray(ob, true, false, intentPath);
+            strategy.writePath(intentPath);
+            strategy.writeStartArray(null, ob, true, intentPath);
+            strategy.writeEndArray(ob, true, false, intentPath);
             return;
         }
         Object ob0 = myList.get(0);
@@ -78,4 +82,71 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         writeList(jClass, ob0, null, null, intentPath);
     }
 
+    @Override
+    public boolean hasFieldKeys(JsonClass jClass, final Object ob) {
+        final DefinitionsContext definitionsContext = this.objectGetter.getDefinitionsContext();
+        return objectGetter.hasFieldKeys(jClass, ob)
+                || definitionsContext.hasDefinitions();
+    }
+
+    /**
+     * Writes the _woodDefinitions container with all definition objects.
+     *
+     * @param iString the indentation path
+     */
+    @Override
+    protected void writeDefinitions(WriteNodePath iString) {
+        final DefinitionsContext definitionsContext = objectGetter.getDefinitionsContext();
+        List<DefinitionsContextObjectRecord> records = definitionsContext.getDefinitionRecords();
+        if (records.isEmpty()) {
+            return;
+        }
+        List<Object> objects = records.stream()
+                .map(DefinitionsContextObjectRecord::getObject)
+                .toList();
+
+        // Write _woodDefinitions start
+        strategy.writeAttrName(null, false, JsonTerms.TERM_WOOD_DEFINITIONS, iString);
+        strategy.writeStartArray(null, objects, false, iString);
+
+        WriteNodePath entryIndent = iString.append("  ");
+
+        Iterator<DefinitionsContextObjectRecord> it = records.iterator();
+        while (it.hasNext()) {
+            DefinitionsContextObjectRecord next = it.next();
+            Object ob = next.getObject();
+
+            writeDefinitionEntry(ob, next.getJsonType(), entryIndent);
+            if (it.hasNext()) {
+                strategy.writeArraySeparator(false, entryIndent);
+            }
+        }
+        // Write _woodDefinitions end
+        strategy.writeEndArray(objects, true, true, iString);
+
+    }
+
+    /**
+     * Writes an individual JSON entry, handling primitive and object types.
+     *
+     * @param entry The object to serialize.
+     * @param iString The indentation string for formatted output.
+     */
+    protected void writeDefinitionEntry(Object entry, JsonType jsonType, WriteNodePath iString) {
+        // Check if this object should be written as a link reference
+        if (shouldWriteAsLink(entry)) {
+            writeAsLink(entry, iString);
+            return;
+        }
+
+        if (entry == null) {
+            strategy.writeAttrNull(iString);
+
+        } else if (jsonType instanceof JsonMap jMap) {
+            super.writeMap(jMap, entry, null, iString);
+        } else if (jsonType instanceof JsonClass jClass) {
+            ObjectWriteWalker reWriter = new ObjectWriteWalker(strategy, objectGetter.getDefinitionsContext(), jsonType, null, null, iString, objectGetter.getCastingLevel(), objectGetter.getDebugLevel());
+            reWriter.writeObject(jClass, entry);
+        }
+    }
 }
