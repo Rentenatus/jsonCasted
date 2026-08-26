@@ -16,7 +16,6 @@ import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.model.builder.JsonIntegerObjBuilder;
 import de.jare.jsoncasted.model.builder.JsonLongObjBuilder;
 import de.jare.jsoncasted.model.builder.JsonStringBuilder;
 import de.jare.jsoncasted.model.item.JsonClass;
@@ -197,7 +196,6 @@ public class ObjectWriteWalker {
         } finally {
             strategy.writeEnd(jClass, ob, isFollowing, hasFieldKeys, intentPath);
         }
-        return;
     }
 
     public boolean hasFieldKeys(JsonClass jClass, final Object ob) {

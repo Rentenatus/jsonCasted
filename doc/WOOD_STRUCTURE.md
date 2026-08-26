@@ -225,6 +225,219 @@ Final JsonItem
 
 ---
 
+## Writer Architecture
+
+While the previous sections focused on **reading** JSON with Wood references, the Wood system also provides a **serialization architecture** for **writing** Java objects to JSON. This writer architecture handles object identity, cycle detection, and reference management during serialization.
+
+The writer architecture ensures that:
+- Objects are uniquely identified via `_woodObjectId`
+- Circular references are detected and handled appropriately
+- Objects involved in cycles are written as definitions in `_woodDefinitions`
+- Already-written objects are referenced via `_woodLink` or `_woodObjectId`
+
+### Writer Classes and Responsibilities
+
+| Class | Responsibility | Key Fields/Methods |
+|-------|---------------|---------------------|
+| `DefinitionsContext` | Central context for tracking objects during serialization; manages object lifecycle states | `model`, `recordMap`, `idCounter`, `addToCandidates()`, `addToFindings()`, `shouldWriteAsLink()`, `hasDefinitions()`, `getDefinitionRecords()` |
+| `DefinitionsContextObjectRecord` | Tracks the state and metadata of a single object during serialization | `object`, `jType`, `localId`, `repositoryKey`, `disposition`, `isContainer`, `needDefinition()`, `isAssigned()` |
+| `ObjectCircleScannerWalker` | Scans Java objects for cycles before serialization; analogous to `ItemCircleScannerWalker` but operates on Java objects | `definitionsContext`, `castingLevel`, `findings`, `exceptions`, `scan()`, `checkCycle()` |
+| `DefinitionalStrategy` | Implements `WriteStrategy` to manage object definitions and references during writing | `definitionsContext`, `shouldWriteAsLink()`, `getRepositoryKey()`, `skipProcess()` |
+| `WoodDefinitionWriteStrategy` | Decorator for `WriteStrategy` that handles serialization of `_woodDefinitions` container | `delegate`, `definitionsContext`, delegates all methods to underlying strategy |
+
+### Disposition States
+
+The `DefinitionsContextObjectRecord` uses a **state machine** to track objects through the serialization process. Each object progresses through states in the following lifecycle:
+
+```
+UNKNOWN → CANDIDATE → (FINDING | ASSIGNABLE) → ASSIGNED
+```
+
+| State | Description | When Used | Final? |
+|-------|-------------|-----------|--------|
+| **UNKNOWN** | Initial state when the record is created | Object first encountered | ❌ No |
+| **CANDIDATE** | Object identified as a candidate for serialization | First time seeing an object | ❌ No |
+| **FINDING** | Object is part of a cycle or containment relationship; will be written as a definition | Object seen again in graph | ❌ No |
+| **ASSIGNABLE** | Object resides in a definitional/container field; may be converted to ASSIGNED during writing | Object in container field | ❌ No |
+| **ASSIGNED** | Object has been assigned to a container/definition; **final state** | Object written as definition | ✅ Yes |
+
+**Key State Transition Rules:**
+- Once an object reaches **ASSIGNED** state, its disposition **cannot be changed** (enforced in `setDisposition()`)
+- **ASSIGNABLE** objects in container fields become **ASSIGNED** during processing
+- **FINDING** objects remain as **FINDING** (will be written as definitions in `_woodDefinitions`)
+- **CANDIDATE** objects that are seen again become **FINDING** (cycle detection)
+
+**State Diagram:**
+```
+                    ┌─────────────────────────────┐
+                    │                             │
+                    ▼                             ▼
+              +----------+                 +-------------+
+              | CANDIDATE|                 | ASSIGNABLE  |
+              +----------+                 +-------------+
+                    │                             │
+                    │ First time seeing object     │ Object in container field
+                    ▼                             ▼
+              +----------+                 +-------------+
+              |  FINDING | ←──┐        +──→ |   ASSIGNED  |
+              +----------+     │        │   +-------------+
+                    │         │        │
+                    │ Cycle   │        │ Cannot be
+                    ▼         │        │ unassigned
+              +----------+     │        │
+              | ASSIGNED  | ◄───┘        │
+              +----------+             │
+                    │                   │
+                    └───────────────────┘
+                              All paths
+                         lead to ASSIGNED
+```
+
+### Writer Processing Flow
+
+The writer architecture follows a **multi-phase approach** for serializing Java objects to JSON with Wood support:
+
+#### Phase 1: Object Tracking (DefinitionsContext)
+
+```java
+// In JsonObjectWriter.write():
+final DefinitionsContext definitionsContext = new DefinitionsContext(model);
+
+// Each object gets a unique ID
+long id = definitionsContext.nextId();
+
+// Objects are tracked through states:
+definitionsContext.addToCandidates(jClass, ob);    // First sight: CANDIDATE
+definitionsContext.moveToFindings(ob);            // Cycle detected: FINDING
+definitionsContext.addToAssignable(jClass, ob);     // In container: ASSIGNABLE
+```
+
+#### Phase 2: Cycle Detection (ObjectCircleScannerWalker)
+
+```java
+// In JsonObjectWriter.writeInjection():
+final ObjectCircleScannerWalker cycleScanner = new ObjectCircleScannerWalker(definitionsContext, castingLevel);
+
+// Pre-scan for cycles and containment objects
+if (ob != null && root != null) {
+    definitionsContext.addToCandidates(root, ob);
+    cycleScanner.scan(ob, root);
+    
+    // Throw exception if forbidden cycles detected (constructor parameters)
+    if (!cycleScanner.getExceptions().isEmpty()) {
+        throw cycleScanner.getExceptions().iterator().next();
+    }
+}
+```
+
+**Cycle Detection Mechanism:**
+- Uses `System.identityHashCode(ob)` for unique object identification (avoids `hashCode()` collisions)
+- Tracks path through object graph using `WriteNodePath`
+- Marks objects as **FINDING** when cycle detected
+- **Forbids cycles through constructor parameters** (path contains `'c'` marker)
+- **Allows cycles through fields/setters** (path contains only `'f'` or `'i'` markers)
+
+#### Phase 3: Definition vs. Link Decision
+
+The writer determines whether an object should be written as:
+1. **Inline** - Full object serialization
+2. **Definition** - In `_woodDefinitions` container
+3. **Link** - Reference via `_woodLink` or `_woodObjectId`
+
+```java
+// In DefinitionsContext:
+public boolean shouldWriteAsLink(Object ob) {
+    DefinitionsContextObjectRecord record = getRecord(ob);
+    return record != null && record.isAssigned();  // ASSIGNED → Link
+}
+
+public boolean needDefinition() {
+    return disposition == Disposition.FINDING;  // FINDING → Definition
+}
+```
+
+**Decision Logic:**
+| Object State | Write As | JSON Output |
+|--------------|----------|-------------|
+| Not tracked | Inline | `{ "field": "value" }` |
+| CANDIDATE | Inline | `{ "field": "value" }` |
+| FINDING | Definition | `{ "_woodDefinitions": { "id": {...} }, "_woodObjectId": "id" }` |
+| ASSIGNABLE | Inline (becomes ASSIGNED) | `{ "_woodObjectId": 123, ... }` |
+| ASSIGNED | Link | `{ "_woodLink": "self::123" }` or `{ "_woodObjectId": 123 }` |
+
+#### Phase 4: Serialization with Strategies
+
+```java
+// In JsonObjectWriter.write():
+final PrintWriter prn = new PrintWriter(out);
+final PrintStrategy printStrategy = new PrintStrategy(prn);
+
+// Create strategy that can write definitions
+final WoodDefinitionWriteStrategy woodStrategy = new WoodDefinitionWriteStrategy(printStrategy, definitionsContext);
+
+// Write main object
+final RootObjectWriteWalker walker = new RootObjectWriteWalker(woodStrategy, definitionsContext, root, castingLevel, debugLevel);
+walker.write(ob);
+```
+
+**Strategy Chain:**
+```
+WoodDefinitionWriteStrategy (handles _woodDefinitions)
+    ↓ delegates to
+PrintStrategy (handles actual JSON output)
+    ↓ uses
+WriteStrategy interface methods
+```
+
+#### Phase 5: Definition Writing (RootObjectWriteWalker)
+
+The `RootObjectWriteWalker` extends `ObjectWriteWalker` to handle the special `_woodDefinitions` container:
+
+```java
+// In RootObjectWriteWalker.writeDefinitions():
+List<DefinitionsContextObjectRecord> records = definitionsContext.getDefinitionRecords();
+
+strategy.writeAttrName(null, false, JsonTerms.TERM_WOOD_DEFINITIONS, iString);
+strategy.writeStartArray(null, objects, false, iString);
+
+for (DefinitionsContextObjectRecord record : records) {
+    Object ob = record.getObject();
+    writeDefinitionEntry(ob, record.getJsonType(), entryIndent);
+    record.asAssigned();  // Mark as ASSIGNED after writing
+    if (more records) {
+        strategy.writeArraySeparator(false, entryIndent);
+    }
+}
+
+strategy.writeEndArray(objects, true, true, iString);
+```
+
+**Resulting JSON Structure:**
+```json
+{
+  "_woodDefinitions": [
+    {
+      "_woodObjectId": "1",
+      "_class": "User",
+      "name": "Max"
+    },
+    {
+      "_woodObjectId": "2",
+      "_class": "Order",
+      "customer": {
+        "_woodLink": "self::1"
+      }
+    }
+  ],
+  "_woodObjectId": "0",
+  "currentOrder": {
+    "_woodLink": "self::2"
+  }
+}
+```
+
+---
+
 ## Resolution Order
 
 The **critical dependency order** must be respected:
@@ -367,7 +580,7 @@ Map<String, LinkNodeEntry> linkMap;       // "provider::id" → LinkNodeEntry
 ### Phase 4: Element Resolution (WoodElementResolver.resolve)
 
 ```java
-// WoodElementResolver.resolve(JsonResource, descriptor, debugLevel):
+// WoodElementResolver.resolve(JsonResource, JsonModelDescriptor, WoodResolution, debugLevel):
 1. Initialize ConvertService with container, descriptor, and resolution
 2. Create set of remainingKeys from objectIdMap
 3. While progress is made:
@@ -391,7 +604,7 @@ Map<String, LinkNodeEntry> linkMap;       // "provider::id" → LinkNodeEntry
    - Call WoodElementResolver.resolve() for that resource
    - Merge resolution results
    - Convert resource to JsonItem
-5. Return final JsonItem for main resource
+5. Return WoodResolution containing the final JsonItem for main resource (accessible via resolution.getAnswer())
 ```
 
 ---
@@ -681,7 +894,8 @@ Error: `JsonParseException: Cycle detected in provider dependencies: [a, b]`
 ```java
 // Parsing JSON with Wood support:
 JsonResource resource = RootParser.parse(psr, JsonResource.forFile(file), debugLevel);
-JsonItem result = RootConverter.convert(resource, "MyClass", descriptor, debugLevel);
+WoodResolution resolution = RootConverter.convert(resource, "MyClass", descriptor, debugLevel);
+JsonItem result = resolution.getAnswer();
 ```
 
 ### For Extending the System
@@ -716,27 +930,73 @@ To add a new special term (e.g., `_woodCustom`):
 
 5. **Integrate in JsonSystem/JsonResource as needed**
 
+### For Writing Java Objects to JSON
+
+```java
+// Serializing Java objects with Wood support:
+import de.jare.jsoncasted.io.JsonObjectWriter;
+import de.jare.jsoncasted.io.JsonItemDefinition;
+import de.jare.jsoncasted.model.JsonModel;
+import de.jare.jsoncasted.model.item.JsonClass;
+
+// Using JsonObjectWriter for full object graph serialization:
+String json = JsonObjectWriter.writeToString(
+    myObject,                    // Object to serialize
+    definition,                 // JsonItemDefinition with model info
+    rootClass                   // Root JsonClass for the object
+);
+
+// With debug level and file output:
+JsonObjectWriter.write(
+    myObject,
+    new File("output.json"),
+    definition,
+    rootClass,
+    JsonDebugLevel.VERBOSE
+);
+```
+
+**Key Writer Classes:**
+- `JsonObjectWriter` - Main entry point for object serialization
+- `JsonItemWriter` - For serializing `JsonItem` structures
+- `JsonNodeWriter` - For serializing `JsonNode` structures
+- `RootObjectWriteWalker` - Handles root object writing with `_woodDefinitions`
+- `ObjectWriteWalker` - Handles individual object serialization
+- `ListWriteWalker` / `MapWriteWalker` - Handles collection serialization
+
 ---
 
 ## Summary
 
-The Wood system provides a **powerful cross-resource reference mechanism** with:
+The Wood system provides a **powerful cross-resource reference mechanism** with two complementary architectures:
 
+### Reader Architecture (Parsing JSON → Java)
 - ✅ **Object identity** via `_woodObjectId`
 - ✅ **Cross-file references** via `_woodLink` and `_woodProviders`
 - ✅ **Structured definitions** via `_woodDefinitions`
-- ✅ **Automatic dependency resolution** with correct ordering
+- ✅ **Automatic dependency resolution** with correct ordering (providers → definitions → main resource)
 - ✅ **Error tracking** at each processing phase
 - ✅ **Extensible architecture** for new special terms
 
-The **key insight** is that **providers must be loaded before definitions can be resolved**, ensuring that all referenced objects are available when needed.
+### Writer Architecture (Java → JSON Serialization)
+- ✅ **Object identity** via `_woodObjectId` with unique local IDs
+- ✅ **Cycle detection** via `ObjectCircleScannerWalker` (forbids constructor parameter cycles, allows field cycles)
+- ✅ **State machine** via `DefinitionsContextObjectRecord` with disposition states (UNKNOWN → CANDIDATE → FINDING/ASSIGNABLE → ASSIGNED)
+- ✅ **Definition vs. link decision** based on object state (FINDING → definition, ASSIGNED → link)
+- ✅ **Structured output** with `_woodDefinitions` container for cyclic/container objects
+- ✅ **Strategy pattern** via `WriteStrategy`, `PrintStrategy`, `WoodDefinitionWriteStrategy`, `DefinitionalStrategy`
+
+**Key Insights:**
+- **Reader:** Providers must be loaded before definitions can be resolved, ensuring all referenced objects are available
+- **Writer:** Objects are tracked through disposition states, with cycles written as definitions and already-written objects referenced as links
+- **Both:** Use the same Wood terms (`_woodObjectId`, `_woodLink`, `_woodDefinitions`, `_woodProviders`) for seamless interoperability
 
 **IMPROVEMENTS OVER ORIGINAL DOCUMENTATION:**
 
 - ✅ **Topological Sorting**: Kahn's algorithm ensures correct provider loading order
 - ✅ **Cycle Detection**: Explicit `JsonParseException` when circular provider dependencies exist
 - ✅ **Separate Resolvers**: `WoodProxyResolver` (providers) + `WoodElementResolver` (elements) for clearer separation of concerns
-- ✅ **Shared LinkingSet Strategy**: All resources share a unified view of object IDs and links, eliminating the need for merging
+- ✅ **LinkingSet Merging**: All resources share a unified view of object IDs and links via `mergeLinkingSets()`, eliminating the need for separate resolution passes
 - ✅ **Enhanced Error Handling**: Each phase tracks its own exceptions with clear context
 - ✅ **Improved Processing Flow**: Five distinct phases (Parsing → System Creation → Provider Resolution → Element Resolution → Final Conversion)
 - ✅ **Updated Integration API**: Uses `RootParser.parse()` instead of `JsonParserService.parse()`

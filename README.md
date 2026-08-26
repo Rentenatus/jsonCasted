@@ -13,6 +13,7 @@ The focus is on:
 - Explicit class visibility (`PUBLIC`, `PROTECTED`)
 - Optional export lists for controlled handover of public submodels
 - Recursive models and controlled cycle detection
+- **Bidirectional serialization**: Read (JSON → Java) and Write (Java → JSON) with Wood support
 
 ## Support 🐾
 
@@ -179,7 +180,7 @@ Each provider has a logical synonym and a physical filename. References use the 
 
 ---
 
-## Processing architecture
+## Processing architecture (Read: JSON → Java)
 
 The Wood system follows a pipeline with distinct phases:
 
@@ -234,6 +235,193 @@ The critical order is:
 3. **Main resource last** – main content can reference both providers and definitions.
 
 Provider dependencies are sorted with Kahn's algorithm. If the sorted result contains fewer providers than expected, a circular provider dependency has been detected.
+
+### Error handling
+
+Resolution errors can be inspected through `WoodResolution`:
+
+```java
+WoodResolution resolution = JsonParser.parse(...);
+
+// Check for exceptions
+if (!resolution.getUnmodifiableExceptions().isEmpty()) {
+    // Handle resolution errors
+    resolution.getUnmodifiableExceptions().forEach(ex -> 
+        logger.log(Level.SEVERE, "Resolution error", ex)
+    );
+}
+
+// Check for unresolved keys
+if (!resolution.getUnresolvedKeys().isEmpty()) {
+    // Log or handle unresolved references
+    resolution.getUnresolvedKeys().forEach(key -> 
+        logger.warning("Unresolved key: " + key)
+    );
+}
+
+JsonItem item = resolution.getAnswer();
+```
+
+---
+
+## Writer architecture (Write: Java → JSON)
+
+jsonCasted provides a **complete serialization architecture** for writing Java objects back to JSON with full Wood support. The writer handles object identity, cycle detection, and reference management during serialization.
+
+### Writer pipeline
+
+```text
+Java Object
+    ↓
+JsonObjectWriter.write()
+    ↓
+DefinitionsContext (track objects, assign IDs)
+    ↓
+ObjectCircleScannerWalker (pre-scan for cycles)
+    ↓
+DefinitionalStrategy (manage disposition states)
+    ↓
+ObjectWriteWalker / RootObjectWriteWalker
+    ↓
+PrintStrategy (format JSON output)
+    ↓
+WoodDefinitionWriteStrategy (write _woodDefinitions)
+    ↓
+JSON Output with _woodObjectId, _woodLink, _woodDefinitions
+```
+
+### Key writer classes
+
+| Class | Responsibility |
+|---|---|
+| `JsonObjectWriter` | Main entry point for serializing Java objects to JSON |
+| `DefinitionsContext` | Central context tracking objects during serialization; manages lifecycle states |
+| `DefinitionsContextObjectRecord` | Tracks state and metadata of a single object (disposition, localId, repositoryKey) |
+| `ObjectCircleScannerWalker` | Pre-scans Java objects for cycles; forbids constructor parameter cycles |
+| `DefinitionalStrategy` | Implements `WriteStrategy` to manage object definitions and references |
+| `WoodDefinitionWriteStrategy` | Decorator that handles serialization of `_woodDefinitions` container |
+| `ObjectWriteWalker` | Walks Java object graph and writes individual objects |
+| `RootObjectWriteWalker` | Handles root object writing with `_woodDefinitions` container |
+| `PrintStrategy` | Formats and writes actual JSON output to PrintWriter |
+
+### Disposition state machine
+
+Each object tracked in `DefinitionsContext` progresses through disposition states:
+
+```
+UNKNOWN → CANDIDATE → (FINDING | ASSIGNABLE) → ASSIGNED
+```
+
+| State | Description | When Used | Final? |
+|---|---|---|---|
+| **UNKNOWN** | Initial state when record is created | Object first encountered | ❌ No |
+| **CANDIDATE** | Object identified as candidate for serialization | First time seeing an object | ❌ No |
+| **FINDING** | Object is part of a cycle or containment; will be written as definition | Object seen again in graph | ❌ No |
+| **ASSIGNABLE** | Object resides in definitional/container field; may become ASSIGNED | Object in container field | ❌ No |
+| **ASSIGNED** | Object has been assigned to container/definition; **final state** | Object written as definition | ✅ Yes |
+
+**Key rules:**
+- Once an object reaches **ASSIGNED** state, its disposition **cannot be changed**
+- **FINDING** objects are written as definitions in `_woodDefinitions`
+- **ASSIGNED** objects are referenced via `_woodLink` or `_woodObjectId`
+
+### Usage example
+
+```java
+import de.jare.jsoncasted.io.JsonObjectWriter;
+import de.jare.jsoncasted.model.JsonItemDefinition;
+import de.jare.jsoncasted.model.item.JsonClass;
+
+// Serialize Java object to JSON string
+String json = JsonObjectWriter.writeToString(
+    myObject,                    // Object to serialize
+    definition,                  // JsonItemDefinition with model info
+    rootClass                    // Root JsonClass for the object
+);
+
+// Write to file with debug output
+JsonObjectWriter.write(
+    myObject,
+    new File("output.json"),
+    definition,
+    rootClass,
+    JsonDebugLevel.VERBOSE
+);
+```
+
+### Example output
+
+```json
+{
+  "_woodDefinitions": [
+    {
+      "_woodObjectId": "1",
+      "_class": "User",
+      "name": "Max"
+    },
+    {
+      "_woodObjectId": "2",
+      "_class": "Order",
+      "customer": {
+        "_woodLink": "self::1"
+      }
+    }
+  ],
+  "_woodObjectId": "0",
+  "currentOrder": {
+    "_woodLink": "self::2"
+  }
+}
+```
+
+---
+
+## Cycle handling
+
+jsonCasted distinguishes several kinds of cycles at different levels:
+
+| Level | Cycle type | Status | Detection | Error |
+|---|---|---|---|---|
+| **Model** | Recursive interface/class relationship | ✅ Allowed | None (feature) | - |
+| **Model** | Circular definition hierarchy or self-inheritance | ❌ Forbidden | `isAncestorOf()` | `IllegalArgumentException` |
+| **JsonItem** | Cycle through fields or list elements only | ✅ Allowed | None | - |
+| **JsonItem** | Cycle through constructor parameters | ❌ Forbidden | `ItemCircleScannerWalker` + path analysis | `JsonWriteException` |
+| **Java object** | Cycle through setter fields | ✅ Allowed | Early registration + caching | - |
+| **Java object** | Cycle through constructor parameters | ❌ Forbidden | `ObjectCircleScannerWalker` (pre-build) | `JsonBuildException` |
+| **Provider** | Circular file dependency | ❌ Forbidden | Topological sort (Kahn's algorithm) | `JsonParseException` |
+
+Path markers used by cycle analysis include:
+
+- `f` = field or setter,
+- `c` = constructor parameter,
+- `i` = list element,
+- `n` = unknown field.
+
+Field cycles can be completed after construction through setters. Constructor cycles cannot be resolved because the required objects would already have to exist during constructor invocation.
+
+### Negative cycle test
+
+`TestBoxNGTest3` demonstrates the rejection of a constructor-based cycle in `testbox_3.json`:
+
+```java
+WoodResolution resolution = JsonParser.parse(
+    resource,
+    definition.getDescriptor(),
+    definition.getTestBox().getcName(),
+    JsonDebugLevel.INFO);
+
+JsonParser.checkCycles(resolution);
+JsonItem item = resolution.getAnswer();
+
+try {
+    JsonBuilder.buildInstance(definition.getModel(), true, item);
+    fail("A forbidden constructor cycle was not detected.");
+} catch (JsonBuildException expected) {
+    // The cycle was correctly rejected.
+}
+```
+
+The JSON can therefore be resolved as a `JsonItem`, while building the Java object is rejected because the cycle crosses constructor parameters.
 
 ---
 
@@ -354,55 +542,6 @@ Resolution errors can be inspected through `getUnmodifiableExceptions()`.
 
 ---
 
-## Cycle handling
-
-jsonCasted distinguishes several kinds of cycles:
-
-| Level | Cycle type | Result |
-|---|---|---|
-| Model | Recursive interface/class relationship | Allowed |
-| Model | Circular definition hierarchy or self-inheritance | Forbidden |
-| JsonItem | Cycle through fields or list elements only | Allowed |
-| JsonItem | Cycle through constructor parameters | Forbidden |
-| Java object | Cycle through setter fields | Allowed through early registration and caching |
-| Java object | Cycle through constructor parameters | Forbidden |
-| Provider | Circular file dependency | Forbidden |
-
-Path markers used by cycle analysis include:
-
-- `f` = field or setter,
-- `c` = constructor parameter,
-- `i` = list element,
-- `n` = unknown field.
-
-Field cycles can be completed after construction through setters. Constructor cycles cannot be resolved because the required objects would already have to exist during constructor invocation.
-
-### Negative cycle test
-
-`TestBoxNGTest3` demonstrates the rejection of a constructor-based cycle in `testbox_3.json`:
-
-```java
-WoodResolution resolution = JsonParser.parse(
-    resource,
-    definition.getDescriptor(),
-    definition.getTestBox().getcName(),
-    JsonDebugLevel.INFO);
-
-JsonParser.checkCycles(resolution);
-JsonItem item = resolution.getAnswer();
-
-try {
-    JsonBuilder.buildInstance(definition.getModel(), true, item);
-    fail("A forbidden constructor cycle was not detected.");
-} catch (JsonBuildException expected) {
-    // The cycle was correctly rejected.
-}
-```
-
-The JSON can therefore be resolved as a `JsonItem`, while building the Java object is rejected because the cycle crosses constructor parameters.
-
----
-
 ## Full model example
 
 `ImplTestDefinition2` combines primitive values, inheritance, an enum, an interface, recursive entries, and a repository. At runtime, only the classes registered in the model are instantiated.
@@ -478,7 +617,6 @@ This test demonstrates the successful path:
 - Parse and build the external `save` resource as a `JsonRepo`.
 - Use `getRepoDescriptor("save")` for the repository-specific model.
 
-
 ### `TestBoxNGTest3`
 
 This test uses `testbox_3.json`, invokes the `WoodResolution`-based pipeline, and verifies the cycle boundaries. A forbidden constructor cycle must be rejected with `JsonBuildException` when the Java object graph is built.
@@ -494,6 +632,7 @@ This test uses `testbox_3.json`, invokes the `WoodResolution`-based pipeline, an
 - **Casting engine** – JSON structures are converted into Java objects while respecting type rules, inheritance, interface mappings, and enum mappings.
 - **Editor-friendly design** – The architecture is suitable for tree editors, property inspectors, and model-driven UI tools.
 - **JsonConfig support** – Schema-driven configuration can use `JsonCastingLevel.NEVER`, field validation, generic maps, custom builders, repository models, and helper classes without requiring `_class` discriminators.
+- **Bidirectional Wood support** – Read (JSON → Java) and Write (Java → JSON) with consistent handling of `_woodObjectId`, `_woodLink`, `_woodDefinitions`, and `_woodProviders`.
 
 ---
 
@@ -536,10 +675,7 @@ The final step of the pipeline performs:
 
 The engine chooses a concrete class for each node based on the declared interface or superclass, the current `JsonNode` state, and the allowed implementations in `JsonClass`.
 
-
-
 ---
-
 
 ## Where interfaces, superclasses, and enums live in the model
 
@@ -548,7 +684,7 @@ jsonCasted makes interfaces, superclasses, and enums explicit in the model so th
 - **Description level**  
   - Declares that a node is of an interface type like `Shape` or an abstract class like `Animal`.  
   - Lists allowed concrete types (`Circle`, `Rectangle`) or subclasses.  
-  - In the UI, this appears as a “declared type” plus a dropdown of allowed implementations.
+  - In the UI, this appears as a "declared type" plus a dropdown of allowed implementations.
 
 - **JsonNode level**  
   - Represents the actual JSON tree being edited.  
@@ -597,6 +733,7 @@ EnumSeason enumValue = EnumSeason.getByName("SPRING");
 This allows JSON literals to be mapped robustly to enum constants without relying on numeric ordinal values in JSON.
 
 ---
+
 ## Meta-modeling and self-describing editing
 
 A model can be exported as a description. This description defines the structure of valid content and can be used in Wood Json Jack to create and edit arbitrary instances in a way that is conceptually similar to EMF-style model-driven editing.
@@ -648,6 +785,7 @@ Recommended best practices are aligned with common deserialization security guid
 - Plugin or modding systems
 - AI-generated JSON → safe reconstruction of Java objects
 - Save files with linked resources and stable object IDs
+- **Bidirectional serialization**: Round-trip Java ↔ JSON with Wood references
 
 ---
 
