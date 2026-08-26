@@ -1,10 +1,5 @@
 {
   "_woodDefinitions": [{
-      "_cycle_hashcode": 1337344609,
-      "_woodObjectId": 1
-    }, 
-    {
-      "_hashcode": 1983025922,
       "_woodObjectId": 3,
       "typeName": "java.lang.String",
       "nodeType": "STRING",
@@ -15,7 +10,6 @@
       "parent":  null
     }, 
     {
-      "_hashcode": 0,
       "_woodObjectId": 4,
       "collectionType":  null,
       "typeName":  null,
@@ -26,7 +20,6 @@
       "setter":  null
     }, 
     {
-      "_hashcode": 822912359,
       "_woodObjectId": 2,
       "typeName":  null,
       "nodeType":  null,
@@ -35,20 +28,11 @@
       "recursive":  null,
       "mappingAllFields":  null,
       "parent":  null
-    }]  "_hashcode": 1337344609,
-  "_woodObjectId": 1,
+    }]  "_woodObjectId": 1,
   "modelName": "TestModel",
   "describedTypes": {
     "java.lang.String": {
-      "_hashcode": 1983025922,
-      "_woodObjectId": 3,
-      "typeName": "java.lang.String",
-      "nodeType": "STRING",
-      "skippingNulls": false,
-      "primitive": true,
-      "recursive": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "_woodLink": "self::3"
     }
   },
   "repoDescriptors": {}
