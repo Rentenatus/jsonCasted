@@ -27,9 +27,9 @@ public class ItemWriteWalker {
     private final WriteStrategy strategie;
 
     /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
+     * Constructs an ItemWriteWalker instance with a specified indentation string.
      *
-     * @param strategie
+     * @param strategie the write strategy to use
      */
     public ItemWriteWalker(WriteStrategy strategie) {
         this.strategie = strategie;
@@ -37,10 +37,10 @@ public class ItemWriteWalker {
     }
 
     /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
+     * Constructs an ItemWriteWalker instance with a specified indentation string and path.
      *
-     * @param strategie
-     * @param intentPath
+     * @param strategie the write strategy to use
+     * @param intentPath the path for intent tracking
      */
     public ItemWriteWalker(WriteStrategy strategie, WriteNodePath intentPath) {
         this.strategie = strategie;
@@ -48,10 +48,10 @@ public class ItemWriteWalker {
     }
 
     /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
+     * Constructs an ItemWriteWalker instance with a specified indentation string.
      *
-     * @param strategie
-     * @param intentString
+     * @param strategie the write strategy to use
+     * @param intentString the indentation string for formatted output
      */
     public ItemWriteWalker(WriteStrategy strategie, String intentString) {
         this.strategie = strategie;

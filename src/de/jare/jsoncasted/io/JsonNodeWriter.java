@@ -22,15 +22,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The JsonWriter class provides utility methods for serializing Java objects into JSON format. It supports writing to
- * strings, files, and output streams with configurable character encoding.
+ * The JsonNodeWriter class provides utility methods for serializing JsonNode objects into JSON format. It supports
+ * writing to strings, files, and output streams with configurable character encoding.
  *
  * @author Janusch Rentenatus
  */
 public class JsonNodeWriter {
 
     /**
-     * Serializes an JsonNode to a JSON string using the specified character encoding.
+     * Serializes a JsonNode to a JSON string using the specified character encoding.
      *
      * @param node The JsonNode to serialize.
      * @param charsetName The name of a supported {@linkplain java.nio.charset.Charset
@@ -42,11 +42,11 @@ public class JsonNodeWriter {
     public static String writeToString(JsonNode node, String charsetName) throws JsonParseException, IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(node, out);
-        return new String(out.toByteArray(), charsetName);
+        return new String(out.toByteArray(), java.nio.charset.Charset.forName(charsetName));
     }
 
     /**
-     * Serializes an JsonNode to a JSON string using the default character encoding.
+     * Serializes a JsonNode to a JSON string using the default character encoding.
      *
      * @param node The JsonNode to serialize.
      * @return JSON string representation of the object.
@@ -56,11 +56,11 @@ public class JsonNodeWriter {
     public static String writeToString(JsonNode node) throws JsonParseException, IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(node, out);
-        return new String(out.toByteArray());
+        return new String(out.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
     }
 
     /**
-     * Serializes an JsonNode and writes it to a file.
+     * Serializes a JsonNode and writes it to a file.
      *
      * @param node The JsonNode to serialize.
      * @param file The target file to write the JSON output.
@@ -74,12 +74,12 @@ public class JsonNodeWriter {
             write(node, out);
             out.close();
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(JsonNodeWriter.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonNodeWriter.class.getName()).log(Level.SEVERE, "Failed to create output file for JSON writing", ex);
         }
     }
 
     /**
-     * Serializes an JsonNode to an output stream.
+     * Serializes a JsonNode to an output stream.
      *
      * @param node The JsonNode to serialize.
      * @param out The output stream to write the JSON output.
@@ -88,14 +88,14 @@ public class JsonNodeWriter {
      */
     public static void write(JsonNode node, OutputStream out) throws IOException, JsonParseException {
         PrintWriter prn = new PrintWriter(out);
-        PrintStrategy strategie = new PrintStrategy(prn);
-        new NodeWriteWalker(strategie, "", JsonDebugLevel.SIMPLE).writeNode(node);
+        PrintStrategy strategy = new PrintStrategy(prn);
+        new NodeWriteWalker(strategy, "", JsonDebugLevel.SIMPLE).writeNode(node);
         prn.flush();
 
     }
 
     /**
-     * Serializes an JsonNode to an output stream with debug level.
+     * Serializes a JsonNode to an output stream with debug level.
      *
      * @param node The JsonNode to serialize.
      * @param out The output stream to write the JSON output.
@@ -106,15 +106,15 @@ public class JsonNodeWriter {
      */
     public static void write(JsonNode node, OutputStream out, JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
         PrintWriter prn = new PrintWriter(out);
-        PrintStrategy strategie = new PrintStrategy(prn);
-        new NodeWriteWalker(strategie, "", debugLevel).writeNode(node);
+        PrintStrategy strategy = new PrintStrategy(prn);
+        new NodeWriteWalker(strategy, "", debugLevel).writeNode(node);
         prn.flush();
     }
 
     /**
-     * Serializes an object and writes it to a file with debug level.
+     * Serializes a JsonNode and writes it to a file with debug level.
      *
-     * @param node The object to serialize.
+     * @param node The JsonNode to serialize.
      * @param file The target file to write the JSON output.
      * @param debugLevel The debug level for controlling debug output.
      * @throws JsonWriteException If writing fails due to serialization errors.
@@ -128,12 +128,12 @@ public class JsonNodeWriter {
             write(node, out, debugLevel);
             out.close();
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(JsonNodeWriter.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonNodeWriter.class.getName()).log(Level.SEVERE, "Failed to create output file for JSON writing", ex);
         }
     }
 
     /**
-     * Serializes an JsonNode to a JSON string with debug level.
+     * Serializes a JsonNode to a JSON string with debug level.
      *
      * @param node The JsonNode to serialize.
      * @param debugLevel The debug level for controlling debug output.
@@ -145,7 +145,7 @@ public class JsonNodeWriter {
     public static String writeToString(JsonNode node, JsonDebugLevel debugLevel) throws JsonWriteException, JsonParseException, IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(node, out, debugLevel);
-        return new String(out.toByteArray());
+        return new String(out.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
     }
 
 }

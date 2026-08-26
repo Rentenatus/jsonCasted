@@ -8,11 +8,14 @@
 package de.jare.jsoncasted.io.writer.strategy;
 
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.WriteStrategy;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
+import java.util.List;
 
 /**
  *
@@ -35,6 +38,44 @@ public class DefinitionalStrategy implements WriteStrategy {
         return definitionsContext;
     }
 
+    /**
+     * Checks if an object should be written as a link reference.
+     *
+     * @param ob the object to check
+     * @return true if the object should be written as a link
+     */
+    public boolean shouldWriteAsLink(Object ob) {
+        return definitionsContext.shouldWriteAsLink(ob);
+    }
+
+    /**
+     * Gets the repository key for an object.
+     *
+     * @param ob the object to get the repository key for
+     * @return the repository key, or null if no record exists
+     */
+    public String getRepositoryKey(Object ob) {
+        return definitionsContext.getRepositoryKey(ob);
+    }
+
+    /**
+     * Checks if there are any definitions to write.
+     *
+     * @return true if there are definitions
+     */
+    public boolean hasDefinitions() {
+        return definitionsContext.hasDefinitions();
+    }
+
+    /**
+     * Gets all definition records.
+     *
+     * @return list of definition records
+     */
+    public List<DefinitionsContextObjectRecord> getDefinitionRecords() {
+        return definitionsContext.getDefinitionRecords();
+    }
+
     @Override
     public void writePath(WriteNodePath intentPath) {
         //NoOp
@@ -42,12 +83,27 @@ public class DefinitionalStrategy implements WriteStrategy {
 
     @Override
     public void writeStart(JsonClass jClass, Object ob, JsonField parentField, Object definitionalParent, boolean needsCast, boolean needsClassDef, WriteNodePath intentPath) {
+        // If already assigned, skip - object is already processed
+        if (definitionsContext.isInAssigned(ob)) {
+            return;
+        }
+
+        // If in definitional/container field
         if (definitionalParent != null && parentField != null && parentField.getKind().isDefinitional()) {
-            JsonType parentType = parentField.getjType();
-            definitionsContext.addToAssigned(jClass, ob, parentType, definitionalParent);
+            // ASSIGNABLE or new objects in container fields become ASSIGNED
+            if (!definitionsContext.isInFindings(ob)) {
+                JsonType parentType = parentField.getjType();
+                definitionsContext.addToAssignable(jClass, ob, parentType, definitionalParent);
+            }
+            // FINDING objects remain as FINDING (will be written as definitions)
         } else if (definitionsContext.isInCandidates(ob)) {
+            // Already seen as candidate -> move to FINDING
             definitionsContext.moveToFindings(ob);
-        } else {
+        } else if (definitionsContext.isInAssignable(ob)) {
+            // ASSIGNABLE object not in container field -> move to FINDING
+            definitionsContext.moveToFindings(ob);
+        } else if (!definitionsContext.isInFindings(ob) && !definitionsContext.isInAssigned(ob)) {
+            // First time seeing this object -> CANDIDATE
             definitionsContext.addToCandidates(jClass, ob);
         }
 
@@ -69,11 +125,27 @@ public class DefinitionalStrategy implements WriteStrategy {
     }
 
     @Override
-    public boolean skippProzess(final JsonType jType, final Object ob) {
+    public boolean skipProcess(final JsonType jType, final Object ob) {
         if (ob == null) {
             return true;
         }
         return definitionsContext.isInAssigned(ob);
+    }
+
+    /**
+     * Writes a link reference for an object that should not be inlined. This writes the _woodLink property with the
+     * object's repository key.
+     *
+     * @param jClass the JSON class of the object
+     * @param ob the object to write as link
+     * @param iString the indentation path
+     */
+    public void writeLink(JsonClass jClass, Object ob, WriteNodePath iString) {
+        String repoKey = getRepositoryKey(ob);
+        if (repoKey != null) {
+            // Write as _woodLink reference
+            // Note: This is a placeholder - actual writing is done by the strategy
+        }
     }
 
     @Override

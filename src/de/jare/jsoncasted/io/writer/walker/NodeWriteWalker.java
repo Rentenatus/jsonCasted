@@ -34,9 +34,9 @@ public class NodeWriteWalker {
     private final JsonDebugLevel debugLevel;
 
     /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
+     * Constructs a NodeWriteWalker instance.
      *
-     * @param strategie
+     * @param strategie the write strategy to use
      * @param debugLevel The debug level for controlling debug output.
      */
     public NodeWriteWalker(WriteStrategy strategie, JsonDebugLevel debugLevel) {
@@ -46,10 +46,10 @@ public class NodeWriteWalker {
     }
 
     /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
+     * Constructs a NodeWriteWalker instance.
      *
-     * @param strategie
-     * @param intentPath
+     * @param strategie the write strategy to use
+     * @param intentPath the indentation string for formatted output
      * @param debugLevel The debug level for controlling debug output.
      */
     public NodeWriteWalker(WriteStrategy strategie, WriteNodePath intentPath, JsonDebugLevel debugLevel) {
@@ -59,10 +59,10 @@ public class NodeWriteWalker {
     }
 
     /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
+     * Constructs a NodeWriteWalker instance.
      *
-     * @param strategie
-     * @param intentString
+     * @param strategie the write strategy to use
+     * @param intentString the indentation string for formatted output
      * @param debugLevel The debug level for controlling debug output.
      */
     public NodeWriteWalker(WriteStrategy strategie, String intentString, JsonDebugLevel debugLevel) {
