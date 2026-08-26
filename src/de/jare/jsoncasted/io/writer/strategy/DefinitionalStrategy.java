@@ -93,7 +93,7 @@ public class DefinitionalStrategy implements WriteStrategy {
             // ASSIGNABLE or new objects in container fields become ASSIGNED
             if (!definitionsContext.isInFindings(ob)) {
                 JsonType parentType = parentField.getjType();
-                definitionsContext.addToAssigned(jClass, ob, parentType, definitionalParent);
+                definitionsContext.addToAssignable(jClass, ob, parentType, definitionalParent);
             }
             // FINDING objects remain as FINDING (will be written as definitions)
         } else if (definitionsContext.isInCandidates(ob)) {

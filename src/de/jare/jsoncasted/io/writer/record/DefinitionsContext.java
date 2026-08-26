@@ -160,20 +160,20 @@ public class DefinitionsContext {
         return record;
     }
 
-    public DefinitionsContextObjectRecord moveToAssigned(Object ob, JsonType parentType, Object parent) {
+    public DefinitionsContextObjectRecord moveToAssignable(Object ob, JsonType parentType, Object parent) {
         DefinitionsContextObjectRecord record = recordMap.get(ob);
         if (record == null) {
             return null;
         }
-        record.asAssigned();
+        record.asAssignable();
         record = getOrCreate(parentType, parent);
         record.asContainer();
         return record;
     }
 
-    public DefinitionsContextObjectRecord addToAssigned(JsonType jType, Object ob, JsonType parentType, Object parent) {
+    public DefinitionsContextObjectRecord addToAssignable(JsonType jType, Object ob, JsonType parentType, Object parent) {
         DefinitionsContextObjectRecord record = getOrCreate(jType, ob);
-        record.asAssigned();
+        record.asAssignable();
         record = getOrCreate(parentType, parent);
         record.asContainer();
         return record;
