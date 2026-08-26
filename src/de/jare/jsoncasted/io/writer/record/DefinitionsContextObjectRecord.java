@@ -12,18 +12,16 @@ import java.util.Objects;
  * A record tracking the state and metadata of an object during JSON serialization.
  *
  * <p>
- * This class maintains the lifecycle state (disposition) of objects within the
- * {@link DefinitionsContext}, including whether they are candidates for serialization,
- * have been detected as findings (e.g., cycles or containment objects), can be assigned
- * to a container field, or have been assigned to a container object. Each record is uniquely
- * associated with a Java object and its corresponding JSON type.
+ * This class maintains the lifecycle state (disposition) of objects within the {@link DefinitionsContext}, including
+ * whether they are candidates for serialization, have been detected as findings (e.g., cycles or containment objects),
+ * can be assigned to a container field, or have been assigned to a container object. Each record is uniquely associated
+ * with a Java object and its corresponding JSON type.
  * </p>
  *
  * <p>
  * The disposition of an object progresses through states: UNKNOWN -> CANDIDATE -> (FINDING | ASSIGNABLE) -> ASSIGNED.
- * ASSIGNABLE indicates that an object resides in a definitional/container field and may be
- * converted to ASSIGNED during writing. Once an object reaches the ASSIGNED state, its
- * disposition cannot be changed.
+ * ASSIGNABLE indicates that an object resides in a definitional/container field and may be converted to ASSIGNED during
+ * writing. Once an object reaches the ASSIGNED state, its disposition cannot be changed.
  * </p>
  *
  * @author Janusch Rentenatus
@@ -47,9 +45,8 @@ public class DefinitionsContextObjectRecord {
          */
         CANDIDATE,
         /**
-         * The object can be assigned to a container field. This is an intermediate state
-         * indicating that the object resides in a definitional/container field and may
-         * be converted to ASSIGNED during writing.
+         * The object can be assigned to a container field. This is an intermediate state indicating that the object
+         * resides in a definitional/container field and may be converted to ASSIGNED during writing.
          */
         ASSIGNABLE,
         /**
@@ -69,10 +66,7 @@ public class DefinitionsContextObjectRecord {
      * Unique identifier for the object within the context. Default is -1 (unassigned).
      */
     private long localId = -1;
-    /**
-     * The container object to which this object is assigned. Null if not assigned.
-     */
-    private Object container = null;
+
     /**
      * Indicates whether this object is itself a container.
      */
@@ -149,26 +143,6 @@ public class DefinitionsContextObjectRecord {
     }
 
     /**
-     * Returns the container object to which this object is assigned.
-     *
-     * @return the container object, or null if not assigned
-     */
-    public Object getContainer() {
-        return container;
-    }
-
-    /**
-     * Sets the container for this object and marks its disposition as ASSIGNED.
-     *
-     * @param container the container object (must not be null)
-     * @throws NullPointerException if container is null
-     */
-    public void setContainer(Object container) {
-        this.container = Objects.requireNonNull(container);
-        this.disposition = Disposition.ASSIGNED;
-    }
-
-    /**
      * Returns the repository key for this object's definition.
      *
      * @return the repository key, or null if not set
@@ -187,8 +161,7 @@ public class DefinitionsContextObjectRecord {
     }
 
     /**
-     * Generates a repository key for this object if not already set.
-     * Uses the format "self::" followed by the localId.
+     * Generates a repository key for this object if not already set. Uses the format "self::" followed by the localId.
      *
      * @return the generated or existing repository key
      */
@@ -201,13 +174,11 @@ public class DefinitionsContextObjectRecord {
 
     /**
      * Checks if this object should be written as a definition.
-     * Objects are written as definitions if they are candidates, findings, or assignable
-     * (i.e., they have been detected during scanning and are not inlined).
      *
      * @return true if this object should be written as a definition
      */
-    public boolean isDefinition() {
-        return disposition == Disposition.CANDIDATE || disposition == Disposition.FINDING || disposition == Disposition.ASSIGNABLE;
+    public boolean needDefinition() {
+        return disposition == Disposition.FINDING;
     }
 
     /**
@@ -319,5 +290,13 @@ public class DefinitionsContextObjectRecord {
             throw new IllegalArgumentException("Once assigned, objects cannot be unlinked.");
         }
         this.disposition = Disposition.ASSIGNABLE;
+    }
+
+    /**
+     * Sets as ASSIGNED.
+     *
+     */
+    public void asAssigned() {
+        this.disposition = Disposition.ASSIGNED;
     }
 }

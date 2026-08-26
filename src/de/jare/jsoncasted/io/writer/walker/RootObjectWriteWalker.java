@@ -19,9 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A walker that writes the root object and handles the _woodDefinitions container.
- * This walker extends ObjectWriteWalker to provide specialized handling for root-level
- * objects, including writing object definitions in the _woodDefinitions section.
+ * A walker that writes the root object and handles the _woodDefinitions container. This walker extends
+ * ObjectWriteWalker to provide specialized handling for root-level objects, including writing object definitions in the
+ * _woodDefinitions section.
  *
  * @author Janusch Rentenatus
  */
@@ -57,7 +57,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
     @Override
     public void write(Object ob) throws NullPointerException, ClassCastException {
         if (!(ob instanceof List<?>)) {
-            super.write(ob);
+            super.writeObjectProf(ob, calculateJsonClass(ob));
             return;
         }
         List<?> myList = (List<?>) ob;
@@ -110,6 +110,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
             if (it.hasNext()) {
                 strategy.writeArraySeparator(false, entryIndent);
             }
+            next.asAssigned();
         }
         // Write _woodDefinitions end
         strategy.writeEndArray(objects, true, true, iString);
@@ -117,20 +118,14 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
     }
 
     /**
-     * Writes an individual JSON entry, handling primitive and object types.
-     * For definitions, always writes class information unless casting level is NEVER.
+     * Writes an individual JSON entry, handling primitive and object types. For definitions, always writes class
+     * information unless casting level is NEVER.
      *
      * @param entry The object to serialize.
      * @param jsonType The JSON type of the entry.
      * @param iString The indentation string for formatted output.
      */
     protected void writeDefinitionEntry(Object entry, JsonType jsonType, WriteNodePath iString) {
-        // Check if this object should be written as a link reference
-        if (shouldWriteAsLink(entry)) {
-            writeAsLink(entry, iString);
-            return;
-        }
-
         if (entry == null) {
             strategy.writeAttrNull(iString);
         } else {

@@ -116,34 +116,48 @@ public class ObjectWriteWalker {
             return;
         }
 
-        if (intentPath.ids().contains(ob)) {
-            try {
-                WriteNodePath iString = intentPath.append("  ");
-                writeStart(jClass, ob, iString);
-                strategy.writeHasFieldKeys(jClass, ob, iString);
+        // Check if object should be written as link reference (ASSIGNED objects or Circle)
+        if (shouldWriteAsLink(ob) || intentPath.ids().contains(ob)) {
+            writeObjectAsLink(ob, jClass);
+        } else {
+            writeObjectProf(ob, jClass);
+        }
+    }
 
-                // Write _woodLink with repository key when available, otherwise write _woodObjectId
-                String repoKey = objectGetter.getDefinitionsContext().getRepositoryKey(ob);
-                if (repoKey != null) {
-                    strategy.writeAttrName(jClass, false, JsonTerms.TERM_WOOD_LINK, iString);
-                    strategy.writePrimitive(JSON_CLASS_STRING, repoKey, iString);
-                } else {
-                    // Write _woodObjectId if a local ID is assigned in DefinitionsContext
-                    DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
-                    if (record != null) {
-                        long localId = record.getLocalId();
-                        if (localId >= 0) {
-                            strategy.writeAttrName(jClass, false, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
-                            strategy.writePrimitive(JSON_CLASS_LONG, localId, iString);
-                        }
+    /**
+     * Writes an object as a _woodLink reference.
+     *
+     * @param ob the object to write as link
+     * @param jClass
+     */
+    protected void writeObjectAsLink(final Object ob, JsonClass jClass) {
+        try {
+            WriteNodePath iString = intentPath.append("  ");
+            writeStart(jClass, ob, iString);
+            strategy.writeHasFieldKeys(jClass, ob, iString);
+
+            // Write _woodLink with repository key when available, otherwise write _woodObjectId
+            String repoKey = objectGetter.getDefinitionsContext().getRepositoryKey(ob);
+            if (repoKey != null) {
+                strategy.writeAttrName(jClass, false, JsonTerms.TERM_WOOD_LINK, iString);
+                strategy.writePrimitive(JSON_CLASS_STRING, repoKey, iString);
+            } else {
+                // Write _woodObjectId if a local ID is assigned in DefinitionsContext
+                DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
+                if (record != null) {
+                    long localId = record.getLocalId();
+                    if (localId >= 0) {
+                        strategy.writeAttrName(jClass, false, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
+                        strategy.writePrimitive(JSON_CLASS_LONG, localId, iString);
                     }
                 }
-            } finally {
-                strategy.writeEnd(jClass, ob, true, true, intentPath);
             }
-            return;
+        } finally {
+            strategy.writeEnd(jClass, ob, true, true, intentPath);
         }
+    }
 
+    public void writeObjectProf(final Object ob, JsonClass jClass) {
         boolean isFollowing = false;
         boolean hasFieldKeys = false;
         WriteNodePath iString = intentPath.append("  ").appendOb(ob);
@@ -183,6 +197,7 @@ public class ObjectWriteWalker {
         } finally {
             strategy.writeEnd(jClass, ob, isFollowing, hasFieldKeys, intentPath);
         }
+        return;
     }
 
     public boolean hasFieldKeys(JsonClass jClass, final Object ob) {
@@ -223,11 +238,6 @@ public class ObjectWriteWalker {
     }
 
     public void writeSingle(final JsonType fieldType, Object attr, JsonField jField, Object definitionalOwner, WriteNodePath iString) {
-        // Check if this object should be written as a link reference
-        if (shouldWriteAsLink(attr)) {
-            writeAsLink(attr, iString);
-            return;
-        }
 
         if (fieldType.isBoxOrPrimitive()) {
             strategy.writePrimitive(fieldType, attr, iString);
@@ -251,23 +261,6 @@ public class ObjectWriteWalker {
         }
         DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(attr);
         return record != null && record.isAssigned();
-    }
-
-    /**
-     * Writes an object as a _woodLink reference.
-     *
-     * @param attr the object to write as link
-     * @param iString the indentation path
-     */
-    protected void writeAsLink(Object attr, WriteNodePath iString) {
-        String repoKey = objectGetter.getDefinitionsContext().getRepositoryKey(attr);
-        if (repoKey != null) {
-            strategy.writeAttrName(null, false, JsonTerms.TERM_WOOD_LINK, iString);
-            strategy.writePrimitive(null, '"' + repoKey + '"', iString);
-        } else {
-            // Fallback: write as null if no repository key
-            strategy.writeAttrNull(iString);
-        }
     }
 
     /**
