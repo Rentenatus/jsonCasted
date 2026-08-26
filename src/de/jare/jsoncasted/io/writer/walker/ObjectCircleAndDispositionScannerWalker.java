@@ -20,12 +20,25 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Scans Java objects for cycles before serialization. Analog to ItemCircleScannerWalker but operates on Java objects
- * instead of JsonItem structures.
+ * Scans Java objects for cycles and manages disposition states before serialization (Pass 1).
+ * This walker performs a pre-serialization scan to detect cycles and determine the appropriate
+ * disposition (CANDIDATE, FINDING, ASSIGNABLE) for each object in the graph.
+ * 
+ * <p>
+ * Objects in definitional/container fields are marked as ASSIGNABLE, indicating they may be
+ * inlined as children. Objects that appear multiple times (cycles) are marked as FINDING.
+ * All other objects are marked as CANDIDATE. This pass ensures that all objects without a
+ * container relationship are properly identified as FINDING and will be written to
+ * {@code _woodDefinitions}.
+ * </p>
+ *
+ * <p>
+ * Analog to ItemCircleScannerWalker but operates on Java objects instead of JsonItem structures.
+ * </p>
  *
  * @author Janusch Rentenatus
  */
-public class ObjectCircleScannerWalker {
+public class ObjectCircleAndDispositionScannerWalker {
 
     final WriteNodePath intentPath;
     final Set<Object> findings;
@@ -39,7 +52,7 @@ public class ObjectCircleScannerWalker {
      * @param definitionsContext The definitions context for resolving JSON types
      * @param castingLevel The casting level for serialization
      */
-    public ObjectCircleScannerWalker(DefinitionsContext definitionsContext, JsonCastingLevel castingLevel) {
+    public ObjectCircleAndDispositionScannerWalker(DefinitionsContext definitionsContext, JsonCastingLevel castingLevel) {
         this.intentPath = new WriteNodePath("", new ArrayList<>());
         this.findings = new HashSet<>();
         this.exceptions = new HashSet<>();
@@ -94,15 +107,26 @@ public class ObjectCircleScannerWalker {
         if (path.ids().contains(objectId)) {
             checkCycle(ob, path);
             findings.add(ob);
-            // Add to DefinitionsContext findings
+            // Mark as FINDING in DefinitionsContext
             if (jClass != null) {
-                definitionsContext.addToCandidates(jClass, ob);
+                definitionsContext.addToFindings(jClass, ob);
             }
             return;
         }
 
         // Add object to path
         WriteNodePath objectPath = path.appendOb(objectId);
+
+        // Set disposition for this object (if not already set)
+        if (jClass != null) {
+            if (!definitionsContext.isInCandidates(ob) && 
+                !definitionsContext.isInFindings(ob) && 
+                !definitionsContext.isInAssignable(ob) &&
+                !definitionsContext.isInAssigned(ob)) {
+                // First time seeing this object -> CANDIDATE
+                definitionsContext.addToCandidates(jClass, ob);
+            }
+        }
 
         // Handle different object types
         if (ob instanceof Collection<?>) {
@@ -132,9 +156,16 @@ public class ObjectCircleScannerWalker {
                 // Without JsonField context, we can only use the runtime class
                 // This is a fallback for raw collections without type information
                 JsonClass itemClass = definitionsContext.getModel().getJsonClass(item.getClass());
-                // Add collection item to DefinitionsContext candidates
+                
+                // Set disposition for collection item
                 if (itemClass != null) {
-                    definitionsContext.addToCandidates(itemClass, item);
+                    if (!definitionsContext.isInCandidates(item) && 
+                        !definitionsContext.isInFindings(item) && 
+                        !definitionsContext.isInAssignable(item) &&
+                        !definitionsContext.isInAssigned(item)) {
+                        // First time seeing this object -> CANDIDATE
+                        definitionsContext.addToCandidates(itemClass, item);
+                    }
                 }
                 scan(item, itemClass, listPath);
             }
@@ -162,9 +193,16 @@ public class ObjectCircleScannerWalker {
             if (item != null) {
                 // Without JsonField context, use the array component type
                 JsonClass itemClass = definitionsContext.getModel().getJsonClass(componentType);
-                // Add array item to DefinitionsContext candidates
+                
+                // Set disposition for array item
                 if (itemClass != null) {
-                    definitionsContext.addToCandidates(itemClass, item);
+                    if (!definitionsContext.isInCandidates(item) && 
+                        !definitionsContext.isInFindings(item) && 
+                        !definitionsContext.isInAssignable(item) &&
+                        !definitionsContext.isInAssigned(item)) {
+                        // First time seeing this object -> CANDIDATE
+                        definitionsContext.addToCandidates(itemClass, item);
+                    }
                 }
                 scan(item, itemClass, arrayPath);
             }
@@ -193,7 +231,23 @@ public class ObjectCircleScannerWalker {
                     JsonClass fieldClass = definitionsContext.getModel().getJsonClass(fieldType.getcName());
                     boolean isConstructorParam = jsonField.isConstructorParam();
 
+                    // Check if this is a definitional/container field
+                    boolean isDefinitional = jsonField != null && jsonField.getKind() != null && jsonField.getKind().isDefinitional();
+
                     WriteNodePath fieldPath = path.append(isConstructorParam ? "c" : "f");
+
+                    // Set disposition based on field type
+                    if (isDefinitional) {
+                        // Object is in a container field -> mark as ASSIGNABLE
+                        definitionsContext.addToAssignable(fieldClass, fieldValue);
+                    } else if (definitionsContext.isInCandidates(fieldValue)) {
+                        // Already seen as candidate -> move to FINDING
+                        definitionsContext.moveToFindings(fieldValue);
+                    } else if (!definitionsContext.isInFindings(fieldValue) && !definitionsContext.isInAssignable(fieldValue)) {
+                        // First time seeing this object -> CANDIDATE
+                        definitionsContext.addToCandidates(fieldClass, fieldValue);
+                    }
+
                     scan(fieldValue, fieldClass, fieldPath);
                 }
             }

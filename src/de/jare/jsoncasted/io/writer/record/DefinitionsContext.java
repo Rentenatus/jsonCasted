@@ -84,6 +84,20 @@ public class DefinitionsContext {
     }
 
     /**
+     * Checks if an object is marked as assignable.
+     *
+     * @param ob the object to check
+     * @return true if the object is assignable
+     */
+    public boolean isInAssignable(Object ob) {
+        DefinitionsContextObjectRecord record = recordMap.get(ob);
+        if (record == null) {
+            return false;
+        }
+        return record.isAssignable();
+    }
+
+    /**
      * Adds an object to findings.
      *
      * @param jType
@@ -108,7 +122,35 @@ public class DefinitionsContext {
         record.asCandidate();
         return record;
     }
-    
+
+    /**
+     * Adds an object as assignable to a container field.
+     *
+     * @param jType the JSON type of the object
+     * @param ob the object to add
+     * @return the record for the object
+     */
+    public DefinitionsContextObjectRecord addToAssignable(JsonType jType, Object ob) {
+        DefinitionsContextObjectRecord record = getOrCreate(jType, ob);
+        record.asAssignable();
+        return record;
+    }
+
+    /**
+     * Moves an existing object to assignable state.
+     *
+     * @param ob the object to move
+     * @return the record for the object, or null if not found
+     */
+    public DefinitionsContextObjectRecord moveToAssignable(Object ob) {
+        DefinitionsContextObjectRecord record = recordMap.get(ob);
+        if (record == null) {
+            return null;
+        }
+        record.asAssignable();
+        return record;
+    }
+
     public DefinitionsContextObjectRecord moveToFindings(Object ob) {
         DefinitionsContextObjectRecord record = recordMap.get(ob);
         if (record == null) {

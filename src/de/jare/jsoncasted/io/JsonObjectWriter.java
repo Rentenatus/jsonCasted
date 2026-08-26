@@ -12,7 +12,7 @@ import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.strategy.DefinitionalStrategy;
 import de.jare.jsoncasted.io.writer.strategy.PrintStrategy;
 import de.jare.jsoncasted.io.writer.strategy.WoodDefinitionWriteStrategy;
-import de.jare.jsoncasted.io.writer.walker.ObjectCircleScannerWalker;
+import de.jare.jsoncasted.io.writer.walker.ObjectCircleAndDispositionScannerWalker;
 import de.jare.jsoncasted.io.writer.walker.RootObjectWriteWalker;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.item.JsonClass;
@@ -226,7 +226,7 @@ public class JsonObjectWriter {
 
     protected static void writeInjection(Object ob, DefinitionsContext definitionsContext, JsonClass root, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) throws JsonWriteException {
         // Pre-scan for cycles and containment objects
-        final ObjectCircleScannerWalker cycleScanner = new ObjectCircleScannerWalker(definitionsContext, castingLevel);
+        final ObjectCircleAndDispositionScannerWalker cycleScanner = new ObjectCircleAndDispositionScannerWalker(definitionsContext, castingLevel);
         if (ob != null && root != null) {
             // Add root object to DefinitionsContext candidates
             definitionsContext.addToCandidates(root, ob);

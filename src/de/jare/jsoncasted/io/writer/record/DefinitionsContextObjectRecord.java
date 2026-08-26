@@ -14,14 +14,16 @@ import java.util.Objects;
  * <p>
  * This class maintains the lifecycle state (disposition) of objects within the
  * {@link DefinitionsContext}, including whether they are candidates for serialization,
- * have been detected as findings (e.g., cycles or containment objects), or have been
- * assigned to a container object. Each record is uniquely associated with a Java object
- * and its corresponding JSON type.
+ * have been detected as findings (e.g., cycles or containment objects), can be assigned
+ * to a container field, or have been assigned to a container object. Each record is uniquely
+ * associated with a Java object and its corresponding JSON type.
  * </p>
  *
  * <p>
- * The disposition of an object progresses through states: UNKNOWN -> CANDIDATE -> (FINDING | ASSIGNED).
- * Once an object reaches the ASSIGNED state, its disposition cannot be changed.
+ * The disposition of an object progresses through states: UNKNOWN -> CANDIDATE -> (FINDING | ASSIGNABLE) -> ASSIGNED.
+ * ASSIGNABLE indicates that an object resides in a definitional/container field and may be
+ * converted to ASSIGNED during writing. Once an object reaches the ASSIGNED state, its
+ * disposition cannot be changed.
  * </p>
  *
  * @author Janusch Rentenatus
@@ -44,6 +46,12 @@ public class DefinitionsContextObjectRecord {
          * The object is a candidate for serialization.
          */
         CANDIDATE,
+        /**
+         * The object can be assigned to a container field. This is an intermediate state
+         * indicating that the object resides in a definitional/container field and may
+         * be converted to ASSIGNED during writing.
+         */
+        ASSIGNABLE,
         /**
          * The object has been assigned to a container. This is the final state.
          */
@@ -193,13 +201,13 @@ public class DefinitionsContextObjectRecord {
 
     /**
      * Checks if this object should be written as a definition.
-     * Objects are written as definitions if they are candidates or findings
+     * Objects are written as definitions if they are candidates, findings, or assignable
      * (i.e., they have been detected during scanning and are not inlined).
      *
      * @return true if this object should be written as a definition
      */
     public boolean isDefinition() {
-        return disposition == Disposition.CANDIDATE || disposition == Disposition.FINDING;
+        return disposition == Disposition.CANDIDATE || disposition == Disposition.FINDING || disposition == Disposition.ASSIGNABLE;
     }
 
     /**
@@ -236,6 +244,15 @@ public class DefinitionsContextObjectRecord {
      */
     public boolean isAssigned() {
         return disposition == Disposition.ASSIGNED;
+    }
+
+    /**
+     * Checks if this object can be assigned to a container field.
+     *
+     * @return true if the disposition is ASSIGNABLE
+     */
+    public boolean isAssignable() {
+        return disposition == Disposition.ASSIGNABLE;
     }
 
     /**
@@ -290,5 +307,17 @@ public class DefinitionsContextObjectRecord {
      */
     public void asContainer() {
         this.isContainer = true;
+    }
+
+    /**
+     * Marks this object as assignable to a container field.
+     *
+     * @throws IllegalArgumentException if the object is already assigned
+     */
+    public void asAssignable() {
+        if (this.disposition == Disposition.ASSIGNED) {
+            throw new IllegalArgumentException("Once assigned, objects cannot be unlinked.");
+        }
+        this.disposition = Disposition.ASSIGNABLE;
     }
 }
