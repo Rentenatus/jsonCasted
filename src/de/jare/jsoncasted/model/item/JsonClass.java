@@ -63,7 +63,6 @@ public class JsonClass implements JsonType {
     private JsonClass parent;
     private JsonEnumTemplate[] valuesArray;
     private boolean reflective;
-    private boolean definitional;
 
     /**
      * Constructs a JsonClass with the specified class name and builder. Uses OBJECT as the default node type.
@@ -91,7 +90,6 @@ public class JsonClass implements JsonType {
         this.skippingNulls = false;
         this.parent = null;
         this.reflective = false;
-        this.definitional = false;
         this.visibility = JsonTypeVisibility.PUBLIC; // Default visibility
     }
 
@@ -124,7 +122,6 @@ public class JsonClass implements JsonType {
         this.keys = new ArrayList<>();
         this.parent = null;
         this.reflective = false;
-        this.definitional = false;
         this.visibility = JsonTypeVisibility.PUBLIC; // Default visibility
     }
 
@@ -176,17 +173,6 @@ public class JsonClass implements JsonType {
             throw new IllegalArgumentException("A class cannot be both primitive and reflective at the same time.");
         }
         this.reflective = reflective;
-    }
-
-    public boolean isDefinitional() {
-        return definitional;
-    }
-
-    public void setDefinitional(boolean definitional) {
-        if (isBoxOrPrimitive() && definitional) {
-            throw new IllegalArgumentException("A class cannot be both primitive and definitional at the same time.");
-        }
-        this.definitional = definitional;
     }
 
     /**

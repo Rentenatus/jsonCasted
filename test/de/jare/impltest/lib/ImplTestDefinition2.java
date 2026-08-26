@@ -77,7 +77,6 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
         valueSeason.addCParam("season", enumSeason);
 
         JsonClass valueEntry = model.newJsonReflectIndividually(ValueEntry.class, (String) null);
-        valueEntry.setDefinitional(true);
         valueEntry.addCParam("text", asString);
 
         // ValueStringSub implements ValueInterface, but isn't registered.
@@ -85,12 +84,12 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
 
         valueEntry.setSkippingNulls(true);
         valueEntry.addCParam("context", valueIx);
-        valueEntry.addField("item", valueIx);
+        valueEntry.addField("item", valueIx).makeAsDefinitional();
 
         testBox = model.newJsonReflectIndividually(TestBox.class, (String) null);
         testBox.addField("subsub", valueString);
         testBox.addField("one", valueIx);
-        testBox.addField("list", valueIx, LIST);
+        testBox.addField("list", valueIx, LIST).makeAsDefinitional();
         testBox.addField("arr", valueIx, ARRAY);
 
         repoModel.addRecursive(model, valueIx);

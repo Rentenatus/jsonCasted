@@ -49,7 +49,6 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
         JsonClass nodeTypeEnum = model.newJsonEnumByName(JsonNodeType.class);
 
         JsonClass descriptTypeNote = model.newJsonReflect(JsonFieldTypeNote.class);
-        descriptTypeNote.setDefinitional(true);
         descriptTypeNote.addCParam("typeName", asString);
         descriptTypeNote.addCParam("collectionType", collectionTypeEnum);
 
@@ -61,21 +60,20 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
         descriptField.addCParam("setter", asString);
 
         descriptType = model.newJsonReflect(JsonTypeDescriptor.class);
-        descriptType.setDefinitional(true);
         descriptType.addCParam("typeName", asString);
         descriptType.addField("nodeType", nodeTypeEnum, "getNodeType", "withNodeType");
         descriptType.addField("skippingNulls", asBoolean, "isSkippingNulls", "withSkippingNulls");
         descriptType.addField("primitive", asBoolean, "isPrimitive", "withPrimitive");
         descriptType.addField("recursive", asBoolean, "isRecursive", "withRecursive");
-        descriptType.addField("mappingAllFields", descriptTypeNote);
-        descriptType.addField("parent", descriptType);
+        descriptType.addField("mappingAllFields", descriptTypeNote).makeAsDefinitional();
+        descriptType.addField("parent", descriptType).makeAsReference();
 
         JsonMap typeMap = model.newRawJsonMapIndividually((new JsonInstance<JsonTypeDescriptor>()).getClass(), (String) null, descriptType);
         JsonMap modeldMap = model.newRawJsonMapIndividually((new JsonInstance<JsonModelDescriptor>()).getClass(), (String) null, descriptField);
         descriptModel = model.newJsonReflect(JsonModelDescriptor.class);
         descriptModel.addCParam("modelName", asString);
-        descriptModel.addField("describedTypes", typeMap);
-        descriptModel.addField("repoDescriptors", modeldMap);
+        descriptModel.addField("describedTypes", typeMap).makeAsDefinitional();
+        descriptModel.addField("repoDescriptors", modeldMap).makeAsDefinitional();
 
         /*
           private final String modelName;

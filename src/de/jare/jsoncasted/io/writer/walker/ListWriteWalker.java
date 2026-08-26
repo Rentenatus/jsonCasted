@@ -88,12 +88,6 @@ public class ListWriteWalker {
      * @param iString The indentation string for formatted output.
      */
     protected void writeEntry(Object entry, WriteNodePath iString) {
-        // Check if this object should be written as a link reference
-        if (shouldWriteAsLink(entry)) {
-            writeAsLink(entry, iString);
-            return;
-        }
-
         if (entry == null) {
             strategy.writeAttrNull(iString);
         } else if (listGetter.isPrimitive()) {
@@ -118,27 +112,6 @@ public class ListWriteWalker {
         DefinitionsContext context = listGetter.getDefinitionsContext();
         DefinitionsContextObjectRecord record = context.getRecord(entry);
         return record != null && record.isAssigned();
-    }
-
-    /**
-     * Writes an object as a _woodLink reference.
-     *
-     * @param entry the object to write as link
-     * @param iString the indentation path
-     */
-    protected void writeAsLink(Object entry, WriteNodePath iString) {
-        DefinitionsContext context = listGetter.getDefinitionsContext();
-        String repoKey = context.getRepositoryKey(entry);
-        if (repoKey != null) {
-            // Write as a simple object with _woodLink
-            strategy.writeStart(null, entry, null, null, false, false, iString);
-            strategy.writeHasFieldKeys(null, entry, iString.append("  "));
-            strategy.writeAttrName(null, false, JsonTerms.TERM_WOOD_LINK, iString.append("  "));
-            strategy.writePrimitive(null, '"' + repoKey + '"', iString.append("  "));
-            strategy.writeEnd(null, entry, true, true, iString);
-        } else {
-            strategy.writeAttrNull(iString);
-        }
     }
 
     /**
