@@ -24,11 +24,15 @@
       },
       (ValueString){ 
         "text": "Hallo Welt"
-      }      
+      },
+      {
+        "_woodLink": "self::100" 
+      }    
     ],
     "list": [
       {
         "_class": "ValueInteger",
+        "_woodObjectId": "100",
         "zahl": 100
       },
       {
