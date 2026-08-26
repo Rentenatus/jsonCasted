@@ -262,6 +262,16 @@ public class JsonField {
     }
 
     /**
+     * Marks this field as a definitional field.
+     *
+     * @return this JsonField for method chaining.
+     */
+    public JsonField makeAsDefinitional() {
+        this.kind = FieldKind.DEFINITIONAL;
+        return this;
+    }
+
+    /**
      * Checks whether the field satisfies the validation method.
      *
      * @return true if validation is satisfied, false otherwise.

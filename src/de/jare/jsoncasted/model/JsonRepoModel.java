@@ -100,9 +100,8 @@ public class JsonRepoModel extends JsonModel {
         }
         repo = newJsonReflectIndividually(JsonRepo.class, "JsonRepo");
         repo.addCParam("repoName", getJsonClass("String"));
-        repo.addField("contents", asObject, LIST);
-        repo.addField("subRepos", repo, LIST);
-        repo.setDefinitional(true);
+        repo.addField("contents", asObject, LIST).makeAsDefinitional();
+        repo.addField("subRepos", repo, LIST).makeAsDefinitional();
         return repo;
     }
 
