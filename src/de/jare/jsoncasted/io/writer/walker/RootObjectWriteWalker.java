@@ -53,11 +53,11 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
     public RootObjectWriteWalker(WriteStrategy strategy, DefinitionsContext definitionsContext, JsonType jType, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
         super(strategy, definitionsContext, jType, null, null, intentPath, castingLevel, debugLevel);
     }
-
+    
     @Override
     public void write(Object ob) throws NullPointerException, ClassCastException {
         if (!(ob instanceof List<?>)) {
-            super.writeObjectProf(ob, calculateJsonClass(ob));
+            super.writeObjectProf(calculateJsonClass(ob), ob);
             return;
         }
         List<?> myList = (List<?>) ob;
@@ -71,7 +71,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         JsonClass jClass = calculateJsonClass(ob0);
         writeList(jClass, ob0, null, null, intentPath);
     }
-
+    
     @Override
     public boolean hasFieldKeys(JsonClass jClass, final Object ob) {
         final DefinitionsContext definitionsContext = this.objectGetter.getDefinitionsContext();
@@ -98,14 +98,14 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         // Write _woodDefinitions start
         strategy.writeAttrName(null, false, JsonTerms.TERM_WOOD_DEFINITIONS, iString);
         strategy.writeStartArray(null, objects, false, iString);
-
+        
         WriteNodePath entryIndent = iString.append("  ");
-
+        
         Iterator<DefinitionsContextObjectRecord> it = records.iterator();
         while (it.hasNext()) {
             DefinitionsContextObjectRecord next = it.next();
             Object ob = next.getObject();
-
+            
             writeDefinitionEntry(ob, next.getJsonType(), entryIndent);
             if (it.hasNext()) {
                 strategy.writeArraySeparator(false, entryIndent);
@@ -114,7 +114,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         }
         // Write _woodDefinitions end
         strategy.writeEndArray(objects, true, true, iString);
-
+        
     }
 
     /**
@@ -134,7 +134,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
             if (effectiveCastingLevel != JsonCastingLevel.NEVER) {
                 effectiveCastingLevel = JsonCastingLevel.ALWAYS_CLASS_DEF;
             }
-
+            
             if (jsonType instanceof JsonMap jMap) {
                 MapWriteWalker mapWriter = new MapWriteWalker(
                         strategy,
@@ -147,7 +147,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
                 mapWriter.writeObject(mapWriter.calculateJsonClass(entry), entry);
             } else if (jsonType instanceof JsonClass jClass) {
                 ObjectWriteWalker reWriter = new ObjectWriteWalker(strategy, objectGetter.getDefinitionsContext(), jsonType, null, null, iString, effectiveCastingLevel, objectGetter.getDebugLevel());
-                reWriter.writeObject(jClass, entry);
+                reWriter.writeObjectProf(jClass, entry);
             }
         }
     }

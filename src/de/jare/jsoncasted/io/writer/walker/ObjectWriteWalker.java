@@ -118,9 +118,9 @@ public class ObjectWriteWalker {
 
         // Check if object should be written as link reference (ASSIGNED objects or Circle)
         if (shouldWriteAsLink(ob) || intentPath.ids().contains(ob)) {
-            writeObjectAsLink(ob, jClass);
+            writeObjectAsLink(jClass, ob);
         } else {
-            writeObjectProf(ob, jClass);
+            writeObjectProf(jClass, ob);
         }
     }
 
@@ -130,7 +130,7 @@ public class ObjectWriteWalker {
      * @param ob the object to write as link
      * @param jClass
      */
-    protected void writeObjectAsLink(final Object ob, JsonClass jClass) {
+    protected void writeObjectAsLink(JsonClass jClass, final Object ob) {
         try {
             WriteNodePath iString = intentPath.append("  ");
             writeStart(jClass, ob, iString);
@@ -157,7 +157,7 @@ public class ObjectWriteWalker {
         }
     }
 
-    public void writeObjectProf(final Object ob, JsonClass jClass) {
+    public void writeObjectProf(JsonClass jClass, final Object ob) {
         boolean isFollowing = false;
         boolean hasFieldKeys = false;
         WriteNodePath iString = intentPath.append("  ").appendOb(ob);

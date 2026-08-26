@@ -133,8 +133,8 @@ public class DefinitionalStrategy implements WriteStrategy {
     }
 
     /**
-     * Writes a link reference for an object that should not be inlined.
-     * This writes the _woodLink property with the object's repository key.
+     * Writes a link reference for an object that should not be inlined. This writes the _woodLink property with the
+     * object's repository key.
      *
      * @param jClass the JSON class of the object
      * @param ob the object to write as link
