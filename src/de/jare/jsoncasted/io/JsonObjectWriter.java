@@ -11,7 +11,6 @@ import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.strategy.DefinitionalStrategy;
 import de.jare.jsoncasted.io.writer.strategy.PrintStrategy;
-import de.jare.jsoncasted.io.writer.strategy.WoodDefinitionWriteStrategy;
 import de.jare.jsoncasted.io.writer.walker.ObjectCircleScannerWalker;
 import de.jare.jsoncasted.io.writer.walker.RootObjectWriteWalker;
 import de.jare.jsoncasted.model.JsonModel;
@@ -213,12 +212,9 @@ public class JsonObjectWriter {
         final PrintWriter prn = new PrintWriter(out);
         final PrintStrategy printStrategy = new PrintStrategy(prn);
 
-        // Create a strategy that can write definitions
-        final WoodDefinitionWriteStrategy woodStrategy = new WoodDefinitionWriteStrategy(printStrategy, definitionsContext);
-
         writeInjection(ob, definitionsContext, root, castingLevel, debugLevel);
 
-        final RootObjectWriteWalker walker = new RootObjectWriteWalker(woodStrategy, definitionsContext, root, castingLevel, debugLevel);
+        final RootObjectWriteWalker walker = new RootObjectWriteWalker(printStrategy, definitionsContext, root, castingLevel, debugLevel);
         walker.write(ob);
 
         prn.flush();
