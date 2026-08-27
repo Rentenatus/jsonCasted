@@ -75,7 +75,7 @@ public class PrintStrategy implements WriteStrategy {
     }
 
     @Override
-    public void writeStart(JsonClass jClass, Object ob, JsonField parentField, Object parent, boolean needsCast, boolean needsClassDef, WriteNodePath intentPath) {
+    public void writeStartObject(JsonClass jClass, Object ob, JsonField parentField, Object parent, boolean needsCast, boolean needsClassDef, WriteNodePath intentPath) {
         if (jClass != null && needsCast) {
             writeCast(jClass, ob, intentPath);
         }
@@ -112,7 +112,7 @@ public class PrintStrategy implements WriteStrategy {
     }
 
     @Override
-    public void writeEnd(final JsonClass jClass, final Object ob, boolean isFollowing, boolean hasFieldKeys, WriteNodePath intentPath) {
+    public void writeEndObject(final JsonClass jClass, final Object ob, boolean isFollowing, boolean hasFieldKeys, WriteNodePath intentPath) {
         if (isFollowing) {
             out.println();
         }

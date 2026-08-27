@@ -7,8 +7,7 @@
 package de.jare.impltest.lib;
 
 /**
- * Value class representing a string value for testing.
- * Implements ValueInterface to provide text representation.
+ * Value class representing a string value for testing. Implements ValueInterface to provide text representation.
  *
  * @author Janusch Rentenatus
  */
@@ -30,4 +29,8 @@ public class ValueString implements ValueInterface {
         return text;
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + "{text='" + getText() + "'}";
+    }
 }

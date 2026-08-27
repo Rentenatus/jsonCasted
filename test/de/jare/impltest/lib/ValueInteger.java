@@ -7,8 +7,7 @@
 package de.jare.impltest.lib;
 
 /**
- * Value class representing an integer value for testing.
- * Implements ValueInterface to provide text representation.
+ * Value class representing an integer value for testing. Implements ValueInterface to provide text representation.
  *
  * @author Janusch Rentenatus
  */
@@ -37,6 +36,11 @@ public class ValueInteger implements ValueInterface {
     @Override
     public String getText() {
         return String.valueOf(zahl);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "{zahl=" + getText() + "}";
     }
 
 }

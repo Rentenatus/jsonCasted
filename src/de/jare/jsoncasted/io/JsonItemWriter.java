@@ -21,8 +21,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The JsonWriter class provides utility methods for serializing JsonItem objects into JSON format. It supports writing
- * to strings, files, and output streams with configurable character encoding.
+ * The JsonItemWriter class provides utility methods for serializing JsonItem objects into JSON format. It supports
+ * writing to strings, files, and output streams with configurable character encoding.
  *
  * @author Janusch Rentenatus
  */
@@ -37,12 +37,12 @@ public class JsonItemWriter {
      * @return JSON string representation of the object.
      * @throws JsonParseException If parsing fails during serialization.
      * @throws IOException If an I/O error occurs during writing.
-     * @throws de.jare.jsoncasted.io.JsonWriteException
+     * @throws JsonWriteException
      */
     public static String writeToString(JsonItem ob, String charsetName) throws JsonParseException, IOException, JsonWriteException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(ob, out);
-        return new String(out.toByteArray(), charsetName);
+        return new String(out.toByteArray(), java.nio.charset.Charset.forName(charsetName));
     }
 
     /**
@@ -52,12 +52,12 @@ public class JsonItemWriter {
      * @return JSON string representation of the object.
      * @throws JsonParseException If parsing fails during serialization.
      * @throws IOException If an I/O error occurs during writing.
-     * @throws de.jare.jsoncasted.io.JsonWriteException
+     * @throws JsonWriteException
      */
     public static String writeToString(JsonItem ob) throws JsonParseException, IOException, JsonWriteException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         write(ob, out);
-        return new String(out.toByteArray());
+        return new String(out.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
     }
 
     /**
@@ -67,7 +67,7 @@ public class JsonItemWriter {
      * @param file The target file to write the JSON output.
      * @throws JsonParseException If parsing fails during serialization.
      * @throws IOException If an I/O error occurs during writing.
-     * @throws de.jare.jsoncasted.io.JsonWriteException
+     * @throws JsonWriteException
      */
     public static void write(JsonItem ob, File file) throws JsonParseException, IOException, JsonWriteException {
         FileOutputStream out;
@@ -76,7 +76,7 @@ public class JsonItemWriter {
             write(ob, out);
             out.close();
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(JsonItemWriter.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JsonItemWriter.class.getName()).log(Level.SEVERE, "Failed to create output file for JSON writing", ex);
         }
     }
 
@@ -91,8 +91,8 @@ public class JsonItemWriter {
      */
     public static void write(JsonItem ob, OutputStream out) throws IOException, JsonWriteException, JsonParseException {
         final PrintWriter prn = new PrintWriter(out);
-        final PrintStrategy strategie = new PrintStrategy(prn);
-        new ItemWriteWalker(strategie, "").writeType(ob);
+        final PrintStrategy strategy = new PrintStrategy(prn);
+        new ItemWriteWalker(strategy, "").writeRoot(ob);
         prn.flush();
     }
 

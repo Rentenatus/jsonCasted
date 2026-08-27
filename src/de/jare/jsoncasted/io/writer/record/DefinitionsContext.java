@@ -8,7 +8,9 @@ package de.jare.jsoncasted.io.writer.record;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -21,7 +23,7 @@ public class DefinitionsContext {
     private final JsonModel model;
 
     // Atomic counter for generating unique IDs within this context.
-    private final AtomicLong idCounter = new AtomicLong(0);
+    private final AtomicLong idCounter = new AtomicLong(1);
 
     // All objects found that are candidates for a reference ID or found that are going to be serialized are collected here. They
     private final Map<Object, DefinitionsContextObjectRecord> recordMap;
@@ -82,6 +84,20 @@ public class DefinitionsContext {
     }
 
     /**
+     * Checks if an object is marked as assignable.
+     *
+     * @param ob the object to check
+     * @return true if the object is assignable
+     */
+    public boolean isInAssignable(Object ob) {
+        DefinitionsContextObjectRecord record = recordMap.get(ob);
+        if (record == null) {
+            return false;
+        }
+        return record.isAssignable();
+    }
+
+    /**
      * Adds an object to findings.
      *
      * @param jType
@@ -107,6 +123,19 @@ public class DefinitionsContext {
         return record;
     }
 
+    /**
+     * Adds an object as assignable to a container field.
+     *
+     * @param jType the JSON type of the object
+     * @param ob the object to add
+     * @return the record for the object
+     */
+    public DefinitionsContextObjectRecord addToAssignable(JsonType jType, Object ob) {
+        DefinitionsContextObjectRecord record = getOrCreate(jType, ob);
+        record.asAssignable();
+        return record;
+    }
+
     public DefinitionsContextObjectRecord moveToFindings(Object ob) {
         DefinitionsContextObjectRecord record = recordMap.get(ob);
         if (record == null) {
@@ -116,20 +145,46 @@ public class DefinitionsContext {
         return record;
     }
 
-    public DefinitionsContextObjectRecord moveToAssigned(Object ob, JsonType parentType, Object parent) {
+    public DefinitionsContextObjectRecord moveToAssignable(Object ob, JsonType parentType, Object parent) {
         DefinitionsContextObjectRecord record = recordMap.get(ob);
         if (record == null) {
             return null;
         }
-        record.setContainer(parent);
+        record.asAssignable();
+        record.setParent(parentType, parent);
+        // parent:
+        if (parent == null) {
+            return record;
+        }
         record = getOrCreate(parentType, parent);
         record.asContainer();
         return record;
     }
 
-    public DefinitionsContextObjectRecord addToAssigned(JsonType jType, Object ob, JsonType parentType, Object parent) {
+    public DefinitionsContextObjectRecord moveToAssignable(Object ob) {
+        DefinitionsContextObjectRecord record = recordMap.get(ob);
+        if (record == null) {
+            return null;
+        }
+        record.asAssignable();
+        // parent:
+        JsonType parentType = record.getParentType();
+        Object parent = record.getParent();
+        if (parent == null) {
+            return record;
+        }
+        record = getOrCreate(parentType, parent);
+        record.asContainer();
+        return record;
+    }
+
+    public DefinitionsContextObjectRecord addToAssignable(JsonType jType, Object ob, JsonType parentType, Object parent) {
         DefinitionsContextObjectRecord record = getOrCreate(jType, ob);
-        record.setContainer(parent);
+        record.asAssignable();
+        // parent:
+        if (parent == null) {
+            return record;
+        }
         record = getOrCreate(parentType, parent);
         record.asContainer();
         return record;
@@ -177,6 +232,69 @@ public class DefinitionsContext {
      */
     public void resetIdCounter() {
         idCounter.set(0);
+    }
+
+    public DefinitionsContextObjectRecord getRecord(Object ob) {
+        return recordMap.get(ob);
+    }
+
+    /**
+     * Gets all records that should be written as definitions. These are records that are candidates or findings (not
+     * assigned/inlined).
+     *
+     * @return list of records that should be written as definitions
+     */
+    public List<DefinitionsContextObjectRecord> getDefinitionRecords() {
+        List<DefinitionsContextObjectRecord> definitions = new ArrayList<>();
+        for (DefinitionsContextObjectRecord record : recordMap.values()) {
+            if (record.needDefinition()) {
+                definitions.add(record);
+            }
+        }
+        return definitions;
+    }
+
+    /**
+     * Checks if there are any objects that should be written as definitions.
+     *
+     * @return true if there are definition records
+     */
+    public boolean hasDefinitions() {
+        for (DefinitionsContextObjectRecord record : recordMap.values()) {
+            if (record.needDefinition()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Gets the repository key for an object, generating it if necessary.
+     *
+     * @param ob the object to get the repository key for
+     * @return the repository key, or null if no record exists
+     */
+    public String getRepositoryKey(Object ob) {
+        DefinitionsContextObjectRecord record = getRecord(ob);
+        if (record != null) {
+            return record.getOrGenerateRepositoryKey();
+        }
+        return null;
+    }
+
+    /**
+     * Checks if an object should be written as a link reference instead of inline. An object should be written as a
+     * link if it is assigned (already processed as definition).
+     *
+     * @param ob the object to check
+     * @return true if the object should be written as a link
+     */
+    public boolean shouldWriteAsLink(Object ob) {
+        if (ob == null) {
+            return false;
+        }
+        DefinitionsContextObjectRecord record = getRecord(ob);
+        return record != null && record.isAssigned();
     }
 
 }

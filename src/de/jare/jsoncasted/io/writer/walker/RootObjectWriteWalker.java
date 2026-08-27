@@ -7,70 +7,70 @@ package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.item.JsonMap;
+import java.util.Iterator;
 import java.util.List;
-import de.jare.jsoncasted.io.writer.WriteStrategy;
 
 /**
+ * A walker that writes the root object and handles the _woodDefinitions container. This walker extends
+ * ObjectWriteWalker to provide specialized handling for root-level objects, including writing object definitions in the
+ * _woodDefinitions section.
  *
- * @author Janusch Renteantus
+ * @author Janusch Rentenatus
  */
 public class RootObjectWriteWalker extends ObjectWriteWalker {
 
     /**
-     * Constructs an ObjectWriter instance with default indentation.
+     * Constructs a RootObjectWriteWalker instance with default indentation.
      *
-     * @param strategie
-     * @param definitionsContext
+     * @param strategy the write strategy to use
+     * @param definitionsContext the context for definitions
      * @param castingLevel the casting level for serialization
      * @param jType The JSON type used for serialization.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public RootObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        super(strategie, definitionsContext, jType, null, null, castingLevel, debugLevel);
+    public RootObjectWriteWalker(WriteStrategy strategy, DefinitionsContext definitionsContext, JsonType jType, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        super(strategy, definitionsContext, jType, null, null, castingLevel, debugLevel);
     }
 
     /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
+     * Constructs a RootObjectWriteWalker instance with a specified indentation string.
      *
-     * @param strategie
-     * @param definitionsContext
+     * @param strategy the write strategy to use
+     * @param definitionsContext the context for definitions
      * @param castingLevel the casting level for serialization
      * @param jType The JSON type used for serialization.
      * @param intentPath The indentation string for formatted output.
      * @param debugLevel The debug level for controlling debug output.
      */
-    public RootObjectWriteWalker(WriteStrategy strategie, DefinitionsContext definitionsContext, JsonType jType, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
-        super(strategie, definitionsContext, jType, null, null, intentPath, castingLevel, debugLevel);
+    public RootObjectWriteWalker(WriteStrategy strategy, DefinitionsContext definitionsContext, JsonType jType, WriteNodePath intentPath, JsonCastingLevel castingLevel, JsonDebugLevel debugLevel) {
+        super(strategy, definitionsContext, jType, null, null, intentPath, castingLevel, debugLevel);
+    }
+
+    public void writeRoot(Object ob) throws NullPointerException, ClassCastException {
+        strategy.writeStartFile();
+        write(ob);
+        strategy.writeEndFile();
     }
 
     @Override
     public void write(Object ob) throws NullPointerException, ClassCastException {
-        write(ob, woodMetadata);
-    }
-
-    /**
-     * Writes an root object as a JSON structure.
-     *
-     * @param ob The object to serialize.
-     * @param woodMetadata
-     * @throws NullPointerException If the object has no associated JSON class.
-     * @throws ClassCastException If the object does not match the expected JSON type.
-     */
-    protected void write(Object ob, WoodMetadataInjection woodMetadata) throws NullPointerException, ClassCastException {
-        setWoodMetadata(woodMetadata);
         if (!(ob instanceof List<?>)) {
-            super.write(ob);
+            super.writeObjectProf(calculateJsonClass(ob), ob);
             return;
         }
         List<?> myList = (List<?>) ob;
         if (myList.isEmpty()) {
-            strategie.writePath(intentPath);
-            strategie.writeStartArray(null, ob, true, intentPath);
-            strategie.writeEndArray(ob, true, false, intentPath);
+            strategy.writePath(intentPath);
+            strategy.writeStartArray(null, ob, true, intentPath);
+            strategy.writeEndArray(ob, true, false, intentPath);
             return;
         }
         Object ob0 = myList.get(0);
@@ -78,4 +78,84 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         writeList(jClass, ob0, null, null, intentPath);
     }
 
+    @Override
+    public boolean hasFieldKeys(JsonClass jClass, final Object ob) {
+        final DefinitionsContext definitionsContext = this.objectGetter.getDefinitionsContext();
+        return objectGetter.hasFieldKeys(jClass, ob)
+                || definitionsContext.hasDefinitions();
+    }
+
+    /**
+     * Writes the _woodDefinitions container with all definition objects.
+     *
+     * @param iString the indentation path
+     * @return true, if done
+     */
+    @Override
+    protected boolean writeDefinitions(WriteNodePath iString) {
+        final DefinitionsContext definitionsContext = objectGetter.getDefinitionsContext();
+        List<DefinitionsContextObjectRecord> records = definitionsContext.getDefinitionRecords();
+        if (records.isEmpty()) {
+            return false;
+        }
+        List<Object> objects = records.stream()
+                .map(DefinitionsContextObjectRecord::getObject)
+                .toList();
+
+        // Write _woodDefinitions start
+        strategy.writeAttrName(null, false, JsonTerms.TERM_WOOD_DEFINITIONS, iString);
+        strategy.writeStartArray(null, objects, false, iString);
+
+        WriteNodePath entryIndent = iString.append("  ");
+
+        Iterator<DefinitionsContextObjectRecord> it = records.iterator();
+        while (it.hasNext()) {
+            DefinitionsContextObjectRecord next = it.next();
+            Object ob = next.getObject();
+
+            writeDefinitionEntry(ob, next.getJsonType(), entryIndent);
+            if (it.hasNext()) {
+                strategy.writeArraySeparator(false, entryIndent);
+            }
+            next.asAssigned();
+        }
+        // Write _woodDefinitions end
+        strategy.writeEndArray(objects, true, true, iString);
+        return true;
+    }
+
+    /**
+     * Writes an individual JSON entry, handling primitive and object types. For definitions, always writes class
+     * information unless casting level is NEVER.
+     *
+     * @param entry The object to serialize.
+     * @param jsonType The JSON type of the entry.
+     * @param iString The indentation string for formatted output.
+     */
+    protected void writeDefinitionEntry(Object entry, JsonType jsonType, WriteNodePath iString) {
+        if (entry == null) {
+            strategy.writeAttrNull(iString);
+        } else {
+            // For definitions, ensure class information is always written unless casting is NEVER
+            JsonCastingLevel effectiveCastingLevel = objectGetter.getCastingLevel();
+            if (effectiveCastingLevel != JsonCastingLevel.NEVER) {
+                effectiveCastingLevel = JsonCastingLevel.ALWAYS_CLASS_DEF;
+            }
+
+            if (jsonType instanceof JsonMap jMap) {
+                MapWriteWalker mapWriter = new MapWriteWalker(
+                        strategy,
+                        objectGetter.getDefinitionsContext(),
+                        jMap, null,
+                        iString,
+                        effectiveCastingLevel,
+                        objectGetter.getDebugLevel()
+                );
+                mapWriter.writeObject(mapWriter.calculateJsonClass(entry), entry);
+            } else if (jsonType instanceof JsonClass jClass) {
+                ObjectWriteWalker reWriter = new ObjectWriteWalker(strategy, objectGetter.getDefinitionsContext(), jsonType, null, null, iString, effectiveCastingLevel, objectGetter.getDebugLevel());
+                reWriter.writeObjectProf(jClass, entry);
+            }
+        }
+    }
 }

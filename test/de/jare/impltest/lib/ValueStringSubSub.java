@@ -7,8 +7,8 @@
 package de.jare.impltest.lib;
 
 /**
- * Value class representing a string value with additional boolean field.
- * Extends ValueStringSub and implements ValueInterface.
+ * Value class representing a string value with additional boolean field. Extends ValueStringSub and implements
+ * ValueInterface.
  *
  * @author Janusch Rentenatus
  */
@@ -40,4 +40,5 @@ public class ValueStringSubSub extends ValueStringSub implements ValueInterface 
     public String getText() {
         return super.getText() + " = " + String.valueOf(frage);
     }
+
 }

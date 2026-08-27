@@ -24,15 +24,16 @@ import java.util.Set;
 public class ItemCircleScannerWalker {
 
     final WriteNodePath intentPath;
+    final Set<Object> findings;
     final Set<JsonWriteException> exceptions;
 
     /**
-     * Constructs an ObjectWriter instance with a specified indentation string.
-     *
+     * Constructs an ItemCircleScannerWalker instance.
      */
     public ItemCircleScannerWalker() {
         this.intentPath = new WriteNodePath("", new ArrayList<>());
         exceptions = new HashSet<>();
+        findings = new HashSet<>();
     }
 
     /**
@@ -42,6 +43,15 @@ public class ItemCircleScannerWalker {
      */
     public Collection<JsonWriteException> getExceptions() {
         return Collections.unmodifiableCollection(exceptions);
+    }
+
+    /**
+     * Returns the collection of findings encountered during the writing process.
+     *
+     * @return An unmodifiable collection of findings.
+     */
+    public Collection<Object> getFindings() {
+        return Collections.unmodifiableCollection(findings);
     }
 
     /**
@@ -75,6 +85,7 @@ public class ItemCircleScannerWalker {
         final long resolverId = object.getResolverId();
         if (resolverId >= 0 && iString.ids().contains(resolverId)) {
             checkCycle(object, iString);
+            findings.add(object);
             return;
         }
 
