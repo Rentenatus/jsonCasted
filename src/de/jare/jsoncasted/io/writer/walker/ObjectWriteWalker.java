@@ -166,7 +166,7 @@ public class ObjectWriteWalker {
             hasFieldKeys = hasFieldKeys(jClass, ob);
             if (hasFieldKeys) {
                 strategy.writeHasFieldKeys(jClass, ob, iString);
-                writeDefinitions(iString);
+                isFollowing = writeDefinitions(iString);
 
                 // Write _woodObjectId if a local ID is assigned in DefinitionsContext
                 DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
@@ -208,7 +208,8 @@ public class ObjectWriteWalker {
         strategy.writeStart(jClass, ob, parentField, parent, needsCast, needsClassDef, iString);
     }
 
-    protected void writeDefinitions(WriteNodePath iString) {
+    protected boolean writeDefinitions(WriteNodePath iString) {
+        return false;
         // NoOp, only for roots
     }
 

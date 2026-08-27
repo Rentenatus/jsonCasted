@@ -83,13 +83,14 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
      * Writes the _woodDefinitions container with all definition objects.
      *
      * @param iString the indentation path
+     * @return true, if done
      */
     @Override
-    protected void writeDefinitions(WriteNodePath iString) {
+    protected boolean writeDefinitions(WriteNodePath iString) {
         final DefinitionsContext definitionsContext = objectGetter.getDefinitionsContext();
         List<DefinitionsContextObjectRecord> records = definitionsContext.getDefinitionRecords();
         if (records.isEmpty()) {
-            return;
+            return false;
         }
         List<Object> objects = records.stream()
                 .map(DefinitionsContextObjectRecord::getObject)
@@ -114,7 +115,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         }
         // Write _woodDefinitions end
         strategy.writeEndArray(objects, true, true, iString);
-        
+        return true;
     }
 
     /**
