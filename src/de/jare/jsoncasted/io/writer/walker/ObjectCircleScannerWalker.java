@@ -132,10 +132,6 @@ public class ObjectCircleScannerWalker {
                 // Without JsonField context, we can only use the runtime class
                 // This is a fallback for raw collections without type information
                 JsonClass itemClass = definitionsContext.getModel().getJsonClass(item.getClass());
-                // Add collection item to DefinitionsContext candidates
-                if (itemClass != null) {
-                    definitionsContext.addToCandidates(itemClass, item);
-                }
                 scan(item, itemClass, listPath);
             }
         }
@@ -162,10 +158,6 @@ public class ObjectCircleScannerWalker {
             if (item != null) {
                 // Without JsonField context, use the array component type
                 JsonClass itemClass = definitionsContext.getModel().getJsonClass(componentType);
-                // Add array item to DefinitionsContext candidates
-                if (itemClass != null) {
-                    definitionsContext.addToCandidates(itemClass, item);
-                }
                 scan(item, itemClass, arrayPath);
             }
         }

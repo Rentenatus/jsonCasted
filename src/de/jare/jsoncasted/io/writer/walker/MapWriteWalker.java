@@ -85,7 +85,7 @@ public class MapWriteWalker extends ObjectWriteWalker {
                 }
             }
         } finally {
-            strategy.writeEnd(jClass, ob, isFollowing, hasFieldKeys, intentPath);
+            strategy.writeEndObject(jClass, ob, isFollowing, hasFieldKeys, intentPath);
         }
     }
 

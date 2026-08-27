@@ -7,8 +7,7 @@
 package de.jare.impltest.lib;
 
 /**
- * Value class representing a boolean value for testing.
- * Implements ValueInterface to provide text representation.
+ * Value class representing a boolean value for testing. Implements ValueInterface to provide text representation.
  *
  * @author Janusch Rentenatus
  */
@@ -37,6 +36,11 @@ public class ValueBoolean implements ValueInterface {
     @Override
     public String getText() {
         return String.valueOf(frage);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "{frage=" + getText() + "}";
     }
 
 }

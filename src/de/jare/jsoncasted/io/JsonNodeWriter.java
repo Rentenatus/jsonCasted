@@ -89,7 +89,7 @@ public class JsonNodeWriter {
     public static void write(JsonNode node, OutputStream out) throws IOException, JsonParseException {
         PrintWriter prn = new PrintWriter(out);
         PrintStrategy strategy = new PrintStrategy(prn);
-        new NodeWriteWalker(strategy, "", JsonDebugLevel.SIMPLE).writeNode(node);
+        new NodeWriteWalker(strategy, "", JsonDebugLevel.SIMPLE).writeRoot(node);
         prn.flush();
 
     }
@@ -107,7 +107,7 @@ public class JsonNodeWriter {
     public static void write(JsonNode node, OutputStream out, JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
         PrintWriter prn = new PrintWriter(out);
         PrintStrategy strategy = new PrintStrategy(prn);
-        new NodeWriteWalker(strategy, "", debugLevel).writeNode(node);
+        new NodeWriteWalker(strategy, "", debugLevel).writeRoot(node);
         prn.flush();
     }
 

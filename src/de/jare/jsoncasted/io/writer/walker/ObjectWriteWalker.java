@@ -152,7 +152,7 @@ public class ObjectWriteWalker {
                 }
             }
         } finally {
-            strategy.writeEnd(jClass, ob, true, true, intentPath);
+            strategy.writeEndObject(jClass, ob, true, true, intentPath);
         }
     }
 
@@ -194,7 +194,7 @@ public class ObjectWriteWalker {
                 isFollowing = true;
             }
         } finally {
-            strategy.writeEnd(jClass, ob, isFollowing, hasFieldKeys, intentPath);
+            strategy.writeEndObject(jClass, ob, isFollowing, hasFieldKeys, intentPath);
         }
     }
 
@@ -205,7 +205,7 @@ public class ObjectWriteWalker {
     void writeStart(final JsonClass jClass, final Object ob, WriteNodePath iString) {
         final boolean needsCast = objectGetter.needsCast(jClass);
         final boolean needsClassDef = !needsCast && objectGetter.needsClassDef(jClass);
-        strategy.writeStart(jClass, ob, parentField, parent, needsCast, needsClassDef, iString);
+        strategy.writeStartObject(jClass, ob, parentField, parent, needsCast, needsClassDef, iString);
     }
 
     protected boolean writeDefinitions(WriteNodePath iString) {

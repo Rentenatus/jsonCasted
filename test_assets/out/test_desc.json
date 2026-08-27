@@ -1,5 +1,8 @@
 {
-  "_woodDefinitions": [{
+  "_woodObjectId": 1,
+  "modelName": "TestModel",
+  "describedTypes": {
+    "java.lang.String": {
       "_woodObjectId": 3,
       "typeName": "java.lang.String",
       "nodeType": "STRING",
@@ -8,31 +11,6 @@
       "recursive": false,
       "mappingAllFields":  null,
       "parent":  null
-    }, 
-    {
-      "_woodObjectId": 4,
-      "collectionType":  null,
-      "typeName":  null,
-      "fieldName":  null,
-      "required":  null,
-      "constructorParam":  null,
-      "getter":  null,
-      "setter":  null
-    }, 
-    {
-      "_woodObjectId": 2,
-      "typeName":  null,
-      "nodeType":  null,
-      "skippingNulls":  null,
-      "primitive":  null,
-      "recursive":  null,
-      "mappingAllFields":  null,
-      "parent":  null
-    }]  "_woodObjectId": 1,
-  "modelName": "TestModel",
-  "describedTypes": {
-    "java.lang.String": {
-      "_woodLink": "self::3"
     }
   },
   "repoDescriptors": {}

@@ -84,7 +84,7 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
 
         valueEntry.setSkippingNulls(true);
         valueEntry.addCParam("context", valueIx);
-        valueEntry.addField("item", valueIx).makeAsDefinitional();
+        valueEntry.addField("item", valueIx);
 
         testBox = model.newJsonReflectIndividually(TestBox.class, (String) null);
         testBox.addField("subsub", valueString);

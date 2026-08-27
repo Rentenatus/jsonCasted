@@ -33,4 +33,9 @@ public class ValueSeason implements ValueInterface {
         return season.getLiteral() + ":'" + season.getName() + "'";
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + "{season=" + getText() + "}";
+    }
+
 }

@@ -30,7 +30,7 @@ import java.util.Map;
 public class NodeWriteWalker {
 
     final WriteNodePath intentPath;
-    private final WriteStrategy strategie;
+    private final WriteStrategy strategy;
     private final JsonDebugLevel debugLevel;
 
     /**
@@ -40,7 +40,7 @@ public class NodeWriteWalker {
      * @param debugLevel The debug level for controlling debug output.
      */
     public NodeWriteWalker(WriteStrategy strategie, JsonDebugLevel debugLevel) {
-        this.strategie = strategie;
+        this.strategy = strategie;
         this.intentPath = new WriteNodePath("", new ArrayList<>());
         this.debugLevel = debugLevel;
     }
@@ -53,7 +53,7 @@ public class NodeWriteWalker {
      * @param debugLevel The debug level for controlling debug output.
      */
     public NodeWriteWalker(WriteStrategy strategie, WriteNodePath intentPath, JsonDebugLevel debugLevel) {
-        this.strategie = strategie;
+        this.strategy = strategie;
         this.intentPath = intentPath;
         this.debugLevel = debugLevel;
     }
@@ -66,9 +66,15 @@ public class NodeWriteWalker {
      * @param debugLevel The debug level for controlling debug output.
      */
     public NodeWriteWalker(WriteStrategy strategie, String intentString, JsonDebugLevel debugLevel) {
-        this.strategie = strategie;
+        this.strategy = strategie;
         this.intentPath = new WriteNodePath(intentString, Collections.emptyList());
         this.debugLevel = debugLevel;
+    }
+
+    public void writeRoot(JsonNode node) throws NullPointerException, ClassCastException {
+        strategy.writeStartFile();
+        writeNode(node);
+        strategy.writeEndFile();
     }
 
     /**
@@ -88,7 +94,7 @@ public class NodeWriteWalker {
      */
     protected void writeNode(JsonNode node, WriteNodePath iString) {
         if (node == null) {
-            strategie.writeAttrNull(iString);
+            strategy.writeAttrNull(iString);
             return;
         }
         JsonNodeType type = node.getType();
@@ -100,20 +106,20 @@ public class NodeWriteWalker {
                 writeNodeArray(node, iString);
                 break;
             case STRING:
-                strategie.writeNodeValue('"' + escape(node.asText()) + '"', iString);
+                strategy.writeNodeValue('"' + escape(node.asText()) + '"', iString);
                 break;
             case NUMBER:
-                strategie.writeNodeValue(node.asNumber(), iString);
+                strategy.writeNodeValue(node.asNumber(), iString);
                 break;
             case LONG:
-                strategie.writeNodeValue(node.asLong(), iString);
+                strategy.writeNodeValue(node.asLong(), iString);
                 break;
             case BOOLEAN:
-                strategie.writeNodeValue(node.asBoolean(), iString);
+                strategy.writeNodeValue(node.asBoolean(), iString);
                 break;
             case NULL:
             default:
-                strategie.writeAttrNull(iString);
+                strategy.writeAttrNull(iString);
                 break;
         }
     }
@@ -125,7 +131,7 @@ public class NodeWriteWalker {
      * @param iString The indentation string for formatted output.
      */
     protected void writeNodeObject(JsonNode node, WriteNodePath iString) {
-        strategie.writeStart(null, node, null, null, false, false, iString);
+        strategy.writeStartObject(null, node, null, null, false, false, iString);
         boolean isFollowing = false;
         boolean hasFieldKeys = false;
         try {
@@ -134,7 +140,7 @@ public class NodeWriteWalker {
             Iterator<String> it = map.keySet().iterator();
             hasFieldKeys = it.hasNext();
             if (hasFieldKeys) {
-                strategie.writeHasFieldKeys(null, node, iString);
+                strategy.writeHasFieldKeys(null, node, iString);
             }
 
             WriteNodePath childIndent = iString.append("  ");
@@ -142,12 +148,12 @@ public class NodeWriteWalker {
                 final String nextName = it.next();
                 JsonNode attr = map.get(nextName);
 
-                strategie.writeAttrName(null, isFollowing, nextName, childIndent);
+                strategy.writeAttrName(null, isFollowing, nextName, childIndent);
                 isFollowing = true;
                 writeNode(attr, childIndent);
             }
         } finally {
-            strategie.writeEnd(null, node, isFollowing, hasFieldKeys, iString);
+            strategy.writeEndObject(null, node, isFollowing, hasFieldKeys, iString);
         }
     }
 
@@ -159,9 +165,9 @@ public class NodeWriteWalker {
      */
     public void writeNodeArray(JsonNode node, WriteNodePath iString) {
         if (node != null && node.getType() != JsonNodeType.ARRAY) {
-            strategie.writeStartArray(null, node, false, iString);
+            strategy.writeStartArray(null, node, false, iString);
             writeNode(node, iString); // fallback
-            strategie.writeEndArray(node, false, true, iString);
+            strategy.writeEndArray(node, false, true, iString);
         } else {
             writeNodeArrayItems(node, iString);
         }
@@ -174,7 +180,7 @@ public class NodeWriteWalker {
      * @param iString The indentation string for formatted output.
      */
     protected void writeNodeArrayItems(JsonNode node, WriteNodePath iString) {
-        strategie.writeStartArray(null, node, false, iString);
+        strategy.writeStartArray(null, node, false, iString);
         boolean isFollowing = false;
         try {
             List<JsonNode> list = node.asArray();
@@ -186,13 +192,13 @@ public class NodeWriteWalker {
 
                 writeNode(next, childIndent);
                 if (it.hasNext()) {
-                    strategie.writeArraySeparator(false, childIndent);
+                    strategy.writeArraySeparator(false, childIndent);
                 }
 
                 isFollowing = true;
             }
         } finally {
-            strategie.writeEndArray(node, false, isFollowing, iString);
+            strategy.writeEndArray(node, false, isFollowing, iString);
         }
 
     }

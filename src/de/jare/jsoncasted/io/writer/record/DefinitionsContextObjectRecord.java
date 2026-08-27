@@ -83,6 +83,16 @@ public class DefinitionsContextObjectRecord {
     private Disposition disposition = Disposition.UNKNOWN;
 
     /**
+     * The JSON type of the parent object.
+     */
+    private JsonType parentType;
+
+    /**
+     * The parent object.
+     */
+    private Object parent;
+
+    /**
      * Constructs a new record with the given JSON type and object.
      *
      * @param jType the JSON type of the object
@@ -298,5 +308,52 @@ public class DefinitionsContextObjectRecord {
      */
     public void asAssigned() {
         this.disposition = Disposition.ASSIGNED;
+    }
+
+    /**
+     * Returns the JSON type of the parent object.
+     *
+     * @return the parent JSON type, or null if not set
+     */
+    public JsonType getParentType() {
+        return parentType;
+    }
+
+    /**
+     * Sets the JSON type of the parent object.
+     *
+     * @param parentType the parent JSON type to assign
+     */
+    public void setParentType(JsonType parentType) {
+        this.parentType = parentType;
+    }
+
+    /**
+     * Returns the parent object.
+     *
+     * @return the parent object, or null if not set
+     */
+    public Object getParent() {
+        return parent;
+    }
+
+    /**
+     * Sets the parent object.
+     *
+     * @param parent the parent object to assign
+     */
+    public void setParent(Object parent) {
+        this.parent = parent;
+    }
+
+    /**
+     * Sets the parent object and his JSON type .
+     *
+     * @param parentType the parent JSON type to assign
+     * @param parent the parent object to assign
+     */
+    public void setParent(JsonType parentType, Object parent) {
+        this.parent = parent;
+        this.parentType = parentType;
     }
 }

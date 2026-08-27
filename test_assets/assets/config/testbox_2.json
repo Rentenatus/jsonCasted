@@ -20,6 +20,7 @@
       },
       {
         "_class": "ValueInteger",
+        "_woodObjectId": "42",
         "zahl": 42
       },
       (ValueString){ 
@@ -27,8 +28,25 @@
       },
       {
         "_woodLink": "self::100" 
+      },
+      {
+        "_woodLink": "self::42" 
+      },
+      {
+        "_class": "ValueEntry",
+        "_woodObjectId": "66",
+        "text": "Cycle 3",
+        "item": {
+          "_class": "ValueEntry",
+          "_woodObjectId": "67",
+          "text": "Cycle 4",
+          "item": {
+            "_woodLink": "this::66" 
+          }
+        }
       }    
     ],
+
     "list": [
       {
         "_class": "ValueInteger",

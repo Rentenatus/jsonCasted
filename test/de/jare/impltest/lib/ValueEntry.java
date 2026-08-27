@@ -45,4 +45,9 @@ public class ValueEntry implements ValueInterface {
         return context;
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + "{text=" + text + "hasContext=" + (context != null) + "hasItem=" + (item != null) + "}";
+    }
+
 }

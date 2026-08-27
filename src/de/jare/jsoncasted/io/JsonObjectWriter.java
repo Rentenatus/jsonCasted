@@ -215,7 +215,7 @@ public class JsonObjectWriter {
         writeInjection(ob, definitionsContext, root, castingLevel, debugLevel);
 
         final RootObjectWriteWalker walker = new RootObjectWriteWalker(printStrategy, definitionsContext, root, castingLevel, debugLevel);
-        walker.write(ob);
+        walker.writeRoot(ob);
 
         prn.flush();
     }
@@ -224,8 +224,6 @@ public class JsonObjectWriter {
         // Pre-scan for cycles and containment objects
         final ObjectCircleScannerWalker cycleScanner = new ObjectCircleScannerWalker(definitionsContext, castingLevel);
         if (ob != null && root != null) {
-            // Add root object to DefinitionsContext candidates
-            definitionsContext.addToCandidates(root, ob);
             cycleScanner.scan(ob, root);
 
             // Throw exception if forbidden cycles detected
@@ -233,9 +231,8 @@ public class JsonObjectWriter {
                 throw cycleScanner.getExceptions().iterator().next();
             }
         }
-
         final DefinitionalStrategy strategy = new DefinitionalStrategy(definitionsContext);
-        new RootObjectWriteWalker(strategy, definitionsContext, root, castingLevel, debugLevel).write(ob);
+        new RootObjectWriteWalker(strategy, definitionsContext, root, castingLevel, debugLevel).writeRoot(ob);
     }
 
     /**

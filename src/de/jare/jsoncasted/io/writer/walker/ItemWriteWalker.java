@@ -24,7 +24,7 @@ import java.util.Set;
 public class ItemWriteWalker {
 
     final WriteNodePath intentPath;
-    private final WriteStrategy strategie;
+    private final WriteStrategy strategy;
 
     /**
      * Constructs an ItemWriteWalker instance with a specified indentation string.
@@ -32,7 +32,7 @@ public class ItemWriteWalker {
      * @param strategie the write strategy to use
      */
     public ItemWriteWalker(WriteStrategy strategie) {
-        this.strategie = strategie;
+        this.strategy = strategie;
         this.intentPath = new WriteNodePath("", new ArrayList<>());
     }
 
@@ -43,7 +43,7 @@ public class ItemWriteWalker {
      * @param intentPath the path for intent tracking
      */
     public ItemWriteWalker(WriteStrategy strategie, WriteNodePath intentPath) {
-        this.strategie = strategie;
+        this.strategy = strategie;
         this.intentPath = intentPath;
     }
 
@@ -54,8 +54,14 @@ public class ItemWriteWalker {
      * @param intentString the indentation string for formatted output
      */
     public ItemWriteWalker(WriteStrategy strategie, String intentString) {
-        this.strategie = strategie;
+        this.strategy = strategie;
         this.intentPath = new WriteNodePath(intentString, new ArrayList<>());
+    }
+
+    public void writeRoot(JsonItem ob) {
+        strategy.writeStartFile();
+        writeType(ob);
+        strategy.writeEndFile();
     }
 
     /**
@@ -75,7 +81,7 @@ public class ItemWriteWalker {
      */
     protected void writeType(JsonItem item, WriteNodePath iString) {
         if (item == null) {
-            strategie.writeAttrNull(iString);
+            strategy.writeAttrNull(iString);
             return;
         }
         if (item instanceof JsonObject object) {
@@ -88,7 +94,7 @@ public class ItemWriteWalker {
     }
 
     protected void writeObject(JsonObject object, WriteNodePath iString) {
-        strategie.writeStart(null, object, null, null, false, false, iString);
+        strategy.writeStartObject(null, object, null, null, false, false, iString);
         boolean isFollowing = false;
         boolean hasFieldKeys = false;
         try {
@@ -115,50 +121,50 @@ public class ItemWriteWalker {
             java.util.Iterator<String> it = keys.iterator();
             hasFieldKeys = it.hasNext();
             if (hasFieldKeys) {
-                strategie.writeHasFieldKeys(null, object, iString);
+                strategy.writeHasFieldKeys(null, object, iString);
             }
 
             WriteNodePath childIndent = iString.append("  ").appendId(object.getResolverId());
             while (it.hasNext()) {
                 final String nextName = it.next();
                 if ("::i::".equals(nextName)) {
-                    strategie.writeAttrName(null, isFollowing, JsonTerms.TERM_WOOD_OBJECT_ID, childIndent);
-                    strategie.writeNodeValue('"' + object.getWoodKey() + '"', iString);
+                    strategy.writeAttrName(null, isFollowing, JsonTerms.TERM_WOOD_OBJECT_ID, childIndent);
+                    strategy.writeNodeValue('"' + object.getWoodKey() + '"', iString);
                     isFollowing = true;
                     continue;
                 }
                 if (".:c:.".equals(nextName)) {
-                    strategie.writeAttrName(null, isFollowing, JsonTerms.TERM_CLASS, childIndent);
-                    strategie.writeNodeValue('"' + object.getPrintClassName() + '"', iString);
+                    strategy.writeAttrName(null, isFollowing, JsonTerms.TERM_CLASS, childIndent);
+                    strategy.writeNodeValue('"' + object.getPrintClassName() + '"', iString);
                     isFollowing = true;
                     continue;
                 }
                 if ("_:r:_".equals(nextName)) {
-                    strategie.writeAttrName(null, isFollowing, JsonTerms.TERM_RESOLVER_ID, childIndent);
-                    strategie.writeNodeValue(object.getResolverId(), iString);
+                    strategy.writeAttrName(null, isFollowing, JsonTerms.TERM_RESOLVER_ID, childIndent);
+                    strategy.writeNodeValue(object.getResolverId(), iString);
                     isFollowing = true;
                     continue;
                 }
                 if ("_:c:_".equals(nextName)) {
-                    strategie.writeAttrName(null, isFollowing, JsonTerms.TERM_CYCLE_RESOLVER_ID, childIndent);
-                    strategie.writeNodeValue(object.getResolverId(), iString);
+                    strategy.writeAttrName(null, isFollowing, JsonTerms.TERM_CYCLE_RESOLVER_ID, childIndent);
+                    strategy.writeNodeValue(object.getResolverId(), iString);
                     isFollowing = true;
                     continue;
                 }
 
                 JsonItem attr = object.getParam(nextName);
 
-                strategie.writeAttrName(null, isFollowing, nextName, childIndent);
+                strategy.writeAttrName(null, isFollowing, nextName, childIndent);
                 isFollowing = true;
                 writeType(attr, childIndent);
             }
         } finally {
-            strategie.writeEnd(null, object, isFollowing, hasFieldKeys, iString);
+            strategy.writeEndObject(null, object, isFollowing, hasFieldKeys, iString);
         }
     }
 
     protected void writeList(JsonList list, WriteNodePath iString) {
-        strategie.writeStartArray(null, list, false, iString);
+        strategy.writeStartArray(null, list, false, iString);
         boolean isFollowing = false;
         try {
             java.util.Iterator<JsonItem> it = list.listIterator();
@@ -169,22 +175,22 @@ public class ItemWriteWalker {
 
                 writeType(next, childIndent);
                 if (it.hasNext()) {
-                    strategie.writeArraySeparator(false, childIndent);
+                    strategy.writeArraySeparator(false, childIndent);
                 }
 
                 isFollowing = true;
             }
         } finally {
-            strategie.writeEndArray(list, false, isFollowing, iString);
+            strategy.writeEndArray(list, false, isFollowing, iString);
         }
     }
 
     protected void writeValue(JsonValue value, WriteNodePath iString) {
         Object val = extractValue(value);
         if (val != null) {
-            strategie.writeNodeValue(val, iString);
+            strategy.writeNodeValue(val, iString);
         } else {
-            strategie.writeAttrNull(iString);
+            strategy.writeAttrNull(iString);
         }
     }
 

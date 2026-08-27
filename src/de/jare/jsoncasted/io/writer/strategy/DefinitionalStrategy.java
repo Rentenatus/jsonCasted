@@ -7,15 +7,16 @@
  */
 package de.jare.jsoncasted.io.writer.strategy;
 
-import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
-import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.WriteStrategy;
-import de.jare.jsoncasted.lang.JsonTerms;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
+import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -24,6 +25,7 @@ import java.util.List;
 public class DefinitionalStrategy implements WriteStrategy {
 
     private final DefinitionsContext definitionsContext;
+    private final Set<DefinitionsContextObjectRecord> assignableRecords = new LinkedHashSet<>();
 
     public DefinitionalStrategy(DefinitionsContext definitionsContext) {
         this.definitionsContext = definitionsContext;
@@ -82,7 +84,7 @@ public class DefinitionalStrategy implements WriteStrategy {
     }
 
     @Override
-    public void writeStart(JsonClass jClass, Object ob, JsonField parentField, Object definitionalParent, boolean needsCast, boolean needsClassDef, WriteNodePath intentPath) {
+    public void writeStartObject(JsonClass jClass, Object ob, JsonField parentField, Object definitionalParent, boolean needsCast, boolean needsClassDef, WriteNodePath intentPath) {
         // If already assigned, skip - object is already processed
         if (definitionsContext.isInAssigned(ob)) {
             return;
@@ -90,23 +92,34 @@ public class DefinitionalStrategy implements WriteStrategy {
 
         // If in definitional/container field
         if (definitionalParent != null && parentField != null && parentField.getKind().isDefinitional()) {
-            // ASSIGNABLE or new objects in container fields become ASSIGNED
-            if (!definitionsContext.isInFindings(ob)) {
-                JsonType parentType = parentField.getjType();
-                definitionsContext.addToAssignable(jClass, ob, parentType, definitionalParent);
+            // possibly ASSIGNABLE   
+            JsonType parentType = parentField.getjType();
+            DefinitionsContextObjectRecord record = definitionsContext.getOrCreate(jClass, ob);
+            if (!assignableRecords.contains(record)) {
+                record.setParent(parentType, definitionalParent);
+                assignableRecords.add(record);
             }
-            // FINDING objects remain as FINDING (will be written as definitions)
-        } else if (definitionsContext.isInCandidates(ob)) {
+        }
+
+        if (definitionsContext.isInCandidates(ob)) {
             // Already seen as candidate -> move to FINDING
             definitionsContext.moveToFindings(ob);
-        } else if (definitionsContext.isInAssignable(ob)) {
-            // ASSIGNABLE object not in container field -> move to FINDING
-            definitionsContext.moveToFindings(ob);
-        } else if (!definitionsContext.isInFindings(ob) && !definitionsContext.isInAssigned(ob)) {
+        } else if (!definitionsContext.isInFindings(ob)
+                && !definitionsContext.isInAssigned(ob)
+                && !definitionsContext.isInAssignable(ob)) {
             // First time seeing this object -> CANDIDATE
             definitionsContext.addToCandidates(jClass, ob);
         }
+    }
 
+    @Override
+    public void writeEndFile() {
+        for (DefinitionsContextObjectRecord record : assignableRecords) {
+            if (record.isFinding() || record.isCandidate()) {
+                Object ob = record.getObject();
+                definitionsContext.moveToAssignable(ob);
+            }
+        }
     }
 
     @Override
@@ -115,7 +128,7 @@ public class DefinitionalStrategy implements WriteStrategy {
     }
 
     @Override
-    public void writeEnd(JsonClass jClass, Object ob, boolean isFollowing, boolean hasFieldKeys, WriteNodePath iString) {
+    public void writeEndObject(JsonClass jClass, Object ob, boolean isFollowing, boolean hasFieldKeys, WriteNodePath iString) {
         //NoOp
     }
 

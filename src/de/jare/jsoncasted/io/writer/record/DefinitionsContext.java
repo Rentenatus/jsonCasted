@@ -136,21 +136,6 @@ public class DefinitionsContext {
         return record;
     }
 
-    /**
-     * Moves an existing object to assignable state.
-     *
-     * @param ob the object to move
-     * @return the record for the object, or null if not found
-     */
-    public DefinitionsContextObjectRecord moveToAssignable(Object ob) {
-        DefinitionsContextObjectRecord record = recordMap.get(ob);
-        if (record == null) {
-            return null;
-        }
-        record.asAssignable();
-        return record;
-    }
-
     public DefinitionsContextObjectRecord moveToFindings(Object ob) {
         DefinitionsContextObjectRecord record = recordMap.get(ob);
         if (record == null) {
@@ -166,6 +151,28 @@ public class DefinitionsContext {
             return null;
         }
         record.asAssignable();
+        record.setParent(parentType, parent);
+        // parent:
+        if (parent == null) {
+            return record;
+        }
+        record = getOrCreate(parentType, parent);
+        record.asContainer();
+        return record;
+    }
+
+    public DefinitionsContextObjectRecord moveToAssignable(Object ob) {
+        DefinitionsContextObjectRecord record = recordMap.get(ob);
+        if (record == null) {
+            return null;
+        }
+        record.asAssignable();
+        // parent:
+        JsonType parentType = record.getParentType();
+        Object parent = record.getParent();
+        if (parent == null) {
+            return record;
+        }
         record = getOrCreate(parentType, parent);
         record.asContainer();
         return record;
@@ -174,6 +181,10 @@ public class DefinitionsContext {
     public DefinitionsContextObjectRecord addToAssignable(JsonType jType, Object ob, JsonType parentType, Object parent) {
         DefinitionsContextObjectRecord record = getOrCreate(jType, ob);
         record.asAssignable();
+        // parent:
+        if (parent == null) {
+            return record;
+        }
         record = getOrCreate(parentType, parent);
         record.asContainer();
         return record;
