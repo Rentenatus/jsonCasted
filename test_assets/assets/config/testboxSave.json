@@ -1,4 +1,5 @@
 {
+    "_class": "TestBox",
     "subsub": {
       "_class": "ValueStringSubSub",
       "text": "subsub",
@@ -26,5 +27,4 @@
         "zahl": -42
       }
     ]
-
 }

@@ -8,6 +8,7 @@ package de.jare.jsoncasted.io.convertservice;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonSystem;
@@ -80,10 +81,11 @@ public final class RootConverter {
             JsonModelDescriptor repoDesc = descriptor.getRepoDescriptorOrThis(resName);
             WoodElementResolver.resolve(itemRes, repoDesc, resolution, debugLevel);
             if (itemRes != res) {
-                JsonNodeConverter.convert(itemRes, null, repoDesc, resolution, debugLevel);
+                final JsonItem lokAnswer
+                        = JsonNodeConverter.convert(itemRes, null, repoDesc, resolution, debugLevel);
+                resolution.putAnswer(resName, lokAnswer);
             }
         }
-
         resolution.setAnswer(JsonNodeConverter.convert(res, cName, descriptor, resolution, debugLevel));
         return resolution;
     }
