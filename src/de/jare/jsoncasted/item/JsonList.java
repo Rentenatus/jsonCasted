@@ -123,6 +123,15 @@ public class JsonList implements JsonItem {
     }
 
     /**
+     * Returns whether this list is structured as a typical JSON array.
+     *
+     * @return true if the list is structured as a typical JSON array.
+     */
+    public boolean isAsListFlag() {
+        return asList;
+    }
+
+    /**
      * Returns a string representation of the JSON list's type.
      *
      * @return "List<>" for structured lists, or "[]" for simple arrays.
@@ -173,6 +182,25 @@ public class JsonList implements JsonItem {
     @Override
     public void setResolverId(long resolverId) {
         this.resolverId = resolverId;
+    }
+
+    /**
+     * Returns the context class descriptor of this JSON list.
+     *
+     * @return The context class descriptor.
+     */
+    public JsonTypeDescriptor getContextClass() {
+        return contextClass;
+    }
+
+    @Override
+    public JsonItem cloneDeep() {
+        return de.jare.jsoncasted.io.convertservice.JsonItemCloner.cloneItem(this);
+    }
+
+    @Override
+    public JsonItem cloneShallow() {
+        return new JsonList(list, asList, contextClass, resolverId);
     }
 
 }

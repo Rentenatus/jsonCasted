@@ -136,4 +136,17 @@ public interface JsonItem {
      */
     public void setResolverId(long resolverId);
 
+    /**
+     * Creates a deep clone of this JSON item.
+     *
+     * @return A deep clone of this item.
+     */
+    public JsonItem cloneDeep();
+    /**
+     * Creates a deep clone of this JSON item.
+     *
+     * @return A deep clone of this item.
+     */
+    public JsonItem cloneShallow();
+
 }

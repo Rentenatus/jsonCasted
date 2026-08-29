@@ -122,6 +122,8 @@ public class TestBoxNGTest {
         }
         assertNotNull(obj1);
         assertNotNull(obj2);
+        JsonItem obj3 = obj1.cloneDeep();
+        assertNotNull(obj3);
         System.out.println("Target=============================================== Print node");
         try {
             JsonNodeWriter.write(node, System.out);
