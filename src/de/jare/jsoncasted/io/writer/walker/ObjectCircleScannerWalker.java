@@ -72,7 +72,7 @@ public class ObjectCircleScannerWalker {
      * @param jClass The JSON class definition of the object
      */
     public void scan(Object ob, JsonClass jClass) {
-        scan(ob, jClass, intentPath);
+        scan(ob, jClass, intentPath, false);
     }
 
     /**
@@ -81,8 +81,9 @@ public class ObjectCircleScannerWalker {
      * @param ob The object to scan
      * @param jClass The JSON class definition of the object
      * @param path The current path in the object graph
+     * @param inOwnedIntent true if scanning within an owned field context (CONTAINMENT)
      */
-    protected void scan(Object ob, JsonClass jClass, WriteNodePath path) {
+    protected void scan(Object ob, JsonClass jClass, WriteNodePath path, boolean inOwnedIntent) {
         if (ob == null) {
             return;
         }
@@ -94,8 +95,8 @@ public class ObjectCircleScannerWalker {
         if (path.ids().contains(objectId)) {
             checkCycle(ob, path);
             findings.add(ob);
-            // Add to DefinitionsContext findings
-            if (jClass != null) {
+            // Only add to candidates if not   an owned object (CONTAINMENT), as they are handled separately
+            if (jClass != null && !inOwnedIntent) {
                 definitionsContext.addToCandidates(jClass, ob);
             }
             return;
@@ -106,9 +107,9 @@ public class ObjectCircleScannerWalker {
 
         // Handle different object types
         if (ob instanceof Collection<?>) {
-            scanCollection((Collection<?>) ob, jClass, objectPath);
+            scanCollection((Collection<?>) ob, jClass, objectPath, inOwnedIntent);
         } else if (ob.getClass().isArray()) {
-            scanArray(ob, jClass, objectPath);
+            scanArray(ob, jClass, objectPath, inOwnedIntent);
         } else if (jClass != null) {
             scanObject(ob, jClass, objectPath);
         }
@@ -118,11 +119,12 @@ public class ObjectCircleScannerWalker {
      * Scans a collection for cycles.Note: This method is called when the object is a Collection but we don't have the
      * JsonField context.For proper item type resolution, we need the JsonField that declared this collection.
      *
-     * @param collection
-     * @param jClass
-     * @param path
+     * @param collection The collection to scan
+     * @param jClass The JSON class definition of the object
+     * @param path The current path in the object graph
+     * @param inOwnedIntent true if scanning within an owned field context (CONTAINMENT)
      */
-    protected void scanCollection(Collection<?> collection, JsonClass jClass, WriteNodePath path) {
+    protected void scanCollection(Collection<?> collection, JsonClass jClass, WriteNodePath path, boolean inOwnedIntent) {
         WriteNodePath listPath = path.append("i");
         int collectionId = System.identityHashCode(collection);
         listPath = listPath.appendOb(collectionId);
@@ -132,7 +134,7 @@ public class ObjectCircleScannerWalker {
                 // Without JsonField context, we can only use the runtime class
                 // This is a fallback for raw collections without type information
                 JsonClass itemClass = definitionsContext.getModel().getJsonClass(item.getClass());
-                scan(item, itemClass, listPath);
+                scan(item, itemClass, listPath, inOwnedIntent);
             }
         }
     }
@@ -141,11 +143,12 @@ public class ObjectCircleScannerWalker {
      * Scans an array for cycles.Note: This method is called when the object is an array but we don't have the JsonField
      * context.
      *
-     * @param array
-     * @param jClass
-     * @param path
+     * @param array The array to scan
+     * @param jClass The JSON class definition of the object
+     * @param path The current path in the object graph
+     * @param inOwnedIntent true if scanning within an owned field context (CONTAINMENT)
      */
-    protected void scanArray(Object array, JsonClass jClass, WriteNodePath path) {
+    protected void scanArray(Object array, JsonClass jClass, WriteNodePath path, boolean inOwnedIntent) {
         WriteNodePath arrayPath = path.append("i");
         int arrayId = System.identityHashCode(array);
         arrayPath = arrayPath.appendOb(arrayId);
@@ -158,7 +161,7 @@ public class ObjectCircleScannerWalker {
             if (item != null) {
                 // Without JsonField context, use the array component type
                 JsonClass itemClass = definitionsContext.getModel().getJsonClass(componentType);
-                scan(item, itemClass, arrayPath);
+                scan(item, itemClass, arrayPath, inOwnedIntent);
             }
         }
     }
@@ -166,9 +169,9 @@ public class ObjectCircleScannerWalker {
     /**
      * Scans a regular object for cycles by examining its fields.
      *
-     * @param ob
-     * @param jClass
-     * @param path
+     * @param ob The object to scan
+     * @param jClass The JSON class definition of the object
+     * @param path The current path in the object graph
      */
     protected void scanObject(Object ob, JsonClass jClass, WriteNodePath path) {
         Iterator<String> it = jClass.keysForWriteIterator(ob);
@@ -185,8 +188,14 @@ public class ObjectCircleScannerWalker {
                     JsonClass fieldClass = definitionsContext.getModel().getJsonClass(fieldType.getcName());
                     boolean isConstructorParam = jsonField.isConstructorParam();
 
-                    WriteNodePath fieldPath = path.append(isConstructorParam ? "c" : "f");
-                    scan(fieldValue, fieldClass, fieldPath);
+                    // Owned fields (CONTAINMENT) start a new intent with an isolated path
+                    if (jsonField.getKind().isOwned()) {
+                        WriteNodePath ownedPath = new WriteNodePath("o", new ArrayList<>());
+                        scan(fieldValue, fieldClass, ownedPath, true);
+                    } else {
+                        WriteNodePath fieldPath = path.append(isConstructorParam ? "c" : "f").appendOb(fieldValue);
+                        scan(fieldValue, fieldClass, fieldPath, false);
+                    }
                 }
             }
         }

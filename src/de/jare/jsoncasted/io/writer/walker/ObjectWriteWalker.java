@@ -116,7 +116,9 @@ public class ObjectWriteWalker {
         }
 
         // Check if object should be written as link reference (ASSIGNED objects or Circle)
-        if (shouldWriteAsLink(ob) || intentPath.ids().contains(ob)) {
+        // Owned-Felder (CONTAINMENT) werden NIE als Link geschrieben, sondern immer inline
+        boolean isOwnedFieldContext = parentField != null && parentField.getKind().isOwned();
+        if ((shouldWriteAsLink(ob) || intentPath.ids().contains(ob)) && !isOwnedFieldContext) {
             writeObjectAsLink(jClass, ob);
         } else {
             writeObjectProf(jClass, ob);
@@ -127,7 +129,7 @@ public class ObjectWriteWalker {
      * Writes an object as a _woodLink reference.
      *
      * @param ob the object to write as link
-     * @param jClass
+     * @param jClass the JSON class of the object
      */
     protected void writeObjectAsLink(JsonClass jClass, final Object ob) {
         try {
@@ -156,6 +158,12 @@ public class ObjectWriteWalker {
         }
     }
 
+    /**
+     * Writes an object as a JSON structure with full serialization.
+     *
+     * @param jClass the JSON class of the object
+     * @param ob the object to write
+     */
     public void writeObjectProf(JsonClass jClass, final Object ob) {
         boolean isFollowing = false;
         boolean hasFieldKeys = false;
@@ -169,13 +177,17 @@ public class ObjectWriteWalker {
                 isFollowing = writeDefinitions(iString);
 
                 // Write _woodObjectId if a local ID is assigned in DefinitionsContext
-                DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
-                if (record != null) {
-                    long localId = record.getLocalId();
-                    if (localId >= 0) {
-                        strategy.writeAttrName(jClass, isFollowing, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
-                        strategy.writePrimitive(JSON_CLASS_LONG, localId, iString);
-                        isFollowing = true;
+                // Owned-Objekte erhalten KEINE _woodObjectId
+                boolean isOwnedFieldContext = parentField != null && parentField.getKind().isOwned();
+                if (!isOwnedFieldContext) {
+                    DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
+                    if (record != null) {
+                        long localId = record.getLocalId();
+                        if (localId >= 0) {
+                            strategy.writeAttrName(jClass, isFollowing, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
+                            strategy.writePrimitive(JSON_CLASS_LONG, localId, iString);
+                            isFollowing = true;
+                        }
                     }
                 }
             }
@@ -198,6 +210,13 @@ public class ObjectWriteWalker {
         }
     }
 
+    /**
+     * Checks if an object has field keys for serialization.
+     *
+     * @param jClass the JSON class of the object
+     * @param ob the object to check
+     * @return true if the object has field keys, false otherwise
+     */
     public boolean hasFieldKeys(JsonClass jClass, final Object ob) {
         return objectGetter.hasFieldKeys(jClass, ob);
     }
@@ -208,6 +227,12 @@ public class ObjectWriteWalker {
         strategy.writeStartObject(jClass, ob, parentField, parent, needsCast, needsClassDef, iString);
     }
 
+    /**
+     * Determines if an object should be written as a defintion in the JSON output.
+     *
+     * @param iString
+     * @return true if the object should be written as a definition, false otherwise
+     */
     protected boolean writeDefinitions(WriteNodePath iString) {
         return false;
         // NoOp, only for roots
@@ -218,7 +243,7 @@ public class ObjectWriteWalker {
      *
      * @param jField The JSON field definition.
      * @param attr The attribute value.
-     * @param owner
+     * @param owner The owner object of the attribute.
      * @param iString The indentation string for formatted output.
      */
     protected void writeAttr(JsonField jField, Object attr, Object owner, WriteNodePath iString) {
@@ -228,14 +253,26 @@ public class ObjectWriteWalker {
         }
         final JsonType attrType = jField.getjType();
         boolean definitional = jField.getKind().isDefinitional();
+        // Owned fields (CONTAINMENT) are always serialized inline with definitionalOwner
+        boolean isOwned = jField.getKind().isOwned();
+        Object effectiveOwner = (definitional || isOwned) ? owner : null;
         if (jField.isAsListOrArray()) {
-            writeList(attrType, attr, jField, definitional ? owner : null, iString);
+            writeList(attrType, attr, jField, effectiveOwner, iString);
         } else {
 
-            writeSingle(attrType, attr, jField, definitional ? owner : null, iString);
+            writeSingle(attrType, attr, jField, effectiveOwner, iString);
         }
     }
 
+    /**
+     * Writes a single JSON attribute based on its type.
+     *
+     * @param fieldType The type of the attribute.
+     * @param attr The value of the attribute.
+     * @param jField The JSON field definition.
+     * @param definitionalOwner The owner object of the attribute.
+     * @param iString The indentation string for formatted output.
+     */
     public void writeSingle(final JsonType fieldType, Object attr, JsonField jField, Object definitionalOwner, WriteNodePath iString) {
 
         if (fieldType.isBoxOrPrimitive()) {
@@ -267,8 +304,8 @@ public class ObjectWriteWalker {
      *
      * @param jTypeItem The JSON type of list items.
      * @param attr The list to serialize.
-     * @param jField
-     * @param definitionalOwner
+     * @param jField The JSON field definition.
+     * @param definitionalOwner The owner object of the list.
      * @param iString The indentation string for formatted output.
      */
     protected void writeList(JsonType jTypeItem, Object attr, JsonField jField, Object definitionalOwner, WriteNodePath iString) {
@@ -290,7 +327,7 @@ public class ObjectWriteWalker {
      *
      * @param jMap The JSON type of the object.
      * @param attr The object to serialize.
-     * @param definitionalOwner
+     * @param definitionalOwner The owner object of the attribute.
      * @param iString The indentation string for formatted output.
      */
     protected void writeMap(JsonMap jMap, Object attr, Object definitionalOwner, WriteNodePath iString) {
@@ -309,8 +346,8 @@ public class ObjectWriteWalker {
      *
      * @param jTypeItem The JSON type of the object.
      * @param attr The object to serialize.
-     * @param jField
-     * @param definitionalOwner
+     * @param jField The JSON field definition.
+     * @param definitionalOwner The owner object of the attribute.
      * @param iString The indentation string for formatted output.
      */
     protected void writeObject(JsonType jTypeItem, Object attr, JsonField jField, Object definitionalOwner, WriteNodePath iString) {
