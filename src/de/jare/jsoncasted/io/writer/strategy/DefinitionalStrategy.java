@@ -107,8 +107,16 @@ public class DefinitionalStrategy implements WriteStrategy {
         } else if (!definitionsContext.isInFindings(ob)
                 && !definitionsContext.isInAssigned(ob)
                 && !definitionsContext.isInAssignable(ob)) {
-            // First time seeing this object -> CANDIDATE
-            definitionsContext.addToCandidates(jClass, ob);
+            final boolean isExternalReferenceFieldContext
+                    = parentField != null
+                    && parentField.getKind().isExternalReference();
+            if (isExternalReferenceFieldContext) {
+                // I am seeing this object for the first time, but its destiny is to be a reference. 
+                definitionsContext.addToFindings(jClass, ob);
+            } else {
+                // First time seeing this object -> CANDIDATE
+                definitionsContext.addToCandidates(jClass, ob);
+            }
         }
     }
 
