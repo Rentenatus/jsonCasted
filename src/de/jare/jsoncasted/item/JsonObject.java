@@ -191,6 +191,28 @@ public class JsonObject implements JsonItem {
     }
 
     /**
+     * Returns the context class descriptor of this JSON object.
+     *
+     * @return The context class descriptor.
+     */
+    public JsonTypeDescriptor getContextClass() {
+        return contextClass;
+    }
+
+    @Override
+    public JsonItem cloneDeep() {
+        return de.jare.jsoncasted.io.convertservice.JsonItemCloner.cloneItem(this);
+    }
+
+    @Override
+    public JsonItem cloneItemShallow() {
+        JsonObject shallowCopy = new JsonObject(contextClass, resolverId);
+        shallowCopy.map.putAll(this.map);
+        shallowCopy.woodKey = this.woodKey;
+        return shallowCopy;
+    }
+
+    /**
      * Builds an instance of an object based on the JSON structure.
      *
      * @return The constructed object, or null if jClass is undefined.

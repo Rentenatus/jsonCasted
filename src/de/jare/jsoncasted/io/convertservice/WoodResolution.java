@@ -9,6 +9,7 @@ package de.jare.jsoncasted.io.convertservice;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.item.JsonItem;
 import static de.jare.jsoncasted.lang.JsonTerms.COLONCOLON;
+import static de.jare.jsoncasted.lang.JsonTerms.SELF_SYNONYM;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -30,7 +31,7 @@ public class WoodResolution {
     private final Map<String, JsonItem> resolvedObjects;
     private final Set<String> unresolvedKeys;
     private final List<JsonParseException> exceptions;
-    private JsonItem answer;
+    private final Map<String, JsonItem> answerMap;
     private final AtomicLong atomicLong;
 
     /**
@@ -40,7 +41,7 @@ public class WoodResolution {
         this.resolvedObjects = new LinkedHashMap<>();
         this.unresolvedKeys = new LinkedHashSet<>();
         this.exceptions = new ArrayList<>();
-        this.answer = null;
+        this.answerMap = new LinkedHashMap<>();
         this.atomicLong = new AtomicLong(100);
     }
 
@@ -53,7 +54,7 @@ public class WoodResolution {
         this.resolvedObjects = new LinkedHashMap<>();
         this.unresolvedKeys = new LinkedHashSet<>();
         this.exceptions = new ArrayList<>();
-        this.answer = null;
+        this.answerMap = new LinkedHashMap<>();
         this.atomicLong = parentWoodResolution.atomicLong;
     }
 
@@ -194,11 +195,68 @@ public class WoodResolution {
     }
 
     public JsonItem getAnswer() {
-        return answer;
+        return answerMap.get(SELF_SYNONYM);
     }
 
     public void setAnswer(JsonItem answer) {
-        this.answer = answer;
+        answerMap.put(SELF_SYNONYM, answer);
+    }
+
+    /**
+     * Adds or updates the root object for a specific provider.
+     *
+     * @param providerName The name of the provider.
+     * @param rootObject The resolved root JsonItem for the provider.
+     * @throws NullPointerException If providerName or rootObject is null.
+     */
+    public void putAnswer(String providerName, JsonItem rootObject) {
+        if (rootObject == null) {
+            return;
+        }
+        Objects.requireNonNull(providerName, "providerName must not be null");
+        answerMap.put(providerName, rootObject);
+    }
+
+    /**
+     * Retrieves the root object for a specific provider.
+     *
+     * @param providerName The name of the provider.
+     * @return The resolved root JsonItem for the provider, or null if not found.
+     * @throws NullPointerException If providerName is null.
+     */
+    public JsonItem getAnswer(String providerName) {
+        Objects.requireNonNull(providerName, "providerName must not be null");
+        return answerMap.get(providerName);
+    }
+
+    /**
+     * Returns an unmodifiable view of the answer map containing all provider root objects.
+     *
+     * @return An unmodifiable map of provider names to their root JsonItems.
+     */
+    public Map<String, JsonItem> getAnswerMap() {
+        return Collections.unmodifiableMap(answerMap);
+    }
+
+    /**
+     * Checks if a root object exists for the specified provider.
+     *
+     * @param providerName The name of the provider to check.
+     * @return true if the provider has a root object, false otherwise.
+     * @throws NullPointerException If providerName is null.
+     */
+    public boolean hasAnswer(String providerName) {
+        Objects.requireNonNull(providerName, "providerName must not be null");
+        return answerMap.containsKey(providerName);
+    }
+
+    /**
+     * Returns the set of all provider names that have a root object stored.
+     *
+     * @return An unmodifiable set of provider names.
+     */
+    public Set<String> getAnswerProviderNames() {
+        return Collections.unmodifiableSet(answerMap.keySet());
     }
 
     public long getAtomicLong() {
@@ -212,7 +270,7 @@ public class WoodResolution {
     @Override
     public String toString() {
         return "WoodResolution{"
-                + "answer={" + answer
+                + "answerMap=" + answerMap
                 + "}, resolvedObjectsSize=" + resolvedObjects.size()
                 + ", unresolvedKeysSize=" + unresolvedKeys.size()
                 + ", exceptionsSize=" + exceptions.size()

@@ -286,4 +286,51 @@ public class JsonValue implements JsonItem {
         this.resolverId = resolverId;
     }
 
+    /**
+     * Returns the context class descriptor of this JSON value.
+     *
+     * @return The context class descriptor.
+     */
+    public JsonTypeDescriptor getContextClass() {
+        return contextClass;
+    }
+
+    @Override
+    public JsonItem cloneDeep() {
+        if (strValue != null) {
+            return new JsonValue(strValue, contextClass);
+        } else if (numberValue != null) {
+            return new JsonValue(numberValue, contextClass);
+        } else if (longValue != null) {
+            return new JsonValue(longValue, contextClass);
+        } else if (boolValue != null) {
+            return new JsonValue(boolValue, contextClass);
+        }
+        return new JsonValue(contextClass);
+    }
+
+    @Override
+    public JsonItem cloneItemShallow() {
+        if (strValue != null) {
+            JsonValue shallowCopy = new JsonValue(strValue, contextClass);
+            shallowCopy.resolverId = this.resolverId;
+            return shallowCopy;
+        } else if (numberValue != null) {
+            JsonValue shallowCopy = new JsonValue(numberValue, contextClass);
+            shallowCopy.resolverId = this.resolverId;
+            return shallowCopy;
+        } else if (longValue != null) {
+            JsonValue shallowCopy = new JsonValue(longValue, contextClass);
+            shallowCopy.resolverId = this.resolverId;
+            return shallowCopy;
+        } else if (boolValue != null) {
+            JsonValue shallowCopy = new JsonValue(boolValue, contextClass);
+            shallowCopy.resolverId = this.resolverId;
+            return shallowCopy;
+        }
+        JsonValue shallowCopy = new JsonValue(contextClass);
+        shallowCopy.resolverId = this.resolverId;
+        return shallowCopy;
+    }
+
 }

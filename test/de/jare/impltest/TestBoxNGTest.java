@@ -10,11 +10,13 @@ import de.jare.debug.JsonDebugLevel;
 import de.jare.impltest.lib.ImplTestDefinition;
 import de.jare.impltest.lib.TestBox;
 import de.jare.impltest.lib.ValueInterface;
+import de.jare.jsoncasted.io.JsonItemWriter;
 import de.jare.jsoncasted.io.JsonNodeWriter;
 import de.jare.jsoncasted.io.JsonObjectWriter;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
 import de.jare.jsoncasted.io.JsonWriteException;
+import de.jare.jsoncasted.io.convertservice.WoodResolution;
 import de.jare.jsoncasted.io.parserservice.JsonParserService;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.JsonBuilder;
@@ -102,6 +104,7 @@ public class TestBoxNGTest {
         System.out.println(configFile.getAbsolutePath());
 
         JsonItem obj1 = null;
+        JsonItem obj2 = null;
         JsonNode node = null;
         try {
             final JsonResource res = JsonParserService.parse(configFile, JsonDebugLevel.INFO);
@@ -110,12 +113,17 @@ public class TestBoxNGTest {
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
             final JsonModelDescriptor descriptor = definition.getDescriptor();
-            obj1 = JsonParser.parse(res, descriptor, definition.getTestBox().getcName(), JsonDebugLevel.INFO).getAnswer();
+            final WoodResolution resolution = JsonParser.parse(res, descriptor, definition.getTestBox().getcName(), JsonDebugLevel.INFO);
+            obj1 = resolution.getAnswer();
+            obj2 = resolution.getAnswer("save");
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
         assertNotNull(obj1);
+        assertNotNull(obj2);
+        JsonItem obj3 = obj1.cloneDeep();
+        assertNotNull(obj3);
         System.out.println("Target=============================================== Print node");
         try {
             JsonNodeWriter.write(node, System.out);
@@ -124,38 +132,70 @@ public class TestBoxNGTest {
             fail(ex.getMessage(), ex);
         }
         System.out.println();
+        System.out.println("Target=============================================== Print items");
+        try {
+            JsonItemWriter.write(obj1, System.out);
+        } catch (IOException | JsonParseException | JsonWriteException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        }
+        System.out.println();
+        try {
+            JsonItemWriter.write(obj2, System.out);
+        } catch (IOException | JsonParseException | JsonWriteException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        }
+        System.out.println();
         System.out.println("Target=============================================== Config Class");
         System.out.println(obj1.getClass());
+        System.out.println(obj2.getClass());
 
-        TestBox root = null;
+        TestBox root1 = null;
+        TestBox root2 = null;
         try {
             final Object buildInstance1 = JsonBuilder.buildInstance(definition.getModel(), false, obj1);
             System.out.println(buildInstance1.getClass().getName());
-            assertNotNull(root = (TestBox) buildInstance1);
+            assertNotNull(root1 = (TestBox) buildInstance1);
         } catch (JsonBuildException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
-        System.out.println("Target=============================================== Print object");
         try {
-            JsonObjectWriter.write(root, System.out, definition, definition.getTestBox());
+            final Object buildInstance2 = JsonBuilder.buildInstance(definition.getModel(), false, obj2);
+            System.out.println(buildInstance2.getClass().getName());
+            assertNotNull(root2 = (TestBox) buildInstance2);
+        } catch (JsonBuildException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        }
+        System.out.println("Target=============================================== Print objects");
+        try {
+            JsonObjectWriter.write(root1, System.out, definition, definition.getTestBox());
+        } catch (IOException | JsonParseException | JsonWriteException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+        }
+        System.out.println();
+        try {
+            JsonObjectWriter.write(root2, System.out, definition, definition.getTestBox());
         } catch (IOException | JsonParseException | JsonWriteException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
         System.out.println();
         System.out.println("Target=============================================== Comment");
-        assertNotNull(root.getOne());
-        assertNotNull(root.getList());
-        assertNotNull(root.getArr());
-        System.out.println("subsub  = " + root.getSubsub().getText());
-        System.out.println("one  = " + root.getOne().getText());
-        for (ValueInterface elem : root.getArr()) {
+        assertNotNull(root1.getOne());
+        assertNotNull(root1.getList());
+        assertNotNull(root1.getArr());
+        System.out.println("subsub  = " + root1.getSubsub().getText());
+        System.out.println("one  = " + root1.getOne().getText());
+        for (ValueInterface elem : root1.getArr()) {
             System.out.println("elem  > " + elem.getText());
         }
         System.out.println("Target===============================================");
-        System.out.println(root);
-        return root;
+        System.out.println(root1);
+        return root1;
     }
 
     /**

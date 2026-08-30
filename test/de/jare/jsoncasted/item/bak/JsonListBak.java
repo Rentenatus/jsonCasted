@@ -176,4 +176,14 @@ public class JsonListBak implements JsonItem {
         // NoOp
     }
 
+    @Override
+    public JsonItem cloneDeep() {
+        throw new UnsupportedOperationException("JsonListBak does not support cloning");
+    }
+
+    @Override
+    public JsonItem cloneItemShallow() {
+        throw new UnsupportedOperationException("JsonValueBak does not support cloning");
+    }
+
 }

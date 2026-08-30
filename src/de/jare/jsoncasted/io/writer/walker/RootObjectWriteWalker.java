@@ -141,7 +141,6 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
             if (effectiveCastingLevel != JsonCastingLevel.NEVER) {
                 effectiveCastingLevel = JsonCastingLevel.ALWAYS_CLASS_DEF;
             }
-
             if (jsonType instanceof JsonMap jMap) {
                 MapWriteWalker mapWriter = new MapWriteWalker(
                         strategy,

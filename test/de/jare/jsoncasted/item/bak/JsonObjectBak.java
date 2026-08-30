@@ -185,4 +185,15 @@ public class JsonObjectBak implements JsonItem {
     public void setResolverId(long resolverId) {
         // NoOp
     }
+
+    @Override
+    public JsonItem cloneDeep() {
+        throw new UnsupportedOperationException("JsonObjectBak does not support cloning");
+    }
+
+    @Override
+    public JsonItem cloneItemShallow() {
+        throw new UnsupportedOperationException("JsonValueBak does not support cloning");
+    }
+
 }

@@ -42,9 +42,9 @@ public enum FieldKind {
      */
     REFERENCE(2, "Reference", "REFERENCE", false, true, false),
     /**
-     * Reference field, can pointing to another object via ID/link.
+     * Definiitional type, source of reference.
      */
-    DEFINITIONAL(3, "Definiitional", "DEFINITIONAL", false, true, true);
+    DEFINITIONAL(3, "Definiitional", "DEFINITIONAL", false, false, true);
 
     // --- Integer values for each literal ---
     public static final int ATTRIBUTE_VALUE = 0;

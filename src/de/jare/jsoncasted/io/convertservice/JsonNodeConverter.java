@@ -59,7 +59,7 @@ public class JsonNodeConverter {
         if (contextClass == null) {
             String className = res.getRoot().getCast();
             if (className != null) {
-                contextClass = descriptor.getType(className);
+                contextClass = descriptor.getTypePerceptive(className);
             }
             if (contextClass == null) {
                 return null;
