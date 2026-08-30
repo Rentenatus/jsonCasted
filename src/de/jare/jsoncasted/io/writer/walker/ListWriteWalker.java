@@ -7,15 +7,16 @@ package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
-import de.jare.jsoncasted.io.writer.WriteNodePath;
-import de.jare.jsoncasted.io.writer.WriteStrategy;
-import de.jare.jsoncasted.io.writer.getter.ListGetter;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
+import de.jare.jsoncasted.io.writer.WriteNodePath;
+import de.jare.jsoncasted.io.writer.getter.ListGetter;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
-import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
 import java.util.Iterator;
+import de.jare.jsoncasted.io.writer.WriteStrategy;
+import de.jare.jsoncasted.model.item.JsonField;
 
 /**
  *
