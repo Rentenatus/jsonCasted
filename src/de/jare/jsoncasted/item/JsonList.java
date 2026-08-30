@@ -199,8 +199,16 @@ public class JsonList implements JsonItem {
     }
 
     @Override
-    public JsonItem cloneShallow() {
-        return new JsonList(list, asList, contextClass, resolverId);
+    public JsonItem cloneItemShallow() {
+        if (list == null) {
+            return new JsonList(new ArrayList<>(), asList, contextClass, resolverId);
+        }
+        ArrayList<JsonItem> listCopy = new ArrayList<>(list.size());
+        // Copy each item in the list to the new list
+        for (JsonItem item : list) {
+            listCopy.add(item.cloneItemShallow());
+        }
+        return new JsonList(listCopy, asList, contextClass, resolverId);
     }
 
 }

@@ -142,11 +142,14 @@ public interface JsonItem {
      * @return A deep clone of this item.
      */
     public JsonItem cloneDeep();
+
     /**
      * Creates a deep clone of this JSON item.
      *
+     * For Objects shallow, for List clone all items shallow.
+     *
      * @return A deep clone of this item.
      */
-    public JsonItem cloneShallow();
+    public JsonItem cloneItemShallow();
 
 }

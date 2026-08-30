@@ -249,7 +249,7 @@ public class JsonObjectConverter {
         
         // Clone for CONTAINMENT fields to ensure ownership
         if (field.getKind() != null && field.getKind().isOwned()) {
-            paramObject = paramObject.cloneShallow();
+            paramObject = paramObject.cloneItemShallow();
         }
         
         myObject.putParam(paramName, paramObject);
@@ -344,7 +344,7 @@ public class JsonObjectConverter {
         if (field instanceof JsonFieldDescriptor) {
             JsonFieldDescriptor jField = (JsonFieldDescriptor) field;
             if (jField.getKind() != null && jField.getKind().isOwned()) {
-                paramObject = paramObject.cloneShallow();
+                paramObject = paramObject.cloneItemShallow();
             }
         }
         

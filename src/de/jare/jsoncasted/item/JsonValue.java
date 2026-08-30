@@ -310,7 +310,7 @@ public class JsonValue implements JsonItem {
     }
 
     @Override
-    public JsonItem cloneShallow() {
+    public JsonItem cloneItemShallow() {
         if (strValue != null) {
             JsonValue shallowCopy = new JsonValue(strValue, contextClass);
             shallowCopy.resolverId = this.resolverId;

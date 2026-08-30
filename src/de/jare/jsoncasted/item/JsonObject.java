@@ -205,7 +205,7 @@ public class JsonObject implements JsonItem {
     }
 
     @Override
-    public JsonItem cloneShallow() {
+    public JsonItem cloneItemShallow() {
         JsonObject shallowCopy = new JsonObject(contextClass, resolverId);
         shallowCopy.map.putAll(this.map);
         shallowCopy.woodKey = this.woodKey;

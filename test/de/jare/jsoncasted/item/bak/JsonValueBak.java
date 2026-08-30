@@ -295,7 +295,7 @@ public class JsonValueBak implements JsonItem {
     }
 
     @Override
-    public JsonItem cloneShallow() {
+    public JsonItem cloneItemShallow() {
         throw new UnsupportedOperationException("JsonValueBak does not support cloning");
     }
 
