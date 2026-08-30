@@ -121,7 +121,7 @@ public class ObjectWriteWalker {
         if ((shouldWriteAsLink(ob) || intentPath.ids().contains(ob)) && !isOwnedFieldContext) {
             writeObjectAsLink(jClass, ob);
         } else {
-            writeObjectProf(jClass, ob);
+            writeObjectProf(jClass, ob, isOwnedFieldContext);
         }
     }
 
@@ -163,8 +163,9 @@ public class ObjectWriteWalker {
      *
      * @param jClass the JSON class of the object
      * @param ob the object to write
+     * @param isOwnedFieldContext if ownde by parent.
      */
-    public void writeObjectProf(JsonClass jClass, final Object ob) {
+    public void writeObjectProf(JsonClass jClass, final Object ob, boolean isOwnedFieldContext) {
         boolean isFollowing = false;
         boolean hasFieldKeys = false;
         WriteNodePath iString = intentPath.append("  ").appendOb(ob);
@@ -178,7 +179,6 @@ public class ObjectWriteWalker {
 
                 // Write _woodObjectId if a local ID is assigned in DefinitionsContext
                 // Owned-Objekte erhalten KEINE _woodObjectId
-                boolean isOwnedFieldContext = parentField != null && parentField.getKind().isOwned();
                 if (!isOwnedFieldContext) {
                     DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
                     if (record != null) {
@@ -259,7 +259,6 @@ public class ObjectWriteWalker {
         if (jField.isAsListOrArray()) {
             writeList(attrType, attr, jField, effectiveOwner, iString);
         } else {
-
             writeSingle(attrType, attr, jField, effectiveOwner, iString);
         }
     }

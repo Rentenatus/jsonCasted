@@ -63,7 +63,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
     @Override
     public void write(Object ob) throws NullPointerException, ClassCastException {
         if (!(ob instanceof List<?>)) {
-            super.writeObjectProf(calculateJsonClass(ob), ob);
+            super.writeObjectProf(calculateJsonClass(ob), ob, false);
             return;
         }
         List<?> myList = (List<?>) ob;
@@ -154,7 +154,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
                 mapWriter.writeObject(mapWriter.calculateJsonClass(entry), entry);
             } else if (jsonType instanceof JsonClass jClass) {
                 ObjectWriteWalker reWriter = new ObjectWriteWalker(strategy, objectGetter.getDefinitionsContext(), jsonType, null, null, iString, effectiveCastingLevel, objectGetter.getDebugLevel());
-                reWriter.writeObjectProf(jClass, entry);
+                reWriter.writeObjectProf(jClass, entry, false);
             }
         }
     }
