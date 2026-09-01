@@ -180,21 +180,33 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
     @Override
     protected boolean writeModelDescription(WriteNodePath iString, boolean isFollowing) {
         JsonModel model = objectGetter.getDefinitionsContext().getModel();
-        JsonModelDescriptor descriptor = model.getOrCreateDescriptor();
-        if (descriptor == null || descriptor.isEmpty()) {
+        JsonModelDescriptor descriptorObject = model.getOrCreateDescriptor();
+        if (descriptorObject == null || descriptorObject.isEmpty()) {
             return false;
         }
         JsonDescriptorDefinition descriptorDefinition = JsonDescriptorDefinition.INSTANCE;
-        final JsonClass descriptModel = descriptorDefinition.getDescriptModel();
+        final JsonClass jsonClass = descriptorDefinition.getDescriptModel();
+        final DefinitionsContext definitionsContext = new DefinitionsContext(model, objectGetter.getDefinitionsContext().getCurrentId());
 
         // Write _woodModel start
         strategy.writeAttrName(null, isFollowing, JsonTerms.TERM_WOOD_MODEL, iString);
-        strategy.writeStartObject(null, descriptor, null, null, false, false, iString);
+        //strategy.writeStartObject(null, descriptorObject, null, null, false, false, iString);
 
-        WriteNodePath modelIndent = iString.append("  ");
+        final ObjectWriteWalker walker = new ObjectWriteWalker(
+                strategy,
+                definitionsContext,
+                jsonClass,
+                null,
+                null,
+                iString,
+                objectGetter.getCastingLevel(),
+                objectGetter.getDebugLevel()
+        );
+        walker.writeObject(jsonClass, descriptorObject);
+        objectGetter.getDefinitionsContext().maxCurrentId(definitionsContext.getCurrentId());
 
         // Write _woodModel end
-        strategy.writeEndObject(null, descriptor, true, true, iString);
+        //strategy.writeEndObject(null, descriptorObject, true, true, iString);
         return true;
     }
 
