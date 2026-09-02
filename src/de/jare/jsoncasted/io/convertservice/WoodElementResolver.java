@@ -181,7 +181,8 @@ public final class WoodElementResolver {
         for (Map.Entry<String, JsonNode> entry : node.asObjectValues().entrySet()) {
             String key = entry.getKey();
             if (JsonTerms.TERM_WOOD_OBJECT_ID.equals(key) || JsonTerms.TERM_WOOD_LINK.equals(key)
-                    || JsonTerms.TERM_CLASS.equals(key) || JsonTerms.TERM_WOOD_PROVIDERS.equals(key)) {
+                    || JsonTerms.TERM_CLASS.equals(key) || JsonTerms.TERM_WOOD_MODEL.equals(key)
+                    || JsonTerms.TERM_WOOD_PROVIDERS.equals(key)) {
                 continue;
             }
             if (!isConvertibleNow(entry.getValue(), linkingSet, resolution)) {

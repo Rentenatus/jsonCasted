@@ -1,9 +1,208 @@
 {
-  "_woodObjectId": 1,
+  "_woodModel": {
+    "modelName": "Seed",
+    "describedTypes": {
+      "de.jare.jsoncasted.model.descriptor.JsonModelDescriptor": {
+        "typeName": "de.jare.jsoncasted.model.descriptor.JsonModelDescriptor",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "double": {
+        "typeName": "double",
+        "nodeType": "NUMBER",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor": {
+        "typeName": "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "String": {
+        "typeName": "String",
+        "nodeType": "STRING",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "float": {
+        "typeName": "float",
+        "nodeType": "NUMBER",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "Double": {
+        "typeName": "Double",
+        "nodeType": "NUMBER",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "int": {
+        "typeName": "int",
+        "nodeType": "LONG",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "long": {
+        "typeName": "long",
+        "nodeType": "LONG",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor>": {
+        "typeName": "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor>",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields": {
+          "typeName": "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor",
+          "collectionType": "NONE"
+        },
+        "parent":  null
+      },
+      "Integer": {
+        "typeName": "Integer",
+        "nodeType": "LONG",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsoncasted.lang.JsonNodeType": {
+        "typeName": "de.jare.jsoncasted.lang.JsonNodeType",
+        "nodeType": "STRING",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "Float": {
+        "typeName": "Float",
+        "nodeType": "NUMBER",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor": {
+        "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent": {
+          "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote",
+          "nodeType": "OBJECT",
+          "skippingNulls": false,
+          "primitive": false,
+          "recursive": false,
+          "mappingAllFields":  null,
+          "parent":  null
+        }
+      },
+      "boolean": {
+        "typeName": "boolean",
+        "nodeType": "BOOLEAN",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsoncasted.model.JsonCollectionType": {
+        "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
+        "nodeType": "STRING",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "Long": {
+        "typeName": "Long",
+        "nodeType": "LONG",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor>": {
+        "typeName": "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor>",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields": {
+          "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor",
+          "collectionType": "NONE"
+        },
+        "parent":  null
+      },
+      "Object": {
+        "typeName": "Object",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "Boolean": {
+        "typeName": "Boolean",
+        "nodeType": "BOOLEAN",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote": {
+        "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      }
+    },
+    "repoDescriptors": {}
+  }  "_woodObjectId": 1,
   "modelName": "TestModel",
   "describedTypes": {
     "java.lang.String": {
-      "_woodObjectId": 3,
+      "_woodObjectId": 28,
       "typeName": "java.lang.String",
       "nodeType": "STRING",
       "skippingNulls": false,
