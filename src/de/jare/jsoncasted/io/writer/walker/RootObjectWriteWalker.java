@@ -181,7 +181,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
     protected boolean writeModelDescription(WriteNodePath iString, boolean isFollowing) {
         JsonModel model = objectGetter.getDefinitionsContext().getModel();
         JsonModelDescriptor descriptorObject = model.getOrCreateDescriptor();
-        if (descriptorObject == null || descriptorObject.isEmpty()) {
+        if (descriptorObject == null || descriptorObject.isEmpty() || !descriptorObject.isWithSelfDescription()) {
             return false;
         }
         JsonDescriptorDefinition descriptorDefinition = JsonDescriptorDefinition.INSTANCE;
