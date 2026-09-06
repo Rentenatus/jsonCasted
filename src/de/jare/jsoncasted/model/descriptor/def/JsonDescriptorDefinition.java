@@ -74,6 +74,8 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
         descriptModel.addCParam("modelName", asString);
         descriptModel.addField("describedTypes", typeMap).makeAsDefinitional();
         descriptModel.addField("repoDescriptors", modeldMap).makeAsDefinitional();
+        descriptModel.addField("withSelfDescription", asBoolean, "isWithSelfDescription", "withSelfDescription");
+
 
         /*
           private final String modelName;

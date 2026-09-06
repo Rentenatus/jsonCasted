@@ -11,6 +11,7 @@ import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.lang.JsonTerms;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_LINK;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_OBJECT_ID;
@@ -228,6 +229,7 @@ public class JsonObjectConverter {
             if (TERM_CLASS.equals(paramName)
                     || TERM_WOOD_PROVIDERS.equals(paramName)
                     || TERM_WOOD_OBJECT_ID.equals(paramName)
+                    || JsonTerms.TERM_WOOD_MODEL.equals(paramName)
                     || TERM_WOOD_LINK.equals(paramName)) {
                 return;
             }
@@ -246,12 +248,12 @@ public class JsonObjectConverter {
         JsonItem paramObject = field.isAsListOrArray()
                 ? JsonNodeConverter.convertArray(childNode, castedChildType, field.isAsList(), service)
                 : JsonNodeConverter.convert(childNode, castedChildType, service);
-        
+
         // Clone for CONTAINMENT fields to ensure ownership
         if (field.getKind() != null && field.getKind().isOwned()) {
             paramObject = paramObject.cloneItemShallow();
         }
-        
+
         myObject.putParam(paramName, paramObject);
     }
 
@@ -339,7 +341,7 @@ public class JsonObjectConverter {
         JsonItem paramObject = field.isAsListOrArray()
                 ? JsonNodeConverter.convertArray(childNode, childType, field.isAsList(), service)
                 : JsonNodeConverter.convert(childNode, childType, service);
-        
+
         // Clone for CONTAINMENT fields if this is a JsonFieldDescriptor with owned flag
         if (field instanceof JsonFieldDescriptor) {
             JsonFieldDescriptor jField = (JsonFieldDescriptor) field;
@@ -347,7 +349,7 @@ public class JsonObjectConverter {
                 paramObject = paramObject.cloneItemShallow();
             }
         }
-        
+
         myObject.putParam(paramName, paramObject);
     }
 

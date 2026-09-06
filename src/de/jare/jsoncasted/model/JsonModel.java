@@ -53,6 +53,7 @@ public class JsonModel {
     private final HashMap<String, JsonRepoModel> repoModels;
     private final String mName;
     private JsonModelDescriptor descriptor;
+    private boolean withSelfDescription;
 
     /**
      * Constructs a JsonModel instance with a specified model name.
@@ -67,6 +68,7 @@ public class JsonModel {
         this.enums = new HashMap<>();
         this.exports = new HashSet<>();
         this.repoModels = new HashMap<>();
+        this.withSelfDescription = false;
         this.definitionsRoot = new JsonDefinitions(mName + JsonTerms.DEFINITIONS_SUFFIX);
     }
 
@@ -77,6 +79,14 @@ public class JsonModel {
      */
     public String getmName() {
         return mName;
+    }
+
+    public boolean isWithSelfDescription() {
+        return withSelfDescription;
+    }
+
+    public void withSelfDescription(boolean withSelfDescription) {
+        this.withSelfDescription = withSelfDescription;
     }
 
     public JsonDefinitions getDefinitionsRoot() {
@@ -961,6 +971,7 @@ public class JsonModel {
      */
     public JsonModelDescriptor describe() {
         JsonModelDescriptor context = new JsonModelDescriptor(mName);
+        context.withSelfDescription(this.withSelfDescription);
         List<JsonClass> orderedClasses = getClassesList();
         List<JsonInter> orderedInterfaces = getOrderedInterfacesList();
 

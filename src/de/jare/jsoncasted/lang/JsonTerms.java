@@ -50,6 +50,13 @@ public class JsonTerms {
     public static final String TERM_WOOD_PROVIDERS = "_woodProviders";
 
     /**
+     * JsonModelDescription is itself model data. Because Wood Json Jack always deserializes a file into generic tree
+     * nodes first, a save file may embed a special subtree such as _model that contains the model description.
+     */
+    public static final String TERM_WOOD_MODEL = "_woodModel";
+
+    
+    /**
      * Property name for definitions container.
      * <p>
      * Used in JSON: {@code "_woodDefinitions": {...}</p>

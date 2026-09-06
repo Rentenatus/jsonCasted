@@ -47,6 +47,7 @@ public class JsonModelDescriptor {
     private final JsonInstance< JsonTypeDescriptor> describedTypes = new JsonInstance<>();
     private final JsonInstance< JsonModelDescriptor> repoDescriptors = new JsonInstance<>();
     private JsonDefinitionsDescriptor definitionsRoot;
+    private boolean withSelfDescription;
 
     /**
      * Constructs a model descriptor with the specified model name.
@@ -67,6 +68,14 @@ public class JsonModelDescriptor {
      */
     public String getModelName() {
         return modelName;
+    }
+
+    public boolean isWithSelfDescription() {
+        return withSelfDescription;
+    }
+
+    public void withSelfDescription(boolean withSelfDescription) {
+        this.withSelfDescription = withSelfDescription;
     }
 
     public JsonDefinitionsDescriptor getDefinitionsRoot() {
