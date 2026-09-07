@@ -109,7 +109,7 @@ public class TestBoxNGTest3 {
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
             final JsonModelDescriptor descriptor = definition.getDescriptor();
-            final WoodResolution resolution = JsonParser.parse(res, descriptor, definition.getTestBox().getcName(),
+            final WoodResolution resolution = JsonParser.parse(res, descriptor, definition.getRootClass().getcName(),
                     JsonDebugLevel.INFO);
             JsonParser.checkCycles(resolution);
             obj1 = resolution.getAnswer();

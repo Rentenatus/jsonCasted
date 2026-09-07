@@ -48,6 +48,7 @@ public class JsonModelDescriptor {
     private final JsonInstance< JsonModelDescriptor> repoDescriptors = new JsonInstance<>();
     private JsonDefinitionsDescriptor definitionsRoot;
     private boolean withSelfDescription;
+    private String modelFile;
 
     /**
      * Constructs a model descriptor with the specified model name.
@@ -84,6 +85,24 @@ public class JsonModelDescriptor {
 
     public void setDefinitionsRoot(JsonDefinitionsDescriptor definitionsRoot) {
         this.definitionsRoot = definitionsRoot;
+    }
+
+    /**
+     * Returns the model file path for external model description.
+     *
+     * @return the model file path, or {@code null} if not set.
+     */
+    public String getModelFile() {
+        return modelFile;
+    }
+
+    /**
+     * Sets the model file path for external model description.
+     *
+     * @param modelFile the model file path to set.
+     */
+    public void setModelFile(String modelFile) {
+        this.modelFile = modelFile;
     }
 
     /**
@@ -533,6 +552,7 @@ public class JsonModelDescriptor {
     @Override
     public String toString() {
         return "JsonModelDescriptor[modelName=" + modelName
+                + ", modelFile=" + modelFile
                 + ", types=" + describedTypes.size()
                 + ", repoDescriptors=" + repoDescriptors.size() + "]";
     }

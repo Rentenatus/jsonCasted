@@ -38,7 +38,7 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
     private final JsonClass descriptModel;
 
     public JsonDescriptorDefinition() {
-        model = new JsonModel("Seed");
+        model = new JsonModel("Full Model");
         model.addBasicModel();
 
         final JsonClass asString = model.getJsonClass("String");
@@ -72,16 +72,10 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
         JsonMap modeldMap = model.newRawJsonMapIndividually((new JsonInstance<JsonModelDescriptor>()).getClass(), (String) null, descriptField);
         descriptModel = model.newJsonReflect(JsonModelDescriptor.class);
         descriptModel.addCParam("modelName", asString);
+        descriptModel.addField("modelFile", asString);
         descriptModel.addField("describedTypes", typeMap).makeAsDefinitional();
         descriptModel.addField("repoDescriptors", modeldMap).makeAsDefinitional();
         descriptModel.addField("withSelfDescription", asBoolean, "isWithSelfDescription", "withSelfDescription");
-
-
-        /*
-          private final String modelName;
-          private final Map<String, JsonTypeDescriptor> describedTypes = new LinkedHashMap<>();
-          private final Map<String, JsonModelDescriptor> repoDescriptors = new LinkedHashMap<>();
-         */
     }
 
     @Override
@@ -98,6 +92,11 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
     }
 
     public JsonClass getDescriptModel() {
+        return descriptModel;
+    }
+    
+    @Override
+    public JsonClass getRootClass() {
         return descriptModel;
     }
 

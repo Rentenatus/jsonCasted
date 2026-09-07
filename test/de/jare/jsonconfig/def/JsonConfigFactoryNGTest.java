@@ -162,7 +162,7 @@ public class JsonConfigFactoryNGTest {
 
         JsonItem obj1 = null;
         try {
-            obj1 = JsonParserReference.parse(configFile, definition, definition.getConfigRoot());
+            obj1 = JsonParserReference.parse(configFile, definition, definition.getRootClass());
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
@@ -209,7 +209,7 @@ public class JsonConfigFactoryNGTest {
             System.out.println(res.getExpectedBox());
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
-            obj1 = JsonParser.parse(res, definition.getDescriptor(), definition.getConfigRoot().getcName()).getAnswer();
+            obj1 = JsonParser.parse(res, definition.getDescriptor(), definition.getRootClass().getcName()).getAnswer();
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
@@ -238,7 +238,7 @@ public class JsonConfigFactoryNGTest {
         }
         System.out.println("Target=============================================== Print object");
         try {
-            JsonObjectWriter.write(root, System.out, definition, definition.getConfigRoot());
+            JsonObjectWriter.write(root, System.out, definition, definition.getRootClass());
         } catch (IOException | JsonParseException | JsonWriteException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
@@ -252,4 +252,5 @@ public class JsonConfigFactoryNGTest {
         System.out.println("Target===============================================");
         return new JsonConfigHelper(root);
     }
+
 }

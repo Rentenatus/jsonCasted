@@ -108,7 +108,8 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
      *
      * @return The JsonClass describing the TestBox structure.
      */
-    public JsonClass getTestBox() {
+    @Override
+    public JsonClass getRootClass() {
         return testBox;
     }
 

@@ -17,7 +17,7 @@ import de.jare.jsoncasted.io.JsonParser;
 import de.jare.jsoncasted.io.convertservice.WoodResolution;
 import static de.jare.jsoncasted.lang.JsonTerms.SELF_SYNONYM;
 import de.jare.jsoncasted.wood.WoodProviderBox;
-import de.jare.jsoncasted.wood.WoodProviderDefinition;
+import de.jare.jsoncasted.wood.def.WoodProviderDefinition;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -73,9 +73,7 @@ public final class JsonWoodProviderTinker {
         }
 
         // 2. Dann Definition-NodeEntries registrieren (Auflösung kommt später im WoodResolver)
-        for (JsonWoodProviderScanResult.DefinitionsNodeEntry entry : scanResult.getDefinitionNodes()) {
-            result.registerDefinitionEntry(entry);
-        }
+        scanResult.getDefinitionNodes().forEach(result::registerDefinitionEntry);
 
         return result;
     }

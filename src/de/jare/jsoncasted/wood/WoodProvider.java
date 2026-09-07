@@ -15,7 +15,7 @@ import java.util.Objects;
  * from other JSON files using the synonym as a namespace.</p>
  *
  * <p>Example in JSON:</p>
- * <pre>{@code
+ * <pre> 
  * {
  *   "_woodProviders": [
  *     {"synonym": "save", "filename": "./data/config.json"}

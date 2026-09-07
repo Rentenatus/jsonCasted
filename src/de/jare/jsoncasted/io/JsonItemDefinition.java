@@ -9,6 +9,7 @@ package de.jare.jsoncasted.io;
 
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
+import de.jare.jsoncasted.model.item.JsonClass;
 
 /**
  * Interface for JSON item definitions that provide model and casting configuration.
@@ -35,6 +36,13 @@ public interface JsonItemDefinition {
      * @return the JsonModel containing type definitions.
      */
     public JsonModel getModel();
+
+    /**
+     * Returns the root class for this definition.
+     *
+     * @return the JsonClass representing the root type.
+     */
+    public JsonClass getRootClass();
 
     /**
      * Returns the model descriptor for introspection.

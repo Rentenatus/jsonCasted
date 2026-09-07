@@ -8,10 +8,14 @@ package de.jare.jsoncasted.io.convertservice;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonParseException;
-import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonTerms;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_LINK;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_MODEL;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_OBJECT_ID;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 import de.jare.jsoncasted.lang.LinkNodeEntry;
 import de.jare.jsoncasted.lang.LinkingSet;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
@@ -180,9 +184,11 @@ public final class WoodElementResolver {
         }
         for (Map.Entry<String, JsonNode> entry : node.asObjectValues().entrySet()) {
             String key = entry.getKey();
-            if (JsonTerms.TERM_WOOD_OBJECT_ID.equals(key) || JsonTerms.TERM_WOOD_LINK.equals(key)
-                    || JsonTerms.TERM_CLASS.equals(key) || JsonTerms.TERM_WOOD_MODEL.equals(key)
-                    || JsonTerms.TERM_WOOD_PROVIDERS.equals(key)) {
+            if (TERM_WOOD_OBJECT_ID.equals(key)
+                    || TERM_WOOD_LINK.equals(key)
+                    || TERM_CLASS.equals(key)
+                    || TERM_WOOD_MODEL.equals(key)
+                    || TERM_WOOD_PROVIDERS.equals(key)) {
                 continue;
             }
             if (!isConvertibleNow(entry.getValue(), linkingSet, resolution)) {

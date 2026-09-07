@@ -4,19 +4,20 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.wood;
+package de.jare.jsoncasted.wood.def;
 
 import static de.jare.jsoncasted.model.JsonCollectionType.LIST;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.JsonItemDefinition;
+import de.jare.jsoncasted.wood.WoodProvider;
+import de.jare.jsoncasted.wood.WoodProviderBox;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 
 /**
- * The WoodProviderDefinition class defines the JSON model structure for wood
- * providers. It creates a singleton instance that describes how WoodProvider
- * and WoodProviderBox classes should be parsed from JSON data.
+ * The WoodProviderDefinition class defines the JSON model structure for wood providers. It creates a singleton instance
+ * that describes how WoodProvider and WoodProviderBox classes should be parsed from JSON data.
  *
  * @author Janusch Rentenatus
  */
@@ -40,8 +41,8 @@ public class WoodProviderDefinition implements JsonItemDefinition {
     private final JsonClass woodProviderBox;
 
     /**
-     * Constructs a WoodProviderDefinition instance. Creates the model and
-     * defines the structure for WoodProvider and WoodProviderBox classes.
+     * Constructs a WoodProviderDefinition instance. Creates the model and defines the structure for WoodProvider and
+     * WoodProviderBox classes.
      */
     public WoodProviderDefinition() {
         model = new JsonModel("WoodJson");
@@ -54,7 +55,6 @@ public class WoodProviderDefinition implements JsonItemDefinition {
 
         woodProviderBox = model.newJsonReflect(WoodProviderBox.class);
         woodProviderBox.addCParam(TERM_WOOD_PROVIDERS, provider, "getProvider", LIST);
-
     }
 
     @Override
@@ -68,6 +68,11 @@ public class WoodProviderDefinition implements JsonItemDefinition {
      * @return The JsonClass describing the WoodProviderBox structure.
      */
     public JsonClass getWoodProviderBox() {
+        return woodProviderBox;
+    }
+
+    @Override
+    public JsonClass getRootClass() {
         return woodProviderBox;
     }
 

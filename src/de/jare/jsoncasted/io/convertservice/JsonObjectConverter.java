@@ -11,9 +11,9 @@ import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.lang.JsonNode;
-import de.jare.jsoncasted.lang.JsonTerms;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_LINK;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_MODEL;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_OBJECT_ID;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
@@ -229,7 +229,7 @@ public class JsonObjectConverter {
             if (TERM_CLASS.equals(paramName)
                     || TERM_WOOD_PROVIDERS.equals(paramName)
                     || TERM_WOOD_OBJECT_ID.equals(paramName)
-                    || JsonTerms.TERM_WOOD_MODEL.equals(paramName)
+                    || TERM_WOOD_MODEL.equals(paramName)
                     || TERM_WOOD_LINK.equals(paramName)) {
                 return;
             }

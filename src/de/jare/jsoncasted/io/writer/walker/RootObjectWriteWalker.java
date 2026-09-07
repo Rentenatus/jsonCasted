@@ -7,6 +7,7 @@ package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonItemDefinition;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.WriteStrategy;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
@@ -20,6 +21,7 @@ import de.jare.jsoncasted.model.descriptor.JsonDefinitionsDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
+import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinitionAsFile;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
 import java.util.Iterator;
@@ -175,17 +177,23 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
      * Writes the JsonModelDescriptor as a _woodModel subtree.
      *
      * @param iString the indentation path
+     * @param isFollowing
      * @return true if the model descriptor was written, false otherwise
      */
     @Override
     protected boolean writeModelDescription(WriteNodePath iString, boolean isFollowing) {
         JsonModel model = objectGetter.getDefinitionsContext().getModel();
         JsonModelDescriptor descriptorObject = model.getOrCreateDescriptor();
-        if (descriptorObject == null || descriptorObject.isEmpty() || !descriptorObject.isWithSelfDescription()) {
+        if (descriptorObject == null || descriptorObject.isEmpty()) {
             return false;
         }
-        JsonDescriptorDefinition descriptorDefinition = JsonDescriptorDefinition.INSTANCE;
-        final JsonClass jsonClass = descriptorDefinition.getDescriptModel();
+        if (!descriptorObject.isWithSelfDescription() && descriptorObject.getModelFile() == null) {
+            return false;
+        }
+        JsonItemDefinition descriptorDefinition = descriptorObject.isWithSelfDescription()
+                ? JsonDescriptorDefinition.INSTANCE
+                : JsonDescriptorDefinitionAsFile.INSTANCE;
+        final JsonClass jsonClass = descriptorDefinition.getRootClass();
         final DefinitionsContext definitionsContext = new DefinitionsContext(model, objectGetter.getDefinitionsContext().getCurrentId());
 
         // Write _woodModel start
