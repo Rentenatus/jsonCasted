@@ -19,6 +19,7 @@ import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonStringBuilder;
 import de.jare.jsoncasted.model.descriptor.JsonDefinitionsDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptorAsFile;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
 import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinitionAsFile;
@@ -193,6 +194,9 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         JsonItemDefinition descriptorDefinition = descriptorObject.isWithSelfDescription()
                 ? JsonDescriptorDefinition.INSTANCE
                 : JsonDescriptorDefinitionAsFile.INSTANCE;
+        Object ob = descriptorObject.isWithSelfDescription()
+                ? descriptorObject
+                : new JsonModelDescriptorAsFile(model.getmName(), objectGetter.getDefinitionsContext().getModelFile());
         final JsonClass jsonClass = descriptorDefinition.getRootClass();
         final DefinitionsContext definitionsContext = new DefinitionsContext(model, objectGetter.getDefinitionsContext().getCurrentId());
 
@@ -210,7 +214,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
                 objectGetter.getCastingLevel(),
                 objectGetter.getDebugLevel()
         );
-        walker.writeObject(jsonClass, descriptorObject);
+        walker.writeObject(jsonClass, ob);
         objectGetter.getDefinitionsContext().maxCurrentId(definitionsContext.getCurrentId());
 
         // Write _woodModel end
