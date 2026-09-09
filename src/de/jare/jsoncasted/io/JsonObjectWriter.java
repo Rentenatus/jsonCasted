@@ -73,17 +73,17 @@ public class JsonObjectWriter {
      * Serializes an object and writes it to a file.
      *
      * @param ob The object to serialize.
-     * @param file The target file to write the JSON output.
+     * @param fileObject The target file to write the JSON output.
      * @param definition The JSON item definition containing model information.
      * @param root The root JSON class for the object.
      * @throws JsonParseException If parsing fails during serialization.
      * @throws IOException If an I/O error occurs during writing.
      * @throws JsonWriteException
      */
-    public static void write(Object ob, File file, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException, JsonWriteException {
+    public static void write(Object ob, File fileObject, JsonItemDefinition definition, JsonClass root) throws JsonParseException, IOException, JsonWriteException {
         FileOutputStream out;
         try {
-            out = new FileOutputStream(file);
+            out = new FileOutputStream(fileObject);
             write(ob, out, definition, root);
             out.close();
         } catch (FileNotFoundException ex) {
@@ -158,7 +158,8 @@ public class JsonObjectWriter {
      * @throws JsonWriteException
      */
     public static void write(Object ob, OutputStream out, JsonItemDefinition definition, JsonClass root) throws IOException, JsonParseException, JsonWriteException {
-        write(ob, out, definition.getModel(), definition.getCastingLevel(), root, JsonDebugLevel.SIMPLE);
+        final DefinitionsContext definitionsContext = new DefinitionsContext(definition.getModel(), null);
+        write(ob, out, definitionsContext, definition.getCastingLevel(), root, JsonDebugLevel.SIMPLE);
     }
 
     /**
@@ -174,7 +175,8 @@ public class JsonObjectWriter {
      * @throws JsonParseException If parsing fails during serialization.
      */
     public static void write(Object ob, OutputStream out, JsonItemDefinition definition, JsonClass root, JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
-        write(ob, out, definition.getModel(), definition.getCastingLevel(), root, debugLevel);
+        final DefinitionsContext definitionsContext = new DefinitionsContext(definition.getModel(), null);
+        write(ob, out, definitionsContext, definition.getCastingLevel(), root, debugLevel);
     }
 
     /**
@@ -190,7 +192,8 @@ public class JsonObjectWriter {
      * @throws JsonWriteException
      */
     public static void write(Object ob, OutputStream out, JsonModel model, JsonCastingLevel castingLevel, JsonClass root) throws IOException, JsonParseException, JsonWriteException {
-        write(ob, out, model, castingLevel, root, JsonDebugLevel.SIMPLE);
+        final DefinitionsContext definitionsContext = new DefinitionsContext(model, null);
+        write(ob, out, definitionsContext, castingLevel, root, JsonDebugLevel.SIMPLE);
     }
 
     /**
@@ -198,7 +201,7 @@ public class JsonObjectWriter {
      *
      * @param ob The object to serialize.
      * @param out The output stream to write the JSON output.
-     * @param model
+     * @param definitionsContext
      * @param castingLevel
      * @param root The root JSON class for the object.
      * @param debugLevel The debug level for controlling debug output.
@@ -206,9 +209,7 @@ public class JsonObjectWriter {
      * @throws JsonWriteException If writing fails due to serialization errors.
      * @throws JsonParseException If parsing fails during serialization.
      */
-    public static void write(Object ob, OutputStream out, JsonModel model, JsonCastingLevel castingLevel, JsonClass root, JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
-        final DefinitionsContext definitionsContext = new DefinitionsContext(model);
-
+    public static void write(Object ob, OutputStream out, DefinitionsContext definitionsContext, JsonCastingLevel castingLevel, JsonClass root, JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
         final PrintWriter prn = new PrintWriter(out);
         final PrintStrategy printStrategy = new PrintStrategy(prn);
 

@@ -187,7 +187,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         if (descriptorObject == null || descriptorObject.isEmpty()) {
             return false;
         }
-        if (!descriptorObject.isWithSelfDescription() && descriptorObject.getModelFile() == null) {
+        if (!descriptorObject.isWithSelfDescription() && objectGetter.getDefinitionsContext().getModelFile() == null) {
             return false;
         }
         JsonItemDefinition descriptorDefinition = descriptorObject.isWithSelfDescription()
