@@ -23,24 +23,50 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Simple client for posting JSON requests to a server and receiving JSON responses. It handles serialization and
+ * deserialization of JSON objects based on provided definitions and classes.
+ *
  * @author Janusch Rentenatus
  */
 public class PostJsonClient {
 
+    /**
+     * Posts a JSON request to the specified URL and returns the deserialized response object.
+     *
+     * @param request The request object to be serialized and sent.
+     * @param url The URL to which the request is posted.
+     * @param timeoutDelay The timeout delay for the HTTP request.
+     * @param definition The JSON item definition for serialization and deserialization.
+     * @param writeClass The JSON class for writing the request.
+     * @param readClass The JSON class for reading the response.
+     * @return The deserialized response object.
+     * @throws JsonBuildException
+     * @throws IOException
+     */
     public Object post(Object request, String url, int timeoutDelay, JsonItemDefinition definition, final JsonClass writeClass, final JsonClass readClass) throws JsonBuildException, IOException {
         String answer = post(request, url, timeoutDelay, definition, writeClass);
         return buildObject(answer, definition, readClass);
     }
 
+    /**
+     * Posts a JSON request to the specified URL and returns the raw JSON response as a string.
+     *
+     * @param request The request object to be serialized and sent.
+     * @param url The URL to which the request is posted.
+     * @param timeoutDelay The timeout delay for the HTTP request.
+     * @param definition The JSON item definition for serialization and deserialization.
+     * @param writeClass The JSON class for writing the request.
+     * @return The raw JSON response as a string.
+     * @throws JsonBuildException
+     * @throws IOException
+     */
     public String post(Object request, String url, int timeoutDelay, JsonItemDefinition definition, final JsonClass writeClass) throws JsonBuildException, IOException {
         String post = "{}";
         boolean hasWrite = request != null && writeClass != null;
         if (hasWrite) try {
             post = JsonObjectWriter.writeToString(request, definition, writeClass);
-        } catch (JsonParseException | IOException ex) {
+        } catch (JsonParseException | IOException | JsonWriteException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
-        } catch (JsonWriteException ex) {
-            Logger.getLogger(PostJsonClient.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         // Erstellen Sie eine URL, die auf den lokalen Server zeigt
@@ -66,6 +92,16 @@ public class PostJsonClient {
         return answer;
     }
 
+    /**
+     * Builds an object from the JSON response string using the provided definition and read class.
+     *
+     * @param answer The JSON response string to be deserialized.
+     * @param definition The JSON item definition for deserialization.
+     * @param readClass The JSON class for reading the response.
+     * @return The deserialized object.
+     * @throws JsonBuildException
+     * @throws IOException
+     */
     public Object buildObject(String answer, JsonItemDefinition definition, final JsonClass readClass) throws JsonBuildException, IOException {
         JsonItem obj = null;
         try {

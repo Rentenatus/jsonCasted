@@ -1,0 +1,61 @@
+{
+  "_woodObjectId": 1,
+  "mainLogging": {
+    "level": "10",
+    "path": "./config/"
+  },
+  "comments": [
+    "Das ist ein Json Config Test.", "Dieser Abschnitt enthält nur die Kommentare", "..."],
+  "profiles": [{
+      "profileLogging": {
+        "level": "8",
+        "path": "./config/"
+      },
+      "profile": "main",
+      "type": "TEST",
+      "comments": [
+        "In diesem Abschnitt werden die Profiles hinterlegt", "ein Profile sollte 'main' oder 'default' heißen."],
+      "features": [{
+          "featureLogging": {
+            "level": "8",
+            "path": "./config/"
+          },
+          "feature": "Test1",
+          "comments": [
+            "In diesem Abschnitt wird das Feature 'Test1' beschreiben."],
+          "settings": {
+            "host1": "http://localhost",
+            "port": "11434",
+            "host3": "",
+            "host2": "http://host.docker.internal",
+            "param3": "param3",
+            "param1": "param1",
+            "param2": "param2"
+          },
+          "labels": {
+            "label1": [
+              "label1.zeile1", "label1.zeile2"],
+            "label2": [
+              "label2.zeile1", "label2.zeile2"]
+          },
+          "enablements": {
+            "enablement1": false,
+            "enablement2": true
+          }
+        }
+        ]
+    }, 
+    {
+      "profileLogging": {
+        "level": "6",
+        "path": "./config/"
+      },
+      "profile": "other",
+      "type":  null,
+      "comments": [
+        "Ein weiteres Profil..."],
+      "features": [
+        ]
+    }
+    ]
+}
