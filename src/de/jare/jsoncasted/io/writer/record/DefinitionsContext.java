@@ -13,6 +13,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import de.jare.jsoncasted.model.JsonModel;
 
 /**
  *
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class DefinitionsContext {
 
     private final JsonModel model;
+    private final String modelFile;
 
     // Atomic counter for generating unique IDs within this context.
     private final AtomicLong idCounter;
@@ -28,14 +30,16 @@ public class DefinitionsContext {
     // All objects found that are candidates for a reference ID or found that are going to be serialized are collected here. They
     private final Map<Object, DefinitionsContextObjectRecord> recordMap;
 
-    public DefinitionsContext(de.jare.jsoncasted.model.JsonModel model) {
+    public DefinitionsContext(JsonModel model, String modelFile) {
         this.model = model;
+        this.modelFile = modelFile;
         this.recordMap = new IdentityHashMap<>();
         this.idCounter = new AtomicLong(1);
     }
 
-    public DefinitionsContext(de.jare.jsoncasted.model.JsonModel model, long startId) {
+    public DefinitionsContext(JsonModel model, long startId) {
         this.model = model;
+        this.modelFile = null;
         this.recordMap = new IdentityHashMap<>();
         this.idCounter = new AtomicLong(startId);
     }
@@ -44,8 +48,8 @@ public class DefinitionsContext {
         return model;
     }
 
-    Map<Object, DefinitionsContextObjectRecord> getRecordMap() {
-        return recordMap;
+    public String getModelFile() {
+        return modelFile;
     }
 
     /**

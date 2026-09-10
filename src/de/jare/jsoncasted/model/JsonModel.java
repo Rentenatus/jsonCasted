@@ -87,6 +87,9 @@ public class JsonModel {
 
     public void withSelfDescription(boolean withSelfDescription) {
         this.withSelfDescription = withSelfDescription;
+        if (descriptor != null) {
+            descriptor.withSelfDescription(withSelfDescription);
+        }
     }
 
     public JsonDefinitions getDefinitionsRoot() {

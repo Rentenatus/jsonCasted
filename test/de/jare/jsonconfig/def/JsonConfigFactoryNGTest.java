@@ -8,7 +8,6 @@
 package de.jare.jsonconfig.def;
 
 import de.jare.debug.JsonDebugLevel;
-import de.jare.impltest.TestBoxNGTest;
 import de.jare.jsoncasted.io.JsonNodeWriter;
 import de.jare.jsoncasted.io.JsonObjectWriter;
 import de.jare.jsoncasted.io.JsonParseException;
@@ -219,7 +218,7 @@ public class JsonConfigFactoryNGTest {
         try {
             JsonNodeWriter.write(node, System.out);
         } catch (IOException | JsonParseException ex) {
-            Logger.getLogger(TestBoxNGTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
         System.out.println();

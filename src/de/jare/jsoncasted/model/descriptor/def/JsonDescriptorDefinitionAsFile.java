@@ -9,7 +9,7 @@ package de.jare.jsoncasted.model.descriptor.def;
 import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.JsonItemDefinition;
 import de.jare.jsoncasted.model.JsonModel;
-import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptorAsFile;
 import de.jare.jsoncasted.model.item.JsonClass;
 
 /**
@@ -33,9 +33,9 @@ public class JsonDescriptorDefinitionAsFile implements JsonItemDefinition {
 
         final JsonClass asString = model.getJsonClass("String");
 
-        descriptModel = model.newJsonReflect(JsonModelDescriptor.class);
+        descriptModel = model.newJsonReflect(JsonModelDescriptorAsFile.class);
         descriptModel.addCParam("modelName", asString);
-        descriptModel.addField("modelFile", asString);
+        descriptModel.addCParam("modelFile", asString);
 
     }
 

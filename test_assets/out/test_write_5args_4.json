@@ -1,0 +1,257 @@
+{
+  "_woodModel": {
+    "modelName": "Seed",
+    "modelFile":  null,
+    "describedTypes": {
+      "de.jare.jsonconfig.item.ConfigRoot": {
+        "typeName": "de.jare.jsonconfig.item.ConfigRoot",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsoncasted.lang.JsonInstance<String>": {
+        "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields": {
+          "typeName": "String",
+          "collectionType": "NONE"
+        },
+        "parent":  null
+      },
+      "double": {
+        "typeName": "double",
+        "nodeType": "NUMBER",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsoncasted.lang.JsonInstance<String>[]": {
+        "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>[]",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields": {
+          "typeName": "String",
+          "collectionType": "ARRAY"
+        },
+        "parent":  null
+      },
+      "String": {
+        "typeName": "String",
+        "nodeType": "STRING",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "float": {
+        "typeName": "float",
+        "nodeType": "NUMBER",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsonconfig.item.ConfigLogging": {
+        "typeName": "de.jare.jsonconfig.item.ConfigLogging",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsonconfig.item.ConfigProfileType": {
+        "typeName": "de.jare.jsonconfig.item.ConfigProfileType",
+        "nodeType": "STRING",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "Double": {
+        "typeName": "Double",
+        "nodeType": "NUMBER",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "int": {
+        "typeName": "int",
+        "nodeType": "LONG",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "long": {
+        "typeName": "long",
+        "nodeType": "LONG",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsoncasted.lang.JsonInstance<Boolean>": {
+        "typeName": "de.jare.jsoncasted.lang.JsonInstance<Boolean>",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields": {
+          "typeName": "Boolean",
+          "collectionType": "NONE"
+        },
+        "parent":  null
+      },
+      "Integer": {
+        "typeName": "Integer",
+        "nodeType": "LONG",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "Float": {
+        "typeName": "Float",
+        "nodeType": "NUMBER",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsonconfig.item.ConfigProfile": {
+        "typeName": "de.jare.jsonconfig.item.ConfigProfile",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "boolean": {
+        "typeName": "boolean",
+        "nodeType": "BOOLEAN",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "Long": {
+        "typeName": "Long",
+        "nodeType": "LONG",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "de.jare.jsonconfig.item.ConfigFeature": {
+        "typeName": "de.jare.jsonconfig.item.ConfigFeature",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "Object": {
+        "typeName": "Object",
+        "nodeType": "OBJECT",
+        "skippingNulls": false,
+        "primitive": false,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      },
+      "Boolean": {
+        "typeName": "Boolean",
+        "nodeType": "BOOLEAN",
+        "skippingNulls": false,
+        "primitive": true,
+        "recursive": false,
+        "mappingAllFields":  null,
+        "parent":  null
+      }
+    },
+    "repoDescriptors": {},
+    "withSelfDescription": true
+  }  "_woodObjectId": 1,
+  "mainLogging": {
+    "level": "10",
+    "path": "./config/"
+  },
+  "comments": [
+    "Das ist ein Json Config Test.", "Dieser Abschnitt enthält nur die Kommentare", "..."],
+  "profiles": [{
+      "profileLogging": {
+        "level": "8",
+        "path": "./config/"
+      },
+      "profile": "main",
+      "type": "TEST",
+      "comments": [
+        "In diesem Abschnitt werden die Profiles hinterlegt", "ein Profile sollte 'main' oder 'default' heißen."],
+      "features": [{
+          "featureLogging": {
+            "level": "8",
+            "path": "./config/"
+          },
+          "feature": "Test1",
+          "comments": [
+            "In diesem Abschnitt wird das Feature 'Test1' beschreiben."],
+          "settings": {
+            "host1": "http://localhost",
+            "port": "11434",
+            "host3": "",
+            "host2": "http://host.docker.internal",
+            "param3": "param3",
+            "param1": "param1",
+            "param2": "param2"
+          },
+          "labels": {
+            "label1": [
+              "label1.zeile1", "label1.zeile2"],
+            "label2": [
+              "label2.zeile1", "label2.zeile2"]
+          },
+          "enablements": {
+            "enablement1": false,
+            "enablement2": true
+          }
+        }
+        ]
+    }, 
+    {
+      "profileLogging": {
+        "level": "6",
+        "path": "./config/"
+      },
+      "profile": "other",
+      "type":  null,
+      "comments": [
+        "Ein weiteres Profil..."],
+      "features": [
+        ]
+    }
+    ]
+}
