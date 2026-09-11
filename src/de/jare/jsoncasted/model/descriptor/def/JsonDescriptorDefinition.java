@@ -21,6 +21,12 @@ import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
 
 /**
+ * Definition of the JSON model descriptor structure. This class defines the structure of a JSON model descriptor,
+ * including its types, fields, and relationships. It provides a singleton instance for accessing the model descriptor
+ * definition.
+ *
+ * The description of this model is a description description. It is a meta-model that describes how to describe models
+ * in JSON format.
  *
  * @author Janusch Rentenatus
  */
@@ -72,7 +78,6 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
         JsonMap modeldMap = model.newRawJsonMapIndividually((new JsonInstance<JsonModelDescriptor>()).getClass(), (String) null, descriptField);
         descriptModel = model.newJsonReflect(JsonModelDescriptor.class);
         descriptModel.addCParam("modelName", asString);
-        descriptModel.addField("modelFile", asString);
         descriptModel.addField("describedTypes", typeMap).makeAsDefinitional();
         descriptModel.addField("repoDescriptors", modeldMap).makeAsDefinitional();
         descriptModel.addField("withSelfDescription", asBoolean, "isWithSelfDescription", "withSelfDescription");
@@ -94,7 +99,7 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
     public JsonClass getDescriptModel() {
         return descriptModel;
     }
-    
+
     @Override
     public JsonClass getRootClass() {
         return descriptModel;

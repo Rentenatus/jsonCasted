@@ -1,7 +1,6 @@
 {
   "_woodObjectId": 1,
   "modelName": "Seed",
-  "modelFile":  null,
   "describedTypes": {
     "de.jare.jsonconfig.item.ConfigRoot": {
       "_woodObjectId": 3,
@@ -217,5 +216,5 @@
     }
   },
   "repoDescriptors": {},
-  "withSelfDescription": true
+  "withSelfDescription": false
 }

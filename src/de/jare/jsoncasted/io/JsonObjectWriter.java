@@ -41,7 +41,7 @@ public class JsonObjectWriter {
      * @param ob The object to serialize.
      * @param definition The JSON item definition containing model information.
      * @param root The root JSON class for the object.
-     * @param charsetName The name of a supported      {@linkplain java.nio.charset.Charset
+     * @param charsetName The name of a supported null     {@linkplain java.nio.charset.Charset
      *                    charset}, for example "UTF-8".
      * @return JSON string representation of the object.
      * @throws JsonParseException If parsing fails during serialization.
@@ -115,7 +115,7 @@ public class JsonObjectWriter {
         try {
             out = new FileOutputStream(fileModel);
             JsonModelDescriptor desc = definition.getModel().getOrCreateDescriptor();
-            definition.getModel().withSelfDescription(true);
+            definition.getModel().withSelfDescription(false);   // only filename
             JsonItemDefinition descDefinition = JsonDescriptorDefinition.INSTANCE;
             write(desc, out, descDefinition, descDefinition.getRootClass());
             out.close();

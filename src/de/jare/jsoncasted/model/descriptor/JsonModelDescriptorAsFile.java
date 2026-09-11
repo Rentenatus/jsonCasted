@@ -6,6 +6,8 @@
  */
 package de.jare.jsoncasted.model.descriptor;
 
+import de.jare.jsoncasted.tools.SimpleStringSplitter;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -14,10 +16,10 @@ import java.util.Objects;
  *
  * @author Janusch Rentenatus
  */
-public class JsonModelDescriptorAsFile {
+public class JsonModelDescriptorAsFile implements SimpleStringSplitter {
 
     private final String modelName;
-    private final String filelName;
+    private final String fileName;
 
     /**
      * Constructs a model descriptor with the specified model name.
@@ -27,20 +29,33 @@ public class JsonModelDescriptorAsFile {
      */
     public JsonModelDescriptorAsFile(String modelName, String filelName) {
         this.modelName = Objects.requireNonNull(modelName, "modelName");
-        this.filelName = Objects.requireNonNull(filelName, "filelName");
+        this.fileName = simpleReplace(
+                Objects.requireNonNull(filelName, "filelName"),
+                Arrays.asList("\\", "\\\\"),
+                "/");
     }
 
+    /**
+     * Returns the model name associated with this descriptor.
+     *
+     * @return The model name.
+     */
     public String getModelName() {
         return modelName;
     }
 
-    public String getFilelName() {
-        return filelName;
+    /**
+     * Returns the file name associated with this descriptor.
+     *
+     * @return The file name.
+     */
+    public String getFileName() {
+        return fileName;
     }
 
     @Override
     public String toString() {
         return "JsonModelDescriptor[modelName=" + modelName
-                + ", filelName=" + filelName + "]";
+                + ", fileName=" + fileName + "]";
     }
 }

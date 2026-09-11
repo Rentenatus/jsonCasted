@@ -12,6 +12,7 @@ import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonTerms;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_FILE_NAME;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_LINK;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_MODEL;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_OBJECT_ID;
@@ -227,4 +228,52 @@ public final class WoodElementResolver {
 
         return typeDescriptor;
     }
+
+    /**
+     * Extracts description file mapping from the _woodModel node in the root object. When a _woodModel node contains a
+     * fileName field (indicating JsonModelDescriptorAsFile), it extracts the file path and associates it with the model
+     * name.
+     *
+     * @param resource The JSON resource to scan.
+     * @param resolution The WoodResolution to populate with description file mapping.
+     */
+    public static void extractDescriptionFiles(JsonResource resource, WoodResolution resolution) {
+        if (resource == null || resource.getRoot() == null) {
+            return;
+        }
+        try {
+            JsonNode root = resource.getRoot();
+            if (!root.isObject()) {
+                return;
+            }
+            Map<String, JsonNode> values = root.asObjectValues();
+            if (values == null) {
+                return;
+            }
+            // Look for _woodModel node in root
+            JsonNode woodModelNode = values.get(TERM_WOOD_MODEL);
+            if (woodModelNode == null || !woodModelNode.isObject()) {
+                return;
+            }
+            Map<String, JsonNode> modelValues = woodModelNode.asObjectValues();
+            if (modelValues == null) {
+                return;
+            }
+            JsonNode fileNameNode = modelValues.get(TERM_FILE_NAME);
+            JsonNode modelNameNode = modelValues.get("modelName");
+
+            if (fileNameNode == null || modelNameNode == null) {
+                return;
+            }
+            // This is a JsonModelDescriptorAsFile node
+            String filePath = fileNameNode.toText();
+            String modelName = modelNameNode.toText();
+            if (filePath != null && modelName != null) {
+                resolution.putDescriptionFile(modelName, filePath);
+            }
+        } catch (JsonParseException ex) {
+            resolution.addException(ex);
+        }
+    }
+
 }

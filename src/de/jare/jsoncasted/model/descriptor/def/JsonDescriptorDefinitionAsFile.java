@@ -14,6 +14,7 @@ import de.jare.jsoncasted.model.item.JsonClass;
 
 /**
  *
+ *
  * @author Janusch Rentenatus
  */
 public class JsonDescriptorDefinitionAsFile implements JsonItemDefinition {
@@ -35,8 +36,7 @@ public class JsonDescriptorDefinitionAsFile implements JsonItemDefinition {
 
         descriptModel = model.newJsonReflect(JsonModelDescriptorAsFile.class);
         descriptModel.addCParam("modelName", asString);
-        descriptModel.addCParam("modelFile", asString);
-
+        descriptModel.addCParam("fileName", asString);
     }
 
     @Override

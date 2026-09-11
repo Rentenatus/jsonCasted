@@ -17,17 +17,14 @@ import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonStringBuilder;
-import de.jare.jsoncasted.model.descriptor.JsonDefinitionsDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptorAsFile;
-import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
 import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinitionAsFile;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A walker that writes the root object and handles the _woodDefinitions container. This walker extends
@@ -111,7 +108,7 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         List<DefinitionsContextObjectRecord> records = definitionsContext.getDefinitionRecords();
 
         if (records.isEmpty()) {
-            return false;
+            return isFollowing;
         }
 
         List<Object> objects = records.stream()
@@ -198,11 +195,13 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
                 ? descriptorObject
                 : new JsonModelDescriptorAsFile(model.getmName(), objectGetter.getDefinitionsContext().getModelFile());
         final JsonClass jsonClass = descriptorDefinition.getRootClass();
-        final DefinitionsContext definitionsContext = new DefinitionsContext(model, objectGetter.getDefinitionsContext().getCurrentId());
+        final DefinitionsContext definitionsContext = new DefinitionsContext(
+                descriptorDefinition.getModel(),
+                objectGetter.getDefinitionsContext().getCurrentId()
+        );
 
         // Write _woodModel start
         strategy.writeAttrName(null, isFollowing, JsonTerms.TERM_WOOD_MODEL, iString);
-        //strategy.writeStartObject(null, descriptorObject, null, null, false, false, iString);
 
         final ObjectWriteWalker walker = new ObjectWriteWalker(
                 strategy,
@@ -216,9 +215,6 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
         );
         walker.writeObject(jsonClass, ob);
         objectGetter.getDefinitionsContext().maxCurrentId(definitionsContext.getCurrentId());
-
-        // Write _woodModel end
-        //strategy.writeEndObject(null, descriptorObject, true, true, iString);
         return true;
     }
 

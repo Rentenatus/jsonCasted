@@ -1,7 +1,7 @@
 {
   "_woodModel": {
     "modelName": "Seed",
-    "fileName": "D:/git_jsonCasted/test_assets/./out/test_write_5args_model.json"
+    "fileName": "./assets/readwrite/test_write_5args_model.json"
   },
   "_woodObjectId": 1,
   "mainLogging": {
