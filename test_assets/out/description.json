@@ -10,7 +10,7 @@
       "parent":  null
     }],
   "_woodObjectId": 1,
-  "modelName": "Full Model",
+  "name":  null,
   "describedTypes": {
     "de.jare.jsoncasted.model.descriptor.JsonModelDescriptor": {
       "_woodObjectId": 3,

@@ -1,6 +1,6 @@
 {
   "_woodObjectId": 1,
-  "modelName": "TestModel",
+  "name":  null,
   "describedTypes": {
     "java.lang.String": {
       "_woodObjectId": 3,

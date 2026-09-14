@@ -77,7 +77,7 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
         JsonMap typeMap = model.newRawJsonMapIndividually((new JsonInstance<JsonTypeDescriptor>()).getClass(), (String) null, descriptType);
         JsonMap modeldMap = model.newRawJsonMapIndividually((new JsonInstance<JsonModelDescriptor>()).getClass(), (String) null, descriptField);
         descriptModel = model.newJsonReflect(JsonModelDescriptor.class);
-        descriptModel.addCParam("modelName", asString);
+        descriptModel.addCParam("name", asString);
         descriptModel.addField("describedTypes", typeMap).makeAsDefinitional();
         descriptModel.addField("repoDescriptors", modeldMap).makeAsDefinitional();
         descriptModel.addField("withSelfDescription", asBoolean, "isWithSelfDescription", "withSelfDescription");

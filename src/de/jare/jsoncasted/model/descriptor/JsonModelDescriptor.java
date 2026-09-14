@@ -7,9 +7,9 @@
 package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.io.JsonObjectWriter;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonWriteException;
-import de.jare.jsoncasted.io.JsonObjectWriter;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
 import java.io.File;
@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -48,6 +49,7 @@ public class JsonModelDescriptor {
     private final JsonInstance< JsonModelDescriptor> repoDescriptors = new JsonInstance<>();
     private JsonDefinitionsDescriptor definitionsRoot;
     private boolean withSelfDescription;
+    private transient Map<String, List<JsonFieldDescriptor>> fieldMap;
 
     /**
      * Constructs a model descriptor with the specified model name.
@@ -498,6 +500,48 @@ public class JsonModelDescriptor {
             return false;
         }
         return describedTypes.keySet().containsAll(typeNames);
+    }
+
+    // -------------------------------------------------------------------------
+    // Field map
+    // -------------------------------------------------------------------------
+    /**
+     * Returns the transient field map, creating and populating it on first access.
+     *
+     * <p>
+     * The map groups every registered {@link JsonFieldDescriptor} across all described types by its
+     * {@link JsonFieldDescriptor#getFieldName() field name}. The returned map is unmodifiable.</p>
+     *
+     * @return unmodifiable map from field name to the list of field descriptors with that name.
+     */
+    public Map<String, List<JsonFieldDescriptor>> getOrCreateFieldMap() {
+        if (fieldMap == null) {
+            generateFieldMap();
+        }
+        return Collections.unmodifiableMap(fieldMap);
+    }
+
+    /**
+     * (Re)builds the transient field map from scratch.
+     *
+     * <p>
+     * Iterates over all described types and their fields, grouping each {@link JsonFieldDescriptor} by its field name.
+     * Any previous content is discarded.</p>
+     */
+    public void generateFieldMap() {
+        fieldMap = new HashMap<>();
+        for (JsonTypeDescriptor type : describedTypes.values()) {
+            for (JsonFieldDescriptor field : type.getAllFields()) {
+                fieldMap.computeIfAbsent(field.getFieldName(), k -> new ArrayList<>()).add(field);
+            }
+        }
+    }
+
+    /**
+     * Clears the transient field map, releasing the cached data.
+     */
+    public void clearFieldMap() {
+        fieldMap = null;
     }
 
     // -------------------------------------------------------------------------
