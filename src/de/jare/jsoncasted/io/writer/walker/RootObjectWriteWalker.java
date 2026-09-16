@@ -19,8 +19,8 @@ import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonStringBuilder;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptorAsFile;
-import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
-import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinitionAsFile;
+import de.jare.jsoncasted.model.descriptor.def.JsonModelDescriptorDefinition;
+import de.jare.jsoncasted.model.descriptor.def.JsonModelDescriptorDefinitionAsFile;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
 import java.util.Iterator;
@@ -189,8 +189,8 @@ public class RootObjectWriteWalker extends ObjectWriteWalker {
             return false;
         }
         JsonItemDefinition descriptorDefinition = descriptorObject.isWithSelfDescription()
-                ? JsonDescriptorDefinition.INSTANCE
-                : JsonDescriptorDefinitionAsFile.INSTANCE;
+                ? JsonModelDescriptorDefinition.INSTANCE
+                : JsonModelDescriptorDefinitionAsFile.INSTANCE;
         Object ob = descriptorObject.isWithSelfDescription()
                 ? descriptorObject
                 : new JsonModelDescriptorAsFile(model.getmName(), objectGetter.getDefinitionsContext().getModelFile());

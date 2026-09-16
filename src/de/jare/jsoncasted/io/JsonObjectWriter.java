@@ -7,6 +7,7 @@
  */
 package de.jare.jsoncasted.io;
 
+import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.strategy.DefinitionalStrategy;
@@ -15,7 +16,7 @@ import de.jare.jsoncasted.io.writer.walker.ObjectCircleScannerWalker;
 import de.jare.jsoncasted.io.writer.walker.RootObjectWriteWalker;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
-import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
+import de.jare.jsoncasted.model.descriptor.def.JsonModelDescriptorDefinition;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -116,7 +117,7 @@ public class JsonObjectWriter {
             out = new FileOutputStream(fileModel);
             JsonModelDescriptor desc = definition.getModel().getOrCreateDescriptor();
             definition.getModel().withSelfDescription(false);   // only filename
-            JsonItemDefinition descDefinition = JsonDescriptorDefinition.INSTANCE;
+            JsonItemDefinition descDefinition = JsonModelDescriptorDefinition.INSTANCE;
             write(desc, out, descDefinition, descDefinition.getRootClass());
             out.close();
 

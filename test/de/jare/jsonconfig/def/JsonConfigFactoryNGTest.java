@@ -19,7 +19,7 @@ import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.JsonBuildException;
-import de.jare.jsoncasted.parserwriter.JsonParserReference;
+import de.jare.jsoncasted.parserwriter.bak.JsonParserReferenceBak;
 import de.jare.jsonconfig.JsonConfigHelper;
 import de.jare.jsonconfig.item.ConfigFeature;
 import de.jare.jsonconfig.item.ConfigRoot;
@@ -161,7 +161,7 @@ public class JsonConfigFactoryNGTest {
 
         JsonItem obj1 = null;
         try {
-            obj1 = JsonParserReference.parse(configFile, definition, definition.getRootClass());
+            obj1 = JsonParserReferenceBak.parse(configFile, definition, definition.getRootClass());
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);

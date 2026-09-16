@@ -27,7 +27,7 @@ import java.util.List;
  * unmodifiable list of all values is also available via {@link #VALUES}.
  * </p>
  */
-public enum FieldKind {
+public enum FieldKind implements JsonEnumTemplate {
 
     /**
      * Simple value field, not referencing objects.
@@ -158,6 +158,7 @@ public enum FieldKind {
     /**
      * @return name of the enumerator
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -165,6 +166,7 @@ public enum FieldKind {
     /**
      * @return literal string of the enumerator
      */
+    @Override
     public String getLiteral() {
         return literal;
     }

@@ -1,6 +1,6 @@
 {
   "_woodObjectId": 1,
-  "name":  null,
+  "modelName": "Seed",
   "describedTypes": {
     "de.jare.jsonconfig.item.ConfigRoot": {
       "_woodObjectId": 3,
@@ -8,7 +8,7 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -18,11 +18,11 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields": {
         "_woodObjectId": 5,
         "typeName": "String",
-        "collectionType": "NONE"
+        "collectionType": "none"
       },
       "parent":  null
     },
@@ -32,7 +32,7 @@
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -42,11 +42,11 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields": {
         "_woodObjectId": 8,
         "typeName": "String",
-        "collectionType": "ARRAY"
+        "collectionType": "array"
       },
       "parent":  null
     },
@@ -56,7 +56,7 @@
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -66,7 +66,7 @@
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -76,7 +76,7 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -86,7 +86,7 @@
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -96,7 +96,7 @@
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -106,7 +106,7 @@
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -116,7 +116,7 @@
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -126,11 +126,11 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields": {
         "_woodObjectId": 17,
         "typeName": "Boolean",
-        "collectionType": "NONE"
+        "collectionType": "none"
       },
       "parent":  null
     },
@@ -140,7 +140,7 @@
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -150,7 +150,7 @@
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -160,7 +160,7 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -170,7 +170,7 @@
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
       "primitive": true,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -180,7 +180,7 @@
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -190,7 +190,7 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -200,7 +200,7 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     },
@@ -210,7 +210,7 @@
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
       "primitive": true,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     }

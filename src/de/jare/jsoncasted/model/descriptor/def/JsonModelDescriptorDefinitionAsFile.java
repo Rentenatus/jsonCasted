@@ -17,18 +17,18 @@ import de.jare.jsoncasted.model.item.JsonClass;
  *
  * @author Janusch Rentenatus
  */
-public class JsonDescriptorDefinitionAsFile implements JsonItemDefinition {
+public class JsonModelDescriptorDefinitionAsFile implements JsonItemDefinition {
 
-    public static final JsonDescriptorDefinitionAsFile INSTANCE = new JsonDescriptorDefinitionAsFile();
+    public static final JsonModelDescriptorDefinitionAsFile INSTANCE = new JsonModelDescriptorDefinitionAsFile();
 
-    public static JsonDescriptorDefinitionAsFile getInstance() {
+    public static JsonModelDescriptorDefinitionAsFile getInstance() {
         return INSTANCE;
     }
 
     private final JsonModel model;
     private final JsonClass descriptModel;
 
-    public JsonDescriptorDefinitionAsFile() {
+    public JsonModelDescriptorDefinitionAsFile() {
         model = new JsonModel("Light Model");
         model.addBasicModel();
 

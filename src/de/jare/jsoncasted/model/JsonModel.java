@@ -902,7 +902,7 @@ public class JsonModel {
      *
      * @return An ordered list of JsonClass instances.
      */
-    private List<JsonClass> getClassesList() {
+    public List<JsonClass> getClassesList() {
         List<JsonClass> ordered = new ArrayList<>(classes.size());
         for (JsonClass jc : classes.values()) {
             if (!jc.getcName().contains(".")) {
@@ -923,7 +923,7 @@ public class JsonModel {
      *
      * @return An ordered list of JsonClass instances.
      */
-    private List<JsonType> getTypeList() {
+    public List<JsonType> getTypeList() {
         List<JsonType> ordered = new ArrayList<>(classes.size());
         for (JsonClass jc : classes.values()) {
             if (!jc.getcName().contains(".")) {
@@ -947,7 +947,7 @@ public class JsonModel {
      *
      * @return An ordered list of JsonClass instances.
      */
-    private List<JsonInter> getInterfacesList() {
+    public List<JsonInter> getInterfacesList() {
         List<JsonInter> ordered = new ArrayList<>(interfaces.size());
         for (JsonInter ji : interfaces.values()) {
             ordered.add(ji);
@@ -960,7 +960,7 @@ public class JsonModel {
      *
      * @return An ordered list of JsonInter instances, sorted by class name.
      */
-    private List<JsonInter> getOrderedInterfacesList() {
+    public List<JsonInter> getOrderedInterfacesList() {
         List<JsonInter> ordered = new ArrayList<>(interfaces.values());
         ordered.sort(Comparator.comparing(JsonInter::getcName));
         return ordered;
@@ -1005,7 +1005,7 @@ public class JsonModel {
         });
 
         if (definitionsRoot != null && !definitionsRoot.isEmpty()) {
-            context.setDefinitionsRoot(definitionsRoot.describe());
+            context.setDefinitionsRoot(definitionsRoot.describeDefinitions());
         }
 
         descriptor = context;

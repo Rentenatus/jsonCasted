@@ -7,6 +7,8 @@
  */
 package de.jare.jsonconfig.item;
 
+import de.jare.jsoncasted.model.JsonEnumTemplate;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +18,7 @@ import java.util.List;
  *
  * @author Janusch Rentenatus
  */
-public enum ConfigProfileType {
+public enum ConfigProfileType implements JsonEnumTemplate {
 
     NONE(0, "NONE"),
     DEV(3, "DEV"),
@@ -61,6 +63,15 @@ public enum ConfigProfileType {
         return value;
     }
 
+    /**
+     * @return literal string of the enumerator
+     */
+    @Override
+    public String getLiteral() {
+        return name;
+    }
+
+    @Override
     public String getName() {
         return name;
     }

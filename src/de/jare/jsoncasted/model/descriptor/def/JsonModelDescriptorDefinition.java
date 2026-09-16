@@ -30,11 +30,11 @@ import de.jare.jsoncasted.model.item.JsonMap;
  *
  * @author Janusch Rentenatus
  */
-public class JsonDescriptorDefinition implements JsonItemDefinition {
+public class JsonModelDescriptorDefinition implements JsonItemDefinition {
 
-    public static final JsonDescriptorDefinition INSTANCE = new JsonDescriptorDefinition();
+    public static final JsonModelDescriptorDefinition INSTANCE = new JsonModelDescriptorDefinition();
 
-    public static JsonDescriptorDefinition getInstance() {
+    public static JsonModelDescriptorDefinition getInstance() {
         return INSTANCE;
     }
 
@@ -43,7 +43,7 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
     private final JsonClass descriptField;
     private final JsonClass descriptModel;
 
-    public JsonDescriptorDefinition() {
+    public JsonModelDescriptorDefinition() {
         model = new JsonModel("Full Model");
         model.addBasicModel();
 
@@ -70,14 +70,14 @@ public class JsonDescriptorDefinition implements JsonItemDefinition {
         descriptType.addField("nodeType", nodeTypeEnum, "getNodeType", "withNodeType");
         descriptType.addField("skippingNulls", asBoolean, "isSkippingNulls", "withSkippingNulls");
         descriptType.addField("primitive", asBoolean, "isPrimitive", "withPrimitive");
-        descriptType.addField("recursive", asBoolean, "isRecursive", "withRecursive");
+        descriptType.addField("reflective", asBoolean, "isReflective", "withReflective");
         descriptType.addField("mappingAllFields", descriptTypeNote).makeAsDefinitional();
         descriptType.addField("parent", descriptType).makeAsReference();
 
         JsonMap typeMap = model.newRawJsonMapIndividually((new JsonInstance<JsonTypeDescriptor>()).getClass(), (String) null, descriptType);
         JsonMap modeldMap = model.newRawJsonMapIndividually((new JsonInstance<JsonModelDescriptor>()).getClass(), (String) null, descriptField);
         descriptModel = model.newJsonReflect(JsonModelDescriptor.class);
-        descriptModel.addCParam("name", asString);
+        descriptModel.addCParam("modelName", asString);
         descriptModel.addField("describedTypes", typeMap).makeAsDefinitional();
         descriptModel.addField("repoDescriptors", modeldMap).makeAsDefinitional();
         descriptModel.addField("withSelfDescription", asBoolean, "isWithSelfDescription", "withSelfDescription");

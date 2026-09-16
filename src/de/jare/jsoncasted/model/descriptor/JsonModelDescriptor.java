@@ -11,7 +11,7 @@ import de.jare.jsoncasted.io.JsonObjectWriter;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonWriteException;
 import de.jare.jsoncasted.lang.JsonInstance;
-import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
+import de.jare.jsoncasted.model.descriptor.def.JsonModelDescriptorDefinition;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -557,7 +557,7 @@ public class JsonModelDescriptor {
      */
     public void saveAs(String filename) throws JsonParseException, JsonWriteException, IOException {
         File file = new File(filename);
-        JsonObjectWriter.write(this, file, JsonDescriptorDefinition.INSTANCE, JsonDescriptorDefinition.getInstance().getDescriptModel());
+        JsonObjectWriter.write(this, file, JsonModelDescriptorDefinition.INSTANCE, JsonModelDescriptorDefinition.getInstance().getDescriptModel());
     }
 
     /**
@@ -571,7 +571,7 @@ public class JsonModelDescriptor {
      */
     public void saveAs(String filename, JsonDebugLevel debugLevel) throws JsonParseException, JsonWriteException, IOException {
         File file = new File(filename);
-        JsonObjectWriter.write(this, file, JsonDescriptorDefinition.INSTANCE, JsonDescriptorDefinition.getInstance().getDescriptModel(), debugLevel);
+        JsonObjectWriter.write(this, file, JsonModelDescriptorDefinition.INSTANCE, JsonModelDescriptorDefinition.getInstance().getDescriptModel(), debugLevel);
     }
 
     @Override

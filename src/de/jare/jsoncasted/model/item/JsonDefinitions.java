@@ -582,10 +582,10 @@ public class JsonDefinitions {
      * The descriptor contains the scope hierarchy and the canonical names of the locally registered types. Full type
      * metadata remains available through the surrounding model descriptor.
      * </p>
-     *
+     * 
      * @return the descriptor representation of this definitions scope.
      */
-    public JsonDefinitionsDescriptor describe() {
+    public JsonDefinitionsDescriptor describeDefinitions() {
         JsonDefinitionsDescriptor ret = new JsonDefinitionsDescriptor(name);
         for (JsonType type : types) {
             if (type != null) {
@@ -594,7 +594,7 @@ public class JsonDefinitions {
         }
         for (JsonDefinitions child : children) {
             if (child != null) {
-                ret.addChild(child.describe());
+                ret.addChild(child.describeDefinitions());
             }
         }
         return ret;

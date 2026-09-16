@@ -6,7 +6,7 @@ package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonWriteException;
-import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
+import de.jare.jsoncasted.model.descriptor.def.JsonModelDescriptorDefinition;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 
 /**
  *
- * @author Administrator
+ * @author Janusch Rentenatus
  */
 public class JsonModelDescriptorNGTest {
 
@@ -89,7 +89,7 @@ public class JsonModelDescriptorNGTest {
                 "test_desc.json does not appear to be valid JSON");
 
         // Create a self-describing descriptor
-        JsonModelDescriptor selfDescriptor = JsonDescriptorDefinition.getInstance().getModel().getOrCreateDescriptor();
+        JsonModelDescriptor selfDescriptor = JsonModelDescriptorDefinition.getInstance().getModel().getOrCreateDescriptor();
 
         // Save self-description to ./out/description.json
         String selfDescPath = "./out/description.json";
@@ -111,7 +111,7 @@ public class JsonModelDescriptorNGTest {
 
         System.out.println("Successfully saved test descriptor to: " + testDescPath);
         System.out.println("Successfully saved self descriptor to: " + selfDescPath);
-        
+
     }
 
 }

@@ -242,7 +242,7 @@ public class JsonTypeDescriptor {
      *
      * @return {@code true} if recursive.
      */
-    public boolean isRecursive() {
+    public boolean isReflective() {
         return reflective;
     }
 

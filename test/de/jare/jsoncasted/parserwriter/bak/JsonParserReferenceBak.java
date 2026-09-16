@@ -5,7 +5,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  * </copyright>
  */
-package de.jare.jsoncasted.parserwriter;
+package de.jare.jsoncasted.parserwriter.bak;
 
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonItemDefinition;
@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  * @deprecated Replaced by JsonNode-based parsing pipeline.
  */
 @Deprecated
-public class JsonParserReference {
+public class JsonParserReferenceBak {
 
     /**
      * Parses JSON from a string using the legacy parser.

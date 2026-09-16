@@ -1,6 +1,6 @@
 {
   "_woodObjectId": 1,
-  "name":  null,
+  "modelName": "TestModel",
   "describedTypes": {
     "java.lang.String": {
       "_woodObjectId": 3,
@@ -8,7 +8,7 @@
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
-      "recursive": false,
+      "reflective": false,
       "mappingAllFields":  null,
       "parent":  null
     }
