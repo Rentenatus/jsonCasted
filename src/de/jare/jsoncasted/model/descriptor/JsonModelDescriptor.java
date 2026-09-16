@@ -261,6 +261,13 @@ public class JsonModelDescriptor {
         return descriptor;
     }
 
+    public void setRepoDescriptors(JsonInstance<JsonModelDescriptor> repoDescriptors) {
+        this.repoDescriptors.clear();
+        if (repoDescriptors != null) {
+            this.repoDescriptors.putAll(repoDescriptors);
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Registration
     // -------------------------------------------------------------------------
@@ -433,7 +440,9 @@ public class JsonModelDescriptor {
 
     public void setDescribedTypes(JsonInstance<JsonTypeDescriptor> describedTypes) {
         this.describedTypes.clear();
-        this.describedTypes.putAll(describedTypes);
+        if (describedTypes != null) {
+            this.describedTypes.putAll(describedTypes);
+        }
     }
 
     // -------------------------------------------------------------------------

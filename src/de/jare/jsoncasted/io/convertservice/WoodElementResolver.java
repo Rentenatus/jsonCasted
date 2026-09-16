@@ -259,29 +259,6 @@ public final class WoodElementResolver {
     }
 
     /**
-     * Extracts the model name from the {@code _woodModel} node in the root object. Returns {@code null} when no
-     * {@code _woodModel} node or no {@code modelName} field is present.
-     *
-     * @param resource The JSON resource to scan.
-     * @return the model name, or {@code null} if not present.
-     */
-    public static String extractModelName(JsonResource resource) {
-        Map<String, JsonNode> modelValues = getWoodModelValues(resource);
-        if (modelValues == null) {
-            return null;
-        }
-        JsonNode modelNameNode = modelValues.get("modelName");
-        if (modelNameNode == null) {
-            return null;
-        }
-        try {
-            return modelNameNode.toText();
-        } catch (JsonParseException ex) {
-            return null;
-        }
-    }
-
-    /**
      * Extracts the description file path from the {@code _woodModel} node in the root object. Returns the value of the
      * {@code fileName} field, or {@code null} when no {@code _woodModel} node or no {@code fileName} field is present.
      *

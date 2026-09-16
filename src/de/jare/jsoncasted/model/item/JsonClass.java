@@ -158,9 +158,11 @@ public class JsonClass implements JsonType {
      * Sets whether this class should skip null values during serialization.
      *
      * @param skippingNulls If true, null values will be skipped.
+     * @return this
      */
-    public void setSkippingNulls(boolean skippingNulls) {
+    public JsonClass withSkippingNulls(boolean skippingNulls) {
         this.skippingNulls = skippingNulls;
+        return this;
     }
 
     @Override
@@ -168,11 +170,12 @@ public class JsonClass implements JsonType {
         return reflective;
     }
 
-    public void setReflective(boolean reflective) {
+    public JsonClass withReflective(boolean reflective) {
         if (isBoxOrPrimitive() && reflective) {
             throw new IllegalArgumentException("A class cannot be both primitive and reflective at the same time.");
         }
         this.reflective = reflective;
+        return this;
     }
 
     /**

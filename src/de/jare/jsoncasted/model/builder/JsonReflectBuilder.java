@@ -85,6 +85,9 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
                 return null;
             }
         }
+        if (jsonItem.isNull()) {
+            return null;
+        }
         return createInstance(jClass, jsonItem, builderService);
     }
 

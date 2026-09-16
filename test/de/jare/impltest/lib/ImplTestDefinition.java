@@ -79,7 +79,7 @@ public class ImplTestDefinition implements JsonItemDefinition {
         testBox.addField("one", valueIx);
         testBox.addField("list", valueIx, LIST);
         testBox.addField("arr", valueIx, ARRAY);
-        testBox.setSkippingNulls(true);
+        testBox.withSkippingNulls(true);
 
     }
 

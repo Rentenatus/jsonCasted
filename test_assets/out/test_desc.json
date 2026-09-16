@@ -8,9 +8,7 @@
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     }
   },
   "repoDescriptors": {},

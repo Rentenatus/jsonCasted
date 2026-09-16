@@ -21,6 +21,10 @@ import java.util.Set;
  */
 public interface JsonItem {
 
+    default boolean isNull() {
+        return false;
+    }
+
     /**
      * Retrieves the string representation of the JSON item's value.
      *

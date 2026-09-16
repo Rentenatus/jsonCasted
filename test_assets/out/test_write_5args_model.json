@@ -8,9 +8,7 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "de.jare.jsoncasted.lang.JsonInstance<String>": {
       "_woodObjectId": 4,
@@ -23,8 +21,7 @@
         "_woodObjectId": 5,
         "typeName": "String",
         "collectionType": "none"
-      },
-      "parent":  null
+      }
     },
     "double": {
       "_woodObjectId": 6,
@@ -32,9 +29,7 @@
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "de.jare.jsoncasted.lang.JsonInstance<String>[]": {
       "_woodObjectId": 7,
@@ -47,8 +42,7 @@
         "_woodObjectId": 8,
         "typeName": "String",
         "collectionType": "array"
-      },
-      "parent":  null
+      }
     },
     "String": {
       "_woodObjectId": 9,
@@ -56,9 +50,7 @@
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "float": {
       "_woodObjectId": 10,
@@ -66,9 +58,7 @@
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "de.jare.jsonconfig.item.ConfigLogging": {
       "_woodObjectId": 11,
@@ -76,9 +66,7 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "de.jare.jsonconfig.item.ConfigProfileType": {
       "_woodObjectId": 12,
@@ -86,9 +74,7 @@
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "Double": {
       "_woodObjectId": 13,
@@ -96,9 +82,7 @@
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "int": {
       "_woodObjectId": 14,
@@ -106,9 +90,7 @@
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "long": {
       "_woodObjectId": 15,
@@ -116,9 +98,7 @@
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "de.jare.jsoncasted.lang.JsonInstance<Boolean>": {
       "_woodObjectId": 16,
@@ -131,8 +111,7 @@
         "_woodObjectId": 17,
         "typeName": "Boolean",
         "collectionType": "none"
-      },
-      "parent":  null
+      }
     },
     "Integer": {
       "_woodObjectId": 18,
@@ -140,9 +119,7 @@
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "Float": {
       "_woodObjectId": 19,
@@ -150,9 +127,7 @@
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "de.jare.jsonconfig.item.ConfigProfile": {
       "_woodObjectId": 20,
@@ -160,9 +135,7 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "boolean": {
       "_woodObjectId": 21,
@@ -170,9 +143,7 @@
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "Long": {
       "_woodObjectId": 22,
@@ -180,9 +151,7 @@
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "de.jare.jsonconfig.item.ConfigFeature": {
       "_woodObjectId": 23,
@@ -190,9 +159,7 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "Object": {
       "_woodObjectId": 24,
@@ -200,9 +167,7 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     },
     "Boolean": {
       "_woodObjectId": 25,
@@ -210,9 +175,7 @@
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false,
-      "mappingAllFields":  null,
-      "parent":  null
+      "reflective": false
     }
   },
   "repoDescriptors": {},
