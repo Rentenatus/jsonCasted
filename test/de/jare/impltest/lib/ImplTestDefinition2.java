@@ -96,21 +96,12 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
         repo = repoModel.getOrCreateRepo();
         model.addRepoModel("save", repoModel);
 
+        model.setRootNodeCast(testBox.getcName());
     }
 
     @Override
     public JsonModel getModel() {
         return model;
-    }
-
-    /**
-     * Returns the JsonClass for TestBox.
-     *
-     * @return The JsonClass describing the TestBox structure.
-     */
-    @Override
-    public JsonClass getRootClass() {
-        return testBox;
     }
 
     public JsonClass getRepo() {

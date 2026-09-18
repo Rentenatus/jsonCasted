@@ -87,6 +87,9 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
         descriptModel.addField("repoDescriptors", modeldMap)
                 .makeAsDefinitional();
         descriptModel.addField("withSelfDescription", asBoolean, "isWithSelfDescription", "withSelfDescription");
+        descriptModel.addField("rootNodeCast", asString, "getRootNodeCast", "setRootNodeCast");
+
+        model.setRootNodeCast(descriptModel.getcName());
     }
 
     @Override
@@ -103,11 +106,6 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
     }
 
     public JsonClass getDescriptModel() {
-        return descriptModel;
-    }
-
-    @Override
-    public JsonClass getRootClass() {
         return descriptModel;
     }
 

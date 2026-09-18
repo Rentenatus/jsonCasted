@@ -10,6 +10,7 @@ package de.jare.jsoncasted.io;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
+import java.util.Objects;
 
 /**
  * Interface for JSON item definitions that provide model and casting configuration.
@@ -42,7 +43,11 @@ public interface JsonItemDefinition {
      *
      * @return the JsonClass representing the root type.
      */
-    public JsonClass getRootClass();
+    default JsonClass getRootClass() {
+        final String rootNodeCast = getModel().getRootNodeCast();
+        Objects.requireNonNull(rootNodeCast, "Cast of root node not set.");
+        return getModel().getJsonClass(rootNodeCast);
+    }
 
     /**
      * Returns the model descriptor for introspection.

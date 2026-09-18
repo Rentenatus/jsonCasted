@@ -54,6 +54,7 @@ public class JsonModel {
     private final String mName;
     private JsonModelDescriptor descriptor;
     private boolean withSelfDescription;
+    private String rootNodeCast;
 
     /**
      * Constructs a JsonModel instance with a specified model name.
@@ -90,6 +91,14 @@ public class JsonModel {
         if (descriptor != null) {
             descriptor.withSelfDescription(withSelfDescription);
         }
+    }
+
+    public String getRootNodeCast() {
+        return rootNodeCast;
+    }
+
+    public void setRootNodeCast(String rootNodeCast) {
+        this.rootNodeCast = rootNodeCast;
     }
 
     public JsonDefinitions getDefinitionsRoot() {
@@ -975,6 +984,7 @@ public class JsonModel {
     public JsonModelDescriptor describe() {
         JsonModelDescriptor context = new JsonModelDescriptor(mName);
         context.withSelfDescription(this.withSelfDescription);
+        context.setRootNodeCast(this.rootNodeCast);
         List<JsonClass> orderedClasses = getClassesList();
         List<JsonInter> orderedInterfaces = getOrderedInterfacesList();
 

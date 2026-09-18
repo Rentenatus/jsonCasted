@@ -180,5 +180,6 @@
     }
   },
   "repoDescriptors": {},
-  "withSelfDescription": false
+  "withSelfDescription": false,
+  "rootNodeCast": "de.jare.jsoncasted.model.descriptor.JsonModelDescriptor"
 }

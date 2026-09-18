@@ -45,10 +45,11 @@ import java.util.Set;
 public class JsonModelDescriptor {
 
     private final String modelName;
-    private final JsonInstance< JsonTypeDescriptor> describedTypes = new JsonInstance<>();
-    private final JsonInstance< JsonModelDescriptor> repoDescriptors = new JsonInstance<>();
+    private final JsonInstance<JsonTypeDescriptor> describedTypes = new JsonInstance<>();
+    private final JsonInstance<JsonModelDescriptor> repoDescriptors = new JsonInstance<>();
     private JsonDefinitionsDescriptor definitionsRoot;
     private boolean withSelfDescription;
+    private String rootNodeCast;
     private transient Map<String, List<JsonFieldDescriptor>> fieldMap;
 
     /**
@@ -78,6 +79,14 @@ public class JsonModelDescriptor {
 
     public void withSelfDescription(boolean withSelfDescription) {
         this.withSelfDescription = withSelfDescription;
+    }
+
+    public String getRootNodeCast() {
+        return rootNodeCast;
+    }
+
+    public void setRootNodeCast(String rootNodeCast) {
+        this.rootNodeCast = rootNodeCast;
     }
 
     public JsonDefinitionsDescriptor getDefinitionsRoot() {
@@ -587,6 +596,7 @@ public class JsonModelDescriptor {
     public String toString() {
         return "JsonModelDescriptor[modelName=" + modelName
                 + ", types=" + describedTypes.size()
-                + ", repoDescriptors=" + repoDescriptors.size() + "]";
+                + ", repoDescriptors=" + repoDescriptors.size()
+                + ", rootNodeCast=" + rootNodeCast + "]";
     }
 }
