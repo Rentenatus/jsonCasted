@@ -43,6 +43,7 @@ public class ValidationRunner {
      */
     public ValidationRunner() {
         contributors.add(new CoreValidatorContributor());
+        contributors.add(new ReflectionValidatorContributor());
     }
 
     /**

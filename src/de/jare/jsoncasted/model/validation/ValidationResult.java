@@ -6,6 +6,8 @@
  */
 package de.jare.jsoncasted.model.validation;
 
+import de.jare.jsoncasted.model.JsonType;
+import de.jare.jsoncasted.model.item.JsonField;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -128,6 +130,43 @@ public class ValidationResult {
      */
     public void clear() {
         diagnostics.clear();
+    }
+
+    /**
+     * Returns a multi-line, human-readable rendering of this result. Every diagnostic is printed on its own line,
+     * with the source rendered as type or field name where possible.
+     *
+     * @return the pretty printed result, never null
+     */
+    public String prettyPrint() {
+        final StringBuilder sb = new StringBuilder("ValidationResult: ")
+                .append(getErrorCount()).append(" error(s), ")
+                .append(getWarningCount()).append(" warning(s), ")
+                .append(getDiagnosticCount() - getErrorCount() - getWarningCount()).append(" info(s)");
+        for (ValidationDiagnostic d : diagnostics) {
+            sb.append("\n  [").append(d.getSeverity()).append("] ")
+                    .append(d.getCode()).append(": ")
+                    .append(d.getMessage())
+                    .append(" (source: ").append(describeSource(d.getSource())).append(')');
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Renders a diagnostic source in a readable form: types as their canonical name, fields as their field name,
+     * other objects via their own toString.
+     *
+     * @param source the source object of a diagnostic, may be null
+     * @return the readable rendering, never null
+     */
+    public static String describeSource(Object source) {
+        if (source instanceof JsonType type) {
+            return "type '" + type.getcName() + "'";
+        }
+        if (source instanceof JsonField field) {
+            return "field '" + field.getfName() + "'";
+        }
+        return source == null ? "?" : source.toString();
     }
 
     @Override

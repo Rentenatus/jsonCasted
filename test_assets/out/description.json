@@ -1,7 +1,50 @@
 {
   "_woodDefinitions": [{
-      "_woodObjectId": 17,
+      "_woodObjectId": 40,
+      "collectionType": "none",
+      "typeName": "String",
+      "fieldName": "typeName",
+      "required": true,
+      "constructorParam": true,
+      "getter": "getTypeName",
+      "setter": "setTypeName"
+    }, 
+    {
+      "_woodObjectId": 41,
+      "collectionType": "none",
+      "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
+      "fieldName": "collectionType",
+      "required": true,
+      "constructorParam": true,
+      "getter": "getCollectionType",
+      "setter": "setCollectionType"
+    }, 
+    {
+      "_woodObjectId": 39,
       "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote",
+      "implementors": [
+        ],
+      "constructorParams": [{
+          "collectionType": "none",
+          "typeName": "String",
+          "fieldName": "typeName",
+          "required": true,
+          "constructorParam": true,
+          "getter": "getTypeName",
+          "setter": "setTypeName"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
+          "fieldName": "collectionType",
+          "required": true,
+          "constructorParam": true,
+          "getter": "getCollectionType",
+          "setter": "setCollectionType"
+        }
+        ],
+      "fields": [
+        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
@@ -13,170 +56,477 @@
     "de.jare.jsoncasted.model.descriptor.JsonModelDescriptor": {
       "_woodObjectId": 3,
       "typeName": "de.jare.jsoncasted.model.descriptor.JsonModelDescriptor",
+      "implementors": [
+        ],
+      "constructorParams": [{
+          "collectionType": "none",
+          "typeName": "String",
+          "fieldName": "modelName",
+          "required": false,
+          "constructorParam": true,
+          "getter": "getModelName",
+          "setter": "setModelName"
+        }
+        ],
+      "fields": [{
+          "collectionType": "none",
+          "typeName": "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor>",
+          "fieldName": "describedTypes",
+          "required": false,
+          "constructorParam": false,
+          "getter": "getDescribedTypes",
+          "setter": "setDescribedTypes"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor>",
+          "fieldName": "repoDescriptors",
+          "required": false,
+          "constructorParam": false,
+          "getter": "getRepoDescriptors",
+          "setter": "setRepoDescriptors"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "Boolean",
+          "fieldName": "withSelfDescription",
+          "required": false,
+          "constructorParam": false,
+          "getter": "isWithSelfDescription",
+          "setter": "withSelfDescription"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "String",
+          "fieldName": "rootNodeCast",
+          "required": false,
+          "constructorParam": false,
+          "getter": "getRootNodeCast",
+          "setter": "setRootNodeCast"
+        }
+        ],
       "nodeType": "OBJECT",
       "skippingNulls": true,
       "primitive": false,
       "reflective": false
     },
     "double": {
-      "_woodObjectId": 4,
+      "_woodObjectId": 9,
       "typeName": "double",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
       "reflective": false
     },
     "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor": {
-      "_woodObjectId": 5,
+      "_woodObjectId": 10,
       "typeName": "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor",
+      "implementors": [
+        ],
+      "constructorParams": [{
+          "collectionType": "none",
+          "typeName": "String",
+          "fieldName": "typeName",
+          "required": false,
+          "constructorParam": true,
+          "getter": "getTypeName",
+          "setter": "setTypeName"
+        }
+        ],
+      "fields": [{
+          "collectionType": "list",
+          "typeName": "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor",
+          "fieldName": "implementors",
+          "required": false,
+          "constructorParam": false,
+          "getter": "getImplementors",
+          "setter": "setImplementors"
+        }, 
+        {
+          "collectionType": "list",
+          "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor",
+          "fieldName": "constructorParams",
+          "required": false,
+          "constructorParam": false,
+          "getter": "getConstructorParams",
+          "setter": "setConstructorParams"
+        }, 
+        {
+          "collectionType": "list",
+          "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor",
+          "fieldName": "fields",
+          "required": false,
+          "constructorParam": false,
+          "getter": "getFields",
+          "setter": "setFields"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "de.jare.jsoncasted.lang.JsonNodeType",
+          "fieldName": "nodeType",
+          "required": false,
+          "constructorParam": false,
+          "getter": "getNodeType",
+          "setter": "withNodeType"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "Boolean",
+          "fieldName": "skippingNulls",
+          "required": false,
+          "constructorParam": false,
+          "getter": "isSkippingNulls",
+          "setter": "withSkippingNulls"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "Boolean",
+          "fieldName": "primitive",
+          "required": false,
+          "constructorParam": false,
+          "getter": "isPrimitive",
+          "setter": "withPrimitive"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "Boolean",
+          "fieldName": "reflective",
+          "required": false,
+          "constructorParam": false,
+          "getter": "isReflective",
+          "setter": "withReflective"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote",
+          "fieldName": "mappingAllFields",
+          "required": false,
+          "constructorParam": false,
+          "getter": "getMappingAllFields",
+          "setter": "setMappingAllFields"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor",
+          "fieldName": "parent",
+          "required": false,
+          "constructorParam": false,
+          "getter": "getParent",
+          "setter": "setParent"
+        }
+        ],
       "nodeType": "OBJECT",
       "skippingNulls": true,
       "primitive": false,
       "reflective": false
     },
     "String": {
-      "_woodObjectId": 6,
+      "_woodObjectId": 21,
       "typeName": "String",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
       "reflective": false
     },
     "float": {
-      "_woodObjectId": 7,
+      "_woodObjectId": 22,
       "typeName": "float",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
       "reflective": false
     },
     "Double": {
-      "_woodObjectId": 8,
+      "_woodObjectId": 23,
       "typeName": "Double",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
       "reflective": false
     },
     "int": {
-      "_woodObjectId": 9,
+      "_woodObjectId": 24,
       "typeName": "int",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
       "reflective": false
     },
     "long": {
-      "_woodObjectId": 10,
+      "_woodObjectId": 25,
       "typeName": "long",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
       "reflective": false
     },
     "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor>": {
-      "_woodObjectId": 11,
+      "_woodObjectId": 26,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor>",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
       "reflective": false,
       "mappingAllFields": {
-        "_woodObjectId": 12,
+        "_woodObjectId": 27,
         "typeName": "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor",
         "collectionType": "none"
       }
     },
     "Integer": {
-      "_woodObjectId": 13,
+      "_woodObjectId": 28,
       "typeName": "Integer",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
       "reflective": false
     },
     "de.jare.jsoncasted.lang.JsonNodeType": {
-      "_woodObjectId": 14,
+      "_woodObjectId": 29,
       "typeName": "de.jare.jsoncasted.lang.JsonNodeType",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
       "reflective": false
     },
     "Float": {
-      "_woodObjectId": 15,
+      "_woodObjectId": 30,
       "typeName": "Float",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
       "reflective": false
     },
     "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor": {
-      "_woodObjectId": 16,
+      "_woodObjectId": 31,
       "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor",
+      "implementors": [
+        ],
+      "constructorParams": [{
+          "collectionType": "none",
+          "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
+          "fieldName": "collectionType",
+          "required": false,
+          "constructorParam": true,
+          "getter": "getCollectionType",
+          "setter": "setCollectionType"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "String",
+          "fieldName": "typeName",
+          "required": false,
+          "constructorParam": true,
+          "getter": "getTypeName",
+          "setter": "setTypeName"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "String",
+          "fieldName": "fieldName",
+          "required": false,
+          "constructorParam": true,
+          "getter": "getFieldName",
+          "setter": "setFieldName"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "Boolean",
+          "fieldName": "required",
+          "required": false,
+          "constructorParam": true,
+          "getter": "isRequired",
+          "setter": "setRequired"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "Boolean",
+          "fieldName": "constructorParam",
+          "required": false,
+          "constructorParam": true,
+          "getter": "isConstructorParam",
+          "setter": "setConstructorParam"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "String",
+          "fieldName": "getter",
+          "required": false,
+          "constructorParam": true,
+          "getter": "getGetter",
+          "setter": "setGetter"
+        }, 
+        {
+          "collectionType": "none",
+          "typeName": "String",
+          "fieldName": "setter",
+          "required": false,
+          "constructorParam": true,
+          "getter": "getSetter",
+          "setter": "setSetter"
+        }
+        ],
+      "fields": [
+        ],
       "nodeType": "OBJECT",
       "skippingNulls": true,
       "primitive": false,
       "reflective": false,
       "parent": {
-        "_woodLink": "self::17"
+        "_woodLink": "self::39"
       }
     },
     "boolean": {
-      "_woodObjectId": 18,
+      "_woodObjectId": 42,
       "typeName": "boolean",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
       "primitive": true,
       "reflective": false
     },
     "de.jare.jsoncasted.model.JsonCollectionType": {
-      "_woodObjectId": 19,
+      "_woodObjectId": 43,
       "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
       "reflective": false
     },
     "Long": {
-      "_woodObjectId": 20,
+      "_woodObjectId": 44,
       "typeName": "Long",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
       "reflective": false
     },
     "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor>": {
-      "_woodObjectId": 21,
+      "_woodObjectId": 45,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor>",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
       "reflective": false,
       "mappingAllFields": {
-        "_woodObjectId": 22,
+        "_woodObjectId": 46,
         "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor",
         "collectionType": "none"
       }
     },
     "Object": {
-      "_woodObjectId": 23,
+      "_woodObjectId": 47,
       "typeName": "Object",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
       "reflective": false
     },
     "Boolean": {
-      "_woodObjectId": 24,
+      "_woodObjectId": 48,
       "typeName": "Boolean",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
       "primitive": true,
       "reflective": false
     },
     "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote": {
-      "_woodLink": "self::17"
+      "_woodLink": "self::39"
     }
   },
   "repoDescriptors": {},

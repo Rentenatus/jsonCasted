@@ -10,6 +10,8 @@ package de.jare.jsoncasted.io;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.validation.ValidationResult;
+import de.jare.jsoncasted.model.validation.ValidationRunner;
 import java.util.Objects;
 
 /**
@@ -64,5 +66,11 @@ public interface JsonItemDefinition {
      * @return the JsonCastingLevel determining when casting is performed.
      */
     public JsonCastingLevel getCastingLevel();
+
+    default ValidationResult validateDefinition() {
+        Objects.requireNonNull(getModel(), "JsonModel is null.");
+        return (new ValidationRunner()).validate(getModel());
+
+    }
 
 }

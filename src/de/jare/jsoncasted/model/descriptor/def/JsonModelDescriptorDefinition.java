@@ -69,13 +69,18 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
         descriptType = model.newJsonReflect(JsonTypeDescriptor.class)
                 .withSkippingNulls(true);
         descriptType.addCParam("typeName", asString);
+        descriptType.addField("implementors", descriptType, JsonCollectionType.LIST)
+                .makeAsReference();
+        descriptType.addField("constructorParams", descriptField, JsonCollectionType.LIST);
+        descriptType.addField("fields", descriptField, JsonCollectionType.LIST);
         descriptType.addField("nodeType", nodeTypeEnum, "getNodeType", "withNodeType");
         descriptType.addField("skippingNulls", asBoolean, "isSkippingNulls", "withSkippingNulls");
         descriptType.addField("primitive", asBoolean, "isPrimitive", "withPrimitive");
         descriptType.addField("reflective", asBoolean, "isReflective", "withReflective");
         descriptType.addField("mappingAllFields", descriptTypeNote)
                 .makeAsDefinitional();
-        descriptType.addField("parent", descriptType).makeAsReference();
+        descriptType.addField("parent", descriptType)
+                .makeAsReference();
 
         JsonMap typeMap = model.newRawJsonMapIndividually((new JsonInstance<JsonTypeDescriptor>()).getClass(), (String) null, descriptType);
         JsonMap modeldMap = model.newRawJsonMapIndividually((new JsonInstance<JsonModelDescriptor>()).getClass(), (String) null, descriptField);
@@ -90,6 +95,7 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
         descriptModel.addField("rootNodeCast", asString, "getRootNodeCast", "setRootNodeCast");
 
         model.setRootNodeCast(descriptModel.getcName());
+
     }
 
     @Override

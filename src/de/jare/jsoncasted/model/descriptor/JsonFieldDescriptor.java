@@ -84,7 +84,13 @@ public class JsonFieldDescriptor extends JsonFieldTypeNote {
         return fieldName;
     }
 
+    public String getGetter() {
+        return getter;
+    }
 
+    public String getSetter() {
+        return setter;
+    }
 
     /**
      * Checks if this is a required field.

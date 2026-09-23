@@ -134,6 +134,13 @@ public class JsonTypeDescriptor {
         return Collections.unmodifiableList(constructorParams);
     }
 
+    public void setConstructorParams(List<JsonFieldDescriptor> constructorParams) {
+        this.constructorParams.clear();
+        if (constructorParams != null) {
+            this.constructorParams.addAll(constructorParams);
+        }
+    }
+
     /**
      * Returns an unmodifiable list of implementors (for interface types).
      *
@@ -141,6 +148,13 @@ public class JsonTypeDescriptor {
      */
     public List<JsonTypeDescriptor> getImplementors() {
         return Collections.unmodifiableList(implementors);
+    }
+
+    public void setImplementors(List<JsonTypeDescriptor> implementors) {
+        this.implementors.clear();
+        if (implementors != null) {
+            this.implementors.addAll(implementors);
+        }
     }
 
     /**
@@ -168,6 +182,13 @@ public class JsonTypeDescriptor {
      */
     public List<JsonFieldDescriptor> getFields() {
         return Collections.unmodifiableList(fields);
+    }
+    
+    public  void setFields(List<JsonFieldDescriptor> fields) {
+        this.fields.clear();
+        if (fields != null) {
+            this.fields.addAll(fields);
+        }
     }
 
     /**
