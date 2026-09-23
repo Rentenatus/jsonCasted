@@ -10,27 +10,27 @@
       "constructorParams": [
         ],
       "fields": [{
-          "collectionType": "none",
-          "typeName": "de.jare.jsonconfig.item.ConfigLogging",
           "fieldName": "mainLogging",
+          "typeName": "de.jare.jsonconfig.item.ConfigLogging",
+          "collectionType": "none",
           "required": true,
           "constructorParam": false,
           "getter": "getMainLogging",
           "setter": "setMainLogging"
         }, 
         {
-          "collectionType": "array",
-          "typeName": "String",
           "fieldName": "comments",
+          "typeName": "String",
+          "collectionType": "array",
           "required": true,
           "constructorParam": false,
           "getter": "getComments",
           "setter": "setComments"
         }, 
         {
-          "collectionType": "list",
-          "typeName": "de.jare.jsonconfig.item.ConfigProfile",
           "fieldName": "profiles",
+          "typeName": "de.jare.jsonconfig.item.ConfigProfile",
+          "collectionType": "list",
           "required": true,
           "constructorParam": false,
           "getter": "getProfiles",
@@ -130,18 +130,18 @@
       "constructorParams": [
         ],
       "fields": [{
-          "collectionType": "none",
-          "typeName": "String",
           "fieldName": "level",
+          "typeName": "String",
+          "collectionType": "none",
           "required": true,
           "constructorParam": false,
           "getter": "getLevel",
           "setter": "setLevel"
         }, 
         {
-          "collectionType": "none",
-          "typeName": "String",
           "fieldName": "path",
+          "typeName": "String",
+          "collectionType": "none",
           "required": true,
           "constructorParam": false,
           "getter": "getPath",
@@ -264,45 +264,45 @@
       "constructorParams": [
         ],
       "fields": [{
-          "collectionType": "none",
-          "typeName": "de.jare.jsonconfig.item.ConfigLogging",
           "fieldName": "profileLogging",
+          "typeName": "de.jare.jsonconfig.item.ConfigLogging",
+          "collectionType": "none",
           "required": true,
           "constructorParam": false,
           "getter": "getProfileLogging",
           "setter": "setProfileLogging"
         }, 
         {
-          "collectionType": "none",
-          "typeName": "String",
           "fieldName": "profile",
+          "typeName": "String",
+          "collectionType": "none",
           "required": true,
           "constructorParam": false,
           "getter": "getProfile",
           "setter": "setProfile"
         }, 
         {
-          "collectionType": "none",
-          "typeName": "de.jare.jsonconfig.item.ConfigProfileType",
           "fieldName": "type",
+          "typeName": "de.jare.jsonconfig.item.ConfigProfileType",
+          "collectionType": "none",
           "required": true,
           "constructorParam": false,
           "getter": "getType",
           "setter": "setType"
         }, 
         {
-          "collectionType": "array",
-          "typeName": "String",
           "fieldName": "comments",
+          "typeName": "String",
+          "collectionType": "array",
           "required": true,
           "constructorParam": false,
           "getter": "getComments",
           "setter": "setComments"
         }, 
         {
-          "collectionType": "list",
-          "typeName": "de.jare.jsonconfig.item.ConfigFeature",
           "fieldName": "features",
+          "typeName": "de.jare.jsonconfig.item.ConfigFeature",
+          "collectionType": "list",
           "required": true,
           "constructorParam": false,
           "getter": "getFeatures",
@@ -350,54 +350,54 @@
       "constructorParams": [
         ],
       "fields": [{
-          "collectionType": "none",
-          "typeName": "de.jare.jsonconfig.item.ConfigLogging",
           "fieldName": "featureLogging",
+          "typeName": "de.jare.jsonconfig.item.ConfigLogging",
+          "collectionType": "none",
           "required": true,
           "constructorParam": false,
           "getter": "getFeatureLogging",
           "setter": "setFeatureLogging"
         }, 
         {
-          "collectionType": "none",
-          "typeName": "String",
           "fieldName": "feature",
+          "typeName": "String",
+          "collectionType": "none",
           "required": true,
           "constructorParam": false,
           "getter": "getFeature",
           "setter": "setFeature"
         }, 
         {
-          "collectionType": "array",
-          "typeName": "String",
           "fieldName": "comments",
+          "typeName": "String",
+          "collectionType": "array",
           "required": true,
           "constructorParam": false,
           "getter": "getComments",
           "setter": "setComments"
         }, 
         {
-          "collectionType": "none",
-          "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>",
           "fieldName": "settings",
+          "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>",
+          "collectionType": "none",
           "required": true,
           "constructorParam": false,
           "getter": "getSettings",
           "setter": "setSettings"
         }, 
         {
-          "collectionType": "none",
-          "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>[]",
           "fieldName": "labels",
+          "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>[]",
+          "collectionType": "none",
           "required": true,
           "constructorParam": false,
           "getter": "getLabels",
           "setter": "setLabels"
         }, 
         {
-          "collectionType": "none",
-          "typeName": "de.jare.jsoncasted.lang.JsonInstance<Boolean>",
           "fieldName": "enablements",
+          "typeName": "de.jare.jsoncasted.lang.JsonInstance<Boolean>",
+          "collectionType": "none",
           "required": true,
           "constructorParam": false,
           "getter": "getEnablements",

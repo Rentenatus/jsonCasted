@@ -49,22 +49,24 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
 
         final JsonClass asString = model.getJsonClass("String");
         final JsonClass asBoolean = model.getJsonClass("Boolean");
+        final JsonClass asInteger = model.getJsonClass("Integer");
 
         //JsonMap stringMap = model.newRawJsonMapIndividually((new JsonInstance<String>()).getClass(), (String) null, asString);
         JsonClass collectionTypeEnum = model.newJsonEnumByName(JsonCollectionType.class);
         JsonClass nodeTypeEnum = model.newJsonEnumByName(JsonNodeType.class);
 
         JsonClass descriptTypeNote = model.newJsonReflect(JsonFieldTypeNote.class);
-        descriptTypeNote.addCParam("typeName", asString);
-        descriptTypeNote.addCParam("collectionType", collectionTypeEnum);
+        descriptTypeNote.addCParam("typeName", asString).withSortKey(11000);
+        descriptTypeNote.addCParam("collectionType", collectionTypeEnum).withSortKey(12000);
 
         descriptField = model.newJsonReflect(JsonFieldDescriptor.class, descriptTypeNote)
                 .withSkippingNulls(true);
-        descriptField.addCParam("fieldName", asString);
-        descriptField.addCParam("required", asBoolean);
-        descriptField.addCParam("constructorParam", asBoolean);
-        descriptField.addCParam("getter", asString);
-        descriptField.addCParam("setter", asString);
+        descriptField.addCParam("fieldName", asString).withSortKey(10000);
+        descriptField.addCParam("required", asBoolean).withSortKey(13000);
+        descriptField.addCParam("constructorParam", asBoolean).withSortKey(14000);
+        descriptField.addCParam("getter", asString).withSortKey(15000);
+        descriptField.addCParam("setter", asString).withSortKey(16000);
+        descriptField.addField("sortKey", asInteger, "getSortKey", "setSortKey").withSortKey(17000);
 
         descriptType = model.newJsonReflect(JsonTypeDescriptor.class)
                 .withSkippingNulls(true);

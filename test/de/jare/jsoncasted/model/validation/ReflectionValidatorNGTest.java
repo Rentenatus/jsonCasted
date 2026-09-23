@@ -40,19 +40,35 @@ public class ReflectionValidatorNGTest {
     }
 
     /**
-     * The descriptor meta model currently has one known defect that the reflection validators expose: the inherited
-     * constructor parameters of JsonFieldDescriptor (collectionType, typeName from JsonFieldTypeNote) precede the
-     * own ones in build order, but the public seven-arg constructor of JsonFieldDescriptor declares
-     * (fieldName, typeName, collectionType, ...) - so loading a description fails with 'constructor not found'.
-     * When the constructor parameter order is fixed, this test must be tightened to expect no diagnostics at all.
+     * The descriptor meta model must produce no reflection diagnostics. Former defects (JsonTypeDescriptor
+     * constructor arity, missing getter/setter accessors on JsonFieldDescriptor, and the constructor parameter
+     * order of JsonFieldDescriptor) have been fixed - the latter via explicit sort keys on the meta model's
+     * constructor parameters. This test guards against regressions of exactly that kind.
      */
     @Test
-    public void testSelfDescriptionKnownDefects() {
+    public void testSelfDescriptionHasNoReflectionDiagnostics() {
         List<ValidationDiagnostic> found = reflectionDiagnostics(
                 JsonModelDescriptorDefinition.getInstance().getModel());
-        assertEquals(found.size(), 1, "Expected exactly the known defect: " + found);
-        assertEquals(found.get(0).getCode(), ConstructorArityValidator.CTOR_SIGNATURE_CODE,
-                "Expected the JsonFieldDescriptor constructor signature defect: " + found);
+        assertTrue(found.isEmpty(), "Expected no reflection diagnostics, but found: " + found);
+    }
+
+    /**
+     * Constructor parameters declared in reverse order are ordered by their sort keys so that the constructor
+     * signature matches - without sort keys the signature validator would report a mismatch.
+     */
+    @Test
+    public void testSortKeyOrdersCParams() {
+        final JsonModel model = new JsonModel("SortKeyModel");
+        model.addBasicModel();
+        final JsonClass asString = model.getJsonClass("String");
+        final JsonClass asInteger = model.getJsonClass("Integer");
+
+        final JsonClass sorted = model.newJsonReflect(SortedCParamBean.class);
+        sorted.addCParam("number", asInteger).withSortKey(20000);
+        sorted.addCParam("name", asString).withSortKey(10000);
+
+        List<ValidationDiagnostic> found = reflectionDiagnostics(model);
+        assertTrue(found.isEmpty(), "Expected no reflection diagnostics, but found: " + found);
     }
 
     /**
@@ -154,6 +170,23 @@ public class ReflectionValidatorNGTest {
         }
 
         public void setValue(String value) {
+        }
+    }
+
+    /**
+     * Bean whose constructor parameters are declared in reverse order but ordered by their sort keys.
+     */
+    public static class SortedCParamBean {
+
+        public SortedCParamBean(String name, int number) {
+        }
+
+        public String getName() {
+            return null;
+        }
+
+        public int getNumber() {
+            return 0;
         }
     }
 

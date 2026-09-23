@@ -38,6 +38,7 @@ public class JsonFieldDescriptor extends JsonFieldTypeNote {
     private String getter;
     private String setter;
     private FieldKind kind;
+    private Integer sortKey;
 
     /**
      * Constructs a field descriptor with minimal information.
@@ -155,6 +156,24 @@ public class JsonFieldDescriptor extends JsonFieldTypeNote {
      */
     public void setKind(FieldKind kind) {
         this.kind = kind;
+    }
+
+    /**
+     * Returns the sort key of the field, or null if no explicit sort key is set.
+     *
+     * @return the sort key or null.
+     */
+    public Integer getSortKey() {
+        return sortKey;
+    }
+
+    /**
+     * Sets the sort key of the field.
+     *
+     * @param sortKey the sort key to set, or null for none.
+     */
+    public void setSortKey(Integer sortKey) {
+        this.sortKey = sortKey;
     }
 
     @Override
