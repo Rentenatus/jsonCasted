@@ -183,7 +183,7 @@ public class JsonFieldDescriptor extends JsonFieldTypeNote {
                 + ", typeName=" + getTypeName()
                 + ", collectionType=" + getCollectionType()
                 + ", required=" + required
-                + ", kind=" + String.valueOf(kind.getName())
+                + ", kind=" + (kind == null ? null : kind.getName())
                 + ", constructorParam=" + constructorParam
                 + ", getter=" + getter
                 + ", setter=" + setter

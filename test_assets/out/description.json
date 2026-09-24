@@ -1,27 +1,5 @@
 {
   "_woodDefinitions": [{
-      "_woodObjectId": 41,
-      "fieldName": "typeName",
-      "typeName": "String",
-      "collectionType": "none",
-      "required": true,
-      "constructorParam": true,
-      "getter": "getTypeName",
-      "setter": "setTypeName",
-      "sortKey": 11000
-    }, 
-    {
-      "_woodObjectId": 42,
-      "fieldName": "collectionType",
-      "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
-      "collectionType": "none",
-      "required": true,
-      "constructorParam": true,
-      "getter": "getCollectionType",
-      "setter": "setCollectionType",
-      "sortKey": 12000
-    }, 
-    {
       "_woodObjectId": 40,
       "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote",
       "implementors": [
@@ -53,6 +31,28 @@
       "skippingNulls": false,
       "primitive": false,
       "reflective": false
+    }, 
+    {
+      "_woodObjectId": 41,
+      "fieldName": "typeName",
+      "typeName": "String",
+      "collectionType": "none",
+      "required": true,
+      "constructorParam": true,
+      "getter": "getTypeName",
+      "setter": "setTypeName",
+      "sortKey": 11000
+    }, 
+    {
+      "_woodObjectId": 42,
+      "fieldName": "collectionType",
+      "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
+      "collectionType": "none",
+      "required": true,
+      "constructorParam": true,
+      "getter": "getCollectionType",
+      "setter": "setCollectionType",
+      "sortKey": 12000
     }],
   "_woodObjectId": 1,
   "modelName": "Full Model",

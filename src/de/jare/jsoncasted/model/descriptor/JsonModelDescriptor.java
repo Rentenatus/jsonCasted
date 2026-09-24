@@ -50,7 +50,8 @@ public class JsonModelDescriptor {
     private JsonDefinitionsDescriptor definitionsRoot;
     private boolean withSelfDescription;
     private String rootNodeCast;
-    private transient Map<String, List<JsonFieldDescriptor>> fieldMap;
+    private transient volatile Map<String, List<JsonFieldDescriptor>> fieldMap;
+    private transient volatile Map<String, List<JsonTypeDescriptor>> typesByField;
 
     /**
      * Constructs a model descriptor with the specified model name.
@@ -534,9 +535,30 @@ public class JsonModelDescriptor {
      */
     public Map<String, List<JsonFieldDescriptor>> getOrCreateFieldMap() {
         if (fieldMap == null) {
-            generateFieldMap();
+            synchronized (this) {
+                if (fieldMap == null) {
+                    generateFieldMap();
+                }
+            }
         }
         return Collections.unmodifiableMap(fieldMap);
+    }
+
+    /**
+     * Returns the cached map from field name to the types declaring that field, creating it together with the field
+     * map if necessary. Both maps are built and published in one step, so they are always consistent with each other.
+     *
+     * @return an unmodifiable map from field name to the declaring types
+     */
+    public Map<String, List<JsonTypeDescriptor>> getOrCreateTypesByField() {
+        if (typesByField == null) {
+            synchronized (this) {
+                if (typesByField == null) {
+                    generateFieldMap();
+                }
+            }
+        }
+        return Collections.unmodifiableMap(typesByField);
     }
 
     /**
@@ -547,12 +569,19 @@ public class JsonModelDescriptor {
      * Any previous content is discarded.</p>
      */
     public void generateFieldMap() {
-        fieldMap = new HashMap<>();
+        // Build locally and publish only the completed maps: the fields are
+        // volatile, so readers on the fast path must never observe a
+        // half-filled map while another thread is still generating them.
+        Map<String, List<JsonFieldDescriptor>> fieldIndex = new HashMap<>();
+        Map<String, List<JsonTypeDescriptor>> typeIndex = new HashMap<>();
         for (JsonTypeDescriptor type : describedTypes.values()) {
             for (JsonFieldDescriptor field : type.getAllFields()) {
-                fieldMap.computeIfAbsent(field.getFieldName(), k -> new ArrayList<>()).add(field);
+                fieldIndex.computeIfAbsent(field.getFieldName(), k -> new ArrayList<>()).add(field);
+                typeIndex.computeIfAbsent(field.getFieldName(), k -> new ArrayList<>()).add(type);
             }
         }
+        fieldMap = fieldIndex;
+        typesByField = typeIndex;
     }
 
     /**
@@ -560,6 +589,7 @@ public class JsonModelDescriptor {
      */
     public void clearFieldMap() {
         fieldMap = null;
+        typesByField = null;
     }
 
     // -------------------------------------------------------------------------
