@@ -37,16 +37,13 @@ public class JsonModelDescriptorDefinitionAsFile implements JsonItemDefinition {
         descriptModel = model.newJsonReflect(JsonModelDescriptorAsFile.class);
         descriptModel.addCParam("modelName", asString);
         descriptModel.addCParam("fileName", asString);
+
+        model.setRootNodeCast(descriptModel.getcName());
     }
 
     @Override
     public JsonModel getModel() {
         return model;
-    }
-
-    @Override
-    public JsonClass getRootClass() {
-        return descriptModel;
     }
 
     public JsonClass getDescriptModel() {

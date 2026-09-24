@@ -38,6 +38,7 @@ public class JsonFieldDescriptor extends JsonFieldTypeNote {
     private String getter;
     private String setter;
     private FieldKind kind;
+    private Integer sortKey;
 
     /**
      * Constructs a field descriptor with minimal information.
@@ -84,7 +85,13 @@ public class JsonFieldDescriptor extends JsonFieldTypeNote {
         return fieldName;
     }
 
+    public String getGetter() {
+        return getter;
+    }
 
+    public String getSetter() {
+        return setter;
+    }
 
     /**
      * Checks if this is a required field.
@@ -151,6 +158,24 @@ public class JsonFieldDescriptor extends JsonFieldTypeNote {
         this.kind = kind;
     }
 
+    /**
+     * Returns the sort key of the field, or null if no explicit sort key is set.
+     *
+     * @return the sort key or null.
+     */
+    public Integer getSortKey() {
+        return sortKey;
+    }
+
+    /**
+     * Sets the sort key of the field.
+     *
+     * @param sortKey the sort key to set, or null for none.
+     */
+    public void setSortKey(Integer sortKey) {
+        this.sortKey = sortKey;
+    }
+
     @Override
     public String toString() {
         return "JsonFieldDescriptor["
@@ -158,7 +183,7 @@ public class JsonFieldDescriptor extends JsonFieldTypeNote {
                 + ", typeName=" + getTypeName()
                 + ", collectionType=" + getCollectionType()
                 + ", required=" + required
-                + ", kind=" + kind.getName()
+                + ", kind=" + (kind == null ? null : kind.getName())
                 + ", constructorParam=" + constructorParam
                 + ", getter=" + getter
                 + ", setter=" + setter

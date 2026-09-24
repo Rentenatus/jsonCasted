@@ -55,6 +55,8 @@ public class WoodProviderDefinition implements JsonItemDefinition {
 
         woodProviderBox = model.newJsonReflect(WoodProviderBox.class);
         woodProviderBox.addCParam(TERM_WOOD_PROVIDERS, provider, "getProvider", LIST);
+
+        model.setRootNodeCast(woodProviderBox.getcName());
     }
 
     @Override
@@ -68,11 +70,6 @@ public class WoodProviderDefinition implements JsonItemDefinition {
      * @return The JsonClass describing the WoodProviderBox structure.
      */
     public JsonClass getWoodProviderBox() {
-        return woodProviderBox;
-    }
-
-    @Override
-    public JsonClass getRootClass() {
         return woodProviderBox;
     }
 

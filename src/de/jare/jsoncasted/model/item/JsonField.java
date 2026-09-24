@@ -39,6 +39,7 @@ public class JsonField {
     private final String setter;
     private FieldKind kind;
     private JsonValidationMethod validationMethod;
+    private int sortKey;
 
     /**
      * Constructs a JsonField instance with collection type and validation method.
@@ -268,6 +269,28 @@ public class JsonField {
      */
     public JsonField makeAsDefinitional() {
         this.kind = FieldKind.DEFINITIONAL;
+        return this;
+    }
+
+    /**
+     * Returns the sort key of this field. Fields with equal sort keys keep their declaration order; a smaller sort
+     * key sorts first. The default is 0.
+     *
+     * @return the sort key
+     */
+    public int getSortKey() {
+        return sortKey;
+    }
+
+    /**
+     * Sets the sort key of this field for explicit ordering. Fields with equal sort keys keep their declaration
+     * order; a smaller sort key sorts first. The default is 0.
+     *
+     * @param sortKey the sort key
+     * @return this JsonField for method chaining
+     */
+    public JsonField withSortKey(int sortKey) {
+        this.sortKey = sortKey;
         return this;
     }
 

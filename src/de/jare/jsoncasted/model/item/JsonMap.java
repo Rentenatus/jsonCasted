@@ -7,6 +7,7 @@
  */
 package de.jare.jsoncasted.model.item;
 
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonValidationMethod;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonCollectionType;
@@ -146,6 +147,20 @@ public class JsonMap extends JsonClass implements JsonType {
         String key = next.getfName();
         JsonInstance<?> ji = (JsonInstance<?>) ob;
         return ji.get(key);
+    }
+
+    /**
+     * Returns the attribute for the given field from the given map instance. Maps are keyed lookups, not reflective
+     * objects, so the debug level variant delegates to the two-argument map lookup as well.
+     *
+     * @param next the field whose name is the map key
+     * @param ob the map instance
+     * @param debugLevel the debug level for logging getter errors, ignored by maps
+     * @return the value stored under the field name, or null
+     */
+    @Override
+    public Object getAttr(JsonField next, Object ob, JsonDebugLevel debugLevel) {
+        return getAttr(next, ob);
     }
 
     @Override

@@ -5,6 +5,12 @@
     "java.lang.String": {
       "_woodObjectId": 3,
       "typeName": "java.lang.String",
+      "implementors": [
+        ],
+      "constructorParams": [
+        ],
+      "fields": [
+        ],
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,

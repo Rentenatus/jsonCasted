@@ -49,33 +49,40 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
 
         final JsonClass asString = model.getJsonClass("String");
         final JsonClass asBoolean = model.getJsonClass("Boolean");
+        final JsonClass asInteger = model.getJsonClass("Integer");
 
         //JsonMap stringMap = model.newRawJsonMapIndividually((new JsonInstance<String>()).getClass(), (String) null, asString);
         JsonClass collectionTypeEnum = model.newJsonEnumByName(JsonCollectionType.class);
         JsonClass nodeTypeEnum = model.newJsonEnumByName(JsonNodeType.class);
 
         JsonClass descriptTypeNote = model.newJsonReflect(JsonFieldTypeNote.class);
-        descriptTypeNote.addCParam("typeName", asString);
-        descriptTypeNote.addCParam("collectionType", collectionTypeEnum);
+        descriptTypeNote.addCParam("typeName", asString).withSortKey(11000);
+        descriptTypeNote.addCParam("collectionType", collectionTypeEnum).withSortKey(12000);
 
         descriptField = model.newJsonReflect(JsonFieldDescriptor.class, descriptTypeNote)
                 .withSkippingNulls(true);
-        descriptField.addCParam("fieldName", asString);
-        descriptField.addCParam("required", asBoolean);
-        descriptField.addCParam("constructorParam", asBoolean);
-        descriptField.addCParam("getter", asString);
-        descriptField.addCParam("setter", asString);
+        descriptField.addCParam("fieldName", asString).withSortKey(10000);
+        descriptField.addCParam("required", asBoolean).withSortKey(13000);
+        descriptField.addCParam("constructorParam", asBoolean).withSortKey(14000);
+        descriptField.addCParam("getter", asString).withSortKey(15000);
+        descriptField.addCParam("setter", asString).withSortKey(16000);
+        descriptField.addField("sortKey", asInteger, "getSortKey", "setSortKey").withSortKey(17000);
 
         descriptType = model.newJsonReflect(JsonTypeDescriptor.class)
                 .withSkippingNulls(true);
         descriptType.addCParam("typeName", asString);
+        descriptType.addField("implementors", descriptType, JsonCollectionType.LIST)
+                .makeAsReference();
+        descriptType.addField("constructorParams", descriptField, JsonCollectionType.LIST);
+        descriptType.addField("fields", descriptField, JsonCollectionType.LIST);
         descriptType.addField("nodeType", nodeTypeEnum, "getNodeType", "withNodeType");
         descriptType.addField("skippingNulls", asBoolean, "isSkippingNulls", "withSkippingNulls");
         descriptType.addField("primitive", asBoolean, "isPrimitive", "withPrimitive");
         descriptType.addField("reflective", asBoolean, "isReflective", "withReflective");
         descriptType.addField("mappingAllFields", descriptTypeNote)
                 .makeAsDefinitional();
-        descriptType.addField("parent", descriptType).makeAsReference();
+        descriptType.addField("parent", descriptType)
+                .makeAsReference();
 
         JsonMap typeMap = model.newRawJsonMapIndividually((new JsonInstance<JsonTypeDescriptor>()).getClass(), (String) null, descriptType);
         JsonMap modeldMap = model.newRawJsonMapIndividually((new JsonInstance<JsonModelDescriptor>()).getClass(), (String) null, descriptField);
@@ -87,6 +94,10 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
         descriptModel.addField("repoDescriptors", modeldMap)
                 .makeAsDefinitional();
         descriptModel.addField("withSelfDescription", asBoolean, "isWithSelfDescription", "withSelfDescription");
+        descriptModel.addField("rootNodeCast", asString, "getRootNodeCast", "setRootNodeCast");
+
+        model.setRootNodeCast(descriptModel.getcName());
+
     }
 
     @Override
@@ -103,11 +114,6 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
     }
 
     public JsonClass getDescriptModel() {
-        return descriptModel;
-    }
-
-    @Override
-    public JsonClass getRootClass() {
         return descriptModel;
     }
 

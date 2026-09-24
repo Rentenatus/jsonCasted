@@ -30,17 +30,6 @@ import java.util.logging.Logger;
  */
 public class JsonReflectBuilder implements JsonModellClassBuilder {
 
-    private static final Map<Class<?>, Class<?>> primitiveWrapperMap = Map.of(
-            boolean.class, Boolean.class,
-            byte.class, Byte.class,
-            char.class, Character.class,
-            double.class, Double.class,
-            float.class, Float.class,
-            int.class, Integer.class,
-            long.class, Long.class,
-            short.class, Short.class
-    );
-
     private Class<?> singular;
 
     /**
@@ -114,42 +103,27 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
                         throw new JsonBuildException("Param " + para.getPrintClassName() + " " + next.getfName() + " is empty, but " + jClass.getcName() + " does not allow a null value.");
                     }
 
-                    Method getterMeth = null;
-                    Method setterMeth = null;
-                    boolean suchtNoch = true;
-                    for (Method meth : singular.getMethods()) {
-                        if (meth.getName().equals(next.getGetter()) && meth.getParameterCount() == 0) {
-                            getterMeth = meth;
-                            if (setterMeth != null) {
-                                break;
-                            }
-                            continue;
-                        }
-                        if (meth.getName().equals(next.getSetter()) && meth.getParameterCount() == 1) {
-                            setterMeth = meth;
-                            try {
-                                meth.invoke(ob, inst);
-                            } catch (ReflectiveOperationException | IllegalArgumentException ex) {
-                                throw new JsonBuildException("Exception invoking " + jClass.getcName() + "." + meth.getName() + "(" + para.getPrintClassName() + " " + next.getfName() + ") :" + ex.getMessage(), ex);
-                            }
-                            suchtNoch = false;
-                            if (getterMeth != null || !next.satisfyValidation()) {
-                                break;
-                            }
-                        }
-                    }
-                    if (suchtNoch) {
+                    final Method setterMeth = ReflectionService.findSetter(singular, next);
+                    if (setterMeth == null) {
                         throw new JsonBuildException("Method not found: " + jClass.getcName() + "." + next.getSetter() + "(" + para.getPrintClassName() + " " + next.getfName() + ")");
                     }
-                    if (getterMeth != null && next.satisfyValidation()) {
-                        try {
-                            Object target = getterMeth.invoke(ob);
-                            if (!next.validate(inst, target)) {
-                                throw new JsonBuildException("ValidationException invoking " + jClass.getcName() + "." + setterMeth.getName() + "(" + para.getPrintClassName() + " " + next.getfName()
-                                        + "): Expected '" + inst + "', found '" + target + "'");
+                    try {
+                        setterMeth.invoke(ob, inst);
+                    } catch (ReflectiveOperationException | IllegalArgumentException ex) {
+                        throw new JsonBuildException("Exception invoking " + jClass.getcName() + "." + setterMeth.getName() + "(" + para.getPrintClassName() + " " + next.getfName() + ") :" + ex.getMessage(), ex);
+                    }
+                    if (next.satisfyValidation()) {
+                        final Method getterMeth = ReflectionService.findGetter(singular, next);
+                        if (getterMeth != null) {
+                            try {
+                                Object target = getterMeth.invoke(ob);
+                                if (!next.validate(inst, target)) {
+                                    throw new JsonBuildException("ValidationException invoking " + jClass.getcName() + "." + setterMeth.getName() + "(" + para.getPrintClassName() + " " + next.getfName()
+                                            + "): Expected '" + inst + "', found '" + target + "'");
+                                }
+                            } catch (ReflectiveOperationException | IllegalArgumentException ex) {
+                                throw new JsonBuildException("Exception invoking " + jClass.getcName() + "." + getterMeth.getName() + "() :" + ex.getMessage(), ex);
                             }
-                        } catch (ReflectiveOperationException | IllegalArgumentException ex) {
-                            throw new JsonBuildException("Exception invoking " + jClass.getcName() + "." + getterMeth.getName() + "() :" + ex.getMessage(), ex);
                         }
                     }
                 }
@@ -236,15 +210,7 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
             boolean okay = true;
             Class<?>[] types = cons.getParameterTypes();
             for (int i = 0; okay && i < types.length; i++) {
-                final Object ob_i = paramObjects.get(i);
-                if (ob_i == null) {
-                    okay = skippingNulls;
-                    continue;
-                }
-                okay = types[i].isInstance(ob_i);
-                if (!okay && primitiveWrapperMap.get(types[i]) != null) {
-                    okay = primitiveWrapperMap.get(types[i]).isInstance(ob_i);
-                }
+                okay = ReflectionService.isInstanceCompatible(types[i], paramObjects.get(i), skippingNulls);
             }
             if (okay) {
                 ret.add(cons);
