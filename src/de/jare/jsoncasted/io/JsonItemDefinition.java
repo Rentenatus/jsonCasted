@@ -10,8 +10,8 @@ package de.jare.jsoncasted.io;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.item.JsonClass;
-import de.jare.jsoncasted.model.validation.ValidationResult;
-import de.jare.jsoncasted.model.validation.ValidationRunner;
+import de.jare.jsoncasted.validation.core.ValidationResult;
+import de.jare.jsoncasted.validation.model.ValidationRunner;
 import java.util.Objects;
 
 /**

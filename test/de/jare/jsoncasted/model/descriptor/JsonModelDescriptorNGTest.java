@@ -7,7 +7,7 @@ package de.jare.jsoncasted.model.descriptor;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonWriteException;
 import de.jare.jsoncasted.model.descriptor.def.JsonModelDescriptorDefinition;
-import de.jare.jsoncasted.model.validation.ValidationResult;
+import de.jare.jsoncasted.validation.core.ValidationResult;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
