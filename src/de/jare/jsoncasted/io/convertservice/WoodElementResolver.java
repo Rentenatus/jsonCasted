@@ -8,14 +8,22 @@ package de.jare.jsoncasted.io.convertservice;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonParseException;
-import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonTerms;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_FILE_NAME;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_LINK;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_MODEL;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_OBJECT_ID;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_PROVIDERS;
 import de.jare.jsoncasted.lang.LinkNodeEntry;
 import de.jare.jsoncasted.lang.LinkingSet;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -180,8 +188,11 @@ public final class WoodElementResolver {
         }
         for (Map.Entry<String, JsonNode> entry : node.asObjectValues().entrySet()) {
             String key = entry.getKey();
-            if (JsonTerms.TERM_WOOD_OBJECT_ID.equals(key) || JsonTerms.TERM_WOOD_LINK.equals(key)
-                    || JsonTerms.TERM_CLASS.equals(key) || JsonTerms.TERM_WOOD_PROVIDERS.equals(key)) {
+            if (TERM_WOOD_OBJECT_ID.equals(key)
+                    || TERM_WOOD_LINK.equals(key)
+                    || TERM_CLASS.equals(key)
+                    || TERM_WOOD_MODEL.equals(key)
+                    || TERM_WOOD_PROVIDERS.equals(key)) {
                 continue;
             }
             if (!isConvertibleNow(entry.getValue(), linkingSet, resolution)) {
@@ -220,4 +231,142 @@ public final class WoodElementResolver {
 
         return typeDescriptor;
     }
+
+    /**
+     * Returns the object values of the {@code _woodModel} node found in the root object of the given resource, or
+     * {@code null} if the resource, its root, or the {@code _woodModel} node is missing or not an object.
+     *
+     * @param resource The JSON resource to scan.
+     * @return the values map of the {@code _woodModel} node, or {@code null}.
+     */
+    private static Map<String, JsonNode> getWoodModelValues(JsonResource resource) {
+        if (resource == null || resource.getRoot() == null) {
+            return null;
+        }
+        JsonNode root = resource.getRoot();
+        if (!root.isObject()) {
+            return null;
+        }
+        Map<String, JsonNode> values = root.asObjectValues();
+        if (values == null) {
+            return null;
+        }
+        JsonNode woodModelNode = values.get(TERM_WOOD_MODEL);
+        if (woodModelNode == null || !woodModelNode.isObject()) {
+            return null;
+        }
+        return woodModelNode.asObjectValues();
+    }
+
+    /**
+     * Extracts the description file path from the {@code _woodModel} node in the root object. Returns the value of the
+     * {@code fileName} field, or {@code null} when no {@code _woodModel} node or no {@code fileName} field is present.
+     *
+     * @param resource The JSON resource to scan.
+     * @return the description file path, or {@code null} if not present.
+     */
+    public static String extractDescriptionFilePath(JsonResource resource) {
+        Map<String, JsonNode> modelValues = getWoodModelValues(resource);
+        if (modelValues == null) {
+            return null;
+        }
+        JsonNode fileNameNode = modelValues.get(TERM_FILE_NAME);
+        if (fileNameNode == null) {
+            return null;
+        }
+        try {
+            return fileNameNode.toText();
+        } catch (JsonParseException ex) {
+            return null;
+        }
+    }
+
+    /**
+     * Resolves a description file path relative to an original file. Tries the absolute path first, then resolves the
+     * path relative to the directory of the original file, and finally strips a leading {@code ../} prefix and retries
+     * relative resolution.
+     *
+     * @param descriptionFilePath the file path from the {@code _woodModel} node (may be {@code null}).
+     * @param originalFile the source JSON file used as the resolution base (may be {@code null}).
+     * @return the resolved {@link File} if it exists, or {@code null} if it cannot be found.
+     */
+    public static File findDescriptionFile(String descriptionFilePath, File originalFile) {
+        if (descriptionFilePath == null || originalFile == null) {
+            return null;
+        }
+
+        // 1. Absolute Pfade direkt testen
+        try {
+            Path descPath = Paths.get(descriptionFilePath);
+            if (descPath.isAbsolute()) {
+                File file = descPath.toFile();
+                if (file.exists()) {
+                    return file;
+                }
+            }
+        } catch (Exception e) {
+            // Ungueltiger Pfad, ignorieren
+        }
+
+        // 2. Pfad des Originalverzeichnisses
+        Path originalDir = Paths.get(originalFile.getAbsolutePath()).getParent();
+        if (originalDir == null) {
+            originalDir = Paths.get(System.getProperty("user.dir")); // Fallback: Arbeitsverzeichnis
+        }
+
+        // 2a. Mit vollem Pfad (inkl. ../) versuchen
+        try {
+            Path resolved = originalDir.resolve(descriptionFilePath).normalize();
+            File file = resolved.toFile();
+            if (file.exists()) {
+                return file;
+            }
+        } catch (Exception e) {
+            // Pfadfehler, ignorieren
+        }
+
+        // 2b. OHNE "../"-Prefix im Originalverzeichnis suchen
+        String cleanPath = descriptionFilePath.replaceFirst("^\\.\\./", "");
+        try {
+            Path direct = originalDir.resolve(cleanPath);
+            File file = direct.toFile();
+            if (file.exists()) {
+                return file;
+            }
+        } catch (Exception e) {
+            // Ignorieren
+        }
+
+        return null;
+    }
+
+    /**
+     * Extracts description file mapping from the _woodModel node in the root object. When a _woodModel node contains a
+     * fileName field (indicating JsonModelDescriptorAsFile), it extracts the file path and associates it with the model
+     * name.
+     *
+     * @param resource The JSON resource to scan.
+     * @param resolution The WoodResolution to populate with description file mapping.
+     */
+    public static void extractDescriptionFiles(JsonResource resource, WoodResolution resolution) {
+        try {
+            Map<String, JsonNode> modelValues = getWoodModelValues(resource);
+            if (modelValues == null) {
+                return;
+            }
+            JsonNode fileNameNode = modelValues.get(TERM_FILE_NAME);
+            JsonNode modelNameNode = modelValues.get("modelName");
+            if (fileNameNode == null || modelNameNode == null) {
+                return;
+            }
+            String filePath = fileNameNode.toText();
+            String modelName = modelNameNode.toText();
+            if (filePath != null && modelName != null) {
+                resolution.putDescriptionFile(modelName, filePath);
+            }
+        } catch (JsonParseException ex) {
+            resolution.addException(ex);
+        }
+    }
+
 }

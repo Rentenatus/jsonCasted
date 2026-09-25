@@ -79,22 +79,14 @@ public class ImplTestDefinition implements JsonItemDefinition {
         testBox.addField("one", valueIx);
         testBox.addField("list", valueIx, LIST);
         testBox.addField("arr", valueIx, ARRAY);
-        testBox.setSkippingNulls(true);
+        testBox.withSkippingNulls(true);
 
+        model.setRootNodeCast(testBox.getcName());
     }
 
     @Override
     public JsonModel getModel() {
         return model;
-    }
-
-    /**
-     * Returns the JsonClass for TestBox.
-     *
-     * @return The JsonClass describing the TestBox structure.
-     */
-    public JsonClass getTestBox() {
-        return testBox;
     }
 
     @Override

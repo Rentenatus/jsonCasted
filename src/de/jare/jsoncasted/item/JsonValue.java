@@ -97,6 +97,14 @@ public class JsonValue implements JsonItem {
         this.strValue = null;
     }
 
+    @Override
+    public boolean isNull() {
+        if (numberValue != null || longValue != null || boolValue != null) {
+            return false;
+        }
+        return strValue == null || "null".equals(strValue);
+    }
+
     /**
      * Retrieves the string representation of the JSON value.
      *
@@ -207,8 +215,7 @@ public class JsonValue implements JsonItem {
      * @return null, as JSON values do not store key-value mappings.
      */
     @Override
-    public JsonItem getParam(String key
-    ) {
+    public JsonItem getParam(String key) {
         return null;
     }
 

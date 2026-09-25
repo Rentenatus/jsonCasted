@@ -69,13 +69,13 @@ This means linked resources can work even if their models do not fully know each
 
 ### Model description in save files
 
-`JsonModelDescription` is itself model data. Because Wood Json Jack always deserializes a file into generic tree nodes first, a save file may embed a special subtree such as `_model` that contains the model description or a model hint.
+`JsonModelDescriptor` is itself model data. Because Wood Json Jack always deserializes a file into generic tree nodes first, a save file may embed a special subtree such as `_woodModel` that contains the model descriptor or a model hint.
 
 That enables a two-phase workflow:
 
 1. Deserialize the JSON file into a generic node tree.
-2. Intercept special nodes such as `_model` or `_proxy`.
-3. Deserialize the `_model` subtree into a `JsonModelDescription`.
+2. Intercept special nodes such as `_woodModel` or `_proxy`.
+3. Deserialize the `_woodModel` subtree into a `JsonModelDescriptor`.
 4. Deserialize the remaining tree with that resolved description.
 
 This is not an EMF clone. It is a tree-first parsing architecture in which model metadata can be external, embedded, or both. The model version stays the same regardless of whether the description is stored outside the file or embedded into the save file as a bootstrap subtree.
@@ -95,6 +95,7 @@ The Wood system uses reserved property names to convey type information, object 
 | `TERM_CYCLE_RESOLVER_ID` | `_cycle_resolverId` | Cycle-analysis resolver identity | `"_cycle_resolverId": "..."` |
 | `TERM_WOOD_PROVIDERS` | `_woodProviders` | External resource provider definitions | `"_woodProviders": [...]` |
 | `TERM_WOOD_DEFINITIONS` | `_woodDefinitions` | Container for object definitions | `"_woodDefinitions": {...}` |
+| `TERM_WOOD_MODEL` | `_woodModel` | Model description | `"_woodModel": {...}` |
 
 The reserved reference syntax includes:
 
@@ -742,7 +743,7 @@ The Description level is not merely auxiliary metadata. In jsonCasted and Wood J
 
 This leads to a second level: a description of the description. When that higher-level description is loaded into Wood Json Jack, the editor can edit not only model instances but also the definitions that describe those instances.
 
-A save file may embed a `_model` subtree containing a serialized `JsonModelDescription` or a model hint for phase-two parsing. Since files are parsed as generic node trees first, embedded model information can be intercepted before the remaining tree is deserialized into typed content.
+A save file may embed a `_woodModel` subtree containing a serialized `JsonModelDescriptor` or a model hint for phase-two parsing. Since files are parsed as generic node trees first, embedded model information can be intercepted before the remaining tree is deserialized into typed content.
 
 The result is a self-describing modeling approach: a domain model can be exported, used to create instances, and then edited one level higher by loading the description of that model. Wood Json Jack is therefore both a model-driven content editor and a meta-model editor.
 

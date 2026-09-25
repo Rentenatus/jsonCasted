@@ -1,0 +1,57 @@
+/* <copyright>
+ * Copyright (C) 2026, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
+ */
+package de.jare.jsoncasted.model.descriptor.def;
+
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonItemDefinition;
+import de.jare.jsoncasted.model.JsonModel;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptorAsFile;
+import de.jare.jsoncasted.model.item.JsonClass;
+
+/**
+ *
+ *
+ * @author Janusch Rentenatus
+ */
+public class JsonModelDescriptorDefinitionAsFile implements JsonItemDefinition {
+
+    public static final JsonModelDescriptorDefinitionAsFile INSTANCE = new JsonModelDescriptorDefinitionAsFile();
+
+    public static JsonModelDescriptorDefinitionAsFile getInstance() {
+        return INSTANCE;
+    }
+
+    private final JsonModel model;
+    private final JsonClass descriptModel;
+
+    public JsonModelDescriptorDefinitionAsFile() {
+        model = new JsonModel("Light Model");
+        model.addBasicModel();
+
+        final JsonClass asString = model.getJsonClass("String");
+
+        descriptModel = model.newJsonReflect(JsonModelDescriptorAsFile.class);
+        descriptModel.addCParam("modelName", asString);
+        descriptModel.addCParam("fileName", asString);
+
+        model.setRootNodeCast(descriptModel.getcName());
+    }
+
+    @Override
+    public JsonModel getModel() {
+        return model;
+    }
+
+    public JsonClass getDescriptModel() {
+        return descriptModel;
+    }
+
+    @Override
+    public JsonCastingLevel getCastingLevel() {
+        return JsonCastingLevel.NEVER;
+    }
+}

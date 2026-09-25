@@ -1,0 +1,124 @@
+/* <copyright>
+ * Copyright (C) 2022 Janusch Rentenatus & Thomas Weber 
+ * Copyright (c) 2025, Janusch Rentenatus. This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ * </copyright>
+ */
+package de.jare.jsoncasted.model.descriptor.def;
+
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonItemDefinition;
+import de.jare.jsoncasted.lang.JsonInstance;
+import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.model.JsonCollectionType;
+import de.jare.jsoncasted.model.JsonModel;
+import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote;
+import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
+import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
+import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.item.JsonMap;
+
+/**
+ * Definition of the JSON model descriptor structure. This class defines the structure of a JSON model descriptor,
+ * including its types, fields, and relationships. It provides a singleton instance for accessing the model descriptor
+ * definition.
+ *
+ * The description of this model is a description description. It is a meta-model that describes how to describe models
+ * in JSON format.
+ *
+ * @author Janusch Rentenatus
+ */
+public class JsonModelDescriptorDefinition implements JsonItemDefinition {
+
+    public static final JsonModelDescriptorDefinition INSTANCE = new JsonModelDescriptorDefinition();
+
+    public static JsonModelDescriptorDefinition getInstance() {
+        return INSTANCE;
+    }
+
+    private final JsonModel model;
+    private final JsonClass descriptType;
+    private final JsonClass descriptField;
+    private final JsonClass descriptModel;
+
+    public JsonModelDescriptorDefinition() {
+        model = new JsonModel("Full Model");
+        model.addBasicModel();
+
+        final JsonClass asString = model.getJsonClass("String");
+        final JsonClass asBoolean = model.getJsonClass("Boolean");
+        final JsonClass asInteger = model.getJsonClass("Integer");
+
+        //JsonMap stringMap = model.newRawJsonMapIndividually((new JsonInstance<String>()).getClass(), (String) null, asString);
+        JsonClass collectionTypeEnum = model.newJsonEnumByName(JsonCollectionType.class);
+        JsonClass nodeTypeEnum = model.newJsonEnumByName(JsonNodeType.class);
+
+        JsonClass descriptTypeNote = model.newJsonReflect(JsonFieldTypeNote.class);
+        descriptTypeNote.addCParam("typeName", asString).withSortKey(11000);
+        descriptTypeNote.addCParam("collectionType", collectionTypeEnum).withSortKey(12000);
+
+        descriptField = model.newJsonReflect(JsonFieldDescriptor.class, descriptTypeNote)
+                .withSkippingNulls(true);
+        descriptField.addCParam("fieldName", asString).withSortKey(10000);
+        descriptField.addCParam("required", asBoolean).withSortKey(13000);
+        descriptField.addCParam("constructorParam", asBoolean).withSortKey(14000);
+        descriptField.addCParam("getter", asString).withSortKey(15000);
+        descriptField.addCParam("setter", asString).withSortKey(16000);
+        descriptField.addField("sortKey", asInteger, "getSortKey", "setSortKey").withSortKey(17000);
+
+        descriptType = model.newJsonReflect(JsonTypeDescriptor.class)
+                .withSkippingNulls(true);
+        descriptType.addCParam("typeName", asString);
+        descriptType.addField("implementors", descriptType, JsonCollectionType.LIST)
+                .makeAsReference();
+        descriptType.addField("constructorParams", descriptField, JsonCollectionType.LIST);
+        descriptType.addField("fields", descriptField, JsonCollectionType.LIST);
+        descriptType.addField("nodeType", nodeTypeEnum, "getNodeType", "withNodeType");
+        descriptType.addField("skippingNulls", asBoolean, "isSkippingNulls", "withSkippingNulls");
+        descriptType.addField("primitive", asBoolean, "isPrimitive", "withPrimitive");
+        descriptType.addField("reflective", asBoolean, "isReflective", "withReflective");
+        descriptType.addField("mappingAllFields", descriptTypeNote)
+                .makeAsDefinitional();
+        descriptType.addField("parent", descriptType)
+                .makeAsReference();
+
+        JsonMap typeMap = model.newRawJsonMapIndividually((new JsonInstance<JsonTypeDescriptor>()).getClass(), (String) null, descriptType);
+        JsonMap modeldMap = model.newRawJsonMapIndividually((new JsonInstance<JsonModelDescriptor>()).getClass(), (String) null, descriptField);
+        descriptModel = model.newJsonReflect(JsonModelDescriptor.class)
+                .withSkippingNulls(true);
+        descriptModel.addCParam("modelName", asString);
+        descriptModel.addField("describedTypes", typeMap)
+                .makeAsDefinitional();
+        descriptModel.addField("repoDescriptors", modeldMap)
+                .makeAsDefinitional();
+        descriptModel.addField("withSelfDescription", asBoolean, "isWithSelfDescription", "withSelfDescription");
+        descriptModel.addField("rootNodeCast", asString, "getRootNodeCast", "setRootNodeCast");
+
+        model.setRootNodeCast(descriptModel.getcName());
+
+    }
+
+    @Override
+    public JsonModel getModel() {
+        return model;
+    }
+
+    public JsonClass getDescriptType() {
+        return descriptType;
+    }
+
+    public JsonClass getDescriptField() {
+        return descriptField;
+    }
+
+    public JsonClass getDescriptModel() {
+        return descriptModel;
+    }
+
+    @Override
+    public JsonCastingLevel getCastingLevel() {
+        return JsonCastingLevel.NEVER;
+    }
+}

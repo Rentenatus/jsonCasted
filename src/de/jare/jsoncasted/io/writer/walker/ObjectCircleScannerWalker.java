@@ -9,9 +9,11 @@ import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.io.JsonWriteException;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
+import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
+import de.jare.jsoncasted.model.item.JsonMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -110,6 +112,8 @@ public class ObjectCircleScannerWalker {
             scanCollection((Collection<?>) ob, jClass, objectPath, inOwnedIntent);
         } else if (ob.getClass().isArray()) {
             scanArray(ob, jClass, objectPath, inOwnedIntent);
+        } else if (jClass instanceof JsonMap jMap && ob instanceof JsonInstance<?> inst) {
+            scanMapValues(jMap, inst, objectPath, inOwnedIntent);
         } else if (jClass != null) {
             scanObject(ob, jClass, objectPath);
         }
@@ -135,6 +139,28 @@ public class ObjectCircleScannerWalker {
                 // This is a fallback for raw collections without type information
                 JsonClass itemClass = definitionsContext.getModel().getJsonClass(item.getClass());
                 scan(item, itemClass, listPath, inOwnedIntent);
+            }
+        }
+    }
+
+    /**
+     * Scans the values of a JSON map for cycles. The keys are attribute names in the written JSON and cannot take
+     * part in a cycle; only the values are scanned, using the map's item class for type resolution.
+     *
+     * @param jMap the JSON map type
+     * @param inst the map instance to scan
+     * @param path the current path in the object graph
+     * @param inOwnedIntent true if scanning within an owned field context (CONTAINMENT)
+     */
+    protected void scanMapValues(JsonMap jMap, JsonInstance<?> inst, WriteNodePath path, boolean inOwnedIntent) {
+        WriteNodePath mapPath = path.append("m");
+        int mapId = System.identityHashCode(inst);
+        mapPath = mapPath.appendOb(mapId);
+
+        for (java.util.Map.Entry<String, ?> entry : inst.entrySet()) {
+            Object value = entry.getValue();
+            if (value != null) {
+                scan(value, jMap.getItemClass(), mapPath, inOwnedIntent);
             }
         }
     }

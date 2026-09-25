@@ -38,8 +38,14 @@ public class JsonTerms {
      */
     public static final String TERM_WOOD_LINK = "_woodLink";
 
+    /**
+     * Property name for resolver identifier used e.g. in cycle resolution.
+     */
     public static final String TERM_RESOLVER_ID = "_resolverId";
 
+    /**
+     * Property name for cycle resolver identifier.
+     */
     public static final String TERM_CYCLE_RESOLVER_ID = "_cycle_resolverId";
 
     /**
@@ -48,6 +54,12 @@ public class JsonTerms {
      * Used in JSON: {@code "_woodProviders": [...]}</p>
      */
     public static final String TERM_WOOD_PROVIDERS = "_woodProviders";
+
+    /**
+     * JsonModelDescription is itself model data. Because Wood Json Jack always deserializes a file into generic tree
+     * nodes first, a save file may embed a special subtree such as _model that contains the model description.
+     */
+    public static final String TERM_WOOD_MODEL = "_woodModel";
 
     /**
      * Property name for definitions container.
@@ -64,4 +76,11 @@ public class JsonTerms {
 
     public static final String PREFIX_THIS = THIS_SYNONYM + COLONCOLON;
     public static final String PREFIX_SELF = SELF_SYNONYM + COLONCOLON;
+
+    /**
+     * Property name for model file reference.
+     * <p>
+     * Used in JSON: {@code "fileName": "path/to/model.json"}</p>
+     */
+    public static final String TERM_FILE_NAME = "fileName";
 }

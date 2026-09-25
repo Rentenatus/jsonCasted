@@ -80,6 +80,8 @@ public final class RootConverter {
             String resName = itemRes.getProviderName();
             JsonModelDescriptor repoDesc = descriptor.getRepoDescriptorOrThis(resName);
             WoodElementResolver.resolve(itemRes, repoDesc, resolution, debugLevel);
+            // Extract description files from _woodModel nodes
+            WoodElementResolver.extractDescriptionFiles(itemRes, resolution);
             if (itemRes != res) {
                 final JsonItem lokAnswer
                         = JsonNodeConverter.convert(itemRes, null, repoDesc, resolution, debugLevel);
@@ -87,6 +89,9 @@ public final class RootConverter {
             }
         }
         resolution.setAnswer(JsonNodeConverter.convert(res, cName, descriptor, resolution, debugLevel));
+        
+        // Also extract from the main resource
+        WoodElementResolver.extractDescriptionFiles(res, resolution);
         return resolution;
     }
 

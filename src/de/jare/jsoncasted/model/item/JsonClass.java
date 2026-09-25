@@ -158,9 +158,11 @@ public class JsonClass implements JsonType {
      * Sets whether this class should skip null values during serialization.
      *
      * @param skippingNulls If true, null values will be skipped.
+     * @return this
      */
-    public void setSkippingNulls(boolean skippingNulls) {
+    public JsonClass withSkippingNulls(boolean skippingNulls) {
         this.skippingNulls = skippingNulls;
+        return this;
     }
 
     @Override
@@ -168,11 +170,12 @@ public class JsonClass implements JsonType {
         return reflective;
     }
 
-    public void setReflective(boolean reflective) {
+    public JsonClass withReflective(boolean reflective) {
         if (isBoxOrPrimitive() && reflective) {
             throw new IllegalArgumentException("A class cannot be both primitive and reflective at the same time.");
         }
         this.reflective = reflective;
+        return this;
     }
 
     /**
@@ -624,7 +627,7 @@ public class JsonClass implements JsonType {
      * @return an iterator over field names.
      */
     public Iterator<String> keysForBuildIterator() {
-        return keys.iterator();
+        return sortedKeys().iterator();
     }
 
     /**
@@ -634,7 +637,19 @@ public class JsonClass implements JsonType {
      * @return an iterator over field names.
      */
     public Iterator<String> keysForWriteIterator(Object ob) {
-        return keys.iterator();
+        return sortedKeys().iterator();
+    }
+
+    /**
+     * Returns the field keys ordered by sort key; keys with equal sort keys keep their declaration order. The
+     * default sort key of a field is 0, so ordering only takes effect where sort keys are set explicitly.
+     *
+     * @return the ordered keys
+     */
+    private ArrayList<String> sortedKeys() {
+        final ArrayList<String> ret = new ArrayList<>(keys);
+        ret.sort(java.util.Comparator.comparingInt(key -> fields.get(key).getSortKey()));
+        return ret;
     }
 
     /**
@@ -783,6 +798,7 @@ public class JsonClass implements JsonType {
                     jf.getSetter() // setterName (String) oder null
             );
             fd.setKind(jf.getKind());
+            fd.setSortKey(jf.getSortKey() == 0 ? null : jf.getSortKey());
 
             if (jf.isConstructorParam()) {
                 target.addConstructorParam(fd);

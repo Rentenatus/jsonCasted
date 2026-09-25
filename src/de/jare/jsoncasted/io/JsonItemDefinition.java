@@ -9,6 +9,10 @@ package de.jare.jsoncasted.io;
 
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
+import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.validation.core.ValidationResult;
+import de.jare.jsoncasted.validation.model.ValidationRunner;
+import java.util.Objects;
 
 /**
  * Interface for JSON item definitions that provide model and casting configuration.
@@ -37,6 +41,17 @@ public interface JsonItemDefinition {
     public JsonModel getModel();
 
     /**
+     * Returns the root class for this definition.
+     *
+     * @return the JsonClass representing the root type.
+     */
+    default JsonClass getRootClass() {
+        final String rootNodeCast = getModel().getRootNodeCast();
+        Objects.requireNonNull(rootNodeCast, "Cast of root node not set.");
+        return getModel().getJsonClass(rootNodeCast);
+    }
+
+    /**
      * Returns the model descriptor for introspection.
      *
      * @return the JsonModelDescriptor describing all types in the model.
@@ -51,5 +66,11 @@ public interface JsonItemDefinition {
      * @return the JsonCastingLevel determining when casting is performed.
      */
     public JsonCastingLevel getCastingLevel();
+
+    default ValidationResult validateDefinition() {
+        Objects.requireNonNull(getModel(), "JsonModel is null.");
+        return (new ValidationRunner()).validate(getModel());
+
+    }
 
 }

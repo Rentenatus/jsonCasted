@@ -113,7 +113,7 @@ public class TestBoxNGTest {
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
             final JsonModelDescriptor descriptor = definition.getDescriptor();
-            final WoodResolution resolution = JsonParser.parse(res, descriptor, definition.getTestBox().getcName(), JsonDebugLevel.INFO);
+            final WoodResolution resolution = JsonParser.parse(res, descriptor, definition.getRootClass().getcName(), JsonDebugLevel.INFO);
             obj1 = resolution.getAnswer();
             obj2 = resolution.getAnswer("save");
         } catch (JsonParseException | IOException | NullPointerException ex) {
@@ -171,14 +171,14 @@ public class TestBoxNGTest {
         }
         System.out.println("Target=============================================== Print objects");
         try {
-            JsonObjectWriter.write(root1, System.out, definition, definition.getTestBox());
+            JsonObjectWriter.write(root1, System.out, definition, definition.getRootClass());
         } catch (IOException | JsonParseException | JsonWriteException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
         }
         System.out.println();
         try {
-            JsonObjectWriter.write(root2, System.out, definition, definition.getTestBox());
+            JsonObjectWriter.write(root2, System.out, definition, definition.getRootClass());
         } catch (IOException | JsonParseException | JsonWriteException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
@@ -232,7 +232,7 @@ public class TestBoxNGTest {
             System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWw");
             node = res.getRoot();
             final JsonModelDescriptor descriptor = definition.getDescriptor();
-            obj1 = JsonParser.parse(res, descriptor, definition.getTestBox().getcName(), JsonDebugLevel.INFO).getAnswer();
+            obj1 = JsonParser.parse(res, descriptor, definition.getRootClass().getcName(), JsonDebugLevel.INFO).getAnswer();
         } catch (JsonParseException | IOException | NullPointerException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
@@ -261,7 +261,7 @@ public class TestBoxNGTest {
         }
         System.out.println("Target=============================================== Print object");
         try {
-            JsonObjectWriter.write(root, System.out, definition, definition.getTestBox());
+            JsonObjectWriter.write(root, System.out, definition, definition.getRootClass());
         } catch (IOException | JsonParseException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);

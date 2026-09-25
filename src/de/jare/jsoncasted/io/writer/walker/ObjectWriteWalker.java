@@ -172,9 +172,13 @@ public class ObjectWriteWalker {
             writeStart(jClass, ob, iString);
 
             hasFieldKeys = hasFieldKeys(jClass, ob);
+
             if (hasFieldKeys) {
                 strategy.writeHasFieldKeys(jClass, ob, iString);
-                isFollowing = writeDefinitions(iString);
+
+                // Write model description first if available
+                isFollowing = writeModelDescription(iString, false);
+                isFollowing = writeDefinitions(iString, isFollowing);
 
                 // Write _woodObjectId if a local ID is assigned in DefinitionsContext
                 // Owned-Objekte erhalten KEINE _woodObjectId
@@ -191,6 +195,7 @@ public class ObjectWriteWalker {
                     }
                 }
             }
+            hasFieldKeys = hasFieldKeys || isFollowing;
 
             List< GetterFieldInfo> fieldInfos = objectGetter.extractFields(jClass, ob);
             for (GetterFieldInfo fieldInfo : fieldInfos) {
@@ -231,9 +236,15 @@ public class ObjectWriteWalker {
      * Determines if an object should be written as a defintion in the JSON output.
      *
      * @param iString
+     * @param isFollowing
      * @return true if the object should be written as a definition, false otherwise
      */
-    protected boolean writeDefinitions(WriteNodePath iString) {
+    protected boolean writeDefinitions(WriteNodePath iString, boolean isFollowing) {
+        return false;
+        // NoOp, only for roots
+    }
+
+    protected boolean writeModelDescription(WriteNodePath iString, boolean isFollowing) {
         return false;
         // NoOp, only for roots
     }

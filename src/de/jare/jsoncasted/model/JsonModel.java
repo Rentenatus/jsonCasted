@@ -53,6 +53,8 @@ public class JsonModel {
     private final HashMap<String, JsonRepoModel> repoModels;
     private final String mName;
     private JsonModelDescriptor descriptor;
+    private boolean withSelfDescription;
+    private String rootNodeCast;
 
     /**
      * Constructs a JsonModel instance with a specified model name.
@@ -67,6 +69,7 @@ public class JsonModel {
         this.enums = new HashMap<>();
         this.exports = new HashSet<>();
         this.repoModels = new HashMap<>();
+        this.withSelfDescription = false;
         this.definitionsRoot = new JsonDefinitions(mName + JsonTerms.DEFINITIONS_SUFFIX);
     }
 
@@ -77,6 +80,25 @@ public class JsonModel {
      */
     public String getmName() {
         return mName;
+    }
+
+    public boolean isWithSelfDescription() {
+        return withSelfDescription;
+    }
+
+    public void withSelfDescription(boolean withSelfDescription) {
+        this.withSelfDescription = withSelfDescription;
+        if (descriptor != null) {
+            descriptor.withSelfDescription(withSelfDescription);
+        }
+    }
+
+    public String getRootNodeCast() {
+        return rootNodeCast;
+    }
+
+    public void setRootNodeCast(String rootNodeCast) {
+        this.rootNodeCast = rootNodeCast;
     }
 
     public JsonDefinitions getDefinitionsRoot() {
@@ -889,7 +911,7 @@ public class JsonModel {
      *
      * @return An ordered list of JsonClass instances.
      */
-    private List<JsonClass> getClassesList() {
+    public List<JsonClass> getClassesList() {
         List<JsonClass> ordered = new ArrayList<>(classes.size());
         for (JsonClass jc : classes.values()) {
             if (!jc.getcName().contains(".")) {
@@ -910,7 +932,7 @@ public class JsonModel {
      *
      * @return An ordered list of JsonClass instances.
      */
-    private List<JsonType> getTypeList() {
+    public List<JsonType> getTypeList() {
         List<JsonType> ordered = new ArrayList<>(classes.size());
         for (JsonClass jc : classes.values()) {
             if (!jc.getcName().contains(".")) {
@@ -934,7 +956,7 @@ public class JsonModel {
      *
      * @return An ordered list of JsonClass instances.
      */
-    private List<JsonInter> getInterfacesList() {
+    public List<JsonInter> getInterfacesList() {
         List<JsonInter> ordered = new ArrayList<>(interfaces.size());
         for (JsonInter ji : interfaces.values()) {
             ordered.add(ji);
@@ -947,7 +969,7 @@ public class JsonModel {
      *
      * @return An ordered list of JsonInter instances, sorted by class name.
      */
-    private List<JsonInter> getOrderedInterfacesList() {
+    public List<JsonInter> getOrderedInterfacesList() {
         List<JsonInter> ordered = new ArrayList<>(interfaces.values());
         ordered.sort(Comparator.comparing(JsonInter::getcName));
         return ordered;
@@ -961,6 +983,8 @@ public class JsonModel {
      */
     public JsonModelDescriptor describe() {
         JsonModelDescriptor context = new JsonModelDescriptor(mName);
+        context.withSelfDescription(this.withSelfDescription);
+        context.setRootNodeCast(this.rootNodeCast);
         List<JsonClass> orderedClasses = getClassesList();
         List<JsonInter> orderedInterfaces = getOrderedInterfacesList();
 
@@ -991,7 +1015,7 @@ public class JsonModel {
         });
 
         if (definitionsRoot != null && !definitionsRoot.isEmpty()) {
-            context.setDefinitionsRoot(definitionsRoot.describe());
+            context.setDefinitionsRoot(definitionsRoot.describeDefinitions());
         }
 
         descriptor = context;

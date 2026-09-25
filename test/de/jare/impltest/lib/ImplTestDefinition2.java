@@ -82,7 +82,7 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
         // ValueStringSub implements ValueInterface, but isn't registered.
         JsonInter valueIx = model.newJsonInterfaceIndividually(ValueInterface.class, (String) null, valueBoolean, valueInteger, valueString, valueStringSubSub, valueSeason, valueEntry);
 
-        valueEntry.setSkippingNulls(true);
+        valueEntry.withSkippingNulls(true);
         valueEntry.addCParam("context", valueIx);
         valueEntry.addField("item", valueIx);
 
@@ -96,20 +96,12 @@ public class ImplTestDefinition2 implements JsonItemDefinition {
         repo = repoModel.getOrCreateRepo();
         model.addRepoModel("save", repoModel);
 
+        model.setRootNodeCast(testBox.getcName());
     }
 
     @Override
     public JsonModel getModel() {
         return model;
-    }
-
-    /**
-     * Returns the JsonClass for TestBox.
-     *
-     * @return The JsonClass describing the TestBox structure.
-     */
-    public JsonClass getTestBox() {
-        return testBox;
     }
 
     public JsonClass getRepo() {

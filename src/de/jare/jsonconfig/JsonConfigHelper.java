@@ -7,13 +7,13 @@
  */
 package de.jare.jsonconfig;
 
+import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.io.JsonParser;
+import de.jare.jsoncasted.io.convertservice.WoodResolution;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.lang.JsonInstance;
 import de.jare.jsoncasted.model.JsonBuildException;
-import de.jare.jsoncasted.io.JsonParseException;
-import de.jare.jsoncasted.io.JsonParser;
-import de.jare.jsoncasted.io.convertservice.WoodResolution;
 import de.jare.jsoncasted.tools.SimpleStringSplitter;
 import de.jare.jsonconfig.def.JsonConfigDefinition;
 import de.jare.jsonconfig.item.ConfigFeature;
@@ -47,7 +47,7 @@ public class JsonConfigHelper implements SimpleStringSplitter {
         JsonItem obj1 = null;
         try {
             WoodResolution reso = JsonParser.parse(configFile,
-                    definition.getDescriptor(), definition.getConfigRoot().getcName());
+                    definition.getDescriptor(), definition.getRootClass().getcName());
 
             if (reso.hasExceptions()) {
                 final List<JsonParseException> exceptions = reso.getUnmodifiableExceptions();

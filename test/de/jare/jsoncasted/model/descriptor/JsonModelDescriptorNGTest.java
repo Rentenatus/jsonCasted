@@ -6,7 +6,8 @@ package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonWriteException;
-import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
+import de.jare.jsoncasted.model.descriptor.def.JsonModelDescriptorDefinition;
+import de.jare.jsoncasted.validation.core.ValidationResult;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,10 +19,10 @@ import org.testng.annotations.Test;
 
 /**
  *
- * @author Administrator
+ * @author Janusch Rentenatus
  */
 public class JsonModelDescriptorNGTest {
-
+    
     public JsonModelDescriptorNGTest() {
     }
 
@@ -82,36 +83,40 @@ public class JsonModelDescriptorNGTest {
         File testDescFile = new File(testDescPath);
         assertTrue(testDescFile.exists(), "test_desc.json was not created");
         assertTrue(testDescFile.length() > 0, "test_desc.json is empty");
-
+        
         String testDescContent = new String(Files.readAllBytes(Paths.get(testDescPath)));
         assertFalse(testDescContent.isBlank(), "test_desc.json content is blank");
         assertTrue(testDescContent.trim().startsWith("{") && testDescContent.trim().endsWith("}"),
                 "test_desc.json does not appear to be valid JSON");
 
         // Create a self-describing descriptor
-        JsonModelDescriptor selfDescriptor = JsonDescriptorDefinition.getInstance().getModel().getOrCreateDescriptor();
+        final JsonModelDescriptorDefinition modelDesc = JsonModelDescriptorDefinition.getInstance();
+        final ValidationResult validateRet = modelDesc.validateDefinition();
+        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx " + validateRet.prettyPrint());
+        assertFalse(validateRet.hasErrors());
+        JsonModelDescriptor selfDescriptor = modelDesc.getModel().getOrCreateDescriptor();
 
         // Save self-description to ./out/description.json
         String selfDescPath = "./out/description.json";
         System.out.println("=============================================== selfDescriptor");
         System.out.println(selfDescriptor);
         System.out.println("=============================================== selfDescriptor");
-
+        
         selfDescriptor.saveAs(selfDescPath);
 
         // Verify description.json was created and is valid JSON
         File selfDescFile = new File(selfDescPath);
         assertTrue(selfDescFile.exists(), "description.json was not created");
         assertTrue(selfDescFile.length() > 0, "description.json is empty");
-
+        
         String selfDescContent = new String(Files.readAllBytes(Paths.get(selfDescPath)));
         assertFalse(selfDescContent.isBlank(), "description.json content is blank");
         assertTrue(selfDescContent.trim().startsWith("{") && selfDescContent.trim().endsWith("}"),
                 "description.json does not appear to be valid JSON");
-
+        
         System.out.println("Successfully saved test descriptor to: " + testDescPath);
         System.out.println("Successfully saved self descriptor to: " + selfDescPath);
         
     }
-
+    
 }

@@ -32,6 +32,7 @@ public class WoodResolution {
     private final Set<String> unresolvedKeys;
     private final List<JsonParseException> exceptions;
     private final Map<String, JsonItem> answerMap;
+    private final Map<String, String> descriptionFileMap;
     private final AtomicLong atomicLong;
 
     /**
@@ -42,6 +43,7 @@ public class WoodResolution {
         this.unresolvedKeys = new LinkedHashSet<>();
         this.exceptions = new ArrayList<>();
         this.answerMap = new LinkedHashMap<>();
+        this.descriptionFileMap = new LinkedHashMap<>();
         this.atomicLong = new AtomicLong(100);
     }
 
@@ -55,6 +57,7 @@ public class WoodResolution {
         this.unresolvedKeys = new LinkedHashSet<>();
         this.exceptions = new ArrayList<>();
         this.answerMap = new LinkedHashMap<>();
+        this.descriptionFileMap = new LinkedHashMap<>();
         this.atomicLong = parentWoodResolution.atomicLong;
     }
 
@@ -259,10 +262,75 @@ public class WoodResolution {
         return Collections.unmodifiableSet(answerMap.keySet());
     }
 
+    /**
+     * Adds a description file mapping.
+     *
+     * @param key The key (typically model name or path).
+     * @param filePath The file path of the description.
+     * @throws NullPointerException If key or filePath is null.
+     */
+    public void putDescriptionFile(String key, String filePath) {
+        Objects.requireNonNull(key, "key must not be null");
+        Objects.requireNonNull(filePath, "filePath must not be null");
+        descriptionFileMap.put(key, filePath);
+    }
+
+    /**
+     * Retrieves a description file path by its key.
+     *
+     * @param key The key of the description file.
+     * @return The file path, or null if not found.
+     * @throws NullPointerException If key is null.
+     */
+    public String getDescriptionFile(String key) {
+        Objects.requireNonNull(key, "key must not be null");
+        return descriptionFileMap.get(key);
+    }
+
+    /**
+     * Returns an unmodifiable view of the description file map.
+     *
+     * @return An unmodifiable map of keys to their description file paths.
+     */
+    public Map<String, String> getDescriptionFileMap() {
+        return Collections.unmodifiableMap(descriptionFileMap);
+    }
+
+    /**
+     * Checks if a description file exists for the specified key.
+     *
+     * @param key The key to check.
+     * @return true if the key exists in description file map, false otherwise.
+     * @throws NullPointerException If key is null.
+     */
+    public boolean hasDescriptionFile(String key) {
+        Objects.requireNonNull(key, "key must not be null");
+        return descriptionFileMap.containsKey(key);
+    }
+
+    /**
+     * Returns the set of all keys that have a description file stored.
+     *
+     * @return An unmodifiable set of keys.
+     */
+    public Set<String> getDescriptionFileKeys() {
+        return Collections.unmodifiableSet(descriptionFileMap.keySet());
+    }
+
+    /**
+     * Returns the current value of the atomic long counter.
+     *
+     * @return The current value of the atomic long counter.
+     */
     public long getAtomicLong() {
         return atomicLong.get();
     }
 
+    /**
+     * Increments the atomic long counter by one and returns the new value.
+     *
+     * @return The incremented value of the atomic long counter.
+     */
     public long incrementAtomicLong() {
         return atomicLong.incrementAndGet();
     }
@@ -270,7 +338,8 @@ public class WoodResolution {
     @Override
     public String toString() {
         return "WoodResolution{"
-                + "answerMap=" + answerMap
+                + "answerMap={" + answerMap
+                + "}, descriptionFileMap={" + descriptionFileMap
                 + "}, resolvedObjectsSize=" + resolvedObjects.size()
                 + ", unresolvedKeysSize=" + unresolvedKeys.size()
                 + ", exceptionsSize=" + exceptions.size()

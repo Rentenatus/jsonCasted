@@ -7,16 +7,17 @@
 package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.debug.JsonDebugLevel;
+import de.jare.jsoncasted.io.JsonObjectWriter;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonWriteException;
-import de.jare.jsoncasted.io.JsonObjectWriter;
 import de.jare.jsoncasted.lang.JsonInstance;
-import de.jare.jsoncasted.model.descriptor.def.JsonDescriptorDefinition;
+import de.jare.jsoncasted.model.descriptor.def.JsonModelDescriptorDefinition;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,9 +45,13 @@ import java.util.Set;
 public class JsonModelDescriptor {
 
     private final String modelName;
-    private final JsonInstance< JsonTypeDescriptor> describedTypes = new JsonInstance<>();
-    private final JsonInstance< JsonModelDescriptor> repoDescriptors = new JsonInstance<>();
+    private final JsonInstance<JsonTypeDescriptor> describedTypes = new JsonInstance<>();
+    private final JsonInstance<JsonModelDescriptor> repoDescriptors = new JsonInstance<>();
     private JsonDefinitionsDescriptor definitionsRoot;
+    private boolean withSelfDescription;
+    private String rootNodeCast;
+    private transient volatile Map<String, List<JsonFieldDescriptor>> fieldMap;
+    private transient volatile Map<String, List<JsonTypeDescriptor>> typesByField;
 
     /**
      * Constructs a model descriptor with the specified model name.
@@ -67,6 +72,22 @@ public class JsonModelDescriptor {
      */
     public String getModelName() {
         return modelName;
+    }
+
+    public boolean isWithSelfDescription() {
+        return withSelfDescription;
+    }
+
+    public void withSelfDescription(boolean withSelfDescription) {
+        this.withSelfDescription = withSelfDescription;
+    }
+
+    public String getRootNodeCast() {
+        return rootNodeCast;
+    }
+
+    public void setRootNodeCast(String rootNodeCast) {
+        this.rootNodeCast = rootNodeCast;
     }
 
     public JsonDefinitionsDescriptor getDefinitionsRoot() {
@@ -250,6 +271,13 @@ public class JsonModelDescriptor {
         return descriptor;
     }
 
+    public void setRepoDescriptors(JsonInstance<JsonModelDescriptor> repoDescriptors) {
+        this.repoDescriptors.clear();
+        if (repoDescriptors != null) {
+            this.repoDescriptors.putAll(repoDescriptors);
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Registration
     // -------------------------------------------------------------------------
@@ -422,7 +450,9 @@ public class JsonModelDescriptor {
 
     public void setDescribedTypes(JsonInstance<JsonTypeDescriptor> describedTypes) {
         this.describedTypes.clear();
-        this.describedTypes.putAll(describedTypes);
+        if (describedTypes != null) {
+            this.describedTypes.putAll(describedTypes);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -492,6 +522,77 @@ public class JsonModelDescriptor {
     }
 
     // -------------------------------------------------------------------------
+    // Field map
+    // -------------------------------------------------------------------------
+    /**
+     * Returns the transient field map, creating and populating it on first access.
+     *
+     * <p>
+     * The map groups every registered {@link JsonFieldDescriptor} across all described types by its
+     * {@link JsonFieldDescriptor#getFieldName() field name}. The returned map is unmodifiable.</p>
+     *
+     * @return unmodifiable map from field name to the list of field descriptors with that name.
+     */
+    public Map<String, List<JsonFieldDescriptor>> getOrCreateFieldMap() {
+        if (fieldMap == null) {
+            synchronized (this) {
+                if (fieldMap == null) {
+                    generateFieldMap();
+                }
+            }
+        }
+        return Collections.unmodifiableMap(fieldMap);
+    }
+
+    /**
+     * Returns the cached map from field name to the types declaring that field, creating it together with the field
+     * map if necessary. Both maps are built and published in one step, so they are always consistent with each other.
+     *
+     * @return an unmodifiable map from field name to the declaring types
+     */
+    public Map<String, List<JsonTypeDescriptor>> getOrCreateTypesByField() {
+        if (typesByField == null) {
+            synchronized (this) {
+                if (typesByField == null) {
+                    generateFieldMap();
+                }
+            }
+        }
+        return Collections.unmodifiableMap(typesByField);
+    }
+
+    /**
+     * (Re)builds the transient field map from scratch.
+     *
+     * <p>
+     * Iterates over all described types and their fields, grouping each {@link JsonFieldDescriptor} by its field name.
+     * Any previous content is discarded.</p>
+     */
+    public void generateFieldMap() {
+        // Build locally and publish only the completed maps: the fields are
+        // volatile, so readers on the fast path must never observe a
+        // half-filled map while another thread is still generating them.
+        Map<String, List<JsonFieldDescriptor>> fieldIndex = new HashMap<>();
+        Map<String, List<JsonTypeDescriptor>> typeIndex = new HashMap<>();
+        for (JsonTypeDescriptor type : describedTypes.values()) {
+            for (JsonFieldDescriptor field : type.getAllFields()) {
+                fieldIndex.computeIfAbsent(field.getFieldName(), k -> new ArrayList<>()).add(field);
+                typeIndex.computeIfAbsent(field.getFieldName(), k -> new ArrayList<>()).add(type);
+            }
+        }
+        fieldMap = fieldIndex;
+        typesByField = typeIndex;
+    }
+
+    /**
+     * Clears the transient field map, releasing the cached data.
+     */
+    public void clearFieldMap() {
+        fieldMap = null;
+        typesByField = null;
+    }
+
+    // -------------------------------------------------------------------------
     // Serialization
     // -------------------------------------------------------------------------
     /**
@@ -504,7 +605,7 @@ public class JsonModelDescriptor {
      */
     public void saveAs(String filename) throws JsonParseException, JsonWriteException, IOException {
         File file = new File(filename);
-        JsonObjectWriter.write(this, file, JsonDescriptorDefinition.INSTANCE, JsonDescriptorDefinition.getInstance().getDescriptModel());
+        JsonObjectWriter.write(this, file, JsonModelDescriptorDefinition.INSTANCE, JsonModelDescriptorDefinition.getInstance().getDescriptModel());
     }
 
     /**
@@ -518,13 +619,14 @@ public class JsonModelDescriptor {
      */
     public void saveAs(String filename, JsonDebugLevel debugLevel) throws JsonParseException, JsonWriteException, IOException {
         File file = new File(filename);
-        JsonObjectWriter.write(this, file, JsonDescriptorDefinition.INSTANCE, JsonDescriptorDefinition.getInstance().getDescriptModel(), debugLevel);
+        JsonObjectWriter.write(this, file, JsonModelDescriptorDefinition.INSTANCE, JsonModelDescriptorDefinition.getInstance().getDescriptModel(), debugLevel);
     }
 
     @Override
     public String toString() {
         return "JsonModelDescriptor[modelName=" + modelName
                 + ", types=" + describedTypes.size()
-                + ", repoDescriptors=" + repoDescriptors.size() + "]";
+                + ", repoDescriptors=" + repoDescriptors.size()
+                + ", rootNodeCast=" + rootNodeCast + "]";
     }
 }

@@ -99,15 +99,12 @@ public class JsonConfigDefinition implements JsonItemDefinition {
         configRoot.addField("comments", asString, ARRAY);
         configRoot.addField("profiles", profile, LIST);
 
+        model.setRootNodeCast(configRoot.getcName());
     }
 
     @Override
     public JsonModel getModel() {
         return model;
-    }
-
-    public JsonClass getConfigRoot() {
-        return configRoot;
     }
 
     @Override
