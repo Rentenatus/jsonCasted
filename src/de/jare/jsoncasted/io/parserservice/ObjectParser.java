@@ -126,6 +126,12 @@ public class ObjectParser {
                     appendParam(myObject, paramName, paramValue, sb.toString());
                     break;
                 } else {
+                    // TODO silent loss: when paramValue is already set, the
+                    // characters collected here are discarded without any
+                    // error. Content that follows a value without a
+                    // separating comma (e.g. port: 11434 right after
+                    // "host3": "") is silently swallowed instead of the
+                    // parser flagging the missing separator.
                     sb.append(c);
                 }
             }
