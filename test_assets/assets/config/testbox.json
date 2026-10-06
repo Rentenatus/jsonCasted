@@ -5,9 +5,6 @@
         "filename": "./assets/config/testboxSave.json"
       }
     ],
-    @doc: [
-      "Test box for the impl tests: parse, build and link."
-    ],
     "subsub": {
       "_class": "ValueStringSubSub",
       @doc: [
