@@ -34,7 +34,7 @@
                     settings: {
                         host1: "http://localhost",
                         host2: "http://host.docker.internal",
-                        host3: ""
+                        host3: "",
                         port: 11434
                     }
                 },{

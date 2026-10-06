@@ -7,6 +7,12 @@
     ],
     "subsub": {
       "_class": "ValueStringSubSub",
+      @doc: [
+        "Object level annotation on the subsub element."
+      ],
+      "@doc:text": [
+        "Documents the text field via a composite key."
+      ],
       "text": "subsub",
       "frage": true
     },
@@ -20,6 +26,9 @@
       },
       {
         "_class": "ValueInteger",
+        "@doc:zahl": [
+          "The answer to everything."
+        ],
         "zahl": 42
       },
       (ValueString){ 
@@ -45,6 +54,9 @@
       },
       {
         "_class": "ValueString",
+        "@doc:text": [
+          "Greeting of the JSON test."
+        ],
         "text": "JSON Test"
       },
       {
