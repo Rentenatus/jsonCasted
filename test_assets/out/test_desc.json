@@ -14,7 +14,9 @@
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false
+      "reflective": false,
+      "annotations": [
+        ]
     }
   },
   "repoDescriptors": {},

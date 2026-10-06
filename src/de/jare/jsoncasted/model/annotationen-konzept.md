@@ -182,6 +182,10 @@ ist bis auf den Save-Pfad (Writer) erledigt.
 
 ## Verwandte, bereits fixierte Themen
 
+- skippingEmpty (analog skippingNulls, Default false) laesst leere Sammlungen und
+  Maps beim Schreiben weg; die Selbstbeschreibung (JsonModelDescriptorDefinition)
+  nutzt es, damit die Deskriptoren ohne leeres []-Rauschen auskommen. Beim Laden
+  bleibt fehlender Key gleich leere Liste - der Roundtrip ist sicher.
 - Der JSON-Parser braucht fuer `@`-Keys keine Grammatikaenderung: unquoted
   Keys werden bis zum Doppelpunkt akkumuliert, `@hint: [...]` liefert den
   Key `@hint` von selbst. Composite Keys wie `@doc:profile` muessen

@@ -59,6 +59,7 @@ public class JsonClass implements JsonType {
     private final String cName;
     private final JsonModellClassBuilder builder;
     private boolean skippingNulls;
+    private boolean skippingEmpty;
     private final JsonNodeType nodeType;
     private JsonTypeVisibility visibility;
     private JsonClass parent;
@@ -90,6 +91,7 @@ public class JsonClass implements JsonType {
         this.fields = new HashMap<>();
         this.keys = new ArrayList<>();
         this.skippingNulls = false;
+        this.skippingEmpty = false;
         this.parent = null;
         this.reflective = false;
         this.visibility = JsonTypeVisibility.PUBLIC; // Default visibility
@@ -164,6 +166,27 @@ public class JsonClass implements JsonType {
      */
     public JsonClass withSkippingNulls(boolean skippingNulls) {
         this.skippingNulls = skippingNulls;
+        return this;
+    }
+
+    /**
+     * Returns whether this class skips empty values (empty collections and maps) during serialization.
+     *
+     * @return true if empty values are skipped, false otherwise.
+     */
+    public boolean isSkippingEmpty() {
+        return skippingEmpty;
+    }
+
+    /**
+     * Sets whether this class should skip empty values (empty collections and maps) during serialization. The
+     * default is false - empty lists are written as empty arrays like before.
+     *
+     * @param skippingEmpty If true, empty collections and maps are skipped.
+     * @return this
+     */
+    public JsonClass withSkippingEmpty(boolean skippingEmpty) {
+        this.skippingEmpty = skippingEmpty;
         return this;
     }
 

@@ -62,7 +62,8 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
         descriptTypeNote.addCParam("collectionType", collectionTypeEnum).withSortKey(12000);
 
         descriptField = model.newJsonReflect(JsonFieldDescriptor.class, descriptTypeNote)
-                .withSkippingNulls(true);
+                .withSkippingNulls(true)
+                .withSkippingEmpty(true);
         descriptField.addCParam("fieldName", asString).withSortKey(10000);
         descriptField.addCParam("required", asBoolean).withSortKey(13000);
         descriptField.addCParam("constructorParam", asBoolean).withSortKey(14000);
@@ -71,13 +72,15 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
         descriptField.addField("sortKey", asInteger, "getSortKey", "setSortKey").withSortKey(17000);
 
         descriptAnnotation = model.newJsonReflect(JsonAnnotation.class)
-                .withSkippingNulls(true);
+                .withSkippingNulls(true)
+                .withSkippingEmpty(true);
         descriptAnnotation.addCParam("name", asString).withSortKey(10000);
         descriptAnnotation.addField("transientFlag", asBoolean, "isTransient", "setTransient").withSortKey(11000);
         descriptField.addField("annotations", descriptAnnotation, JsonCollectionType.LIST);
 
         descriptType = model.newJsonReflect(JsonTypeDescriptor.class)
-                .withSkippingNulls(true);
+                .withSkippingNulls(true)
+                .withSkippingEmpty(true);
         descriptType.addCParam("typeName", asString);
         descriptType.addField("implementors", descriptType, JsonCollectionType.LIST)
                 .makeAsReference();
