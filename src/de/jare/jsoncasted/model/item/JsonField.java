@@ -11,6 +11,7 @@ import de.jare.jsoncasted.io.JsonValidationMethod;
 import de.jare.jsoncasted.model.FieldKind;
 import de.jare.jsoncasted.model.JsonCollectionType;
 import de.jare.jsoncasted.model.JsonType;
+import java.util.List;
 
 /**
  * The JsonField class represents a single field in a JSON object. It defines the field name, type, collection behavior,
@@ -40,6 +41,7 @@ public class JsonField {
     private FieldKind kind;
     private JsonValidationMethod validationMethod;
     private int sortKey;
+    private final JsonAnnotationSupport annotationSupport = new JsonAnnotationSupport();
 
     /**
      * Constructs a JsonField instance with collection type and validation method.
@@ -292,6 +294,53 @@ public class JsonField {
     public JsonField withSortKey(int sortKey) {
         this.sortKey = sortKey;
         return this;
+    }
+
+    /**
+     * Declares a field level annotation on this field.
+     *
+     * @param name The annotation name without the {@code @} prefix.
+     */
+    public void addAnnotation(String name) {
+        annotationSupport.addAnnotation(name);
+    }
+
+    /**
+     * Declares a field level annotation on this field.
+     *
+     * @param name The annotation name without the {@code @} prefix.
+     * @param transientFlag {@code true} if the annotation is skipped on save, {@code false} otherwise.
+     */
+    public void addAnnotation(String name, boolean transientFlag) {
+        annotationSupport.addAnnotation(name, transientFlag);
+    }
+
+    /**
+     * Declares a field level annotation on this field.
+     *
+     * @param annotation The annotation to declare.
+     */
+    public void addAnnotation(JsonAnnotation annotation) {
+        annotationSupport.addAnnotation(annotation);
+    }
+
+    /**
+     * Returns the declared field level annotation with the given name.
+     *
+     * @param name The annotation name without the {@code @} prefix.
+     * @return The annotation, or {@code null} if none is declared under that name.
+     */
+    public JsonAnnotation getAnnotation(String name) {
+        return annotationSupport.getAnnotation(name);
+    }
+
+    /**
+     * Returns all declared field level annotations.
+     *
+     * @return An unmodifiable list of annotations, empty if none are declared.
+     */
+    public List<JsonAnnotation> getAnnotations() {
+        return annotationSupport.getAnnotations();
     }
 
     /**

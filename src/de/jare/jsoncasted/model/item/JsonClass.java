@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,6 +64,7 @@ public class JsonClass implements JsonType {
     private JsonClass parent;
     private JsonEnumTemplate[] valuesArray;
     private boolean reflective;
+    private final JsonAnnotationSupport annotationSupport = new JsonAnnotationSupport();
 
     /**
      * Constructs a JsonClass with the specified class name and builder. Uses OBJECT as the default node type.
@@ -534,6 +536,58 @@ public class JsonClass implements JsonType {
         final JsonCParam jsonCParam = new JsonCParam(this, paramName, jType);
         add(jsonCParam);
         return jsonCParam;
+    }
+
+    /**
+     * Declares an object level annotation on this type.
+     *
+     * @param name The annotation name without the {@code @} prefix.
+     */
+    @Override
+    public void addAnnotation(String name) {
+        annotationSupport.addAnnotation(name);
+    }
+
+    /**
+     * Declares an object level annotation on this type.
+     *
+     * @param name The annotation name without the {@code @} prefix.
+     * @param transientFlag {@code true} if the annotation is skipped on save, {@code false} otherwise.
+     */
+    @Override
+    public void addAnnotation(String name, boolean transientFlag) {
+        annotationSupport.addAnnotation(name, transientFlag);
+    }
+
+    /**
+     * Declares an object level annotation on this type.
+     *
+     * @param annotation The annotation to declare.
+     */
+    @Override
+    public void addAnnotation(JsonAnnotation annotation) {
+        annotationSupport.addAnnotation(annotation);
+    }
+
+    /**
+     * Returns the declared object level annotation with the given name.
+     *
+     * @param name The annotation name without the {@code @} prefix.
+     * @return The annotation, or {@code null} if none is declared under that name.
+     */
+    @Override
+    public JsonAnnotation getAnnotation(String name) {
+        return annotationSupport.getAnnotation(name);
+    }
+
+    /**
+     * Returns all declared object level annotations.
+     *
+     * @return An unmodifiable list of annotations, empty if none are declared.
+     */
+    @Override
+    public List<JsonAnnotation> getAnnotations() {
+        return annotationSupport.getAnnotations();
     }
 
     /**

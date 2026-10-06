@@ -11,9 +11,12 @@ import de.jare.jsoncasted.io.JsonCastingLevel;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.item.builder.BuilderService;
 import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.model.item.JsonAnnotation;
 import de.jare.jsoncasted.model.item.JsonClass;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Interface defining the contract for JSON type representations in the jsonCasted system.
@@ -195,5 +198,51 @@ public interface JsonType {
      */
     public default String ownGetterPre() {
         return "get";
+    }
+
+    /**
+     * Declares an object level annotation on this type. The default implementation is empty: only JsonClass and
+     * JsonInterface carry annotations.
+     *
+     * @param name The annotation name without the {@code @} prefix.
+     */
+    public default void addAnnotation(String name) {
+    }
+
+    /**
+     * Declares an object level annotation on this type. The default implementation is empty.
+     *
+     * @param name The annotation name without the {@code @} prefix.
+     * @param transientFlag {@code true} if the annotation is skipped on save, {@code false} otherwise.
+     */
+    public default void addAnnotation(String name, boolean transientFlag) {
+    }
+
+    /**
+     * Declares an object level annotation on this type. The default implementation is empty.
+     *
+     * @param annotation The annotation to declare.
+     */
+    public default void addAnnotation(JsonAnnotation annotation) {
+    }
+
+    /**
+     * Returns the declared object level annotation with the given name. The default implementation returns
+     * {@code null}.
+     *
+     * @param name The annotation name without the {@code @} prefix.
+     * @return The annotation, or {@code null} if none is declared under that name.
+     */
+    public default JsonAnnotation getAnnotation(String name) {
+        return null;
+    }
+
+    /**
+     * Returns all declared object level annotations. The default implementation returns an empty list.
+     *
+     * @return An unmodifiable list of annotations, empty if none are declared.
+     */
+    public default List<JsonAnnotation> getAnnotations() {
+        return Collections.emptyList();
     }
 }

@@ -115,8 +115,8 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
 2. **Save-Pfad:** WoodJsonJack hat noch keinen Baum-zu-JSON-Writer. Der
    Transient-Filter entsteht mit dem ersten Writer; bis dahin ist das
    Verhalten nur hier festgehalten. Der Builder-Grundsatz ("feldgetrieben,
-   `@`-Keys bedingungslos unsichtbar") ist vor der Festnagelung mit einem
-   Mini-Harness gegen den echten Builder zu verifizieren.
+   `@`-Keys bedingungslos unsichtbar") ist per Mini-Harness gegen den
+   echten Builder verifiziert (Schritt 0, siehe unten).
 
 ## Umstellungsreihenfolge
 
@@ -133,11 +133,40 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
    -erscheinen) als Testfaelle, Description-Roundtrip, spaeter Erweiterung
    der Soft-Parse-Assets um eine Annotation-Testdatei.
 
+## Schritt 0: Verifikation des Builder-Grundsatzes (erledigt)
+
+Mini-Harness gegen den echten Parser/Builder mit dem Config-Modell
+(JsonConfigDefinition): JSON mit `@hint` (Objekt-Ebene),
+`"@doc:comments"` / `"@doc:profile"` (Feld-Ebene) und dem Tippfehler
+`@dok` neben vollstaendigen echten Feldern.
+
+Ergebnisse:
+
+1. Der Rohparser (JsonParserService) liefert `@`-Keys unveraendert: `@hint`
+   unquoted, Composite Keys nur quoted (siehe Punkt 2). Keine Ausnahme.
+2. Composite Keys duerfen NICHT unquoted geschrieben werden: die
+   Key-Akkumulation endet am ERSTEN Doppelpunkt, der Rest (`profile:`)
+   faellt in die Wert-Sammlung des Parsers und wird still verworfen
+   (verwandt mit dem bekannten stillen Verlust in ObjectParser.parse).
+   `"@doc:profile": [...]` funktioniert dagegen heute ohne jede
+   Grammatikaenderung.
+3. Die deskriptorgetriebene Konvertierung (JsonNodeConverter) filtert
+   `@`-Keys wie alle undeklarierten Keys VOR dem Builder.
+4. Der Builder (JsonReflectBuilder.buildFields laeuft ueber
+   keysForBuildIterator des Modells) ist strukturell blind: ConfigRoot wird
+   mit allen Annotations-Keys im Input vollstaendig und korrekt gebaut,
+   auch `@dok` ist harmlos.
+
+Damit ist der Grundsatz aus Entscheidung 3 festgenagelt; die offene Frage 2
+ist bis auf den Save-Pfad (Writer) erledigt.
+
 ## Verwandte, bereits fixierte Themen
 
 - Der JSON-Parser braucht fuer `@`-Keys keine Grammatikaenderung: unquoted
   Keys werden bis zum Doppelpunkt akkumuliert, `@hint: [...]` liefert den
-  Key `@hint` von selbst.
+  Key `@hint` von selbst. Composite Keys wie `@doc:profile` muessen
+  dagegen QUOTED geschrieben werden (`"@doc:profile": [...]`), siehe
+  Schritt 0.
 - Die `_wood*`-Metadaten (isMetadataKey im TreeConverter) bleiben unberuehrt:
   sie werden gefiltert, Annotationen sollen sichtbar im Baum stehen.
 - Element-Typ-Propagierung und Map-Semantik (mappingAllFields) funktionieren
