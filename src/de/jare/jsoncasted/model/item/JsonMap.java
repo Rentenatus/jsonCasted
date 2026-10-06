@@ -42,6 +42,7 @@ public class JsonMap extends JsonClass implements JsonType {
     private final JsonClass itemClass;
     private final JsonCollectionType colType;
 
+
     /**
      * Constructs a JsonMap with the specified parameters.
      *

@@ -85,14 +85,12 @@ public class ObjectParser {
                 }
                 if (c == '"') {
                     paramName = StringParser.parse(psr, '"');
-                    while (psr.hasNext() && psr.next() != ':') {
-                    }
+                    requireDirectColon(psr, paramName);
                     break;
                 }
                 if (c == '\'') {
                     paramName = StringParser.parse(psr, '\'');
-                    while (psr.hasNext() && psr.next() != ':') {
-                    }
+                    requireDirectColon(psr, paramName);
                     break;
                 }
                 if (c == ':' || c == '=') {
@@ -109,34 +107,85 @@ public class ObjectParser {
                     continue;
                 }
                 if (c == '}') {
+                    requireCleanValueEnd(psr, paramName, paramValue, sb);
                     appendParam(myObject, paramName, paramValue, sb.toString());
                     return myObject;
                 }
                 if (c == '"') {
+                    requireOpenValue(psr, paramName, paramValue);
                     paramValue = JsonNode.stringNode(StringParser.parse(psr, '"'));
                 } else if (c == '\'') {
+                    requireOpenValue(psr, paramName, paramValue);
                     paramValue = JsonNode.stringNode(StringParser.parse(psr, '\''));
                 } else if (c == '[') {
+                    requireOpenValue(psr, paramName, paramValue);
                     paramValue = ListParser.parse(psr);
                 } else if (c == '(') {
+                    requireOpenValue(psr, paramName, paramValue);
                     paramValue = CastingParser.parse(psr);
                 } else if (c == '{') {
+                    requireOpenValue(psr, paramName, paramValue);
                     paramValue = ObjectParser.parse(psr);
                 } else if (c == ',') {
+                    requireCleanValueEnd(psr, paramName, paramValue, sb);
                     appendParam(myObject, paramName, paramValue, sb.toString());
                     break;
                 } else {
-                    // TODO silent loss: when paramValue is already set, the
-                    // characters collected here are discarded without any
-                    // error. Content that follows a value without a
-                    // separating comma (e.g. port: 11434 right after
-                    // "host3": "") is silently swallowed instead of the
-                    // parser flagging the missing separator.
+                    // Content that follows a value without a separating
+                    // comma is reported by requireCleanValueEnd at the
+                    // entry end - it is no longer silently swallowed.
                     sb.append(c);
                 }
             }
         }
         throw new JsonParseException("End of file without end of list.");
+    }
+
+    /**
+     * Guards against the silent loss of a value that follows a parsed value without a separating comma: once a
+     * value was parsed, no further value token may start before the comma closes the entry.
+     */
+    private static void requireOpenValue(ParseStreamReader psr, String paramName, JsonNode paramValue)
+            throws JsonParseException {
+        if (paramValue != null) {
+            throw new JsonParseException(psr.getRow(),
+                    "Missing comma after the value of '" + paramName + "'");
+        }
+    }
+
+    /**
+     * Guards against the silent loss of characters that follow a parsed value without a separating comma: the
+     * content (typically the next entry, e.g. port: 11434 right after "host3": "") was silently discarded
+     * before - now the parser reports the missing separator. Whitespace alone is legitimate.
+     */
+    private static void requireCleanValueEnd(ParseStreamReader psr, String paramName, JsonNode paramValue,
+            StringBuilder sb) throws JsonParseException {
+        if (paramValue != null && !sb.toString().trim().isEmpty()) {
+            throw new JsonParseException(psr.getRow(),
+                    "Unexpected characters after the value of '" + paramName + "': '"
+                    + sb.toString().trim() + "' (missing comma?)");
+        }
+    }
+
+    /**
+     * Guards against the silent swallowing of characters between a quoted key and its colon: only whitespace is
+     * legitimate there, anything else was discarded without an error before.
+     */
+    private static void requireDirectColon(ParseStreamReader psr, String paramName)
+            throws java.io.IOException, JsonParseException {
+        StringBuilder skipped = new StringBuilder();
+        while (psr.hasNext()) {
+            char between = psr.next();
+            if (between == ':') {
+                if (!skipped.toString().trim().isEmpty()) {
+                    throw new JsonParseException(psr.getRow(),
+                            "Unexpected characters between the key '" + paramName + "' and its colon: '"
+                            + skipped.toString().trim() + "'");
+                }
+                return;
+            }
+            skipped.append(between);
+        }
     }
 
     /**

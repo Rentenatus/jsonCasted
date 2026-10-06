@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,11 +59,13 @@ public class JsonClass implements JsonType {
     private final String cName;
     private final JsonModellClassBuilder builder;
     private boolean skippingNulls;
+    private boolean skippingEmpty;
     private final JsonNodeType nodeType;
     private JsonTypeVisibility visibility;
     private JsonClass parent;
     private JsonEnumTemplate[] valuesArray;
     private boolean reflective;
+    private final JsonAnnotationSupport annotationSupport = new JsonAnnotationSupport();
 
     /**
      * Constructs a JsonClass with the specified class name and builder. Uses OBJECT as the default node type.
@@ -88,6 +91,7 @@ public class JsonClass implements JsonType {
         this.fields = new HashMap<>();
         this.keys = new ArrayList<>();
         this.skippingNulls = false;
+        this.skippingEmpty = false;
         this.parent = null;
         this.reflective = false;
         this.visibility = JsonTypeVisibility.PUBLIC; // Default visibility
@@ -162,6 +166,27 @@ public class JsonClass implements JsonType {
      */
     public JsonClass withSkippingNulls(boolean skippingNulls) {
         this.skippingNulls = skippingNulls;
+        return this;
+    }
+
+    /**
+     * Returns whether this class skips empty values (empty collections and maps) during serialization.
+     *
+     * @return true if empty values are skipped, false otherwise.
+     */
+    public boolean isSkippingEmpty() {
+        return skippingEmpty;
+    }
+
+    /**
+     * Sets whether this class should skip empty values (empty collections and maps) during serialization. The
+     * default is false - empty lists are written as empty arrays like before.
+     *
+     * @param skippingEmpty If true, empty collections and maps are skipped.
+     * @return this
+     */
+    public JsonClass withSkippingEmpty(boolean skippingEmpty) {
+        this.skippingEmpty = skippingEmpty;
         return this;
     }
 
@@ -537,6 +562,58 @@ public class JsonClass implements JsonType {
     }
 
     /**
+     * Declares an object level annotation on this type.
+     *
+     * @param name The annotation name without the {@code @} prefix.
+     */
+    @Override
+    public void addAnnotation(String name) {
+        annotationSupport.addAnnotation(name);
+    }
+
+    /**
+     * Declares an object level annotation on this type.
+     *
+     * @param name The annotation name without the {@code @} prefix.
+     * @param transientFlag {@code true} if the annotation is skipped on save, {@code false} otherwise.
+     */
+    @Override
+    public void addAnnotation(String name, boolean transientFlag) {
+        annotationSupport.addAnnotation(name, transientFlag);
+    }
+
+    /**
+     * Declares an object level annotation on this type.
+     *
+     * @param annotation The annotation to declare.
+     */
+    @Override
+    public void addAnnotation(JsonAnnotation annotation) {
+        annotationSupport.addAnnotation(annotation);
+    }
+
+    /**
+     * Returns the declared object level annotation with the given name.
+     *
+     * @param name The annotation name without the {@code @} prefix.
+     * @return The annotation, or {@code null} if none is declared under that name.
+     */
+    @Override
+    public JsonAnnotation getAnnotation(String name) {
+        return annotationSupport.getAnnotation(name);
+    }
+
+    /**
+     * Returns all declared object level annotations.
+     *
+     * @return An unmodifiable list of annotations, empty if none are declared.
+     */
+    @Override
+    public List<JsonAnnotation> getAnnotations() {
+        return annotationSupport.getAnnotations();
+    }
+
+    /**
      * Adds a constructor parameter field to this class with collection type.
      *
      * @param paramName The parameter name.
@@ -755,7 +832,8 @@ public class JsonClass implements JsonType {
                 .withPermittedValues(builder.permittedValues(getValuesArray()))
                 .withSkippingNulls(isSkippingNulls())
                 .withPrimitive(isBoxOrPrimitive())
-                .withReflective(isReflective());
+                .withReflective(isReflective())
+                .withAnnotations(getAnnotations());
     }
 
     /**
@@ -799,6 +877,10 @@ public class JsonClass implements JsonType {
             );
             fd.setKind(jf.getKind());
             fd.setSortKey(jf.getSortKey() == 0 ? null : jf.getSortKey());
+
+            for (JsonAnnotation annotation : jf.getAnnotations()) {
+                fd.addAnnotation(annotation);
+            }
 
             if (jf.isConstructorParam()) {
                 target.addConstructorParam(fd);

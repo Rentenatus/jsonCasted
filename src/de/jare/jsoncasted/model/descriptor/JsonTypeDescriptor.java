@@ -7,6 +7,7 @@
 package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.model.item.JsonAnnotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -41,6 +42,7 @@ public class JsonTypeDescriptor {
     private final List<JsonFieldDescriptor> constructorParams = new ArrayList<>();
     private final List<JsonFieldDescriptor> fields = new ArrayList<>();
     private final Map<String, String> permittedValues = new LinkedHashMap();
+    private final List<JsonAnnotation> annotations = new ArrayList<>();
 
     private JsonNodeType nodeType;
     private boolean skippingNulls;
@@ -298,6 +300,70 @@ public class JsonTypeDescriptor {
     public JsonTypeDescriptor addField(JsonFieldDescriptor field) {
         fields.add(Objects.requireNonNull(field, "field"));
         return this;
+    }
+
+    /**
+     * Adds a declared annotation and returns this descriptor for chaining.
+     *
+     * @param annotation the annotation to add.
+     * @return this type descriptor.
+     */
+    public JsonTypeDescriptor addAnnotation(JsonAnnotation annotation) {
+        annotations.add(Objects.requireNonNull(annotation, "annotation"));
+        return this;
+    }
+
+    /**
+     * Replaces the declared annotations and returns this descriptor for chaining.
+     *
+     * @param annotations the annotations to set, or null to clear.
+     * @return this type descriptor.
+     */
+    public JsonTypeDescriptor withAnnotations(List<JsonAnnotation> annotations) {
+        this.annotations.clear();
+        if (annotations != null) {
+            for (JsonAnnotation next : annotations) {
+                // Null elements (e.g. from a "[null]" entry) are poison for
+                // every later lookup - they never enter the list.
+                if (next != null) {
+                    this.annotations.add(next);
+                }
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Sets the declared annotations (used when loading a descriptor file).
+     *
+     * @param annotations the annotations to set, or null to clear.
+     */
+    public void setAnnotations(List<JsonAnnotation> annotations) {
+        withAnnotations(annotations);
+    }
+
+    /**
+     * Returns all declared annotations.
+     *
+     * @return an unmodifiable list of annotations, empty if none are declared.
+     */
+    public List<JsonAnnotation> getAnnotations() {
+        return Collections.unmodifiableList(annotations);
+    }
+
+    /**
+     * Returns the declared annotation with the given name.
+     *
+     * @param name the annotation name without the {@code @} prefix.
+     * @return the annotation, or {@code null} if none is declared under that name.
+     */
+    public JsonAnnotation getAnnotation(String name) {
+        for (JsonAnnotation next : annotations) {
+            if (next.getName().equals(name)) {
+                return next;
+            }
+        }
+        return null;
     }
 
     /**

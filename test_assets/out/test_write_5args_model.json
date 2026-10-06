@@ -5,10 +5,6 @@
     "de.jare.jsonconfig.item.ConfigRoot": {
       "_woodObjectId": 3,
       "typeName": "de.jare.jsonconfig.item.ConfigRoot",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
       "fields": [{
           "fieldName": "mainLogging",
           "typeName": "de.jare.jsonconfig.item.ConfigLogging",
@@ -40,95 +36,91 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "de.jare.jsoncasted.lang.JsonInstance<String>": {
-      "_woodObjectId": 7,
+      "_woodObjectId": 8,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
       "reflective": false,
       "mappingAllFields": {
-        "_woodObjectId": 8,
+        "_woodObjectId": 9,
         "typeName": "String",
         "collectionType": "none"
-      }
+      },
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "double": {
-      "_woodObjectId": 9,
+      "_woodObjectId": 11,
       "typeName": "double",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "de.jare.jsoncasted.lang.JsonInstance<String>[]": {
-      "_woodObjectId": 10,
+      "_woodObjectId": 13,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>[]",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
       "reflective": false,
       "mappingAllFields": {
-        "_woodObjectId": 11,
+        "_woodObjectId": 14,
         "typeName": "String",
         "collectionType": "array"
-      }
+      },
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "String": {
-      "_woodObjectId": 12,
+      "_woodObjectId": 16,
       "typeName": "String",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "float": {
-      "_woodObjectId": 13,
+      "_woodObjectId": 18,
       "typeName": "float",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "de.jare.jsonconfig.item.ConfigLogging": {
-      "_woodObjectId": 14,
+      "_woodObjectId": 20,
       "typeName": "de.jare.jsonconfig.item.ConfigLogging",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
       "fields": [{
           "fieldName": "level",
           "typeName": "String",
@@ -151,118 +143,112 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "de.jare.jsonconfig.item.ConfigProfileType": {
-      "_woodObjectId": 17,
+      "_woodObjectId": 24,
       "typeName": "de.jare.jsonconfig.item.ConfigProfileType",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "Double": {
-      "_woodObjectId": 18,
+      "_woodObjectId": 26,
       "typeName": "Double",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "int": {
-      "_woodObjectId": 19,
+      "_woodObjectId": 28,
       "typeName": "int",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "long": {
-      "_woodObjectId": 20,
+      "_woodObjectId": 30,
       "typeName": "long",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "de.jare.jsoncasted.lang.JsonInstance<Boolean>": {
-      "_woodObjectId": 21,
+      "_woodObjectId": 32,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<Boolean>",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
       "reflective": false,
       "mappingAllFields": {
-        "_woodObjectId": 22,
+        "_woodObjectId": 33,
         "typeName": "Boolean",
         "collectionType": "none"
-      }
+      },
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "Integer": {
-      "_woodObjectId": 23,
+      "_woodObjectId": 35,
       "typeName": "Integer",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "Float": {
-      "_woodObjectId": 24,
+      "_woodObjectId": 37,
       "typeName": "Float",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "de.jare.jsonconfig.item.ConfigProfile": {
-      "_woodObjectId": 25,
+      "_woodObjectId": 39,
       "typeName": "de.jare.jsonconfig.item.ConfigProfile",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
       "fields": [{
           "fieldName": "profileLogging",
           "typeName": "de.jare.jsonconfig.item.ConfigLogging",
@@ -312,43 +298,42 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "boolean": {
-      "_woodObjectId": 31,
+      "_woodObjectId": 46,
       "typeName": "boolean",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "Long": {
-      "_woodObjectId": 32,
+      "_woodObjectId": 48,
       "typeName": "Long",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "de.jare.jsonconfig.item.ConfigFeature": {
-      "_woodObjectId": 33,
+      "_woodObjectId": 50,
       "typeName": "de.jare.jsonconfig.item.ConfigFeature",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
       "fields": [{
           "fieldName": "featureLogging",
           "typeName": "de.jare.jsonconfig.item.ConfigLogging",
@@ -407,35 +392,33 @@
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     },
     "Object": {
-      "_woodObjectId": 40,
+      "_woodObjectId": 58,
       "typeName": "Object",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
       "reflective": false
     },
     "Boolean": {
-      "_woodObjectId": 41,
+      "_woodObjectId": 59,
       "typeName": "Boolean",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
       "primitive": true,
-      "reflective": false
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*",
+          "transientFlag": false
+        }
+        ]
     }
   },
   "repoDescriptors": {},

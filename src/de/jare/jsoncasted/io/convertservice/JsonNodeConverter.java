@@ -115,8 +115,14 @@ public class JsonNodeConverter {
      */
     protected static JsonItem convertArray(JsonNode node, JsonTypeDescriptor contextClass, boolean asList, ConvertService service) throws JsonParseException {
         ArrayList<JsonItem> list = new ArrayList<>();
-        for (JsonNode child : node.asArray()) {
-            list.add(convert(child, contextClass, service));
+        // A list-typed field leads every value here, no matter its node
+        // type: a null value or a malformed scalar is treated like a
+        // missing entry (empty list) instead of crashing with an NPE.
+        final java.util.List<JsonNode> children = node.asArray();
+        if (children != null) {
+            for (JsonNode child : children) {
+                list.add(convert(child, contextClass, service));
+            }
         }
         return new JsonList(list, asList, contextClass, service.incrementAtomicLong());
     }

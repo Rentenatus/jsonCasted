@@ -264,6 +264,28 @@ public class JsonModel {
      */
     public void addClass(JsonClass jClass) {
         classes.put(jClass.getcName(), jClass);
+        adoptBasicAnnotations(jClass);
+    }
+
+    /**
+     * Adopts the default annotations of the basic model onto the given type. The basic classes declared by
+     * {@link #addBasicModel()} carry their defaults (the doc wildcard annotation) on the String class as the
+     * every object, enum and mapping registered after the basic model inherits them automatically. A type with its
+     * own declaration of an annotation keeps it - nothing is duplicated. Without the basic model nothing is
+     * adopted.
+     *
+     * @param jType the type that adopts the default annotations
+     */
+    private void adoptBasicAnnotations(JsonType jType) {
+        final JsonClass reference = classes.get("String");
+        if (reference == null || jType == null) {
+            return;
+        }
+        for (JsonAnnotation annotation : reference.getAnnotations()) {
+            if (jType.getAnnotation(annotation.getName()) == null) {
+                jType.addAnnotation(annotation.getName(), annotation.isTransient());
+            }
+        }
     }
 
     /**
@@ -274,6 +296,7 @@ public class JsonModel {
      */
     public void addInterface(JsonInter inter) {
         interfaces.put(inter.getcName(), inter);
+        adoptBasicAnnotations(inter);
         // First the interface, then the classes, in case the classes recursively reference the interface.
         for (JsonClass jc : inter.iterable()) {
             if (classes.containsKey(jc.getcName())) {
@@ -416,17 +439,32 @@ public class JsonModel {
      */
     public void addBasicModel() {
         addInterface(new JsonUnknown("Object"));
-        addClass(new JsonClass("String", JsonNodeType.STRING, new JsonStringBuilder()));
-        addClass(new JsonClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder()));
-        addClass(new JsonClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder()));
-        addClass(new JsonClass("Float", JsonNodeType.NUMBER, new JsonFloatObjBuilder()));
-        addClass(new JsonClass("Double", JsonNodeType.NUMBER, new JsonDoubleObjBuilder()));
-        addClass(new JsonClass("Boolean", JsonNodeType.BOOLEAN, new JsonBooleanObjBuilder()));
-        addClass(new JsonClass("int", JsonNodeType.LONG, new JsonIntBuilder()));
-        addClass(new JsonClass("long", JsonNodeType.LONG, new JsonLongBuilder()));
-        addClass(new JsonClass("float", JsonNodeType.NUMBER, new JsonFloatBuilder()));
-        addClass(new JsonClass("double", JsonNodeType.NUMBER, new JsonDoubleBuilder()));
-        addClass(new JsonClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder()));
+        addBasicClass("String", JsonNodeType.STRING, new JsonStringBuilder());
+        addBasicClass("Integer", JsonNodeType.LONG, new JsonIntegerObjBuilder());
+        addBasicClass("Long", JsonNodeType.LONG, new JsonLongObjBuilder());
+        addBasicClass("Float", JsonNodeType.NUMBER, new JsonFloatObjBuilder());
+        addBasicClass("Double", JsonNodeType.NUMBER, new JsonDoubleObjBuilder());
+        addBasicClass("Boolean", JsonNodeType.BOOLEAN, new JsonBooleanObjBuilder());
+        addBasicClass("int", JsonNodeType.LONG, new JsonIntBuilder());
+        addBasicClass("long", JsonNodeType.LONG, new JsonLongBuilder());
+        addBasicClass("float", JsonNodeType.NUMBER, new JsonFloatBuilder());
+        addBasicClass("double", JsonNodeType.NUMBER, new JsonDoubleBuilder());
+        addBasicClass("boolean", JsonNodeType.BOOLEAN, new JsonBooleanBuilder());
+    }
+
+    /**
+     * Creates a basic class and declares the doc wildcard annotation (doc:*) on it as a default: every type of the
+     * basic model - and via the adoption every registered type - documents its fields with an {@code @doc}
+     * annotation without a per-field declaration (see annotationen-konzept.md, decision 11).
+     *
+     * @param cName the canonical name of the class
+     * @param nodeType the JSON node type of the class
+     * @param builder the builder responsible for instance creation
+     */
+    private void addBasicClass(String cName, JsonNodeType nodeType, JsonModellClassBuilder builder) {
+        final JsonClass jClass = new JsonClass(cName, nodeType, builder);
+        jClass.addAnnotation("doc:*");
+        addClass(jClass);
     }
 
     public List<String> getExports() {
@@ -701,6 +739,7 @@ public class JsonModel {
         final JsonClass ret = new JsonClass(cNameOrNull, JsonNodeType.STRING, new JsonEnumByNameBuilder(clazz));
         ret.setValuesArray(valuesArray);
         enums.put(ret.getcName(), ret);
+        adoptBasicAnnotations(ret);
         return ret;
     }
 
@@ -734,6 +773,7 @@ public class JsonModel {
         final JsonClass ret = new JsonClass(cNameOrNull, JsonNodeType.STRING, new JsonEnumByNameBuilder(clazz));
         ret.setValuesArray(valuesList.toArray(JsonEnumTemplate[]::new));
         enums.put(ret.getcName(), ret);
+        adoptBasicAnnotations(ret);
         return ret;
     }
 

@@ -205,6 +205,9 @@ public class ObjectWriteWalker {
                 if (attr == null && jClass.isSkippingNulls()) {
                     continue;
                 }
+                if (jClass.isSkippingEmpty() && isEmptyValue(attr)) {
+                    continue;
+                }
 
                 strategy.writeAttrName(jClass, isFollowing, next.getfName(), iString);
                 writeAttr(next, attr, ob, iString);
@@ -213,6 +216,20 @@ public class ObjectWriteWalker {
         } finally {
             strategy.writeEndObject(jClass, ob, isFollowing, hasFieldKeys, intentPath);
         }
+    }
+
+    /**
+     * Checks whether the given attribute is an empty value: an empty collection or an empty map. Null is not
+     * empty here - the null skip has its own flag.
+     *
+     * @param attr the attribute value to check
+     * @return true if the attribute is an empty collection or map
+     */
+    private static boolean isEmptyValue(Object attr) {
+        if (attr instanceof java.util.Collection<?> col) {
+            return col.isEmpty();
+        }
+        return attr instanceof java.util.Map<?, ?> map && map.isEmpty();
     }
 
     /**
