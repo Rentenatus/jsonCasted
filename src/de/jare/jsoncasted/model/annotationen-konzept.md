@@ -166,8 +166,10 @@ Ergebnisse:
    unquoted, Composite Keys nur quoted (siehe Punkt 2). Keine Ausnahme.
 2. Composite Keys duerfen NICHT unquoted geschrieben werden: die
    Key-Akkumulation endet am ERSTEN Doppelpunkt, der Rest (`profile:`)
-   faellt in die Wert-Sammlung des Parsers und wird still verworfen
-   (verwandt mit dem bekannten stillen Verlust in ObjectParser.parse).
+   faellt in die Wert-Sammlung des Parsers - der fruehere stille
+   Verlust ist behoben und wird jetzt als fehlender Separator gemeldet
+   (Unexpected characters after the value). Unquoted Composite Keys
+   failen damit laut und klar statt still zu verschwinden.
    `"@doc:profile": [...]` funktioniert dagegen heute ohne jede
    Grammatikaenderung.
 3. Die deskriptorgetriebene Konvertierung (JsonNodeConverter) filtert
