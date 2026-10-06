@@ -17,9 +17,7 @@ import de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Represents a JSON map/collection type that wraps a singular class with collection semantics.
@@ -44,49 +42,6 @@ public class JsonMap extends JsonClass implements JsonType {
     private final JsonClass itemClass;
     private final JsonCollectionType colType;
 
-    /**
-     * Maps stay free of annotations (see annotationen-konzept.md, decision 2): the inherited JsonClass support is
-     * explicitly disabled.
-     */
-    @Override
-    public void addAnnotation(String name) {
-    }
-
-    /**
-     * Maps stay free of annotations.
-     *
-     * @param transientFlag ignored, maps stay free of annotations.
-     */
-    @Override
-    public void addAnnotation(String name, boolean transientFlag) {
-    }
-
-    /**
-     * Maps stay free of annotations.
-     */
-    @Override
-    public void addAnnotation(JsonAnnotation annotation) {
-    }
-
-    /**
-     * Maps stay free of annotations.
-     *
-     * @return always {@code null}.
-     */
-    @Override
-    public JsonAnnotation getAnnotation(String name) {
-        return null;
-    }
-
-    /**
-     * Maps stay free of annotations.
-     *
-     * @return always an empty list.
-     */
-    @Override
-    public List<JsonAnnotation> getAnnotations() {
-        return Collections.emptyList();
-    }
 
     /**
      * Constructs a JsonMap with the specified parameters.

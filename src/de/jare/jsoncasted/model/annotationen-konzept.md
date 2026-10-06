@@ -64,7 +64,9 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
    `JsonField` eine Klasse - eine gemeinsame Basisklasse gibt es technisch
    nicht. Loesung: `JsonAnnotationSupport` (Liste + addAnnotation +
    getAnnotation), eingebettet in JsonClass und JsonField; JsonClass/JsonInter
-   implementieren die API voll, JsonMap/JsonUnknown leer.
+   implementieren die API voll. JsonMap erbt von JsonClass und traegt damit
+   ebenfalls Annotationen (Maps sind wie Objekte dokumentierbar); nur
+   JsonUnknown bleibt leer.
 3. **Deserialisierung:** Annotationen sind keine JsonField-Instanzen und
    liegen nicht in der fields-Map. Der Builder wird durch das Konzept nicht
    beruehrt; `@`-Keys sind fuer ihn strukturell unsichtbar.
@@ -99,6 +101,24 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
    gilt auf beiden Ebenen. Der Filter sitzt im Editor-Save (Baum -> JSON):
    transiente Annotationen samt Teilbaum weglassen. Sicherheitsnetz: ohne
    geladenes Descriptor-Modell wird NICHTS gefiltert.
+11. **Default-Annotation doc:*** Das Grundmodell (`addBasicModel`) deklariert
+   `doc:*` auf allen Basisklassen; die String-Klasse dient als Referenz
+   (analog `getJsonClass("Integer")`). Jeder danach registrierte Typ -
+   Objekte (`newJsonReflect`, `newJsonClass`), Enums, Mappings, auch direkt
+   `addClass`/`addInterface` - adoptiert diese Default-Annotationen
+   automatisch; eigene Deklarationen werden nicht dupliziert. Ohne
+   Grundmodell wird nichts adoptiert ("wenn vorhanden").
+
+   **Miniregex fuer Composite-Ziele:** Das Ziel eines Composite-Keys ist ein
+   einfaches *-Pattern: `*` matcht eine beliebige Zeichenfolge (auch leer),
+   alle anderen Zeichen sind literal - `doc:*`, `doc:feature*`, `doc:*count`.
+   Die Editor-Bindung prueft erst die explizite Feld-Deklaration, dann die
+   passenden Typ-Pattern (spezifisch schlaegt rein). Ein reines `doc:*` am
+   Typ deckt alle seine Felder UND den Objekt-Level ab ("ueberall
+   dokumentierbar"); Praefix-Pattern bleiben feldspezifisch. Damit traegt
+   jeder Typ EINEN Eintrag statt eines pro Feld - die Deskriptoren
+   bleiben ruhig.
+
 10. **Geltungsbereich:** Objekt-Ebene und Feld-Ebene; Felder JEDES Typs -
     auch map- und arraywertige Felder (`@doc:settings`, `@doc:features`) sind
     automatisch mitgedeckt, der Composite Key gilt ohnehin fuer alle
