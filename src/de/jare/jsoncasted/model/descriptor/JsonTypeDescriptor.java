@@ -322,7 +322,13 @@ public class JsonTypeDescriptor {
     public JsonTypeDescriptor withAnnotations(List<JsonAnnotation> annotations) {
         this.annotations.clear();
         if (annotations != null) {
-            this.annotations.addAll(annotations);
+            for (JsonAnnotation next : annotations) {
+                // Null elements (e.g. from a "[null]" entry) are poison for
+                // every later lookup - they never enter the list.
+                if (next != null) {
+                    this.annotations.add(next);
+                }
+            }
         }
         return this;
     }

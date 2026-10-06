@@ -90,6 +90,9 @@ public class JsonNode {
             return JsonNode.nullNode();
         }
         String trimmed = str.trim();
+        if ("null".equals(trimmed)) {
+            return JsonNode.nullNode();
+        }
         if ("true".equals(trimmed)) {
             return JsonNode.booleanNode(true);
         }
