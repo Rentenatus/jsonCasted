@@ -5,13 +5,7 @@
     "de.jare.jsonconfig.item.ConfigRoot": {
       "_woodObjectId": 3,
       "typeName": "de.jare.jsonconfig.item.ConfigRoot",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
       "fields": [{
-          "annotations": [
-            ],
           "fieldName": "mainLogging",
           "typeName": "de.jare.jsonconfig.item.ConfigLogging",
           "collectionType": "none",
@@ -21,8 +15,6 @@
           "setter": "setMainLogging"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "comments",
           "typeName": "String",
           "collectionType": "array",
@@ -32,8 +24,6 @@
           "setter": "setComments"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "profiles",
           "typeName": "de.jare.jsonconfig.item.ConfigProfile",
           "collectionType": "list",
@@ -56,12 +46,6 @@
     "de.jare.jsoncasted.lang.JsonInstance<String>": {
       "_woodObjectId": 8,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
@@ -80,12 +64,6 @@
     "double": {
       "_woodObjectId": 11,
       "typeName": "double",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
@@ -99,12 +77,6 @@
     "de.jare.jsoncasted.lang.JsonInstance<String>[]": {
       "_woodObjectId": 13,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>[]",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
@@ -123,12 +95,6 @@
     "String": {
       "_woodObjectId": 16,
       "typeName": "String",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
@@ -142,12 +108,6 @@
     "float": {
       "_woodObjectId": 18,
       "typeName": "float",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
@@ -161,13 +121,7 @@
     "de.jare.jsonconfig.item.ConfigLogging": {
       "_woodObjectId": 20,
       "typeName": "de.jare.jsonconfig.item.ConfigLogging",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
       "fields": [{
-          "annotations": [
-            ],
           "fieldName": "level",
           "typeName": "String",
           "collectionType": "none",
@@ -177,8 +131,6 @@
           "setter": "setLevel"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "path",
           "typeName": "String",
           "collectionType": "none",
@@ -201,12 +153,6 @@
     "de.jare.jsonconfig.item.ConfigProfileType": {
       "_woodObjectId": 24,
       "typeName": "de.jare.jsonconfig.item.ConfigProfileType",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
@@ -220,12 +166,6 @@
     "Double": {
       "_woodObjectId": 26,
       "typeName": "Double",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
@@ -239,12 +179,6 @@
     "int": {
       "_woodObjectId": 28,
       "typeName": "int",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
@@ -258,12 +192,6 @@
     "long": {
       "_woodObjectId": 30,
       "typeName": "long",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
@@ -277,12 +205,6 @@
     "de.jare.jsoncasted.lang.JsonInstance<Boolean>": {
       "_woodObjectId": 32,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<Boolean>",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
@@ -301,12 +223,6 @@
     "Integer": {
       "_woodObjectId": 35,
       "typeName": "Integer",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
@@ -320,12 +236,6 @@
     "Float": {
       "_woodObjectId": 37,
       "typeName": "Float",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
@@ -339,13 +249,7 @@
     "de.jare.jsonconfig.item.ConfigProfile": {
       "_woodObjectId": 39,
       "typeName": "de.jare.jsonconfig.item.ConfigProfile",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
       "fields": [{
-          "annotations": [
-            ],
           "fieldName": "profileLogging",
           "typeName": "de.jare.jsonconfig.item.ConfigLogging",
           "collectionType": "none",
@@ -355,8 +259,6 @@
           "setter": "setProfileLogging"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "profile",
           "typeName": "String",
           "collectionType": "none",
@@ -366,8 +268,6 @@
           "setter": "setProfile"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "type",
           "typeName": "de.jare.jsonconfig.item.ConfigProfileType",
           "collectionType": "none",
@@ -377,8 +277,6 @@
           "setter": "setType"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "comments",
           "typeName": "String",
           "collectionType": "array",
@@ -388,8 +286,6 @@
           "setter": "setComments"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "features",
           "typeName": "de.jare.jsonconfig.item.ConfigFeature",
           "collectionType": "list",
@@ -412,12 +308,6 @@
     "boolean": {
       "_woodObjectId": 46,
       "typeName": "boolean",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
       "primitive": true,
@@ -431,12 +321,6 @@
     "Long": {
       "_woodObjectId": 48,
       "typeName": "Long",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
@@ -450,13 +334,7 @@
     "de.jare.jsonconfig.item.ConfigFeature": {
       "_woodObjectId": 50,
       "typeName": "de.jare.jsonconfig.item.ConfigFeature",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
       "fields": [{
-          "annotations": [
-            ],
           "fieldName": "featureLogging",
           "typeName": "de.jare.jsonconfig.item.ConfigLogging",
           "collectionType": "none",
@@ -466,8 +344,6 @@
           "setter": "setFeatureLogging"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "feature",
           "typeName": "String",
           "collectionType": "none",
@@ -477,8 +353,6 @@
           "setter": "setFeature"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "comments",
           "typeName": "String",
           "collectionType": "array",
@@ -488,8 +362,6 @@
           "setter": "setComments"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "settings",
           "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>",
           "collectionType": "none",
@@ -499,8 +371,6 @@
           "setter": "setSettings"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "labels",
           "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>[]",
           "collectionType": "none",
@@ -510,8 +380,6 @@
           "setter": "setLabels"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "enablements",
           "typeName": "de.jare.jsoncasted.lang.JsonInstance<Boolean>",
           "collectionType": "none",
@@ -534,28 +402,14 @@
     "Object": {
       "_woodObjectId": 58,
       "typeName": "Object",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "reflective": false,
-      "annotations": [
-        ]
+      "reflective": false
     },
     "Boolean": {
       "_woodObjectId": 59,
       "typeName": "Boolean",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
       "primitive": true,

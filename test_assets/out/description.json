@@ -1,12 +1,24 @@
 {
   "_woodDefinitions": [{
+      "_woodObjectId": 60,
+      "fieldName": "collectionType",
+      "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
+      "collectionType": "none",
+      "required": true,
+      "constructorParam": true,
+      "getter": "getCollectionType",
+      "setter": "setCollectionType",
+      "sortKey": 12000
+    }, 
+    {
+      "_woodObjectId": 61,
+      "name": "doc:*",
+      "transientFlag": false
+    }, 
+    {
       "_woodObjectId": 58,
       "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote",
-      "implementors": [
-        ],
       "constructorParams": [{
-          "annotations": [
-            ],
           "fieldName": "typeName",
           "typeName": "String",
           "collectionType": "none",
@@ -17,8 +29,6 @@
           "sortKey": 11000
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "collectionType",
           "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
           "collectionType": "none",
@@ -28,8 +38,6 @@
           "setter": "setCollectionType",
           "sortKey": 12000
         }
-        ],
-      "fields": [
         ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
@@ -42,22 +50,7 @@
         ]
     }, 
     {
-      "_woodObjectId": 60,
-      "annotations": [
-        ],
-      "fieldName": "collectionType",
-      "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
-      "collectionType": "none",
-      "required": true,
-      "constructorParam": true,
-      "getter": "getCollectionType",
-      "setter": "setCollectionType",
-      "sortKey": 12000
-    }, 
-    {
       "_woodObjectId": 59,
-      "annotations": [
-        ],
       "fieldName": "typeName",
       "typeName": "String",
       "collectionType": "none",
@@ -66,11 +59,6 @@
       "getter": "getTypeName",
       "setter": "setTypeName",
       "sortKey": 11000
-    }, 
-    {
-      "_woodObjectId": 61,
-      "name": "doc:*",
-      "transientFlag": false
     }],
   "_woodObjectId": 1,
   "modelName": "Full Model",
@@ -78,11 +66,7 @@
     "de.jare.jsoncasted.model.descriptor.JsonModelDescriptor": {
       "_woodObjectId": 3,
       "typeName": "de.jare.jsoncasted.model.descriptor.JsonModelDescriptor",
-      "implementors": [
-        ],
       "constructorParams": [{
-          "annotations": [
-            ],
           "fieldName": "modelName",
           "typeName": "String",
           "collectionType": "none",
@@ -93,8 +77,6 @@
         }
         ],
       "fields": [{
-          "annotations": [
-            ],
           "fieldName": "describedTypes",
           "typeName": "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor>",
           "collectionType": "none",
@@ -104,8 +86,6 @@
           "setter": "setDescribedTypes"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "repoDescriptors",
           "typeName": "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor>",
           "collectionType": "none",
@@ -115,8 +95,6 @@
           "setter": "setRepoDescriptors"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "withSelfDescription",
           "typeName": "Boolean",
           "collectionType": "none",
@@ -126,8 +104,6 @@
           "setter": "withSelfDescription"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "rootNodeCast",
           "typeName": "String",
           "collectionType": "none",
@@ -150,12 +126,6 @@
     "double": {
       "_woodObjectId": 10,
       "typeName": "double",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
@@ -169,11 +139,7 @@
     "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor": {
       "_woodObjectId": 12,
       "typeName": "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor",
-      "implementors": [
-        ],
       "constructorParams": [{
-          "annotations": [
-            ],
           "fieldName": "typeName",
           "typeName": "String",
           "collectionType": "none",
@@ -184,8 +150,6 @@
         }
         ],
       "fields": [{
-          "annotations": [
-            ],
           "fieldName": "implementors",
           "typeName": "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor",
           "collectionType": "list",
@@ -195,8 +159,6 @@
           "setter": "setImplementors"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "constructorParams",
           "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor",
           "collectionType": "list",
@@ -206,8 +168,6 @@
           "setter": "setConstructorParams"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "fields",
           "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor",
           "collectionType": "list",
@@ -217,8 +177,6 @@
           "setter": "setFields"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "nodeType",
           "typeName": "de.jare.jsoncasted.lang.JsonNodeType",
           "collectionType": "none",
@@ -228,8 +186,6 @@
           "setter": "withNodeType"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "skippingNulls",
           "typeName": "Boolean",
           "collectionType": "none",
@@ -239,8 +195,6 @@
           "setter": "withSkippingNulls"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "primitive",
           "typeName": "Boolean",
           "collectionType": "none",
@@ -250,8 +204,6 @@
           "setter": "withPrimitive"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "reflective",
           "typeName": "Boolean",
           "collectionType": "none",
@@ -261,8 +213,6 @@
           "setter": "withReflective"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "mappingAllFields",
           "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote",
           "collectionType": "none",
@@ -272,8 +222,6 @@
           "setter": "setMappingAllFields"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "parent",
           "typeName": "de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor",
           "collectionType": "none",
@@ -283,8 +231,6 @@
           "setter": "setParent"
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "annotations",
           "typeName": "de.jare.jsoncasted.model.item.JsonAnnotation",
           "collectionType": "list",
@@ -307,12 +253,6 @@
     "String": {
       "_woodObjectId": 25,
       "typeName": "String",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
@@ -326,12 +266,6 @@
     "float": {
       "_woodObjectId": 27,
       "typeName": "float",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
@@ -345,12 +279,6 @@
     "Double": {
       "_woodObjectId": 29,
       "typeName": "Double",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
@@ -364,11 +292,7 @@
     "de.jare.jsoncasted.model.item.JsonAnnotation": {
       "_woodObjectId": 31,
       "typeName": "de.jare.jsoncasted.model.item.JsonAnnotation",
-      "implementors": [
-        ],
       "constructorParams": [{
-          "annotations": [
-            ],
           "fieldName": "name",
           "typeName": "String",
           "collectionType": "none",
@@ -380,8 +304,6 @@
         }
         ],
       "fields": [{
-          "annotations": [
-            ],
           "fieldName": "transientFlag",
           "typeName": "Boolean",
           "collectionType": "none",
@@ -405,12 +327,6 @@
     "int": {
       "_woodObjectId": 35,
       "typeName": "int",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
@@ -424,12 +340,6 @@
     "long": {
       "_woodObjectId": 37,
       "typeName": "long",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
@@ -443,12 +353,6 @@
     "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor>": {
       "_woodObjectId": 39,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor>",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
@@ -467,12 +371,6 @@
     "Integer": {
       "_woodObjectId": 42,
       "typeName": "Integer",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
@@ -486,12 +384,6 @@
     "de.jare.jsoncasted.lang.JsonNodeType": {
       "_woodObjectId": 44,
       "typeName": "de.jare.jsoncasted.lang.JsonNodeType",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
@@ -505,12 +397,6 @@
     "Float": {
       "_woodObjectId": 46,
       "typeName": "Float",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "NUMBER",
       "skippingNulls": false,
       "primitive": true,
@@ -524,11 +410,7 @@
     "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor": {
       "_woodObjectId": 48,
       "typeName": "de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor",
-      "implementors": [
-        ],
       "constructorParams": [{
-          "annotations": [
-            ],
           "fieldName": "collectionType",
           "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
           "collectionType": "none",
@@ -539,8 +421,6 @@
           "sortKey": 12000
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "typeName",
           "typeName": "String",
           "collectionType": "none",
@@ -551,8 +431,6 @@
           "sortKey": 11000
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "fieldName",
           "typeName": "String",
           "collectionType": "none",
@@ -563,8 +441,6 @@
           "sortKey": 10000
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "required",
           "typeName": "Boolean",
           "collectionType": "none",
@@ -575,8 +451,6 @@
           "sortKey": 13000
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "constructorParam",
           "typeName": "Boolean",
           "collectionType": "none",
@@ -587,8 +461,6 @@
           "sortKey": 14000
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "getter",
           "typeName": "String",
           "collectionType": "none",
@@ -599,8 +471,6 @@
           "sortKey": 15000
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "setter",
           "typeName": "String",
           "collectionType": "none",
@@ -612,8 +482,6 @@
         }
         ],
       "fields": [{
-          "annotations": [
-            ],
           "fieldName": "sortKey",
           "typeName": "Integer",
           "collectionType": "none",
@@ -624,8 +492,6 @@
           "sortKey": 17000
         }, 
         {
-          "annotations": [
-            ],
           "fieldName": "annotations",
           "typeName": "de.jare.jsoncasted.model.item.JsonAnnotation",
           "collectionType": "list",
@@ -651,12 +517,6 @@
     "boolean": {
       "_woodObjectId": 63,
       "typeName": "boolean",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
       "primitive": true,
@@ -670,12 +530,6 @@
     "de.jare.jsoncasted.model.JsonCollectionType": {
       "_woodObjectId": 65,
       "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "STRING",
       "skippingNulls": false,
       "primitive": true,
@@ -689,12 +543,6 @@
     "Long": {
       "_woodObjectId": 67,
       "typeName": "Long",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "LONG",
       "skippingNulls": false,
       "primitive": true,
@@ -708,12 +556,6 @@
     "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor>": {
       "_woodObjectId": 69,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor>",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
@@ -732,28 +574,14 @@
     "Object": {
       "_woodObjectId": 72,
       "typeName": "Object",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
-      "reflective": false,
-      "annotations": [
-        ]
+      "reflective": false
     },
     "Boolean": {
       "_woodObjectId": 73,
       "typeName": "Boolean",
-      "implementors": [
-        ],
-      "constructorParams": [
-        ],
-      "fields": [
-        ],
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
       "primitive": true,
