@@ -291,7 +291,8 @@ public class JsonInterface implements JsonInter {
     @Override
     public JsonTypeDescriptor describeHeadInterface(JsonModelDescriptor context) {
         final JsonTypeDescriptor ret = new JsonTypeDescriptor(cName)
-                .withNodeType(JsonNodeType.OBJECT);
+                .withNodeType(JsonNodeType.OBJECT)
+                .withAnnotations(getAnnotations());
         for (JsonClass next : iterable()) {
             ret.addImplementor(context.getType(next.getcName()));
         }

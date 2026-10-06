@@ -8,6 +8,10 @@ package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.jsoncasted.model.FieldKind;
 import de.jare.jsoncasted.model.JsonCollectionType;
+import de.jare.jsoncasted.model.item.JsonAnnotation;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -39,6 +43,7 @@ public class JsonFieldDescriptor extends JsonFieldTypeNote {
     private String setter;
     private FieldKind kind;
     private Integer sortKey;
+    private final List<JsonAnnotation> annotations = new ArrayList<>();
 
     /**
      * Constructs a field descriptor with minimal information.
@@ -174,6 +179,51 @@ public class JsonFieldDescriptor extends JsonFieldTypeNote {
      */
     public void setSortKey(Integer sortKey) {
         this.sortKey = sortKey;
+    }
+
+    /**
+     * Adds a declared field level annotation.
+     *
+     * @param annotation the annotation to add.
+     */
+    public void addAnnotation(JsonAnnotation annotation) {
+        annotations.add(Objects.requireNonNull(annotation, "annotation"));
+    }
+
+    /**
+     * Sets the declared field level annotations (used when loading a descriptor file).
+     *
+     * @param annotations the annotations to set, or null to clear.
+     */
+    public void setAnnotations(List<JsonAnnotation> annotations) {
+        this.annotations.clear();
+        if (annotations != null) {
+            this.annotations.addAll(annotations);
+        }
+    }
+
+    /**
+     * Returns all declared field level annotations.
+     *
+     * @return an unmodifiable list of annotations, empty if none are declared.
+     */
+    public List<JsonAnnotation> getAnnotations() {
+        return Collections.unmodifiableList(annotations);
+    }
+
+    /**
+     * Returns the declared annotation with the given name.
+     *
+     * @param name the annotation name without the {@code @} prefix.
+     * @return the annotation, or {@code null} if none is declared under that name.
+     */
+    public JsonAnnotation getAnnotation(String name) {
+        for (JsonAnnotation next : annotations) {
+            if (next.getName().equals(name)) {
+                return next;
+            }
+        }
+        return null;
     }
 
     @Override

@@ -17,6 +17,7 @@ import de.jare.jsoncasted.model.descriptor.JsonFieldDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonFieldTypeNote;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
+import de.jare.jsoncasted.model.item.JsonAnnotation;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonMap;
 
@@ -41,6 +42,7 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
     private final JsonModel model;
     private final JsonClass descriptType;
     private final JsonClass descriptField;
+    private final JsonClass descriptAnnotation;
     private final JsonClass descriptModel;
 
     public JsonModelDescriptorDefinition() {
@@ -68,6 +70,12 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
         descriptField.addCParam("setter", asString).withSortKey(16000);
         descriptField.addField("sortKey", asInteger, "getSortKey", "setSortKey").withSortKey(17000);
 
+        descriptAnnotation = model.newJsonReflect(JsonAnnotation.class)
+                .withSkippingNulls(true);
+        descriptAnnotation.addCParam("name", asString).withSortKey(10000);
+        descriptAnnotation.addField("transientFlag", asBoolean, "isTransient", "setTransient").withSortKey(11000);
+        descriptField.addField("annotations", descriptAnnotation, JsonCollectionType.LIST);
+
         descriptType = model.newJsonReflect(JsonTypeDescriptor.class)
                 .withSkippingNulls(true);
         descriptType.addCParam("typeName", asString);
@@ -83,6 +91,7 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
                 .makeAsDefinitional();
         descriptType.addField("parent", descriptType)
                 .makeAsReference();
+        descriptType.addField("annotations", descriptAnnotation, JsonCollectionType.LIST);
 
         JsonMap typeMap = model.newRawJsonMapIndividually((new JsonInstance<JsonTypeDescriptor>()).getClass(), (String) null, descriptType);
         JsonMap modeldMap = model.newRawJsonMapIndividually((new JsonInstance<JsonModelDescriptor>()).getClass(), (String) null, descriptField);
@@ -111,6 +120,10 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
 
     public JsonClass getDescriptField() {
         return descriptField;
+    }
+
+    public JsonClass getDescriptAnnotation() {
+        return descriptAnnotation;
     }
 
     public JsonClass getDescriptModel() {

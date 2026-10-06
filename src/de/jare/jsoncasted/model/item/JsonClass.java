@@ -809,7 +809,8 @@ public class JsonClass implements JsonType {
                 .withPermittedValues(builder.permittedValues(getValuesArray()))
                 .withSkippingNulls(isSkippingNulls())
                 .withPrimitive(isBoxOrPrimitive())
-                .withReflective(isReflective());
+                .withReflective(isReflective())
+                .withAnnotations(getAnnotations());
     }
 
     /**
@@ -853,6 +854,10 @@ public class JsonClass implements JsonType {
             );
             fd.setKind(jf.getKind());
             fd.setSortKey(jf.getSortKey() == 0 ? null : jf.getSortKey());
+
+            for (JsonAnnotation annotation : jf.getAnnotations()) {
+                fd.addAnnotation(annotation);
+            }
 
             if (jf.isConstructorParam()) {
                 target.addConstructorParam(fd);
