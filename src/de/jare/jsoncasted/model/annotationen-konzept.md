@@ -86,13 +86,14 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
    mit `@`-Name sind KEINE Collection-Elemente: die Element-Typ-Propagierung
    ueberspringt sie; sie tippen sich aus der Feld-Annotation des Modells
    (String/ARRAY -> geerbter Cast fuer die Zeilen).
-7. **Resilienz ohne Null-Felder:** Fehlt das Zielfeld, wird KEIN
-   synthetisches Feld angelegt (der Editor darf Daten durch blosses Laden
-   nicht mutieren). Die Annotation bleibt am Objekt verankert und traegt
-   den Status WARNING ("Zielfeld fehlt"). Erscheint das Feld spaeter, bindet
-   sie ueber die Feld-/Parse-Kaskade neu und rueckt unters Feld. Wird das
-   Feld geloescht, faellt sie auf WARNING zurueck - persistente Annotationen
-   werden nie still entfernt.
+7. **Strukturelle Verankerung (Edit-Modus):** Fehlt das Zielfeld beim
+   Laden, wird KEIN synthetisches Feld angelegt (der Editor darf Daten durch
+   blosses Laden nicht mutieren) - die Annotation wird zur einfachen
+   Objekt-Annotation. Das Composite-Ziel ist abgeleitet: haengt die
+   Annotation am Feldknoten, ist das Zielfeld der Elternknoten; haengt sie am
+   Objekt, ist sie einfach. Es gibt keine Rettung und kein Auto-Rebind: Wird
+   das Feld geloescht, verschwindet die Annotation mit ihm (und kehrt mit ihm
+   zurueck, Undo inklusive). Re-Ankern ist ein expliziter Edit (Move/Paste).
 8. **Toleranz:** undeclarierte `@`-Keys sind im Editor WARNING, nicht ERROR
    (freie Annotationen). Der Builder ignoriert `@`-Keys ohnehin
    bedingungslos. Tippfehler wie `@dok` bleiben damit sichtbar, blockieren
