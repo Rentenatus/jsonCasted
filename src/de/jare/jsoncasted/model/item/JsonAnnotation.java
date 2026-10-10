@@ -66,12 +66,13 @@ public class JsonAnnotation {
 
     /**
      * Creates a doc declaration with its documentation text - the type knowledge counterpart of an instance level
-     * {@code @doc}: the description of the annotated type itself.
+     * {@code @doc}: the description of the annotated type itself. The lines join with line feeds, javadoc style -
+     * the file form writes them back as the array elements of the @doc key.
      *
-     * @param text the documentation text
-     * @return the persistent doc annotation with the text as declaration value
+     * @param text the lines of the documentation text
+     * @return the doc annotation with the joined lines as declaration value
      */
-    public static JsonAnnotation doc(String text) {
+    public static JsonAnnotation doc(String... text) {
         return new JsonAnnotation(DOC).withValue(text);
     }
 
@@ -113,13 +114,26 @@ public class JsonAnnotation {
     }
 
     /**
-     * Sets the declaration value and returns this annotation for chaining.
+     * Sets the declaration value from one or more lines and returns this annotation for chaining: the lines join
+     * with line feeds, javadoc style - the file form writes them back as the array elements of the @ key. No
+     * argument clears the value.
      *
-     * @param value the declaration value, or {@code null} to clear it
+     * @param lines the lines of the declaration value, or none to clear it
      * @return this annotation
      */
-    public JsonAnnotation withValue(String value) {
-        this.value = value;
+    public JsonAnnotation withValue(String... lines) {
+        if (lines == null || lines.length == 0) {
+            this.value = null;
+            return this;
+        }
+        final StringBuilder joined = new StringBuilder();
+        for (String line : lines) {
+            if (joined.length() > 0) {
+                joined.append('\n');
+            }
+            joined.append(line == null ? "" : line);
+        }
+        this.value = joined.toString();
         return this;
     }
 

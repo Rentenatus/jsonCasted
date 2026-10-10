@@ -118,7 +118,8 @@ public class JsonConfigDefinition implements JsonItemDefinition {
 
         // Declaration values (annotation concept, decision 13): the root displays itself with its main logging -
         // the object field contributes its own display text recursively (level and path).
-        configRoot.addAnnotation(JsonAnnotation.doc("Root of a seed configuration."));
+        configRoot.addAnnotation(JsonAnnotation.doc("Root of a seed configuration.",
+                "It carries the main logging and the profiles."));
         configRoot.addAnnotation(JsonAnnotation.editString("config ${mainLogging}"));
 
         model.setRootNodeCast(configRoot.getcName());

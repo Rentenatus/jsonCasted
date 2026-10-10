@@ -49,6 +49,10 @@ public class AnnotationValueNGTest {
         assertEquals(doc.getName(), JsonAnnotation.DOC);
         assertEquals(doc.getValue(), "This is a profile.");
 
+        final JsonAnnotation multiLineDoc = JsonAnnotation.doc("Line one.", "Line two.");
+        assertEquals(multiLineDoc.getValue(), "Line one.\nLine two.",
+                "the doc lines join with line feeds, javadoc style");
+
         assertEquals(JsonAnnotation.doc().getName(), JsonAnnotation.DOC_ALL);
         assertNull(JsonAnnotation.doc().getValue(), "the doc wildcard declaration stays value free");
 
@@ -102,7 +106,9 @@ public class AnnotationValueNGTest {
         assertEquals(descriptor.getType("de.jare.jsonconfig.item.ConfigFeature")
                         .getAnnotation(JsonAnnotation.DOC).getValue(), "A feature with its own logging, settings and labels.");
         assertEquals(descriptor.getType("de.jare.jsonconfig.item.ConfigRoot")
-                        .getAnnotation(JsonAnnotation.DOC).getValue(), "Root of a seed configuration.");
+                        .getAnnotation(JsonAnnotation.DOC).getValue(),
+                "Root of a seed configuration.\nIt carries the main logging and the profiles.",
+                "the multi line doc declaration joins its lines");
 
         assertEquals(descriptor.getType("de.jare.jsonconfig.item.ConfigLogging").getField("level")
                         .getAnnotation(JsonAnnotation.DOC).getValue(), "Log level of this logger.",
