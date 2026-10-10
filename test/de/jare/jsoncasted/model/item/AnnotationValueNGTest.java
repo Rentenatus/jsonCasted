@@ -69,6 +69,25 @@ public class AnnotationValueNGTest {
     }
 
     /**
+     * Every object type of the config model carries its display template: the root over the recursive logging
+     * display, a feature via its name, logging with the upper filter on its level.
+     */
+    @Test
+    public void testConfigModelEditStringTemplates() {
+        final JsonModelDescriptor descriptor = JsonConfigDefinition.getInstance().getModel().getOrCreateDescriptor();
+
+        assertEquals(descriptor.getType("de.jare.jsonconfig.item.ConfigRoot")
+                        .getAnnotation(JsonAnnotation.EDIT_STRING).getValue(), "config ${mainLogging}",
+                "the root shows itself with the recursive display of its main logging");
+        assertEquals(descriptor.getType("de.jare.jsonconfig.item.ConfigLogging")
+                        .getAnnotation(JsonAnnotation.EDIT_STRING).getValue(), "${level|upper}: ${path}",
+                "logging demonstrates the upper filter");
+        assertEquals(descriptor.getType("de.jare.jsonconfig.item.ConfigFeature")
+                        .getAnnotation(JsonAnnotation.EDIT_STRING).getValue(), "${feature}",
+                "a feature displays via its feature name");
+    }
+
+    /**
      * The round trip through a description file: saveAs writes the declaration values into the annotations list, the
      * parse reads them back - the reflected value field of the self description carries them in both directions.
      */

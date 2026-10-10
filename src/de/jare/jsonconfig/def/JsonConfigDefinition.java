@@ -66,6 +66,10 @@ public class JsonConfigDefinition implements JsonItemDefinition {
         logging.addField("level", asString);
         logging.addField("path", asString);
 
+        // Declaration values (annotation concept, decision 13): a logging config displays as its level and path,
+        // the level is shouted by the upper filter.
+        logging.addAnnotation(JsonAnnotation.editString("${level|upper}: ${path}"));
+
         JsonClass feature = model.newJsonClass(ConfigFeature.class,
                 new JsonReflectBuilder(ConfigFeature.class) {
             @Override
@@ -87,6 +91,9 @@ public class JsonConfigDefinition implements JsonItemDefinition {
         feature.addField("labels", stringArrayMap);
         feature.addField("enablements", booleanMap);
 
+        // Declaration values (annotation concept, decision 13): a feature displays via its feature name.
+        feature.addAnnotation(JsonAnnotation.editString("${feature}"));
+
         JsonClass profile = model.newJsonReflect(ConfigProfile.class);
 
         profile.addField("profileLogging", logging);
@@ -106,6 +113,10 @@ public class JsonConfigDefinition implements JsonItemDefinition {
         configRoot.addField("mainLogging", logging);
         configRoot.addField("comments", asString, ARRAY);
         configRoot.addField("profiles", profile, LIST);
+
+        // Declaration values (annotation concept, decision 13): the root displays itself with its main logging -
+        // the object field contributes its own display text recursively (level and path).
+        configRoot.addAnnotation(JsonAnnotation.editString("config ${mainLogging}"));
 
         model.setRootNodeCast(configRoot.getcName());
     }
