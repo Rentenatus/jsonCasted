@@ -57,6 +57,12 @@ public class JsonTypeDescriptor {
     private JsonTypeDescriptor parent;
 
     /**
+     * The editString display template of this type (annotation concept): adopted from the @editString entry of a
+     * description file, never serialized as a regular field. Null when the type has no template.
+     */
+    private String editString;
+
+    /**
      * Constructs a type descriptor with the specified type name.
      *
      * @param typeName the name of the type (must not be null).
@@ -364,6 +370,25 @@ public class JsonTypeDescriptor {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns the editString display template of this type (annotation concept). The template is adopted from the
+     * {@code @editString} entry of a description file and never serialized as a regular field.
+     *
+     * @return the display template, or {@code null} when the type has none
+     */
+    public String getEditString() {
+        return editString;
+    }
+
+    /**
+     * Sets the editString display template of this type.
+     *
+     * @param editString the display template, or {@code null} to clear it
+     */
+    public void setEditString(String editString) {
+        this.editString = editString;
     }
 
     /**

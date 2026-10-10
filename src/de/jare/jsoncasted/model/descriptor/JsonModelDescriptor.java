@@ -11,7 +11,9 @@ import de.jare.jsoncasted.io.JsonObjectWriter;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonWriteException;
 import de.jare.jsoncasted.lang.JsonInstance;
+import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.model.descriptor.def.JsonModelDescriptorDefinition;
+import de.jare.jsoncasted.model.item.JsonAnnotation;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -453,6 +455,86 @@ public class JsonModelDescriptor {
         if (describedTypes != null) {
             this.describedTypes.putAll(describedTypes);
         }
+    }
+
+    /**
+     * Adopts the editString display templates from the raw description tree (annotation concept). The cast based
+     * parse is field driven and therefore blind for {@code @} keys, so the templates ride the raw node tree: each
+     * type entry with a single element {@code @editString} string array hands its template to the matching type
+     * descriptor. Entries with zero or multiple elements are skipped here - the editor validation reports them.
+     *
+     * @param rawDescription the raw root node of a description file, or {@code null}
+     * @return the number of adopted templates
+     */
+    public int adoptEditStrings(JsonNode rawDescription) {
+        if (rawDescription == null || !rawDescription.isObject()) {
+            return 0;
+        }
+        final JsonNode describedTypes = rawDescription.asObjectValues().get("describedTypes");
+        if (describedTypes == null || !describedTypes.isObject()) {
+            return 0;
+        }
+        int adopted = 0;
+        for (Map.Entry<String, JsonNode> entry : describedTypes.asObjectValues().entrySet()) {
+            final JsonNode typeEntry = entry.getValue();
+            if (typeEntry == null || !typeEntry.isObject()) {
+                continue;
+            }
+            final JsonNode annotationValue = typeEntry.asObjectValues()
+                    .get("@" + JsonAnnotation.EDIT_STRING);
+            final String template = singleEditTemplate(annotationValue);
+            if (template == null) {
+                continue;
+            }
+            final JsonTypeDescriptor type = getType(typeNameOf(entry.getKey(), typeEntry));
+            if (type != null) {
+                type.setEditString(template);
+                adopted++;
+            }
+        }
+        return adopted;
+    }
+
+    /**
+     * Extracts the template of an editString annotation value: exactly one string element is a valid template, an
+     * inline string counts as its single element, everything else (zero, multiple, blank) is invalid and skipped.
+     *
+     * @param annotationValue the raw annotation value node, or {@code null}
+     * @return the template, or {@code null} when the value is invalid
+     */
+    private static String singleEditTemplate(JsonNode annotationValue) {
+        if (annotationValue == null) {
+            return null;
+        }
+        if (annotationValue.isArray()) {
+            final List<JsonNode> values = annotationValue.asArray();
+            return values.size() == 1 ? textOrNull(values.get(0)) : null;
+        }
+        return textOrNull(annotationValue);
+    }
+
+    /**
+     * Returns the text of a node, or {@code null} for blank text or missing nodes.
+     *
+     * @param node the node, or {@code null}
+     * @return the non-blank text, or {@code null}
+     */
+    private static String textOrNull(JsonNode node) {
+        final String text = node == null ? null : node.asText();
+        return text == null || text.isBlank() ? null : text;
+    }
+
+    /**
+     * Derives the type name of a described type entry: the typeName entry wins, the map key is the fallback.
+     *
+     * @param mapKey the key of the type entry in the describedTypes map
+     * @param typeEntry the raw type entry node
+     * @return the type name for the descriptor lookup
+     */
+    private static String typeNameOf(String mapKey, JsonNode typeEntry) {
+        final JsonNode name = typeEntry.asObjectValues().get("typeName");
+        final String text = name == null ? null : name.asText();
+        return text == null || text.isBlank() ? mapKey : text;
     }
 
     // -------------------------------------------------------------------------

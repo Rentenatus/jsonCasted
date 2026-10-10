@@ -19,6 +19,12 @@ package de.jare.jsoncasted.model.item;
  */
 public class JsonAnnotation {
 
+    /**
+     * Name of the editString annotation: a display template for objects of the described type (see the annotation
+     * concept). Its value is a string array with exactly one element, the template string.
+     */
+    public static final String EDIT_STRING = "editString";
+
     private final String name;
     private boolean transientFlag;
 

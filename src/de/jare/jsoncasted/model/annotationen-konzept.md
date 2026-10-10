@@ -126,6 +126,25 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
     Feld-Annotationen. NICHT annotierbar: einzelne Map-Keys und einzelne
     Array-Elemente (Index-Anker waeren fragil).
 
+12. **editString als Spezial-Annotation (editString-Konzept):** `editString`
+    ist eine Objekt-Annotation am Typ-Eintrag einer Description-Datei,
+    deklariert in `JsonModelDescriptorDefinition` am `descriptType` (und damit
+    auf jedem beschriebenen Typ fuer eigene Modelle frei deklarierbar). Ihr
+    Wert ist ein String-Array mit GENAU EINEM Element, dem Anzeige-Template:
+    `"@editString": ["${name} (${typ})"]`. Platzhalter greifen auf die
+    Parameter/Felder des Objekts zu, Filter (upper, lower, substr, number,
+    default) formen die Werte. Damit ist editString im Model-Editor automatisch
+    sichtbar und editierbar (Annotationzeile im Fields Pane, Editor B fuer
+    String-Arrays). Der Builder bleibt @-blind: die Uebernahme in den
+    Laufzeit-Deskriptor laeuft NICHT ueber den Cast-Pfad, sondern ueber
+    `JsonModelDescriptor.adoptEditStrings(raw)` aus dem rohen JsonNode-Baum
+    der Description-Datei (Aufruf im JsonTreeConverter, jsonCasted_edit). Ein
+    Editor-Validator meldet @editString-Arrays mit null oder mehr als einem
+    Element. `JsonTypeDescriptor.editString` ist Laufzeit-Speicher ohne
+    Serialisierung als regulaeres Feld.
+
+
+
 ## Offene Fragen
 
 1. **Namensraum/Quelle fuer Annotationen** (EMF-source-Gedanke): Flache Namen
