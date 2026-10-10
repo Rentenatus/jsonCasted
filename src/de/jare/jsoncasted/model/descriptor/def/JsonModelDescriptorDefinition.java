@@ -75,7 +75,6 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
                 .withSkippingNulls(true)
                 .withSkippingEmpty(true);
         descriptAnnotation.addCParam("name", asString).withSortKey(10000);
-        descriptAnnotation.addField("transientFlag", asBoolean, "isTransient", "setTransient").withSortKey(11000);
         descriptField.addField("annotations", descriptAnnotation, JsonCollectionType.LIST);
 
         descriptType = model.newJsonReflect(JsonTypeDescriptor.class)

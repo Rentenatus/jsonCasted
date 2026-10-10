@@ -12,8 +12,8 @@ package de.jare.jsoncasted.model.item;
  * {@code @} prefix.
  *
  * <p>
- * An annotation is implicitly defined as an array of strings. Transient annotations are session-local in the
- * editor and are skipped when the tree is saved back to JSON.</p>
+ * An annotation is implicitly defined as an array of strings. Every annotation is persistent - its values are
+ * written back on save.</p>
  *
  * @author Janusch Rentenatus
  */
@@ -36,7 +36,6 @@ public class JsonAnnotation {
     public static final String DOC_ALL = "doc:*";
 
     private final String name;
-    private boolean transientFlag;
 
     /**
      * The declaration value of this annotation (see the annotation concept, decision 13): type knowledge that lives
@@ -46,23 +45,12 @@ public class JsonAnnotation {
     private String value;
 
     /**
-     * Constructs a persistent annotation.
+     * Constructs an annotation.
      *
      * @param name The name of the annotation without the {@code @} prefix.
      */
     public JsonAnnotation(String name) {
-        this(name, false);
-    }
-
-    /**
-     * Constructs an annotation.
-     *
-     * @param name The name of the annotation without the {@code @} prefix.
-     * @param transientFlag {@code true} if the annotation is skipped on save, {@code false} otherwise.
-     */
-    public JsonAnnotation(String name, boolean transientFlag) {
         this.name = name;
-        this.transientFlag = transientFlag;
     }
 
     /**
@@ -104,24 +92,6 @@ public class JsonAnnotation {
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     * Checks whether the annotation is transient. Transient annotations are not written back on save.
-     *
-     * @return {@code true} if the annotation is transient, {@code false} otherwise.
-     */
-    public boolean isTransient() {
-        return transientFlag;
-    }
-
-    /**
-     * Sets the transient flag of the annotation.
-     *
-     * @param transientFlag {@code true} to skip the annotation on save, {@code false} otherwise.
-     */
-    public void setTransient(boolean transientFlag) {
-        this.transientFlag = transientFlag;
     }
 
     /**

@@ -4,12 +4,17 @@
   "describedTypes": {
     "de.jare.jsonconfig.item.ConfigRoot": {
       "_woodObjectId": 3,
+      "@doc": [
+      "Root of a seed configuration."],
+      "@editString": [
+      "config ${mainLogging}"],
       "typeName": "de.jare.jsonconfig.item.ConfigRoot",
       "fields": [{
+          "@doc": [
+          "The main logging of the seed."],
           "annotations": [{
               "name": "doc",
-              "transientFlag": false,
-              "value": "The main logging of the seed."
+              "transientFlag": false
             }
             ],
           "fieldName": "mainLogging",
@@ -30,10 +35,11 @@
           "setter": "setComments"
         }, 
         {
+          "@doc": [
+          "The profiles of the seed."],
           "annotations": [{
               "name": "doc",
-              "transientFlag": false,
-              "value": "The profiles of the seed."
+              "transientFlag": false
             }
             ],
           "fieldName": "profiles",
@@ -55,13 +61,11 @@
         }, 
         {
           "name": "doc",
-          "transientFlag": false,
-          "value": "Root of a seed configuration."
+          "transientFlag": false
         }, 
         {
           "name": "editString",
-          "transientFlag": false,
-          "value": "config ${mainLogging}"
+          "transientFlag": false
         }
         ]
     },
@@ -142,12 +146,17 @@
     },
     "de.jare.jsonconfig.item.ConfigLogging": {
       "_woodObjectId": 24,
+      "@doc": [
+      "Logging configuration: a level and a file path."],
+      "@editString": [
+      "${level|upper}: ${path}"],
       "typeName": "de.jare.jsonconfig.item.ConfigLogging",
       "fields": [{
+          "@doc": [
+          "Log level of this logger."],
           "annotations": [{
               "name": "doc",
-              "transientFlag": false,
-              "value": "Log level of this logger."
+              "transientFlag": false
             }
             ],
           "fieldName": "level",
@@ -159,10 +168,11 @@
           "setter": "setLevel"
         }, 
         {
+          "@doc": [
+          "File path of the log."],
           "annotations": [{
               "name": "doc",
-              "transientFlag": false,
-              "value": "File path of the log."
+              "transientFlag": false
             }
             ],
           "fieldName": "path",
@@ -184,13 +194,11 @@
         }, 
         {
           "name": "doc",
-          "transientFlag": false,
-          "value": "Logging configuration: a level and a file path."
+          "transientFlag": false
         }, 
         {
           "name": "editString",
-          "transientFlag": false,
-          "value": "${level|upper}: ${path}"
+          "transientFlag": false
         }
         ]
     },
@@ -292,6 +300,10 @@
     },
     "de.jare.jsonconfig.item.ConfigProfile": {
       "_woodObjectId": 47,
+      "@editString": [
+      "${profile}"],
+      "@doc": [
+      "This is a profile."],
       "typeName": "de.jare.jsonconfig.item.ConfigProfile",
       "fields": [{
           "fieldName": "profileLogging",
@@ -303,10 +315,11 @@
           "setter": "setProfileLogging"
         }, 
         {
+          "@doc": [
+          "Name of the profile."],
           "annotations": [{
               "name": "doc",
-              "transientFlag": false,
-              "value": "Name of the profile."
+              "transientFlag": false
             }
             ],
           "fieldName": "profile",
@@ -318,10 +331,11 @@
           "setter": "setProfile"
         }, 
         {
+          "@doc": [
+          "Type of the profile."],
           "annotations": [{
               "name": "doc",
-              "transientFlag": false,
-              "value": "Type of the profile."
+              "transientFlag": false
             }
             ],
           "fieldName": "type",
@@ -342,10 +356,11 @@
           "setter": "setComments"
         }, 
         {
+          "@doc": [
+          "The features of this profile."],
           "annotations": [{
               "name": "doc",
-              "transientFlag": false,
-              "value": "The features of this profile."
+              "transientFlag": false
             }
             ],
           "fieldName": "features",
@@ -367,13 +382,11 @@
         }, 
         {
           "name": "editString",
-          "transientFlag": false,
-          "value": "${profile}"
+          "transientFlag": false
         }, 
         {
           "name": "doc",
-          "transientFlag": false,
-          "value": "This is a profile."
+          "transientFlag": false
         }
         ]
     },
@@ -405,6 +418,10 @@
     },
     "de.jare.jsonconfig.item.ConfigFeature": {
       "_woodObjectId": 63,
+      "@doc": [
+      "A feature with its own logging, settings and labels."],
+      "@editString": [
+      "${feature}"],
       "typeName": "de.jare.jsonconfig.item.ConfigFeature",
       "fields": [{
           "fieldName": "featureLogging",
@@ -416,10 +433,11 @@
           "setter": "setFeatureLogging"
         }, 
         {
+          "@doc": [
+          "Name of the feature."],
           "annotations": [{
               "name": "doc",
-              "transientFlag": false,
-              "value": "Name of the feature."
+              "transientFlag": false
             }
             ],
           "fieldName": "feature",
@@ -477,13 +495,11 @@
         }, 
         {
           "name": "doc",
-          "transientFlag": false,
-          "value": "A feature with its own logging, settings and labels."
+          "transientFlag": false
         }, 
         {
           "name": "editString",
-          "transientFlag": false,
-          "value": "${feature}"
+          "transientFlag": false
         }
         ]
     },

@@ -69,7 +69,6 @@ public class AnnotationValueAdoptionNGTest {
         final JsonAnnotation created = descriptor.getType("profile").getAnnotation(JsonAnnotation.EDIT_STRING);
         assertNotNull(created, "the adoption creates the declaration of a silent model");
         assertEquals(created.getValue(), "${name}");
-        assertFalse(created.isTransient());
     }
 
     /**

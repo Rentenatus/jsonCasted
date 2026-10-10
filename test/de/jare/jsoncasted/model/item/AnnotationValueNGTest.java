@@ -44,7 +44,6 @@ public class AnnotationValueNGTest {
         final JsonAnnotation editString = JsonAnnotation.editString("${profile}");
         assertEquals(editString.getName(), JsonAnnotation.EDIT_STRING);
         assertEquals(editString.getValue(), "${profile}");
-        assertFalse(editString.isTransient());
 
         final JsonAnnotation doc = JsonAnnotation.doc("This is a profile.");
         assertEquals(doc.getName(), JsonAnnotation.DOC);

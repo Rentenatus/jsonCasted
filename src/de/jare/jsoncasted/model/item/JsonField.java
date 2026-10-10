@@ -308,16 +308,6 @@ public class JsonField {
     /**
      * Declares a field level annotation on this field.
      *
-     * @param name The annotation name without the {@code @} prefix.
-     * @param transientFlag {@code true} if the annotation is skipped on save, {@code false} otherwise.
-     */
-    public void addAnnotation(String name, boolean transientFlag) {
-        annotationSupport.addAnnotation(name, transientFlag);
-    }
-
-    /**
-     * Declares a field level annotation on this field.
-     *
      * @param annotation The annotation to declare.
      */
     public void addAnnotation(JsonAnnotation annotation) {

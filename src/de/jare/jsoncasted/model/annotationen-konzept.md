@@ -14,10 +14,6 @@ Zwei Ebenen sind vorgesehen:
   Objekts).
 - **Feld-Annotationen** hängen am einzelnen Feld (z.B. `@doc:profile`).
 
-Zusätzlich sind Annotationen **transient** moeglich: transiente Annotationen
-wie `@javadoc` werden bei der Serialisierung nicht rausgeschrieben und sind
-damit sitzungslokal im Editor.
-
 ## Grundprinzip: Einheitlichkeit von Modell und Modellierung
 
 Es gibt bewusst keine Trennung zwischen Modellwelt und Instanzwelt (der EMF-
@@ -58,7 +54,7 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
 ## Feststehende Entscheidungen (Stand nach der Diskussion)
 
 1. **JsonAnnotation ist eine eigene Klasse** (model.item): Name,
-   transient-Flag, implizit "String-Array". Keine JsonField-Subklasse.
+   optionaler Deklarationswert, implizit "String-Array". Keine JsonField-Subklasse.
 2. **Traeger: JsonType und JsonField per Komposition.** `JsonType` ist ein
    Interface (JsonClass, JsonInter, JsonMap, JsonInterface, JsonUnknown),
    `JsonField` eine Klasse - eine gemeinsame Basisklasse gibt es technisch
@@ -98,10 +94,12 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
    (freie Annotationen). Der Builder ignoriert `@`-Keys ohnehin
    bedingungslos. Tippfehler wie `@dok` bleiben damit sichtbar, blockieren
    aber nicht.
-9. **transient-Flag** (statt "optional", keine Kollision mit `required`):
-   gilt auf beiden Ebenen. Der Filter sitzt im Editor-Save (Baum -> JSON):
-   transiente Annotationen samt Teilbaum weglassen. Sicherheitsnetz: ohne
-   geladenes Descriptor-Modell wird NICHTS gefiltert.
+9. **transient-Flag: ENTFERNT.** Annotationen sind immer persistent,
+   es gibt keine sitzungslokalen Annotationen mehr. Die urspruengliche
+   Idee (abgeleitete Infos wie @javadoc nur fuer die Sitzung in den Baum
+   zu haengen) wartet auf einen besseren Loesungsort: einen Regenerations-
+   bzw. Schleuder-Diff, der sichtbar macht, welche Dateiteile generiert
+   und welche handeditiert sind.
 11. **Default-Annotation doc:*** Das Grundmodell (`addBasicModel`) deklariert
    `doc:*` auf allen Basisklassen; die String-Klasse dient als Referenz
    (analog `getJsonClass("Integer")`). Jeder danach registrierte Typ -
@@ -145,7 +143,7 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
 
 13. **Deklarationswert (editString-Konzept, allgemein):** Annotationen
     duerfen einen WERT auf der Deklaration tragen - der Slot auf
-    `JsonAnnotation` (neben name und transientFlag) ist der generische
+    `JsonAnnotation` (neben name) ist der generische
     In-Memory-Traeger fuer Typ-Wissen, das im Modell selbst leben soll,
     ohne dass das Modell weiss, was der Wert *bedeutet*. Fabriken:
     `JsonAnnotation.editString("${profile}")`, `JsonAnnotation.doc("Text")`,
@@ -155,8 +153,8 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
     `JsonAnnotationCarrier` auf JsonTypeDescriptor und JsonFieldDescriptor),
     die Zeilen des Werts werden die Array-Elemente - javadoc-artig, @doc
     darf mehrzeilig sein. Die Annotationsliste der Datei bleibt ART-ONLY
-    (name, transientFlag - das Reflektionsfeld `value` auf
-    descriptAnnotation ist wieder entfernt). Der Parse liest die @-Keys
+    (nur name - das Reflektionsfeld `value` auf descriptAnnotation ist
+    ebenfalls entfernt). Der Parse liest die @-Keys
     zurueck: `JsonModelDescriptor.adoptAnnotationValues(raw)` setzt die
     Werte auf die Deklarationen im Deskriptor (Array-Elemente zeilenweise
     gejoint, fehlende Deklaration wird angelegt). Der Laufzeit-Speicher ist
@@ -177,8 +175,8 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
    meinen. Nicht blockierend fuer die erste Umsetzung; eine spaetere
    Erweiterung als `@quelle.name` waere eine Formataenderung.
 2. **Save-Pfad:** WoodJsonJack hat noch keinen Baum-zu-JSON-Writer. Der
-   Transient-Filter entsteht mit dem ersten Writer; bis dahin ist das
-   Verhalten nur hier festgehalten. Der Builder-Grundsatz ("feldgetrieben,
+   Transient-Filter existiert nicht mehr - Annotationen sind immer
+   persistent. Der Builder-Grundsatz ("feldgetrieben,
    `@`-Keys bedingungslos unsichtbar") ist per Mini-Harness gegen den
    echten Builder verifiziert (Schritt 0, siehe unten).
 
@@ -191,8 +189,8 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
 3. Editor-Bindung: getrennte Annotation-Sicht, Toleranz-Regel, Composite-Key-
    Aufloesung, `@`-Kinder am Property-Knoten sind keine Elemente - jsonCasted_edit.
 4. Parser/Writer: `@`-Keys brauchen keine Grammatikaenderung; Save flacht die
-   Kind-Struktur in Composite Keys zurueck und laesst transiente Annotationen
-   weg - jsonCasted io bzw. mit dem ersten Writer.
+   Kind-Struktur in Composite Keys zurueck - jsonCasted io bzw. mit dem
+   ersten Writer.
 5. Tests: Bindungsmatrix (deklariert/undeclariert/@-auf-Feld/Feld-loeschen/
    -erscheinen) als Testfaelle, Description-Roundtrip, spaeter Erweiterung
    der Soft-Parse-Assets um eine Annotation-Testdatei.

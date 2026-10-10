@@ -283,7 +283,7 @@ public class JsonModel {
         }
         for (JsonAnnotation annotation : reference.getAnnotations()) {
             if (jType.getAnnotation(annotation.getName()) == null) {
-                final JsonAnnotation adopted = new JsonAnnotation(annotation.getName(), annotation.isTransient());
+                final JsonAnnotation adopted = new JsonAnnotation(annotation.getName());
                 adopted.setValue(annotation.getValue());
                 jType.addAnnotation(adopted);
             }
