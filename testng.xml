@@ -8,6 +8,7 @@
             <class name="de.jare.jsoncasted.parser.JsonParserNodeInputNGTest"/>
             <class name="de.jare.jsonconfig.def.JsonConfigFactoryNGTest"/>
             <class name="de.jare.jsoncasted.model.descriptor.EditStringAdoptionNGTest"/>
+            <class name="de.jare.jsoncasted.model.item.AnnotationValueNGTest"/>
         </classes>
     </test>
 </suite>

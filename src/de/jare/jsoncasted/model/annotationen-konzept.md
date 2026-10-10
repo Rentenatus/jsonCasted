@@ -143,6 +143,28 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
     Element. `JsonTypeDescriptor.editString` ist Laufzeit-Speicher ohne
     Serialisierung als regulaeres Feld.
 
+13. **Deklarationswert (editString-Konzept, allgemein):** Annotationen
+    duerfen einen WERT auf der Deklaration tragen - der Slot auf
+    `JsonAnnotation` (neben name und transientFlag) ist der generische
+    Traeger fuer Typ-Wissen, das im Modell selbst leben soll, ohne dass
+    das Modell weiss, was der Wert *bedeutet*. editString ist der erste
+    Bewohner, doc mit Typ-Beschreibung der zweite. Fabriken machen die
+    Deklaration sprechend: `JsonAnnotation.editString("${profile}")`,
+    `JsonAnnotation.doc("This is a profile.")`, `JsonAnnotation.doc()`
+    (die Wildcard-Deklaration `doc:*`, weiterhin wertfrei). Der Transport
+    ist geschenkt: describeHead traegt die Annotations-Instanz samt Wert,
+    das reflektierte Feld `value` auf `descriptAnnotation` (Selbst-
+    beschreibung) round-trippt ihn durch die Description-Datei, der Parse
+    liest ihn zurueck - Code -> describe -> Datei -> Parse -> Deskriptor
+    -> Verbraucher (`getAnnotation(name).getValue()`), ohne Spezialfall.
+    Die Adoption der Default-Annotationen (addBasicModel) kopiert den
+    Wert mit. Praezedenz auf der Verbraucherseite: der Deklarationswert
+    (Modell-Welt) schlaegt die @-Key-Adoption (Modellierungs-Welt), weil
+    das Modell die Quelle der Wahrheit ist. Instanzwerte (@-Keys an
+    Objekten und Feldern) bleiben von dem Slot unberuehrt; der
+    editString-Validator gilt weiterhin fuer die handeditierte @-Key-Form
+    (ein-elementiges String-Array).
+
 
 
 ## Offene Fragen

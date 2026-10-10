@@ -21,6 +21,8 @@ import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonReflectBuilder;
 import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.item.JsonClass;
+import de.jare.jsoncasted.model.item.JsonAnnotation;
 import de.jare.jsoncasted.model.item.JsonMap;
 import de.jare.jsonconfig.item.ConfigFeature;
 import de.jare.jsonconfig.item.ConfigLogging;
@@ -92,6 +94,12 @@ public class JsonConfigDefinition implements JsonItemDefinition {
         profile.addField("type", profileType);
         profile.addField("comments", asString, ARRAY);
         profile.addField("features", feature, LIST);
+
+        // Declaration values (annotation concept, decision 13): the profile type displays via its profile field,
+        // the doc declaration carries the description of the type itself. Transport rides describeHead and the
+        // annotations list of the description file.
+        profile.addAnnotation(JsonAnnotation.editString("${profile}"));
+        profile.addAnnotation(JsonAnnotation.doc("This is a profile."));
 
         configRoot = model.newJsonReflect(ConfigRoot.class);
 

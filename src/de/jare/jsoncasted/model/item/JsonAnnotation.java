@@ -25,8 +25,25 @@ public class JsonAnnotation {
      */
     public static final String EDIT_STRING = "editString";
 
+    /**
+     * Name of the doc annotation (annotation concept): free documentation of the carrier it annotates.
+     */
+    public static final String DOC = "doc";
+
+    /**
+     * Name of the doc wildcard declaration: {@code doc:*} covers every field and the object level of the type.
+     */
+    public static final String DOC_ALL = "doc:*";
+
     private final String name;
     private boolean transientFlag;
+
+    /**
+     * The declaration value of this annotation (see the annotation concept, decision 13): type knowledge that lives
+     * in the model itself, carried on the declaration instead of a modeling. {@code null} for value free
+     * declarations - instance values (@ keys of the modelings) are unaffected by this slot.
+     */
+    private String value;
 
     /**
      * Constructs a persistent annotation.
@@ -46,6 +63,38 @@ public class JsonAnnotation {
     public JsonAnnotation(String name, boolean transientFlag) {
         this.name = name;
         this.transientFlag = transientFlag;
+    }
+
+    /**
+     * Creates an editString declaration with its display template (annotation concept, decision 13): the template
+     * tells the display side how instances of the type are shown, e.g. {@code ${profile}}.
+     *
+     * @param template the display template
+     * @return the persistent editString annotation with the template as declaration value
+     */
+    public static JsonAnnotation editString(String template) {
+        return new JsonAnnotation(EDIT_STRING).withValue(template);
+    }
+
+    /**
+     * Creates a doc declaration with its documentation text - the type knowledge counterpart of an instance level
+     * {@code @doc}: the description of the annotated type itself.
+     *
+     * @param text the documentation text
+     * @return the persistent doc annotation with the text as declaration value
+     */
+    public static JsonAnnotation doc(String text) {
+        return new JsonAnnotation(DOC).withValue(text);
+    }
+
+    /**
+     * Creates the doc wildcard declaration {@code doc:*}: the annotated type is documentable everywhere (object
+     * level and every field), without a per-field declaration.
+     *
+     * @return the persistent doc wildcard annotation
+     */
+    public static JsonAnnotation doc() {
+        return new JsonAnnotation(DOC_ALL);
     }
 
     /**
@@ -73,6 +122,35 @@ public class JsonAnnotation {
      */
     public void setTransient(boolean transientFlag) {
         this.transientFlag = transientFlag;
+    }
+
+    /**
+     * Returns the declaration value of this annotation, or {@code null} when the declaration is value free.
+     *
+     * @return the declaration value, or {@code null}
+     */
+    public String getValue() {
+        return value;
+    }
+
+    /**
+     * Sets the declaration value of this annotation.
+     *
+     * @param value the declaration value, or {@code null} to clear it
+     */
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    /**
+     * Sets the declaration value and returns this annotation for chaining.
+     *
+     * @param value the declaration value, or {@code null} to clear it
+     * @return this annotation
+     */
+    public JsonAnnotation withValue(String value) {
+        this.value = value;
+        return this;
     }
 
     @Override
