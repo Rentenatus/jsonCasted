@@ -6,6 +6,12 @@
       "_woodObjectId": 3,
       "typeName": "de.jare.jsonconfig.item.ConfigRoot",
       "fields": [{
+          "annotations": [{
+              "name": "doc",
+              "transientFlag": false,
+              "value": "The main logging of the seed."
+            }
+            ],
           "fieldName": "mainLogging",
           "typeName": "de.jare.jsonconfig.item.ConfigLogging",
           "collectionType": "none",
@@ -24,6 +30,12 @@
           "setter": "setComments"
         }, 
         {
+          "annotations": [{
+              "name": "doc",
+              "transientFlag": false,
+              "value": "The profiles of the seed."
+            }
+            ],
           "fieldName": "profiles",
           "typeName": "de.jare.jsonconfig.item.ConfigProfile",
           "collectionType": "list",
@@ -40,18 +52,28 @@
       "annotations": [{
           "name": "doc:*",
           "transientFlag": false
+        }, 
+        {
+          "name": "doc",
+          "transientFlag": false,
+          "value": "Root of a seed configuration."
+        }, 
+        {
+          "name": "editString",
+          "transientFlag": false,
+          "value": "config ${mainLogging}"
         }
         ]
     },
     "de.jare.jsoncasted.lang.JsonInstance<String>": {
-      "_woodObjectId": 8,
+      "_woodObjectId": 12,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>",
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
       "reflective": false,
       "mappingAllFields": {
-        "_woodObjectId": 9,
+        "_woodObjectId": 13,
         "typeName": "String",
         "collectionType": "none"
       },
@@ -62,7 +84,7 @@
         ]
     },
     "double": {
-      "_woodObjectId": 11,
+      "_woodObjectId": 15,
       "typeName": "double",
       "nodeType": "NUMBER",
       "skippingNulls": false,
@@ -75,14 +97,14 @@
         ]
     },
     "de.jare.jsoncasted.lang.JsonInstance<String>[]": {
-      "_woodObjectId": 13,
+      "_woodObjectId": 17,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>[]",
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
       "reflective": false,
       "mappingAllFields": {
-        "_woodObjectId": 14,
+        "_woodObjectId": 18,
         "typeName": "String",
         "collectionType": "array"
       },
@@ -93,7 +115,7 @@
         ]
     },
     "String": {
-      "_woodObjectId": 16,
+      "_woodObjectId": 20,
       "typeName": "String",
       "nodeType": "STRING",
       "skippingNulls": false,
@@ -106,7 +128,7 @@
         ]
     },
     "float": {
-      "_woodObjectId": 18,
+      "_woodObjectId": 22,
       "typeName": "float",
       "nodeType": "NUMBER",
       "skippingNulls": false,
@@ -119,9 +141,15 @@
         ]
     },
     "de.jare.jsonconfig.item.ConfigLogging": {
-      "_woodObjectId": 20,
+      "_woodObjectId": 24,
       "typeName": "de.jare.jsonconfig.item.ConfigLogging",
       "fields": [{
+          "annotations": [{
+              "name": "doc",
+              "transientFlag": false,
+              "value": "Log level of this logger."
+            }
+            ],
           "fieldName": "level",
           "typeName": "String",
           "collectionType": "none",
@@ -131,6 +159,12 @@
           "setter": "setLevel"
         }, 
         {
+          "annotations": [{
+              "name": "doc",
+              "transientFlag": false,
+              "value": "File path of the log."
+            }
+            ],
           "fieldName": "path",
           "typeName": "String",
           "collectionType": "none",
@@ -147,11 +181,21 @@
       "annotations": [{
           "name": "doc:*",
           "transientFlag": false
+        }, 
+        {
+          "name": "doc",
+          "transientFlag": false,
+          "value": "Logging configuration: a level and a file path."
+        }, 
+        {
+          "name": "editString",
+          "transientFlag": false,
+          "value": "${level|upper}: ${path}"
         }
         ]
     },
     "de.jare.jsonconfig.item.ConfigProfileType": {
-      "_woodObjectId": 24,
+      "_woodObjectId": 32,
       "typeName": "de.jare.jsonconfig.item.ConfigProfileType",
       "nodeType": "STRING",
       "skippingNulls": false,
@@ -164,7 +208,7 @@
         ]
     },
     "Double": {
-      "_woodObjectId": 26,
+      "_woodObjectId": 34,
       "typeName": "Double",
       "nodeType": "NUMBER",
       "skippingNulls": false,
@@ -177,7 +221,7 @@
         ]
     },
     "int": {
-      "_woodObjectId": 28,
+      "_woodObjectId": 36,
       "typeName": "int",
       "nodeType": "LONG",
       "skippingNulls": false,
@@ -190,7 +234,7 @@
         ]
     },
     "long": {
-      "_woodObjectId": 30,
+      "_woodObjectId": 38,
       "typeName": "long",
       "nodeType": "LONG",
       "skippingNulls": false,
@@ -203,14 +247,14 @@
         ]
     },
     "de.jare.jsoncasted.lang.JsonInstance<Boolean>": {
-      "_woodObjectId": 32,
+      "_woodObjectId": 40,
       "typeName": "de.jare.jsoncasted.lang.JsonInstance<Boolean>",
       "nodeType": "OBJECT",
       "skippingNulls": false,
       "primitive": false,
       "reflective": false,
       "mappingAllFields": {
-        "_woodObjectId": 33,
+        "_woodObjectId": 41,
         "typeName": "Boolean",
         "collectionType": "none"
       },
@@ -221,7 +265,7 @@
         ]
     },
     "Integer": {
-      "_woodObjectId": 35,
+      "_woodObjectId": 43,
       "typeName": "Integer",
       "nodeType": "LONG",
       "skippingNulls": false,
@@ -234,7 +278,7 @@
         ]
     },
     "Float": {
-      "_woodObjectId": 37,
+      "_woodObjectId": 45,
       "typeName": "Float",
       "nodeType": "NUMBER",
       "skippingNulls": false,
@@ -247,7 +291,7 @@
         ]
     },
     "de.jare.jsonconfig.item.ConfigProfile": {
-      "_woodObjectId": 39,
+      "_woodObjectId": 47,
       "typeName": "de.jare.jsonconfig.item.ConfigProfile",
       "fields": [{
           "fieldName": "profileLogging",
@@ -259,6 +303,12 @@
           "setter": "setProfileLogging"
         }, 
         {
+          "annotations": [{
+              "name": "doc",
+              "transientFlag": false,
+              "value": "Name of the profile."
+            }
+            ],
           "fieldName": "profile",
           "typeName": "String",
           "collectionType": "none",
@@ -268,6 +318,12 @@
           "setter": "setProfile"
         }, 
         {
+          "annotations": [{
+              "name": "doc",
+              "transientFlag": false,
+              "value": "Type of the profile."
+            }
+            ],
           "fieldName": "type",
           "typeName": "de.jare.jsonconfig.item.ConfigProfileType",
           "collectionType": "none",
@@ -286,6 +342,12 @@
           "setter": "setComments"
         }, 
         {
+          "annotations": [{
+              "name": "doc",
+              "transientFlag": false,
+              "value": "The features of this profile."
+            }
+            ],
           "fieldName": "features",
           "typeName": "de.jare.jsonconfig.item.ConfigFeature",
           "collectionType": "list",
@@ -302,11 +364,21 @@
       "annotations": [{
           "name": "doc:*",
           "transientFlag": false
+        }, 
+        {
+          "name": "editString",
+          "transientFlag": false,
+          "value": "${profile}"
+        }, 
+        {
+          "name": "doc",
+          "transientFlag": false,
+          "value": "This is a profile."
         }
         ]
     },
     "boolean": {
-      "_woodObjectId": 46,
+      "_woodObjectId": 59,
       "typeName": "boolean",
       "nodeType": "BOOLEAN",
       "skippingNulls": false,
@@ -319,7 +391,7 @@
         ]
     },
     "Long": {
-      "_woodObjectId": 48,
+      "_woodObjectId": 61,
       "typeName": "Long",
       "nodeType": "LONG",
       "skippingNulls": false,
@@ -332,7 +404,7 @@
         ]
     },
     "de.jare.jsonconfig.item.ConfigFeature": {
-      "_woodObjectId": 50,
+      "_woodObjectId": 63,
       "typeName": "de.jare.jsonconfig.item.ConfigFeature",
       "fields": [{
           "fieldName": "featureLogging",
@@ -344,6 +416,12 @@
           "setter": "setFeatureLogging"
         }, 
         {
+          "annotations": [{
+              "name": "doc",
+              "transientFlag": false,
+              "value": "Name of the feature."
+            }
+            ],
           "fieldName": "feature",
           "typeName": "String",
           "collectionType": "none",
@@ -396,11 +474,21 @@
       "annotations": [{
           "name": "doc:*",
           "transientFlag": false
+        }, 
+        {
+          "name": "doc",
+          "transientFlag": false,
+          "value": "A feature with its own logging, settings and labels."
+        }, 
+        {
+          "name": "editString",
+          "transientFlag": false,
+          "value": "${feature}"
         }
         ]
     },
     "Object": {
-      "_woodObjectId": 58,
+      "_woodObjectId": 74,
       "typeName": "Object",
       "nodeType": "OBJECT",
       "skippingNulls": false,
@@ -408,7 +496,7 @@
       "reflective": false
     },
     "Boolean": {
-      "_woodObjectId": 59,
+      "_woodObjectId": 75,
       "typeName": "Boolean",
       "nodeType": "BOOLEAN",
       "skippingNulls": false,

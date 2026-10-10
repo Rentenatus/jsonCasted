@@ -11,9 +11,15 @@
       "sortKey": 11000
     }, 
     {
-      "_woodObjectId": 62,
-      "name": "doc:*",
-      "transientFlag": false
+      "_woodObjectId": 61,
+      "fieldName": "collectionType",
+      "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
+      "collectionType": "none",
+      "required": true,
+      "constructorParam": true,
+      "getter": "getCollectionType",
+      "setter": "setCollectionType",
+      "sortKey": 12000
     }, 
     {
       "_woodObjectId": 59,
@@ -50,15 +56,9 @@
         ]
     }, 
     {
-      "_woodObjectId": 61,
-      "fieldName": "collectionType",
-      "typeName": "de.jare.jsoncasted.model.JsonCollectionType",
-      "collectionType": "none",
-      "required": true,
-      "constructorParam": true,
-      "getter": "getCollectionType",
-      "setter": "setCollectionType",
-      "sortKey": 12000
+      "_woodObjectId": 62,
+      "name": "doc:*",
+      "transientFlag": false
     }],
   "_woodObjectId": 1,
   "modelName": "Full Model",
