@@ -88,6 +88,30 @@ public class AnnotationValueNGTest {
     }
 
     /**
+     * The doc declarations document types and fields: the describeHead path carries the type docs, the
+     * describeDependencies path the field docs into the descriptor - both readable via getAnnotation(DOC).
+     */
+    @Test
+    public void testConfigModelDocDeclarations() {
+        final JsonModelDescriptor descriptor = JsonConfigDefinition.getInstance().getModel().getOrCreateDescriptor();
+
+        assertEquals(descriptor.getType("de.jare.jsonconfig.item.ConfigLogging")
+                        .getAnnotation(JsonAnnotation.DOC).getValue(), "Logging configuration: a level and a file path.");
+        assertEquals(descriptor.getType("de.jare.jsonconfig.item.ConfigFeature")
+                        .getAnnotation(JsonAnnotation.DOC).getValue(), "A feature with its own logging, settings and labels.");
+        assertEquals(descriptor.getType("de.jare.jsonconfig.item.ConfigRoot")
+                        .getAnnotation(JsonAnnotation.DOC).getValue(), "Root of a seed configuration.");
+
+        assertEquals(descriptor.getType("de.jare.jsonconfig.item.ConfigLogging").getField("level")
+                        .getAnnotation(JsonAnnotation.DOC).getValue(), "Log level of this logger.",
+                "the field doc rides describeDependencies into the field descriptor");
+        assertEquals(descriptor.getType("de.jare.jsonconfig.item.ConfigProfile").getField("profile")
+                        .getAnnotation(JsonAnnotation.DOC).getValue(), "Name of the profile.");
+        assertEquals(descriptor.getType("de.jare.jsonconfig.item.ConfigRoot").getField("profiles")
+                        .getAnnotation(JsonAnnotation.DOC).getValue(), "The profiles of the seed.");
+    }
+
+    /**
      * The round trip through a description file: saveAs writes the declaration values into the annotations list, the
      * parse reads them back - the reflected value field of the self description carries them in both directions.
      */

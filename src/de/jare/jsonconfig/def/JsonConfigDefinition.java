@@ -63,11 +63,12 @@ public class JsonConfigDefinition implements JsonItemDefinition {
 
         JsonClass logging = model.newJsonReflect(ConfigLogging.class);
 
-        logging.addField("level", asString);
-        logging.addField("path", asString);
+        logging.addField("level", asString).addAnnotation(JsonAnnotation.doc("Log level of this logger."));
+        logging.addField("path", asString).addAnnotation(JsonAnnotation.doc("File path of the log."));
 
         // Declaration values (annotation concept, decision 13): a logging config displays as its level and path,
         // the level is shouted by the upper filter.
+        logging.addAnnotation(JsonAnnotation.doc("Logging configuration: a level and a file path."));
         logging.addAnnotation(JsonAnnotation.editString("${level|upper}: ${path}"));
 
         JsonClass feature = model.newJsonClass(ConfigFeature.class,
@@ -85,22 +86,23 @@ public class JsonConfigDefinition implements JsonItemDefinition {
         });
 
         feature.addField("featureLogging", logging);
-        feature.addField("feature", asString, ENDSWITH);
+        feature.addField("feature", asString, ENDSWITH).addAnnotation(JsonAnnotation.doc("Name of the feature."));
         feature.addField("comments", asString, ARRAY);
         feature.addField("settings", stringMap);
         feature.addField("labels", stringArrayMap);
         feature.addField("enablements", booleanMap);
 
         // Declaration values (annotation concept, decision 13): a feature displays via its feature name.
+        feature.addAnnotation(JsonAnnotation.doc("A feature with its own logging, settings and labels."));
         feature.addAnnotation(JsonAnnotation.editString("${feature}"));
 
         JsonClass profile = model.newJsonReflect(ConfigProfile.class);
 
         profile.addField("profileLogging", logging);
-        profile.addField("profile", asString, EQUALS);
-        profile.addField("type", profileType);
+        profile.addField("profile", asString, EQUALS).addAnnotation(JsonAnnotation.doc("Name of the profile."));
+        profile.addField("type", profileType).addAnnotation(JsonAnnotation.doc("Type of the profile."));
         profile.addField("comments", asString, ARRAY);
-        profile.addField("features", feature, LIST);
+        profile.addField("features", feature, LIST).addAnnotation(JsonAnnotation.doc("The features of this profile."));
 
         // Declaration values (annotation concept, decision 13): the profile type displays via its profile field,
         // the doc declaration carries the description of the type itself. Transport rides describeHead and the
@@ -110,12 +112,13 @@ public class JsonConfigDefinition implements JsonItemDefinition {
 
         configRoot = model.newJsonReflect(ConfigRoot.class);
 
-        configRoot.addField("mainLogging", logging);
+        configRoot.addField("mainLogging", logging).addAnnotation(JsonAnnotation.doc("The main logging of the seed."));
         configRoot.addField("comments", asString, ARRAY);
-        configRoot.addField("profiles", profile, LIST);
+        configRoot.addField("profiles", profile, LIST).addAnnotation(JsonAnnotation.doc("The profiles of the seed."));
 
         // Declaration values (annotation concept, decision 13): the root displays itself with its main logging -
         // the object field contributes its own display text recursively (level and path).
+        configRoot.addAnnotation(JsonAnnotation.doc("Root of a seed configuration."));
         configRoot.addAnnotation(JsonAnnotation.editString("config ${mainLogging}"));
 
         model.setRootNodeCast(configRoot.getcName());
