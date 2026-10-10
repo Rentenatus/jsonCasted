@@ -8,6 +8,7 @@ package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.item.JsonAnnotation;
+import de.jare.jsoncasted.model.item.JsonAnnotationCarrier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -35,7 +36,7 @@ import java.util.Objects;
  *
  * @author Janusch Rentenatus
  */
-public class JsonTypeDescriptor {
+public class JsonTypeDescriptor implements de.jare.jsoncasted.model.item.JsonAnnotationCarrier {
 
     private final String typeName;
     private final List<JsonTypeDescriptor> implementors = new ArrayList<>();
@@ -55,12 +56,6 @@ public class JsonTypeDescriptor {
      */
     private JsonFieldTypeNote mappingAllFields;
     private JsonTypeDescriptor parent;
-
-    /**
-     * The editString display template of this type (annotation concept): adopted from the @editString entry of a
-     * description file, never serialized as a regular field. Null when the type has no template.
-     */
-    private String editString;
 
     /**
      * Constructs a type descriptor with the specified type name.
@@ -309,14 +304,13 @@ public class JsonTypeDescriptor {
     }
 
     /**
-     * Adds a declared annotation and returns this descriptor for chaining.
+     * Adds a declared annotation.
      *
      * @param annotation the annotation to add.
-     * @return this type descriptor.
      */
-    public JsonTypeDescriptor addAnnotation(JsonAnnotation annotation) {
+    @Override
+    public void addAnnotation(JsonAnnotation annotation) {
         annotations.add(Objects.requireNonNull(annotation, "annotation"));
-        return this;
     }
 
     /**
@@ -372,24 +366,6 @@ public class JsonTypeDescriptor {
         return null;
     }
 
-    /**
-     * Returns the editString display template of this type (annotation concept). The template is adopted from the
-     * {@code @editString} entry of a description file and never serialized as a regular field.
-     *
-     * @return the display template, or {@code null} when the type has none
-     */
-    public String getEditString() {
-        return editString;
-    }
-
-    /**
-     * Sets the editString display template of this type.
-     *
-     * @param editString the display template, or {@code null} to clear it
-     */
-    public void setEditString(String editString) {
-        this.editString = editString;
-    }
 
     /**
      * Sets the node type and returns this descriptor for chaining.

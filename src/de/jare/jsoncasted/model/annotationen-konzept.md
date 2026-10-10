@@ -146,24 +146,26 @@ configRoot.getField("profile").addAnnotation("doc");     // Feld-Ebene, ohne @
 13. **Deklarationswert (editString-Konzept, allgemein):** Annotationen
     duerfen einen WERT auf der Deklaration tragen - der Slot auf
     `JsonAnnotation` (neben name und transientFlag) ist der generische
-    Traeger fuer Typ-Wissen, das im Modell selbst leben soll, ohne dass
-    das Modell weiss, was der Wert *bedeutet*. editString ist der erste
-    Bewohner, doc mit Typ-Beschreibung der zweite. Fabriken machen die
-    Deklaration sprechend: `JsonAnnotation.editString("${profile}")`,
-    `JsonAnnotation.doc("This is a profile.")`, `JsonAnnotation.doc()`
-    (die Wildcard-Deklaration `doc:*`, weiterhin wertfrei). Der Transport
-    ist geschenkt: describeHead traegt die Annotations-Instanz samt Wert,
-    das reflektierte Feld `value` auf `descriptAnnotation` (Selbst-
-    beschreibung) round-trippt ihn durch die Description-Datei, der Parse
-    liest ihn zurueck - Code -> describe -> Datei -> Parse -> Deskriptor
-    -> Verbraucher (`getAnnotation(name).getValue()`), ohne Spezialfall.
-    Die Adoption der Default-Annotationen (addBasicModel) kopiert den
-    Wert mit. Praezedenz auf der Verbraucherseite: der Deklarationswert
-    (Modell-Welt) schlaegt die @-Key-Adoption (Modellierungs-Welt), weil
-    das Modell die Quelle der Wahrheit ist. Instanzwerte (@-Keys an
-    Objekten und Feldern) bleiben von dem Slot unberuehrt; der
-    editString-Validator gilt weiterhin fuer die handeditierte @-Key-Form
-    (ein-elementiges String-Array).
+    In-Memory-Traeger fuer Typ-Wissen, das im Modell selbst leben soll,
+    ohne dass das Modell weiss, was der Wert *bedeutet*. Fabriken:
+    `JsonAnnotation.editString("${profile}")`, `JsonAnnotation.doc("Text")`,
+    `JsonAnnotation.doc()` (Wildcard, wertfrei). DIE DATEI-FORM IST IMMER
+    DER @-KEY: describe/saveAs emittiert Wert-Annotationen als
+    `"@name": [wert]` am Typ- und Feld-Eintrag (Traeger-Interface
+    `JsonAnnotationCarrier` auf JsonTypeDescriptor und JsonFieldDescriptor),
+    die Zeilen des Werts werden die Array-Elemente - javadoc-artig, @doc
+    darf mehrzeilig sein. Die Annotationsliste der Datei bleibt ART-ONLY
+    (name, transientFlag - das Reflektionsfeld `value` auf
+    descriptAnnotation ist wieder entfernt). Der Parse liest die @-Keys
+    zurueck: `JsonModelDescriptor.adoptAnnotationValues(raw)` setzt die
+    Werte auf die Deklarationen im Deskriptor (Array-Elemente zeilenweise
+    gejoint, fehlende Deklaration wird angelegt). Der Laufzeit-Speicher ist
+    die Annotation selbst (das editString-Sonderfeld auf
+    JsonTypeDescriptor ist entfernt), die Leseseite ist generisch:
+    `getAnnotation(name).getValue()`. Instanzwerte (@-Keys an Objekten und
+    Feldern der Modellierung) bleiben unberuehrt; der editString-Validator
+    gilt fuer die @-Key-Form (ein-elementiges String-Array), @doc ist
+    davon ausgenommen.
 
 
 

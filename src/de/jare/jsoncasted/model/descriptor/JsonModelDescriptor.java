@@ -458,15 +458,17 @@ public class JsonModelDescriptor {
     }
 
     /**
-     * Adopts the editString display templates from the raw description tree (annotation concept). The cast based
-     * parse is field driven and therefore blind for {@code @} keys, so the templates ride the raw node tree: each
-     * type entry with a single element {@code @editString} string array hands its template to the matching type
-     * descriptor. Entries with zero or multiple elements are skipped here - the editor validation reports them.
+     * Adopts the annotation values from the raw description tree (annotation concept, decision 13). The cast based
+     * parse is field driven and blind for {@code @} keys, so the values ride the raw node tree: every @ key on a
+     * described type entry or field entry hands its value to the matching annotation declaration of the descriptor -
+     * array elements joined line by line (javadoc style, a multi line @doc reads as several elements), an inline
+     * string counts as its single line. Without a declaration the adoption creates one, so a hand edited value
+     * reaches a silent model too.
      *
      * @param rawDescription the raw root node of a description file, or {@code null}
-     * @return the number of adopted templates
+     * @return the number of adopted values
      */
-    public int adoptEditStrings(JsonNode rawDescription) {
+    public int adoptAnnotationValues(JsonNode rawDescription) {
         if (rawDescription == null || !rawDescription.isObject()) {
             return 0;
         }
@@ -480,37 +482,98 @@ public class JsonModelDescriptor {
             if (typeEntry == null || !typeEntry.isObject()) {
                 continue;
             }
-            final JsonNode annotationValue = typeEntry.asObjectValues()
-                    .get("@" + JsonAnnotation.EDIT_STRING);
-            final String template = singleEditTemplate(annotationValue);
-            if (template == null) {
+            final JsonTypeDescriptor type = getType(typeNameOf(entry.getKey(), typeEntry));
+            if (type == null) {
                 continue;
             }
-            final JsonTypeDescriptor type = getType(typeNameOf(entry.getKey(), typeEntry));
-            if (type != null) {
-                type.setEditString(template);
-                adopted++;
+            adopted += adoptValuesOf(type, typeEntry);
+            for (String listName : new String[]{"constructorParams", "fields"}) {
+                final JsonNode fieldEntries = typeEntry.asObjectValues().get(listName);
+                if (fieldEntries == null || !fieldEntries.isArray()) {
+                    continue;
+                }
+                for (JsonNode fieldEntry : fieldEntries.asArray()) {
+                    if (fieldEntry == null || !fieldEntry.isObject()) {
+                        continue;
+                    }
+                    final JsonFieldDescriptor field = type.getField(fieldNameOf(fieldEntry));
+                    if (field != null) {
+                        adopted += adoptValuesOf(field, fieldEntry);
+                    }
+                }
             }
         }
         return adopted;
     }
 
     /**
-     * Extracts the template of an editString annotation value: exactly one string element is a valid template, an
-     * inline string counts as its single element, everything else (zero, multiple, blank) is invalid and skipped.
+     * Adopts every @ key of one entry node onto the declarations of the carrier: the array elements joined line by
+     * line, or the inline string as its single line. A blank or empty value hands nothing over.
      *
-     * @param annotationValue the raw annotation value node, or {@code null}
-     * @return the template, or {@code null} when the value is invalid
+     * @param carrier the carrier holding the declarations (type or field descriptor)
+     * @param entryNode the raw entry node of the description
+     * @return the number of adopted values of this entry
      */
-    private static String singleEditTemplate(JsonNode annotationValue) {
-        if (annotationValue == null) {
-            return null;
+    private static int adoptValuesOf(de.jare.jsoncasted.model.item.JsonAnnotationCarrier carrier, JsonNode entryNode) {
+        int adopted = 0;
+        for (Map.Entry<String, JsonNode> param : entryNode.asObjectValues().entrySet()) {
+            final String key = param.getKey();
+            if (key == null || key.length() <= 1 || !key.startsWith("@")) {
+                continue;
+            }
+            final String annotationName = key.substring(1);
+            if (annotationName.isBlank()) {
+                continue;
+            }
+            final JsonNode value = param.getValue();
+            if (value == null) {
+                continue;
+            }
+            final String joined = value.isArray()
+                    ? joinLines(value.asArray())
+                    : textOrNull(value);
+            if (joined == null) {
+                continue;
+            }
+            de.jare.jsoncasted.model.item.JsonAnnotation declaration = carrier.getAnnotation(annotationName);
+            if (declaration == null) {
+                declaration = new de.jare.jsoncasted.model.item.JsonAnnotation(annotationName);
+                carrier.addAnnotation(declaration);
+            }
+            declaration.setValue(joined);
+            adopted++;
         }
-        if (annotationValue.isArray()) {
-            final List<JsonNode> values = annotationValue.asArray();
-            return values.size() == 1 ? textOrNull(values.get(0)) : null;
+        return adopted;
+    }
+
+    /**
+     * Joins the elements of an annotation value array line by line - the javadoc style value form of the description
+     * world. An empty array carries no value.
+     *
+     * @param values the raw array elements
+     * @return the joined lines, or {@code null} when the array is empty
+     */
+    private static String joinLines(List<JsonNode> values) {
+        final StringBuilder joined = new StringBuilder();
+        for (JsonNode next : values) {
+            final String text = next == null ? "" : next.asText();
+            if (joined.length() > 0) {
+                joined.append('\n');
+            }
+            joined.append(text == null ? "" : text);
         }
-        return textOrNull(annotationValue);
+        return joined.length() == 0 ? null : joined.toString();
+    }
+
+    /**
+     * Derives the field name of a described field entry: the fieldName entry of the raw node.
+     *
+     * @param fieldEntry the raw field entry node
+     * @return the field name, or {@code null} when the entry carries none
+     */
+    private static String fieldNameOf(JsonNode fieldEntry) {
+        final JsonNode name = fieldEntry.asObjectValues().get("fieldName");
+        return name == null ? null : name.asText();
     }
 
     /**

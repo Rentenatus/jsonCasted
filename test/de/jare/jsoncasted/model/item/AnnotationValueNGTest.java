@@ -5,10 +5,13 @@
  */
 package de.jare.jsoncasted.model.item;
 
+import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonParser;
 import de.jare.jsoncasted.io.convertservice.WoodResolution;
+import de.jare.jsoncasted.io.parserservice.JsonParserService;
 import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.builder.JsonStringBuilder;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
@@ -112,8 +115,9 @@ public class AnnotationValueNGTest {
     }
 
     /**
-     * The round trip through a description file: saveAs writes the declaration values into the annotations list, the
-     * parse reads them back - the reflected value field of the self description carries them in both directions.
+     * The round trip through a description file: the file form of a declaration value is the @ key on the carrier
+     * (type entry and field entry), never a structured attribute of the annotations list. The parse reads them back
+     * with the raw adoption - builder for the declarations, adoption for the values.
      */
     @Test
     public void testRoundTripThroughDescriptionFile() throws Exception {
@@ -123,17 +127,25 @@ public class AnnotationValueNGTest {
         descriptor.saveAs(file.getPath());
 
         final String content = Files.readString(file.toPath(), StandardCharsets.UTF_8);
-        assertTrue(content.contains("${profile}"), "the file carries the declaration value:\n" + content);
+        assertTrue(content.contains("@editString"), "the template rides as @ key on the type entry:\n" + content);
+        assertTrue(content.contains("@doc"), "the documentation rides as @ key:\n" + content);
+        assertFalse(content.contains("\"value\""),
+                "the annotations list stays art only, no structured value attribute:\n" + content);
 
         final JsonModelDescriptorDefinition definition = JsonModelDescriptorDefinition.getInstance();
         final WoodResolution resolution = JsonParser.parse(file, definition, definition.getRootClass());
         final JsonModelDescriptor parsed = (JsonModelDescriptor) JsonBuilder.buildInstance(
                 definition.getModel(), false, resolution.getAnswer());
+        final JsonResource raw = JsonParserService.parse(file, JsonDebugLevel.SIMPLE);
+        parsed.adoptAnnotationValues(raw.getRoot());
 
         assertEquals(parsed.getType(PROFILE_TYPE).getAnnotation(JsonAnnotation.EDIT_STRING).getValue(),
-                "${profile}", "the parse returns the template of the declaration");
+                "${profile}", "the adoption returns the template of the type entry");
         assertEquals(parsed.getType(PROFILE_TYPE).getAnnotation(JsonAnnotation.DOC).getValue(),
-                "This is a profile.", "the parse returns the documentation of the declaration");
+                "This is a profile.", "the adoption returns the documentation of the type entry");
+        assertEquals(parsed.getType(PROFILE_TYPE).getField("profile")
+                        .getAnnotation(JsonAnnotation.DOC).getValue(), "Name of the profile.",
+                "the adoption returns the documentation of the field entry");
     }
 
     /**

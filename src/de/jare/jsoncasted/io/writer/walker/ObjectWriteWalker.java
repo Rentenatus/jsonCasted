@@ -18,6 +18,8 @@ import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonLongObjBuilder;
 import de.jare.jsoncasted.model.builder.JsonStringBuilder;
+import de.jare.jsoncasted.model.item.JsonAnnotation;
+import de.jare.jsoncasted.model.item.JsonAnnotationCarrier;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
@@ -197,6 +199,21 @@ public class ObjectWriteWalker {
             }
             hasFieldKeys = hasFieldKeys || isFollowing;
 
+            // Annotation values (annotation concept, decision 13): a carrier emits its valued annotation
+            // declarations as @ keys - the file form of a declaration value is the @ key on the carrier, never a
+            // structured attribute of the annotations list. Lines of the value become the array elements.
+            if (ob instanceof JsonAnnotationCarrier carrier) {
+                for (JsonAnnotation annotation : carrier.getAnnotations()) {
+                    final String annotationValue = annotation.getValue();
+                    if (annotationValue == null || annotationValue.isBlank()) {
+                        continue;
+                    }
+                    strategy.writeAttrName(jClass, isFollowing, "@" + annotation.getName(), iString);
+                    writeAnnotationValue(annotationValue, iString);
+                    isFollowing = true;
+                }
+            }
+
             List< GetterFieldInfo> fieldInfos = objectGetter.extractFields(jClass, ob);
             for (GetterFieldInfo fieldInfo : fieldInfos) {
                 Object attr = fieldInfo.getAttribute();
@@ -336,6 +353,28 @@ public class ObjectWriteWalker {
      * @param definitionalOwner The owner object of the list.
      * @param iString The indentation string for formatted output.
      */
+    /**
+     * Writes the value of an annotation declaration as a string array: the lines of the declaration value become the
+     * elements, javadoc style - a multi line documentation reads as several elements, an editString template as one.
+     *
+     * @param annotationValue the declaration value
+     * @param iString the indentation string for formatted output
+     */
+    private void writeAnnotationValue(String annotationValue, WriteNodePath iString) {
+        final String[] lines = annotationValue.split("\n", -1);
+        strategy.writeStartArray(JSON_CLASS_STRING, null, true, iString);
+        try {
+            for (int i = 0; i < lines.length; i++) {
+                if (i > 0) {
+                    strategy.writeArraySeparator(true, iString);
+                }
+                strategy.writePrimitive(JSON_CLASS_STRING, lines[i], iString);
+            }
+        } finally {
+            strategy.writeEndArray(null, true, true, iString);
+        }
+    }
+
     protected void writeList(JsonType jTypeItem, Object attr, JsonField jField, Object definitionalOwner, WriteNodePath iString) {
         ListWriteWalker reWriter = new ListWriteWalker(
                 strategy,
