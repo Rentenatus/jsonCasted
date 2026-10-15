@@ -93,6 +93,31 @@ public class WoodListSharingNGTest {
         assertEquals(box.getRight(), java.util.Arrays.asList("a", "b"));
     }
 
+    /**
+     * An empty definition is the identity carrier of an empty shared list: {@code <"258">[]} carries the id, a bare
+     * stub at another field shares the same empty instance.
+     */
+    @Test
+    public void testEmptyDefinitionAndStubShare() throws Exception {
+        final JsonObject answer = parseAnswer("{ \"left\": <\"258\">[], \"right\": <\"258\"> }");
+        final JsonItem left = answer.getParam("left");
+        assertSame(left, answer.getParam("right"), "the stub must share the empty definition instance");
+        assertTrue(left instanceof JsonList);
+        assertEquals(((JsonList) left).listSize(), 0);
+    }
+
+    /**
+     * The bare stub before the empty definition: the resolution loop pre-converts the definition, so the sharing
+     * works no matter which side comes first.
+     */
+    @Test
+    public void testStubBeforeEmptyDefinitionShare() throws Exception {
+        final JsonObject answer = parseAnswer("{ \"right\": <\"258\">, \"left\": <\"258\">[] }");
+        final JsonItem left = answer.getParam("left");
+        assertSame(left, answer.getParam("right"), "the stub before the empty definition must share too");
+        assertEquals(((JsonList) left).listSize(), 0);
+    }
+
     private JsonObject parseAnswer(String json) throws Exception {
         final WoodResolution resolution = JsonParser.parse(json, descriptor(), rootName(), JsonDebugLevel.SIMPLE);
         assertNotNull(resolution.getAnswer(), "the answer must exist");

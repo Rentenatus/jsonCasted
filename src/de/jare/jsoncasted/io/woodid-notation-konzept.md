@@ -337,7 +337,41 @@ die Notation.
   (Default-Politik), EQUALS als 3b nachschieben — SAME allein macht das Feature
   nutzbar.
 
-## 11. Offene Punkte
+## 11. JsonWoodIdLevel (Writer-Regler, analog JsonCastingLevel)
+
+Wie der `JsonCastingLevel` steuert, wann der Writer Cast-Notation schreibt, steuert der
+`JsonWoodIdLevel` (`de.jare.jsoncasted.io.JsonWoodIdLevel`), wann und in welcher Form
+Wood-Ids geschrieben werden. Er haengt an der `JsonItemDefinition`
+(`getWoodIdLevel()`, Default `NECESSARY`) und reist ueber den `DefinitionsContext`
+durch die Walkers — die interne Faedelung laeuft ueber den Kontext statt ueber
+Walker-Parameter, weil jeder Walker den Kontext ohnehin haelt.
+
+| Level | Listen (`with(Same|Equals)Collection`) | Objekt-Identitaeten |
+|---|---|---|
+| `NEVER(0)` | Politik wird **ignoriert**: kein `<>`, jede Liste inline (Mehrfachreferenz = Duplikat) | unberuehrt: `_woodObjectId`-Member + `_woodLink` (strict-JSON-Fallback, Referenzen brechen sonst) |
+| `NECESSARY(5)` (Default) | geteilte Liste = `<"id">[...]` Definition + bare `<"id">` Referenz | Definition mit `_woodObjectId`-Member, Referenz als `_woodLink`-Stub (`self::N`) |
+| `PREFIXED(7)` | wie `NECESSARY` | Definition mit `(Cast)<"id">`-Praefix (ohne Member), Referenz **bare** `<"id">` statt Stub |
+
+Details:
+
+- `NEVER` greift **vor** der Vorkommens-Zaehlung im `ObjectCircleScannerWalker`:
+  es werden schlicht keine Occurrences notiert — die Feld-Annotationen bleiben
+  unangetastet, wirken aber nicht.
+- `PREFIXED` schreibt den Praefix zwischen Cast und `{` (Grammatik
+  `(Cast)<"id">{`): `WriteStrategy.writeStartObject` hat dafuer eine zusaetzliche
+  `woodIdPrefix`-Ueberladung, `PrintStrategy` implementiert sie, alle anderen
+  Strategien erben die delegierende Default-Methode (Trockendurchlauf schreibt
+  weiterhin nichts).
+- Bare Referenzen nur bei **lokaler** Identitaet (`isLocalRepositoryKey`: kein
+  Record-Key oder generiertes `self::N`) — Cross-Resource-Keys (`save::56` etc.)
+  behalten die `_woodLink`-Member-Form, sie adressieren eine andere Resource.
+- Item-Writer (`JsonItemWriter`/`ItemWriteWalker`, woodKey-Mechanik) ist bewusst
+  **nicht** erfasst; der Level gilt fuer den Objekt-Writer.
+- Offene Erweiterung: ein vierter Level `ALWAYS` (Ids auch bei einfachem
+  Vorkommen) waere an `scanObject`/`writeListAsSharedReference` anschliessbar,
+  bislang nicht vorgesehen.
+
+## 12. Offene Punkte
 
 - `(Cast)[...]` vor Arrays: bewusst **nicht vorgesehen** — Casts in Listen laufen ueber
   die Elemente (`[(Cast){...}, ...]`, heutiges Verhalten). Bei langen Listen waere ein

@@ -124,6 +124,7 @@ public class JsonObjectWriter {
             out = new FileOutputStream(fileObject);
             final DefinitionsContext definitionsContext = new DefinitionsContext(definition.getModel(),
                     fileModel.getAbsolutePath());
+            definitionsContext.setWoodIdLevel(definition.getWoodIdLevel());
             write(ob, out, definitionsContext, definition.getCastingLevel(), root, JsonDebugLevel.SIMPLE);
             out.close();
         } catch (FileNotFoundException ex) {
@@ -205,6 +206,7 @@ public class JsonObjectWriter {
     public static void write(Object ob, OutputStream out, JsonItemDefinition definition, JsonClass root)
             throws IOException, JsonParseException, JsonWriteException {
         final DefinitionsContext definitionsContext = new DefinitionsContext(definition.getModel(), null);
+        definitionsContext.setWoodIdLevel(definition.getWoodIdLevel());
         write(ob, out, definitionsContext, definition.getCastingLevel(), root, JsonDebugLevel.SIMPLE);
     }
 
@@ -223,6 +225,7 @@ public class JsonObjectWriter {
     public static void write(Object ob, OutputStream out, JsonItemDefinition definition, JsonClass root,
             JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
         final DefinitionsContext definitionsContext = new DefinitionsContext(definition.getModel(), null);
+        definitionsContext.setWoodIdLevel(definition.getWoodIdLevel());
         write(ob, out, definitionsContext, definition.getCastingLevel(), root, debugLevel);
     }
 

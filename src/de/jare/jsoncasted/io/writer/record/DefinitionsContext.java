@@ -5,6 +5,7 @@
  */
 package de.jare.jsoncasted.io.writer.record;
 
+import de.jare.jsoncasted.io.JsonWoodIdLevel;
 import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.item.JsonClass;
@@ -23,6 +24,10 @@ public class DefinitionsContext {
 
     private final JsonModel model;
     private final String modelFile;
+
+    // Wood id policy of this write session: NEVER ignores the collection sharing policies, PREFIXED moves object
+    // identities into the angle bracket notation. Analog to the casting level of the write call.
+    private JsonWoodIdLevel woodIdLevel = JsonWoodIdLevel.NECESSARY;
 
     // Atomic counter for generating unique IDs within this context.
     private final AtomicLong idCounter;
@@ -62,6 +67,27 @@ public class DefinitionsContext {
 
     public String getModelFile() {
         return modelFile;
+    }
+
+    /**
+     * Returns the wood id policy of this write session.
+     *
+     * @return the JsonWoodIdLevel, never null (defaults to NECESSARY).
+     */
+    public JsonWoodIdLevel getWoodIdLevel() {
+        return woodIdLevel;
+    }
+
+    /**
+     * Sets the wood id policy of this write session. The entry points of the object writer call this with the level
+     * of the item definition before the walk starts.
+     *
+     * @param woodIdLevel the JsonWoodIdLevel to use, null is ignored.
+     */
+    public void setWoodIdLevel(JsonWoodIdLevel woodIdLevel) {
+        if (woodIdLevel != null) {
+            this.woodIdLevel = woodIdLevel;
+        }
     }
 
     /**

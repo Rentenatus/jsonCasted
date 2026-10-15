@@ -77,7 +77,8 @@ public class ImplTestDefinition implements JsonItemDefinition {
         testBox = model.newJsonReflect(TestBox.class);
         testBox.addField("subsub", valueString);
         testBox.addField("one", valueIx);
-        testBox.addField("list", valueIx, LIST);
+        testBox.addField("list", valueIx, LIST).withEqualsCollection(true);
+        testBox.addField("list2", valueIx, LIST).withEqualsCollection(true);
         testBox.addField("arr", valueIx, ARRAY);
         testBox.withSkippingNulls(true);
 

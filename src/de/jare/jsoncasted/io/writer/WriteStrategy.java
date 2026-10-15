@@ -57,6 +57,24 @@ public interface WriteStrategy {
     public void writeStartObject(JsonClass jClassOrNull, Object ob, JsonField parentField, Object parent, boolean needsCast, boolean needsClassDef, WriteNodePath iString);
 
     /**
+     * Writes the start of a JSON object with a wood id prefix, the PREFIXED level form of an object definition:
+     * the cast comes first, then the id, then the opening brace - {@code (Cast)<"id">{}. A negative id writes the
+     * plain start object.
+     *
+     * @param jClassOrNull the JSON class being written, or null if not applicable
+     * @param ob the object being serialized
+     * @param parentField the parent field containing this object, or null if this is a root object
+     * @param parent the parent object, or null if this is a root object
+     * @param needsCast whether the object requires type casting
+     * @param needsClassDef whether the class definition needs to be written
+     * @param woodIdPrefix the local wood id to write in front of the object, or a negative value for none
+     * @param iString the indentation path for formatted output
+     */
+    default public void writeStartObject(JsonClass jClassOrNull, Object ob, JsonField parentField, Object parent, boolean needsCast, boolean needsClassDef, long woodIdPrefix, WriteNodePath iString) {
+        writeStartObject(jClassOrNull, ob, parentField, parent, needsCast, needsClassDef, iString);
+    }
+
+    /**
      * Writes the start of a JSON array.
      *
      * @param jTypeOrNull the JSON type of array elements, or null if not applicable

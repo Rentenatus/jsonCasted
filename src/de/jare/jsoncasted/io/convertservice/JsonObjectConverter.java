@@ -240,16 +240,21 @@ public class JsonObjectConverter {
         }
 
         final JsonTypeDescriptor childType = service.getType(field.getTypeName());
-        // Enrich _class field for child nodes if missing and type is concrete
-        if (childNode.isObject() && childNode.asObjectValues().get(TERM_CLASS) == null && childType != null) {
-            // Only enrich for concrete types  
-            if (!childType.isPrimitive()) {
-                childNode.asObjectValues().put(TERM_CLASS, JsonNode.stringNode(childType.getTypeName()));
-            }
-        }
         final JsonTypeDescriptor castedChildType = castOrGet(childType, childNode.asObjectValues(), paramName);
         if (castedChildType == null) {
             return;
+        }
+
+        // Enrich _class with the resolved concrete type, mirroring the writer: the writer emits _class for the
+        // concrete cast, so the parse side fills it in when the file leaves it out. This must happen AFTER the
+        // cast resolution - a _class with the declared type would be read as an explicit cast and could be a
+        // rejected interface name. A map node has keys instead of members - writing _class into it would create
+        // a bogus map key that later builds into a broken entry.
+        if (childNode.isObject() && childNode.asObjectValues().get(TERM_CLASS) == null
+                && castedChildType.getMappingAllFields() == null) {
+            if (!castedChildType.isPrimitive()) {
+                childNode.asObjectValues().put(TERM_CLASS, JsonNode.stringNode(castedChildType.getTypeName()));
+            }
         }
 
         JsonItem paramObject = field.isAsListOrArray()

@@ -131,7 +131,8 @@ public class WoodIdNotationNGTest {
                 + " \"b\": { \"_woodObjectId\": \"56\", \"x\": 2 } }").getLinkingSet();
         assertTrue(links.hasWarnings(), "the old member form must warn too");
         assertEquals(links.getObjectIdMap().size(), 1);
-        assertEquals(links.getObjectIdMap().get("self::56").getNode().asObjectValues().get("x"), 1L);
+        Long one = 1L;
+        assertEquals(links.getObjectIdMap().get("self::56").getNode().asObjectValues().get("x").asLong(), one);
     }
 
     /**
