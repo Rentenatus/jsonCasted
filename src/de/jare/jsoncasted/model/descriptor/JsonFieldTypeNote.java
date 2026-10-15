@@ -114,7 +114,8 @@ public class JsonFieldTypeNote {
     }
 
     /**
-     * Returns the content equality policy of this field: lists with equal content share one wood id. Default is
+     * Returns the content equality policy of this field: lists that are component-wise identical - same size first,
+     * then element by element: primitives by value, objects by instance - share one wood id. Default is
      * {@code false}.
      *
      * @return true when equal collections share one wood id.
@@ -125,7 +126,7 @@ public class JsonFieldTypeNote {
 
     /**
      * Sets the content equality policy of this field. It wins over the instance identity policy: identical
-     * instances are also equal.
+     * instances are also component-wise identical.
      *
      * @param equalsCollection whether equal collections share one wood id.
      */

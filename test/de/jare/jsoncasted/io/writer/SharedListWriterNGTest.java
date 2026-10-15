@@ -22,10 +22,11 @@ import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
 /**
- * Round trip of the collection sharing policy (withSameCollection, the default): a list instance that hangs at two
- * fields is written once as a wood identified definition ({@code <"id">[...]}) and once as a bare id reference
- * ({@code <"id">}), and the parser restores the sharing. Plain lists stay plain, an empty shared list survives
- * skippingEmpty.
+ * Round trip of the collection sharing policies: withSameCollection (the default) writes a list instance that hangs
+ * at two fields once as a wood identified definition ({@code <"id">[...]}) and once as a bare id reference
+ * ({@code <"id">}); withEqualsCollection extends the sharing to component-wise identical lists - same size first,
+ * then element by element: primitives by value, objects by instance. Plain lists stay plain, an empty shared list
+ * survives skippingEmpty.
  *
  * @author Janusch Rentenatus
  */
@@ -100,12 +101,60 @@ public class SharedListWriterNGTest {
         assertFalse(json.contains("<\""), "the opt-out must keep plain arrays: " + json);
     }
 
+    /**
+     * The equals policy merges two different instances with component-wise identical content into one shared list.
+     */
+    @Test
+    public void testEqualsPolicyMergesIdenticalComponents() throws Exception {
+        final SharedBox box = new SharedBox();
+        box.setLeft(new java.util.ArrayList<>(java.util.Arrays.asList("a", "b")));
+        box.setRight(new java.util.ArrayList<>(java.util.Arrays.asList("a", "b")));
+
+        final String json = write(box, true, true);
+        assertTrue(json.contains("<\""), "equal content must share one id: " + json);
+        assertTrue(json.matches("(?s).*<\"\\d+\">\\s*\\[.*"), "the first occurrence writes the definition: " + json);
+
+        final JsonObject answer = parseAnswer(json);
+        assertSame(answer.getParam("left"), answer.getParam("right"),
+                "the round trip merges both instances into one shared list");
+    }
+
+    /**
+     * The equals policy leaves lists with different component content as plain lists.
+     */
+    @Test
+    public void testEqualsPolicyKeepsDifferentContentPlain() throws Exception {
+        final SharedBox box = new SharedBox();
+        box.setLeft(new java.util.ArrayList<>(java.util.Arrays.asList("a")));
+        box.setRight(new java.util.ArrayList<>(java.util.Arrays.asList("b")));
+
+        final String json = write(box, true, true);
+        assertFalse(json.contains("<\""), "different content must stay plain: " + json);
+    }
+
+    /**
+     * The size comparison comes first: a prefix of the other list is not identical.
+     */
+    @Test
+    public void testEqualsPolicyComparesSizeFirst() throws Exception {
+        final SharedBox box = new SharedBox();
+        box.setLeft(new java.util.ArrayList<>(java.util.Arrays.asList("a", "b")));
+        box.setRight(new java.util.ArrayList<>(java.util.Arrays.asList("a")));
+
+        final String json = write(box, true, true);
+        assertFalse(json.contains("<\""), "a shorter list is not component-wise identical: " + json);
+    }
+
     private String write(SharedBox box) throws Exception {
         return write(box, true);
     }
 
     private String write(SharedBox box, boolean sameCollection) throws Exception {
-        final JsonModel model = model(sameCollection);
+        return write(box, sameCollection, false);
+    }
+
+    private String write(SharedBox box, boolean sameCollection, boolean equalsCollection) throws Exception {
+        final JsonModel model = model(sameCollection, equalsCollection);
         final JsonItemDefinition definition = new JsonItemDefinition() {
             @Override
             public JsonModel getModel() {
@@ -121,20 +170,20 @@ public class SharedListWriterNGTest {
     }
 
     private JsonObject parseAnswer(String json) throws Exception {
-        final JsonModel model = model(true);
+        final JsonModel model = model(true, false);
         final WoodResolution resolution = JsonParser.parse(json, model.getOrCreateDescriptor(),
                 model.getRootNodeCast(), JsonDebugLevel.SIMPLE);
         assertNotNull(resolution.getAnswer());
         return (JsonObject) resolution.getAnswer();
     }
 
-    private JsonModel model(boolean sameCollection) {
+    private JsonModel model(boolean sameCollection, boolean equalsCollection) {
         final JsonModel model = new JsonModel("woodShareWrite");
         model.addBasicModel();
         final JsonClass asString = model.getJsonClass("String");
         final JsonClass holder = model.newJsonReflect(SharedBox.class);
-        holder.addField("left", asString, LIST).withSameCollection(sameCollection);
-        holder.addField("right", asString, LIST).withSameCollection(sameCollection);
+        holder.addField("left", asString, LIST).withSameCollection(sameCollection).withEqualsCollection(equalsCollection);
+        holder.addField("right", asString, LIST).withSameCollection(sameCollection).withEqualsCollection(equalsCollection);
         model.setRootNodeCast(holder.getcName());
         return model;
     }

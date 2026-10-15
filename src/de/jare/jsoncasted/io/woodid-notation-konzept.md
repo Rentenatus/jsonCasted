@@ -1,6 +1,6 @@
 # Konzept: Wood-Id-Notation `<"id">` fuer Objekte und Arrays
 
-**Status**: Phase 1-5 umgesetzt auf Branch `feature/arrWoodId` (jsonCasted 945bd82/4603082/7293625, jsonCasted_edit ded4693, WoodJsonJack cb776e8). Offen: EQUALS-Politik (3b, Vergleichsbasis serialisierte Projektion), edit-seitige Duplikat-Warnung (siehe Kap. 6).
+**Status**: Phase 1-5 umgesetzt auf Branch `feature/arrWoodId` (jsonCasted 945bd82/4603082/7293625, jsonCasted_edit ded4693, WoodJsonJack cb776e8). Offen: edit-seitige Duplikat-Warnung (siehe Kap. 6).
 **Betroffene Projekte**: `jsonCasted` (Parser, Writer, Konvertierung), `jsonCasted_edit` (Edit-Knoten, LinkingSet, TreeWriter), `WoodJsonJack` (Collection-Editor, Fields-Pane).
 **Abhaengigkeiten**: `CastingParser`, `ListParser`, `ObjectParser`, `JsonNode`, `JsonTerms`, `WoodIdFinder`, `JsonObjectConverter`/`JsonNodeConverter`, `WoodElementResolver`, `DefinitionsContext`, `JsonFieldTypeNote`, `EditNodePropertyArr`, `EditNodeObject`, `EditLinkingSet`, `JsonTreeConverter`, `EditTreeWriter`, `JsonJackCollectionEditorDialog`.
 
@@ -174,15 +174,15 @@ Zwei Feld-Flags (in `JsonFieldTypeNote`, neben `asList`/`asArray`):
 | Flag-Auspraegung | Bedeutung | Vergleich |
 |---|---|---|
 | **Default: `withSameCollection`** (nicht gesetzt oder `true`) | Instanz-Teilung ist Normalverhalten (wie bei Objekten): dieselbe List-Instanz an N Stellen → erste = Definition mit `<"id">`, weitere = Stubs. Einzelne, ungeteilte Vorkommen bleiben plain `[...]` | Java `==` |
-| `withEqualsCollection` (`true`) | **Inhalt-Gleichheit**: auch verschiedene Instanzen mit gleichem Inhalt bekommen dieselbe Id. Gewinnt immer ueber SAME — identische Instanzen sind auch gleich | Java `equals()` |
+| `withEqualsCollection` (`true`) | **Komponentenweise Identitaet**: Listen, die komponentenweise identisch sind, bekommen dieselbe Id — zuerst der Size-Vergleich, dann Element fuer Element: Primitive nach Wert, Objekte nach Instanz. Gewinnt immer ueber SAME — identische Instanzen sind auch komponentenweise identisch | Size + komponentenweise |
 
 - **Kein OFF-Schalter**: Nicht-geteilte Listen bekommen keine Id und bleiben plain
   Arrays; strict-JSON bleibt also erreichbar, solange keine Liste geteilt ist. Sollte
   ein Feld explizit nie Ids bekommen duerfen, waere ein OFF nachzutragen (offen, Kap. 11).
 
-- **Gegenbasis fuer EQUALS ist die serialisierte Projektion**, nicht Java-`equals()` der
-  In-Memory-Listen: Objekt-Elemente mit derselben woodId vergleichen damit automatisch
-  richtig; Java-`equals()` auf Modellinstanzen waere zerbrechlich.
+- **Gegenbasis fuer EQUALS ist die komponentenweise Identitaet** (Size-Vergleich zuerst, dann Element fuer
+  Element: Primitive nach Wert, Objekte nach Instanz), nicht Java-`equals()` auf Modellinstanzen — das waere
+  zerbrechlich. **Umgesetzt in Phase 3b.**
 - **Semantische Konsequenz von EQUALS ist eine Normalisierung**: zwei blosse „gleiche"
   Listen verschmelzen beim Round-Trip zu EINER geteilten Instanz — Live-Sharing entsteht
   also erst nach dem erneuten Laden. SAME aendert am Instanzbestand nichts.

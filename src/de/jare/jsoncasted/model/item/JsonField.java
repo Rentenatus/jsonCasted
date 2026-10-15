@@ -322,8 +322,9 @@ public class JsonField {
     }
 
     /**
-     * Returns the content equality policy for this list field: lists with equal content are written with the same
-     * wood id, merging distinct instances into one shared instance after a round trip. Default is {@code false}.
+     * Returns the content equality policy for this list field: lists that are component-wise identical share one
+     * wood id - same size first, then element by element: primitives by value, objects by instance. Default is
+     * {@code false}.
      *
      * @return true when equal collections share one wood id.
      */
@@ -333,7 +334,8 @@ public class JsonField {
 
     /**
      * Declares the content equality policy for this list field. It wins over {@link #withSameCollection(boolean)}:
-     * identical instances are also equal. The comparison basis is the serialized projection.
+     * identical instances are also component-wise identical. The comparison is component-wise - the size leads,
+     * then every element: primitives by value, objects by instance identity.
      *
      * @param equalsCollection whether equal collections share one wood id.
      * @return this field, for a fluent declaration.

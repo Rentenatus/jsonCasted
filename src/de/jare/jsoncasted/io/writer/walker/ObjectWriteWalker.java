@@ -419,7 +419,7 @@ public class ObjectWriteWalker {
      */
     private boolean writeListAsSharedReference(Object attr, JsonField jField, WriteNodePath iString) {
         if (strategy instanceof DefinitionalStrategy || jField == null
-                || !jField.isSameCollection() || !(attr instanceof List)) {
+                || !(jField.isSameCollection() || jField.isEqualsCollection()) || !(attr instanceof List)) {
             return false;
         }
         if (jField.getKind() != null && jField.getKind().isOwned()) {

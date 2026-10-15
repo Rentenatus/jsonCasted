@@ -209,9 +209,14 @@ public class ObjectCircleScannerWalker {
 
             if (fieldValue != null) {
                 // Collection sharing policy: count the occurrences of list instances under sharing enabled
-                // fields, so the writer can turn repeated instances into one definition with references.
+                // fields, so the writer can turn repeated instances into one definition with references. The
+                // equals policy wins over the instance policy: equal content groups instead of instances.
                 if (jsonField.isAsListOrArray() && jsonField.isSameCollection() && fieldValue instanceof List) {
-                    definitionsContext.noteListOccurrence(fieldValue);
+                    if (jsonField.isEqualsCollection()) {
+                        definitionsContext.noteEqualsListOccurrence(fieldValue);
+                    } else {
+                        definitionsContext.noteListOccurrence(fieldValue);
+                    }
                 }
 
                 JsonType fieldType = jsonField.getjType();
