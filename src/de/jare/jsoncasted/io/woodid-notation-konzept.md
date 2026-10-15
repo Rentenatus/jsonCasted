@@ -171,11 +171,14 @@ per LinkingSet aktualisiert (eine Trefferstelle wird zur Schleife, wie bei Objek
 
 Zwei Feld-Flags (in `JsonFieldTypeNote`, neben `asList`/`asArray`):
 
-| Flag | Bedeutung | Vergleich |
+| Flag-Auspraegung | Bedeutung | Vergleich |
 |---|---|---|
-| (keines, Default) | Liste bekommt keine Id, Ausgabe bleibt strict-JSON | — |
-| `withSameCollection` | **Instanz-Identitaet** (`==`): dieselbe List-Instanz an N Stellen → eine Definition mit `<"id">`, N-1 Stubs. Treu am Instanzbestand | Java `==` |
-| `withEqualsCollection` | **Inhalt-Gleichheit**: auch verschiedene Instanzen mit gleichem Inhalt bekommen dieselbe Id. Obermenge von SAME — identische Instanzen sind auch gleich | Java `equals()` |
+| **Default: `withSameCollection`** (nicht gesetzt oder `true`) | Instanz-Teilung ist Normalverhalten (wie bei Objekten): dieselbe List-Instanz an N Stellen → erste = Definition mit `<"id">`, weitere = Stubs. Einzelne, ungeteilte Vorkommen bleiben plain `[...]` | Java `==` |
+| `withEqualsCollection` (`true`) | **Inhalt-Gleichheit**: auch verschiedene Instanzen mit gleichem Inhalt bekommen dieselbe Id. Gewinnt immer ueber SAME — identische Instanzen sind auch gleich | Java `equals()` |
+
+- **Kein OFF-Schalter**: Nicht-geteilte Listen bekommen keine Id und bleiben plain
+  Arrays; strict-JSON bleibt also erreichbar, solange keine Liste geteilt ist. Sollte
+  ein Feld explizit nie Ids bekommen duerfen, waere ein OFF nachzutragen (offen, Kap. 11).
 
 - **Gegenbasis fuer EQUALS ist die serialisierte Projektion**, nicht Java-`equals()` der
   In-Memory-Listen: Objekt-Elemente mit derselben woodId vergleichen damit automatisch
@@ -183,8 +186,8 @@ Zwei Feld-Flags (in `JsonFieldTypeNote`, neben `asList`/`asArray`):
 - **Semantische Konsequenz von EQUALS ist eine Normalisierung**: zwei blosse „gleiche"
   Listen verschmelzen beim Round-Trip zu EINER geteilten Instanz — Live-Sharing entsteht
   also erst nach dem erneuten Laden. SAME aendert am Instanzbestand nichts.
-- **Beide Flags gesetzt**: EQUALS gewinnt (tolerante Loesung); alternativ waere ein
-  Modellfehler denkbar (offen, Kap. 11).
+- **Beide Flags gesetzt** (`withEqualsCollection=true`): EQUALS gewinnt (tolerante
+  Loesung); alternativ waere ein Modellfehler denkbar (offen, Kap. 11).
 - **Reine Writer-Politik**: Die Leseseite ignoriert die Flags — `<"id">` im File erzeugt
   Teilung immer, egal wie sie entstanden ist.
 - **Modell-des-Modells**: Die Flags sind Feld-Eigenschaften und damit automatisch im
@@ -247,22 +250,89 @@ Zwei Feld-Flags (in `JsonFieldTypeNote`, neben `asList`/`asArray`):
 | Identitaetsvergabe „welche Liste ist geteilt" | im Modell geloest: Feld-Politik `withSameCollection`/`withEqualsCollection` (Kap. 5.1); Restaufgabe ist die DefinitionsContext-Implementierung |
 | EQUALS verschmilzt „gleiche" Listen beim Round-Trip zu einer Instanz | bewusste Normalisierung; wer Treue will, nimmt SAME |
 
-## 10. Reihenfolge (schrittweise, Test + Commit pro Phase)
+## 10. Plan (Vibe Coding) und Aufwandsschaetzung
 
-1. **Phase 1 — Parser** (jsonCasted): `WoodIdParser`, Dispatch, `JsonNode`-Id-Feld,
-   `WoodIdFinder` inkl. Duplikat-Warning fuer neue UND alte Id-Form. TestNG:
-   Notation parsen, Normalisierung quoted/unquoted, Duplikat-Warnung, Round-Trip Knoten↔Text.
-2. **Phase 2 — Konvertierung** (jsonCasted): List-Instanzen als Resolution-Ziele,
-   bare Id an Listenfeld loest auf. Tests mit geteilter Liste (Java-Objektebene).
-3. **Phase 3 — Writer** (jsonCasted): `JsonFieldTypeNote`-Flags
-   `withSameCollection`/`withEqualsCollection`, DefinitionsContext-Politik fuer Listen,
-   Ausgabe `<"id">[...]`, leere geteilte Liste. Round-Trip-Tests Datei→Objekt→Datei
-   (inkl. SAME: Instanz-Teilung; EQUALS: Verschmelzung gleicher Listen).
-4. **Phase 4 — Edit-Ebene** (jsonCasted_edit): EditNodeAbstract-Identitaet,
-   EditLinkingSet-Verbreiterung, JsonTreeConverter, EditTreeWriter. Tests analog
-   SoftParseNGTest (Baum laedt Ids, Writer emittiert sie zurueck).
-5. **Phase 5 — UI** (WoodJsonJack): Collection-Editor-Kandidaten, Fields-Pane-Stub,
-   Warnungsanzeige. Interaktiver Nutzertest.
+Arbeitsmodus: **eine Phase = eine Coding-Session** — implementieren, TestNG-Suite gruen,
+Commit (Commit-Nachrichten Englisch), weiter. Jede Phase beruehrt nur ihr Projekt;
+Vorher-Nachher nicht mischen. Gesamtaufwand: **ca. 4–6 Arbeitstage, rund 5 Sessions**.
+
+### Phase 1 — Parser-Notation (jsonCasted) — ca. 1 Tag
+
+**Ziel**: `<"id">` vor `{` und `[`, bare `<"id">` als Stub, Id-Normalisierung,
+Duplikat-Warning fuer neue UND alte Id-Form.
+
+- Dateien: `CastingParser` (Cast+Id kombinieren, `<id>` nach `)` zulassen),
+  neu `WoodIdParser` (analog `CastingParser`), `ObjectParser`/`ListParser`/`RootParser`
+  (Dispatch an allen Wertpositionen, Reihenfolge Cast→Id), `JsonNode` (Id- und
+  Link-Feld am Knoten, arrays bedienbar), `WoodIdFinder` (Array-Registrierung,
+  Duplikat-Warning statt stillmachtigem `put`), `LinkingSet` (Warning-Aufnahme).
+- Tests (TestNG): `(Profile)<"56">{...}` → `_class` + `_woodObjectId`-Member;
+  `<"56">{...}` / `<"56">[...]` / bare `<"56">` an Objekt- und Listenfeld;
+  quoted vs unquoted; `<"save::56">` cross-resource; `::` auf Definitionsseite →
+  ParseException; Duplikat-Id neue Form + alte Member-Form → Warning, erster gewinnt.
+- **Done**: Suite gruen; Round-Trip Knoten ↔ Text haelt die Id.
+
+### Phase 2 — Konvertierung (jsonCasted) — ca. 1 Tag
+
+**Ziel**: geteilte Listen werden zu geteilten Java-Instanzen.
+
+- Dateien: `JsonObjectConverter`/`JsonNodeConverter` (`convertArray`), `WoodElementResolver`,
+  `WoodProxyResolver` (List-Pfad), `findResolvedKey` (Array-Knoten mit Id als Treffer).
+- Tests: zwei Felder mit derselben Id → dieselbe `List`-Instanz (Live-Teilung auf
+  Java-Ebene nachweisen); bare Id an `isAsListOrArray()`-Feld loest auf.
+- **Done**: Deserialisierung erzeugt echte Instanz-Teilung.
+
+### Phase 3 — Writer + Feld-Politik (jsonCasted) — ca. 1–2 Tage (groesster Brocken)
+
+**Ziel**: DefinitionsContext vergibt Listen-Ids nach Modell-Politik, Writer emittiert
+die Notation.
+
+- Dateien: `JsonFieldTypeNote` (`withSameCollection`, Default `true`;
+  `withEqualsCollection`, Default `false`, gewinnt), `DefinitionsContext` /
+  `ObjectWriteWalker` (List-Instanzen keyen, erste Fundstelle = Definition, weitere =
+  Stub; leere geteilte Liste trotz `skippingEmpty` ausgeben), Writer-Ausgabe `<"id">[...]`.
+- EQUALS-Vergleichsbasis: **serialisierte Projektion**, nicht Java-`equals()`.
+- Tests (Round-Trip Datei → Objekt → Datei): SAME — geteilte Instanz → 1 Definition +
+  Stub; EQUALS — zwei „gleiche" Listen verschmelzen; einzelne Liste bleibt plain
+  `[...]`; handgeschriebene Notation ueberlebt Speichern (keine Zombie-Stubs).
+- **Done**: Round-Trip verlustfrei unter beiden Politiken; jc_build neu bauen, damit
+  Phase 4/5 dagegen laufen koennen.
+
+### Phase 4 — Edit-Ebene (jsonCasted_edit) — ca. 1 Tag
+
+**Ziel**: Edit-Baum traegt Array-Identitaet, Writer gibt sie zurueck.
+
+- Dateien: `EditNodeAbstract` (objektId/linkTarget bzw. `hasIdentity()`),
+  `EditLinkingSet` (Map-Verbreiterung `EditNodeObject` → `EditNodeAbstract`;
+  registerLinkReference/resolveLinkTargets/getReferencesTo), `JsonTreeConverter`
+  (Array-Ids und bare Stubs an Listenfeldern), `EditTreeWriter` (`<"id">[...]`, bare
+  `<"id">`; `_woodDefinitions` nimmt Arrays auf), alle `instanceof EditNodeObject`-
+  Identitaetschecks umstellen.
+- Tests: analog `SoftParseNGTest` — Laden/Speichern mit Array-Ids; Duplikat-Warning
+  im LinkingSet; detached Array in `_woodDefinitions`.
+- **Done**: Edit-Round-Trip erhaelt Id und Stub-Beziehungen.
+
+### Phase 5 — UI (WoodJsonJack) — ca. 0,5–1 Tag
+
+**Ziel**: Arrays sind im Collection-Editor auswaehlbar, Stubs sichtbar.
+
+- Dateien: `JsonJackCollectionEditorDialog` (Array-Kandidaten: woodId, Text,
+  JsonType `List<X>`; `candidateFits` auf Listenfelder), `JsonJackFieldTableModel` /
+  `WoodWindow` (Stub-Anzeige in der Value-Spalte), Warnungsanzeige (EditStatus/
+  EditMessage) fuer Duplikat-Ids.
+- Tests: headless testbare Anteile (TableModel, Kandidatenfilter); Dialog-Layout und
+  Interaktion wie ueblich per interaktivem Nutzertest.
+- **Done**: Nutzer testet Live-Sharing im Editor.
+
+### Querschnitt
+
+- **Reihenfolge fest**: 1–3 jsonCasted, 4 jsonCasted_edit, 5 WoodJsonJack.
+- Nach Phase 3 jsonCasted-Build (`jc_build`) aktualisieren, ehe jsonCasted_edit/
+  WoodJsonJack gebaut werden — sonst laufen 4/5 gegen den alten Stand.
+- Riskanteste Stelle: EQUALS in Phase 3 (Vergleichsbasis serialisierte Projektion,
+  Duplikat-Semantik „erster gewinnt"). Bei Zeitdruck: Phase 3 zunaechst nur SAME
+  (Default-Politik), EQUALS als 3b nachschieben — SAME allein macht das Feature
+  nutzbar.
 
 ## 11. Offene Punkte
 
@@ -270,7 +340,9 @@ Zwei Feld-Flags (in `JsonFieldTypeNote`, neben `asList`/`asArray`):
   die Elemente (`[(Cast){...}, ...]`, heutiges Verhalten). Bei langen Listen waere ein
   List-Cast ein Komfort; bleibt offen, die Grammatik erlaubt ihn nicht.
 - Beide Feld-Flags gesetzt (`withSameCollection` + `withEqualsCollection`):
-  Empfehlung ist „EQUALS gewinnt"; alternativ Modellfehler.
+  EQUALS gewinnt; alternativ Modellfehler. Da Default bereits SAME ist, bleibt als
+  offene Frage, ob ein Feld ein **OFF** (niemals Id-Vergabe) benoetigt — bislang
+  nicht vorgesehen, da ungeteilte Listen ohnehin plain bleiben.
 - Member-Form bei Objekten: hat `_woodObjectId`-Member Vorrang vor dem `<id>`-Feld am
   Knoten, wenn beides da ist? (Vorschlag: Member gewinnt.)
 - Warning-Kanal: LOG reicht, oder Eintrag ins LinkingSet fuer die UI? (Vorschlag: beides.)
