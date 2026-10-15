@@ -154,6 +154,10 @@ public class JsonWoodIdLevelNGTest {
                 return JsonCastingLevel.NECESSARY_CLASS_DEF;
             }
 
+            @Override
+            public JsonWoodIdLevel getWoodIdLevel() {
+                return level;
+            }
         };
     }
 
