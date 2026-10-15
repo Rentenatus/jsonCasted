@@ -17,9 +17,9 @@ import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
 /**
- * Tests for the wood id notation in angle brackets: {@code <"56">} prefixes objects and arrays with an identity,
- * a bare id builds a reference stub. Covers the cast combination, quoted and unquoted contents, cross resource keys
- * and the duplicate id warning (including the old _woodObjectId member form).
+ * Tests for the wood id notation in angle brackets: {@code <"56">} prefixes objects and arrays with an identity, a bare
+ * id builds a reference stub. Covers the cast combination, quoted and unquoted contents, cross resource keys and the
+ * duplicate id warning (including the old _woodObjectId member form).
  *
  * @author Janusch Rentenatus
  */
