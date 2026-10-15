@@ -11,11 +11,14 @@ import de.jare.impltest.lib.ImplTestDefinition;
 import de.jare.impltest.lib.TestBox;
 import de.jare.impltest.lib.ValueInteger;
 import de.jare.impltest.lib.ValueInterface;
+import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonItemDefinition;
 import de.jare.jsoncasted.io.JsonItemWriter;
 import de.jare.jsoncasted.io.JsonNodeWriter;
 import de.jare.jsoncasted.io.JsonObjectWriter;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.JsonParser;
+import de.jare.jsoncasted.io.JsonWoodIdLevel;
 import de.jare.jsoncasted.io.JsonWriteException;
 import de.jare.jsoncasted.io.convertservice.WoodResolution;
 import de.jare.jsoncasted.io.parserservice.JsonParserService;
@@ -24,6 +27,7 @@ import de.jare.jsoncasted.item.builder.JsonBuilder;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.model.JsonBuildException;
+import de.jare.jsoncasted.model.JsonModel;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +36,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
@@ -138,11 +143,28 @@ public class TestBoxNGTest {
      * The equals collection policy shares one wood id across the full life cycle: the write-read cycle comes
      * first - the box is written, the written json loads back into a box - then the sharing shows: the first
      * list is the id definition, the second reuses the same bare id, the loaded lists hold the shared element
-     * instances, and the reloaded box writes the same sharing again.
+     * instances, and the reloaded box writes the same sharing again. The prefixed wood id level extends the
+     * angle notation to the objects too, only in this test: the identities leave the member form.
      */
     @Test
     public void testEqualsCollectionRoundTrip() {
         final ImplTestDefinition definition = ImplTestDefinition.getInstance();
+        final JsonItemDefinition prefixed = new JsonItemDefinition() {
+            @Override
+            public JsonModel getModel() {
+                return definition.getModel();
+            }
+
+            @Override
+            public JsonCastingLevel getCastingLevel() {
+                return definition.getCastingLevel();
+            }
+
+            @Override
+            public JsonWoodIdLevel getWoodIdLevel() {
+                return JsonWoodIdLevel.PREFIXED;
+            }
+        };
         final ValueInteger eleven = new ValueInteger(11);
         final ValueInteger twentytwo = new ValueInteger(22);
         final TestBox box = new TestBox();
@@ -152,7 +174,7 @@ public class TestBoxNGTest {
         final String json;
         final TestBox reloaded;
         try {
-            json = JsonObjectWriter.writeToString(box, definition, definition.getRootClass());
+            json = JsonObjectWriter.writeToString(box, prefixed, prefixed.getRootClass());
             final JsonResource res = JsonParserService.parse(json, JsonDebugLevel.SIMPLE);
             final WoodResolution resolution = JsonParser.parse(res, definition.getDescriptor(),
                     definition.getRootClass().getcName(), JsonDebugLevel.SIMPLE);
@@ -173,6 +195,10 @@ public class TestBoxNGTest {
         assertTrue(def.find(), "the first list must become the id definition: " + json);
         assertTrue(json.matches("(?s).*\"list2\":\\s*<\"" + def.group(1) + "\">(?!\\s*\\[).*"),
                 "the second list must reuse the bare id: " + json);
+        assertFalse(json.contains("_woodObjectId"), "PREFIXED must leave the object member form out: " + json);
+        assertFalse(json.contains("_woodLink"), "PREFIXED must leave the link stub out: " + json);
+        assertTrue(json.matches("(?s).*<\"\\d+\">\\s*\\{.*"),
+                "the object identities must carry the id prefix on the braces: " + json);
         assertEquals(reloaded.getList().size(), 2, "the first list must keep its elements");
         assertEquals(reloaded.getList2().size(), 2, "the second list must keep its elements");
         assertEquals(((ValueInteger) reloaded.getList().get(0)).getZahl(), Integer.valueOf(11));
@@ -182,7 +208,7 @@ public class TestBoxNGTest {
 
         final String rewritten;
         try {
-            rewritten = JsonObjectWriter.writeToString(reloaded, definition, definition.getRootClass());
+            rewritten = JsonObjectWriter.writeToString(reloaded, prefixed, prefixed.getRootClass());
         } catch (JsonParseException | JsonWriteException | IOException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
             fail(ex.getMessage(), ex);
