@@ -42,7 +42,7 @@ public class JsonObjectWriter {
      * @param ob The object to serialize.
      * @param definition The JSON item definition containing model information.
      * @param root The root JSON class for the object.
-     * @param charsetName The name of a supported null     {@linkplain java.nio.charset.Charset
+     * @param charsetName The name of a supported null null     {@linkplain java.nio.charset.Charset
      *                    charset}, for example "UTF-8".
      * @return JSON string representation of the object.
      * @throws JsonParseException If parsing fails during serialization.
@@ -147,7 +147,7 @@ public class JsonObjectWriter {
     public static String writeToString(Object ob, JsonItemDefinition definition, String charsetName)
             throws JsonParseException, IOException, JsonWriteException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        write(ob, out, definition, null);
+        write(ob, out, definition, definition.getRootClass());
         return new String(out.toByteArray(), java.nio.charset.Charset.forName(charsetName));
     }
 
@@ -165,7 +165,7 @@ public class JsonObjectWriter {
     public static String writeToString(Object ob, JsonItemDefinition definition)
             throws JsonParseException, IOException, JsonWriteException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        write(ob, out, definition, null);
+        write(ob, out, definition, definition.getRootClass());
         return new String(out.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
     }
 
@@ -183,7 +183,7 @@ public class JsonObjectWriter {
         FileOutputStream out;
         try {
             out = new FileOutputStream(file);
-            write(ob, out, definition, null);
+            write(ob, out, definition, definition.getRootClass());
             out.close();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE,
@@ -377,7 +377,7 @@ public class JsonObjectWriter {
         FileOutputStream out;
         try {
             out = new FileOutputStream(file);
-            write(ob, out, definition, null, debugLevel);
+            write(ob, out, definition, definition.getRootClass(), debugLevel);
             out.close();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE,

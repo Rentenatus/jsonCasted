@@ -13,6 +13,7 @@ import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonSystem;
 import de.jare.jsoncasted.lang.JsonTerms;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,6 +57,11 @@ public final class RootConverter {
             return null;
         }
 
+        // Enrich _class for root node if missing
+        JsonNode rootNode = res.getRoot();
+        if (rootNode != null && rootNode.isObject() && rootNode.asObjectValues().get(TERM_CLASS) == null) {
+            rootNode.asObjectValues().put(TERM_CLASS, JsonNode.stringNode(cName));
+        }
         JsonSystem sys = JsonSystem.of(res);
         try {
             WoodProxyResolver.resolveProviders(sys, debugLevel);
@@ -89,7 +95,7 @@ public final class RootConverter {
             }
         }
         resolution.setAnswer(JsonNodeConverter.convert(res, cName, descriptor, resolution, debugLevel));
-        
+
         // Also extract from the main resource
         WoodElementResolver.extractDescriptionFiles(res, resolution);
         return resolution;

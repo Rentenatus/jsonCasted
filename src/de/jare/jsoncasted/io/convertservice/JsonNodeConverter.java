@@ -13,6 +13,7 @@ import de.jare.jsoncasted.item.JsonList;
 import de.jare.jsoncasted.item.JsonValue;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.LinkNodeEntry;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
@@ -66,6 +67,11 @@ public class JsonNodeConverter {
                 return null;
             }
         }
+        // Enrich _class field for root node if missing and type is known
+        if (node.isObject() && node.asObjectValues().get(JsonTerms.TERM_CLASS) == null && cNameOrNull != null) {
+            node.asObjectValues().put(JsonTerms.TERM_CLASS, JsonNode.stringNode(cNameOrNull));
+        }
+
         ConvertService service = new ConvertService(res, descriptor, resolution, debugLevel);
         return convert(node, contextClass, service);
     }

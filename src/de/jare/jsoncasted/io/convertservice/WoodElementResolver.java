@@ -219,7 +219,7 @@ public final class WoodElementResolver {
 
         JsonNode classNode = node.asObjectValues().get(JsonTerms.TERM_CLASS);
         if (classNode == null) {
-            throw new JsonParseException("Missing _class on containment root node.");
+            throw new JsonParseException("Missing _class on containment node.");
         }
 
         String className = classNode.toText();

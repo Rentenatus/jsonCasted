@@ -186,8 +186,8 @@ public class JsonTypeDescriptor implements de.jare.jsoncasted.model.item.JsonAnn
     public List<JsonFieldDescriptor> getFields() {
         return Collections.unmodifiableList(fields);
     }
-    
-    public  void setFields(List<JsonFieldDescriptor> fields) {
+
+    public void setFields(List<JsonFieldDescriptor> fields) {
         this.fields.clear();
         if (fields != null) {
             this.fields.addAll(fields);
@@ -365,7 +365,6 @@ public class JsonTypeDescriptor implements de.jare.jsoncasted.model.item.JsonAnn
         }
         return null;
     }
-
 
     /**
      * Sets the node type and returns this descriptor for chaining.

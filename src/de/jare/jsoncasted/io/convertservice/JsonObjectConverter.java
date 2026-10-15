@@ -240,6 +240,13 @@ public class JsonObjectConverter {
         }
 
         final JsonTypeDescriptor childType = service.getType(field.getTypeName());
+        // Enrich _class field for child nodes if missing and type is concrete
+        if (childNode.isObject() && childNode.asObjectValues().get(TERM_CLASS) == null && childType != null) {
+            // Only enrich for concrete types  
+            if (!childType.isPrimitive()) {
+                childNode.asObjectValues().put(TERM_CLASS, JsonNode.stringNode(childType.getTypeName()));
+            }
+        }
         final JsonTypeDescriptor castedChildType = castOrGet(childType, childNode.asObjectValues(), paramName);
         if (castedChildType == null) {
             return;
