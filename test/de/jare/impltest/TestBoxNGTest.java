@@ -9,6 +9,7 @@ package de.jare.impltest;
 import de.jare.debug.JsonDebugLevel;
 import de.jare.impltest.lib.ImplTestDefinition;
 import de.jare.impltest.lib.TestBox;
+import de.jare.impltest.lib.ValueInteger;
 import de.jare.impltest.lib.ValueInterface;
 import de.jare.jsoncasted.io.JsonItemWriter;
 import de.jare.jsoncasted.io.JsonNodeWriter;
@@ -26,10 +27,14 @@ import de.jare.jsoncasted.model.JsonBuildException;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 import org.testng.annotations.AfterClass;
@@ -127,6 +132,64 @@ public class TestBoxNGTest {
         }
         assertNotNull(box.getList(), "the empty wood identified list must load as a list");
         assertTrue(box.getList().isEmpty(), "the list definition is empty: " + box.getList());
+    }
+
+    /**
+     * The equals collection policy shares one wood id across the full life cycle: the write-read cycle comes
+     * first - the box is written, the written json loads back into a box - then the sharing shows: the first
+     * list is the id definition, the second reuses the same bare id, the loaded lists hold the shared element
+     * instances, and the reloaded box writes the same sharing again.
+     */
+    @Test
+    public void testEqualsCollectionRoundTrip() {
+        final ImplTestDefinition definition = ImplTestDefinition.getInstance();
+        final ValueInteger eleven = new ValueInteger(11);
+        final ValueInteger twentytwo = new ValueInteger(22);
+        final TestBox box = new TestBox();
+        box.setList(new ArrayList<>(Arrays.asList(eleven, twentytwo)));
+        box.setList2(new ArrayList<>(Arrays.asList(eleven, twentytwo)));
+
+        final String json;
+        final TestBox reloaded;
+        try {
+            json = JsonObjectWriter.writeToString(box, definition, definition.getRootClass());
+            final JsonResource res = JsonParserService.parse(json, JsonDebugLevel.SIMPLE);
+            final WoodResolution resolution = JsonParser.parse(res, definition.getDescriptor(),
+                    definition.getRootClass().getcName(), JsonDebugLevel.SIMPLE);
+            final Object build = JsonBuilder.buildInstance(definition.getModel(), false, resolution.getAnswer());
+            reloaded = (TestBox) build;
+        } catch (JsonParseException | JsonWriteException | IOException | NullPointerException
+                | JsonBuildException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+            return;
+        }
+        assertNotNull(reloaded, "the reloaded box must build at all");
+
+        final java.util.regex.Matcher def = java.util.regex.Pattern
+                .compile("\"list\":\\s*<\"(\\d+)\">\\s*\\[").matcher(json);
+        assertTrue(def.find(), "the first list must become the id definition: " + json);
+        assertTrue(json.matches("(?s).*\"list2\":\\s*<\"" + def.group(1) + "\">(?!\\s*\\[).*"),
+                "the second list must reuse the bare id: " + json);
+        assertEquals(reloaded.getList().size(), 2, "the first list must keep its elements");
+        assertEquals(reloaded.getList2().size(), 2, "the second list must keep its elements");
+        assertEquals(((ValueInteger) reloaded.getList().get(0)).getZahl(), Integer.valueOf(11));
+        assertEquals(((ValueInteger) reloaded.getList2().get(1)).getZahl(), Integer.valueOf(22));
+        assertSame(reloaded.getList().get(0), reloaded.getList2().get(0),
+                "the loaded elements must stay one shared instance");
+
+        final String rewritten;
+        try {
+            rewritten = JsonObjectWriter.writeToString(reloaded, definition, definition.getRootClass());
+        } catch (JsonParseException | JsonWriteException | IOException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+            return;
+        }
+        assertTrue(rewritten.matches("(?s).*\"list\":\\s*<\"\\d+\">\\s*\\[.*"),
+                "the reloaded first list must still be the id definition: " + rewritten);
+        assertTrue(rewritten.matches("(?s).*\"list2\":\\s*<\"\\d+\">(?!\\s*\\[).*"),
+                "the reloaded second list must still reuse the bare id: " + rewritten);
     }
 
     /**

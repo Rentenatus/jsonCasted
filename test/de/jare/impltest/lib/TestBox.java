@@ -20,6 +20,7 @@ public class TestBox {
     private ValueInterface one;
     private ValueInterface[] arr;
     private List<ValueInterface> list;
+    private List<ValueInterface> list2;
 
     /**
      * Returns the subsub value.
@@ -91,6 +92,24 @@ public class TestBox {
      */
     public void setList(List<ValueInterface> list) {
         this.list = list;
+    }
+
+    /**
+     * Returns the second list of values.
+     *
+     * @return The ValueInterface instances of the second list.
+     */
+    public List<ValueInterface> getList2() {
+        return list2;
+    }
+
+    /**
+     * Sets the second list of values.
+     *
+     * @param list2 The ValueInterface instances to set.
+     */
+    public void setList2(List<ValueInterface> list2) {
+        this.list2 = list2;
     }
 
     @Override
