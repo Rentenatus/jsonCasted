@@ -1,6 +1,6 @@
 # Konzept: Wood-Id-Notation `<"id">` fuer Objekte und Arrays
 
-**Status**: Konzept, nichts umgesetzt.
+**Status**: Phase 1-5 umgesetzt auf Branch `feature/arrWoodId` (jsonCasted 945bd82/4603082/7293625, jsonCasted_edit ded4693, WoodJsonJack cb776e8). Offen: EQUALS-Politik (3b, Vergleichsbasis serialisierte Projektion), edit-seitige Duplikat-Warnung (siehe Kap. 6).
 **Betroffene Projekte**: `jsonCasted` (Parser, Writer, Konvertierung), `jsonCasted_edit` (Edit-Knoten, LinkingSet, TreeWriter), `WoodJsonJack` (Collection-Editor, Fields-Pane).
 **Abhaengigkeiten**: `CastingParser`, `ListParser`, `ObjectParser`, `JsonNode`, `JsonTerms`, `WoodIdFinder`, `JsonObjectConverter`/`JsonNodeConverter`, `WoodElementResolver`, `DefinitionsContext`, `JsonFieldTypeNote`, `EditNodePropertyArr`, `EditNodeObject`, `EditLinkingSet`, `JsonTreeConverter`, `EditTreeWriter`, `JsonJackCollectionEditorDialog`.
 
@@ -203,12 +203,15 @@ Zwei Feld-Flags (in `JsonFieldTypeNote`, neben `asList`/`asArray`):
 
 ## 6. Duplikat-Ids: Warning (nachtragend auch fuer alte Ids)
 
-- `WoodIdFinder` und `EditLinkingSet` warnen, wenn dieselbe Id zweimal mit Inhalt
-  definiert wird. Kein Fehler (toleranter Parser), aber sichtbar: LOG-Warning plus
-  Eintrag im LinkingSet, damit die UI es anzeigen kann.
-- **Nachtrag fuer die alte Form**: Die Pruefung gilt genauso fuer doppelt auftretende
-  `_woodObjectId`-Member — bisher ueberschreibt `map.put` stillschweigend.
-- Offene Detailfrage: erster Treffer gewinnt (aktuelles Verhalten), aber mit Warnung.
+- `WoodIdFinder` warnt, wenn dieselbe Id zweimal mit Inhalt definiert wird (LOG-Warning plus Eintrag im LinkingSet,
+  damit die UI es anzeigen kann). Kein Fehler (toleranter Parser), erster Treffer gewinnt. Die Pruefung gilt fuer
+  beide Notationen — die neue `<"id">`-Form UND die alte `_woodObjectId`-Member-Form (bisher ueberschreibt der
+  Finder stillschweigend per `put`). **Umgesetzt in Phase 1.**
+- **Edit-Ebene offen**: `EditLinkingSet.registerObject` muss ueberschreiben duerfen — Undo/Redo registriert die
+  wiederhergestellte Kopie unter demselben Key neu (Rebind). Eine naive first-wins-Regel bricht die
+  Undo-Identitaetsbindung (Regression im WoodLinkCommandNGTest). Eine edit-seitige Duplikat-Warnung darf daher nur
+  im Import-Pfad pruefen, nicht in der Mutation; der Import kann die Warnungen des WoodIdFinder aus der JsonResource
+  uebernehmen.
 
 ## 7. Umsetzung jsonCasted_edit (Edit-Ebene)
 
