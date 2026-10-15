@@ -212,15 +212,6 @@ public interface JsonType {
     /**
      * Declares an object level annotation on this type. The default implementation is empty.
      *
-     * @param name The annotation name without the {@code @} prefix.
-     * @param transientFlag {@code true} if the annotation is skipped on save, {@code false} otherwise.
-     */
-    public default void addAnnotation(String name, boolean transientFlag) {
-    }
-
-    /**
-     * Declares an object level annotation on this type. The default implementation is empty.
-     *
      * @param annotation The annotation to declare.
      */
     public default void addAnnotation(JsonAnnotation annotation) {

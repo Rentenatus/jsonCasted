@@ -39,6 +39,7 @@ public class JsonNode {
     private final Long numberLongValue;
     private final Boolean boolValue;
     private JsonTypeDescriptor jsonDescriptor; // optional, set for OBJECT nodes
+    private String woodObjectId; // identity for nodes that cannot carry members (arrays)
 
     private JsonNode(JsonNodeType type,
             Map<String, JsonNode> objectValue,
@@ -251,15 +252,50 @@ public class JsonNode {
     }
 
     public String getObjectId(String providerName) throws JsonParseException {
-        JsonNode idNode = objectValue.get(JsonTerms.TERM_WOOD_OBJECT_ID);
-        if (idNode == null) {
+        final String id = readRawObjectId();
+        if (id == null) {
             return null;
         }
-        final String id = idNode.toText();
         if (id.contains(COLONCOLON)) {
             throw new JsonParseException("IDs must not contain a provider name or a :: sign (" + id + ").");
         }
         return providerName + COLONCOLON + id;
+    }
+
+    /**
+     * Returns the raw identity of this node: the {@code _woodObjectId} member wins on objects, the array identity
+     * field serves nodes that cannot carry members.
+     *
+     * @return the raw id text, or {@code null} when the node has no identity.
+     * @throws JsonParseException if the id member does not hold readable text.
+     */
+    private String readRawObjectId() throws JsonParseException {
+        if (isObject() && objectValue != null) {
+            final JsonNode idNode = objectValue.get(JsonTerms.TERM_WOOD_OBJECT_ID);
+            if (idNode != null) {
+                return idNode.toText();
+            }
+        }
+        return woodObjectId;
+    }
+
+    /**
+     * Sets the wood identity for nodes that cannot carry members (arrays). Objects use the {@code _woodObjectId}
+     * member instead; when both exist, the member wins.
+     *
+     * @param woodObjectId the raw id text, or {@code null} to remove the identity.
+     */
+    public void setWoodObjectId(String woodObjectId) {
+        this.woodObjectId = woodObjectId;
+    }
+
+    /**
+     * Returns the raw wood identity of this node without provider normalization.
+     *
+     * @return the raw id text, or {@code null} when the node has no identity.
+     */
+    public String getWoodObjectId() {
+        return woodObjectId;
     }
 
     public String getCast() {

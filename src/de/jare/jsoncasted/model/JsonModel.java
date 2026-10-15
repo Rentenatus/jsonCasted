@@ -283,7 +283,9 @@ public class JsonModel {
         }
         for (JsonAnnotation annotation : reference.getAnnotations()) {
             if (jType.getAnnotation(annotation.getName()) == null) {
-                jType.addAnnotation(annotation.getName(), annotation.isTransient());
+                final JsonAnnotation adopted = new JsonAnnotation(annotation.getName());
+                adopted.setValue(annotation.getValue());
+                jType.addAnnotation(adopted);
             }
         }
     }
@@ -463,7 +465,7 @@ public class JsonModel {
      */
     private void addBasicClass(String cName, JsonNodeType nodeType, JsonModellClassBuilder builder) {
         final JsonClass jClass = new JsonClass(cName, nodeType, builder);
-        jClass.addAnnotation("doc:*");
+        jClass.addAnnotation(JsonAnnotation.doc());
         addClass(jClass);
     }
 

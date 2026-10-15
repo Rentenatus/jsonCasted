@@ -18,6 +18,8 @@ public class JsonFieldTypeNote {
 
     private final String typeName;
     private final JsonCollectionType collectionType;
+    private boolean sameCollection = true;
+    private boolean equalsCollection = false;
 
     /**
      * Constructs a type note with the given type name and collection type.
@@ -90,6 +92,46 @@ public class JsonFieldTypeNote {
                 + "typeName=" + typeName
                 + ", collectionType=" + collectionType
                 + "]";
+    }
+
+    /**
+     * Returns the collection sharing policy of this field: the same list instance at several fields is written once
+     * as a wood identified definition and referenced at the other places. Default is {@code true}.
+     *
+     * @return true when the instance identity of the collection value is kept on writing.
+     */
+    public boolean isSameCollection() {
+        return sameCollection;
+    }
+
+    /**
+     * Sets the collection sharing policy of this field.
+     *
+     * @param sameCollection whether to keep the instance identity of the collection value.
+     */
+    public void setSameCollection(boolean sameCollection) {
+        this.sameCollection = sameCollection;
+    }
+
+    /**
+     * Returns the content equality policy of this field: lists that are component-wise identical - same size first,
+     * then element by element: primitives by value, objects by instance - share one wood id. Default is
+     * {@code false}.
+     *
+     * @return true when equal collections share one wood id.
+     */
+    public boolean isEqualsCollection() {
+        return equalsCollection;
+    }
+
+    /**
+     * Sets the content equality policy of this field. It wins over the instance identity policy: identical
+     * instances are also component-wise identical.
+     *
+     * @param equalsCollection whether equal collections share one wood id.
+     */
+    public void setEqualsCollection(boolean equalsCollection) {
+        this.equalsCollection = equalsCollection;
     }
 
 }

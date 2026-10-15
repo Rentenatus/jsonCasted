@@ -574,17 +574,6 @@ public class JsonClass implements JsonType {
     /**
      * Declares an object level annotation on this type.
      *
-     * @param name The annotation name without the {@code @} prefix.
-     * @param transientFlag {@code true} if the annotation is skipped on save, {@code false} otherwise.
-     */
-    @Override
-    public void addAnnotation(String name, boolean transientFlag) {
-        annotationSupport.addAnnotation(name, transientFlag);
-    }
-
-    /**
-     * Declares an object level annotation on this type.
-     *
      * @param annotation The annotation to declare.
      */
     @Override
@@ -877,6 +866,8 @@ public class JsonClass implements JsonType {
             );
             fd.setKind(jf.getKind());
             fd.setSortKey(jf.getSortKey() == 0 ? null : jf.getSortKey());
+            fd.setSameCollection(jf.isSameCollection());
+            fd.setEqualsCollection(jf.isEqualsCollection());
 
             for (JsonAnnotation annotation : jf.getAnnotations()) {
                 fd.addAnnotation(annotation);

@@ -9,6 +9,7 @@ package de.jare.jsoncasted.io.parserservice;
 
 import de.jare.jsoncasted.lang.JsonNode;
 import static de.jare.jsoncasted.lang.JsonTerms.TERM_CLASS;
+import static de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_OBJECT_ID;
 import de.jare.jsoncasted.io.JsonParseException;
 import java.io.IOException;
 
@@ -21,11 +22,16 @@ import java.io.IOException;
  * <pre>{@code (ValueStringSubSub){"text": "hello", "frage": true}}</pre>
  *
  * <p>
+ * An optional wood id in angle brackets may follow the cast before the object literal:</p>
+ * <pre>{@code (ValueStringSubSub)<"56">{"text": "hello"}}</pre>
+ *
+ * <p>
  * The parser:</p>
  * <ol>
  * <li>Reads the type name from within parentheses</li>
+ * <li>Reads an optional wood id ({@code <"56">})</li>
  * <li>Expects an object definition (curly braces) to follow</li>
- * <li>Adds a {@code _class} field to the parsed object with the type name</li>
+ * <li>Adds a {@code _class} field and, when present, a {@code _woodObjectId} field to the parsed object</li>
  * </ol>
  *
  * @author Janusch Rentenatus
@@ -51,21 +57,46 @@ public class CastingParser {
                 char c = psr.next();
                 if (c == ')') {
                     String cast = sb.toString().trim();
-                    while (psr.hasNext()) {
-                        c = psr.next();
-                        if (c == '{') {
-                            JsonNode ret = ObjectParser.parse(psr);
-                            ret.put(TERM_CLASS, JsonNode.stringNode(cast));
-                            return ret;
-                        }
-                        if (c == ' ' || c == '\n' || c == '\t') {
-                            continue;
-                        }
-                        throw new JsonParseException(psr.getRow(), "After the end of the cast, '{' must follow for the object definition.");
-                    }
+                    return parseCastTarget(psr, cast);
                 }
                 sb.append(c);
             }
+        }
+        throw new JsonParseException("End of file without end of cast.");
+    }
+
+    /**
+     * Parses the object literal behind the cast, with an optional wood id in between: {@code (Type)<"56">{...}}.
+     *
+     * @param psr the ParseStreamReader positioned right after the closing parenthesis.
+     * @param cast the type name read from the parentheses.
+     * @return the parsed object with the cast and, when present, the wood id attached.
+     * @throws IOException if an I/O error occurs.
+     * @throws JsonParseException when anything but an optional id and the object literal follows the cast.
+     */
+    private static JsonNode parseCastTarget(ParseStreamReader psr, String cast) throws IOException, JsonParseException {
+        String woodId = null;
+        while (psr.hasNext()) {
+            char c = psr.next();
+            if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+                continue;
+            }
+            if (c == '<') {
+                if (woodId != null) {
+                    throw new JsonParseException(psr.getRow(), "Only one wood id may follow a cast.");
+                }
+                woodId = WoodIdParser.parseId(psr);
+                continue;
+            }
+            if (c == '{') {
+                JsonNode ret = ObjectParser.parse(psr);
+                ret.put(TERM_CLASS, JsonNode.stringNode(cast));
+                if (woodId != null) {
+                    ret.put(TERM_WOOD_OBJECT_ID, JsonNode.stringNode(woodId));
+                }
+                return ret;
+            }
+            throw new JsonParseException(psr.getRow(), "After the end of the cast, '{' must follow for the object definition.");
         }
         throw new JsonParseException("End of file without end of cast.");
     }

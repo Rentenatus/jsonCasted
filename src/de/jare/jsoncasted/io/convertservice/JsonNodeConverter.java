@@ -14,6 +14,7 @@ import de.jare.jsoncasted.item.JsonValue;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.lang.JsonResource;
+import de.jare.jsoncasted.lang.LinkNodeEntry;
 import de.jare.jsoncasted.model.descriptor.JsonModelDescriptor;
 import de.jare.jsoncasted.model.descriptor.JsonTypeDescriptor;
 import java.util.ArrayList;
@@ -125,6 +126,77 @@ public class JsonNodeConverter {
             }
         }
         return new JsonList(list, asList, contextClass, service.incrementAtomicLong());
+    }
+
+    /**
+     * Converts the value of a list-typed field, keeping identities alive: an array definition registers its list
+     * under the wood id, a stub resolves to the shared instance - and pulls the definition node from the linking
+     * set when the target is not converted yet, so the order of stub and definition does not matter. Two fields
+     * that carry the same identity end up with the same JsonList instance.
+     *
+     * @param node The field value node: an array (definition or plain) or a stub object.
+     * @param elementClass The element type of the field.
+     * @param asList Whether the field is declared as list (or array).
+     * @param service The convert service for accessing the resolution and the linking set.
+     * @return The converted JsonList, shared between all fields with the same identity.
+     * @throws JsonParseException If conversion fails or the identity is malformed.
+     */
+    static JsonItem convertListField(JsonNode node, JsonTypeDescriptor elementClass, boolean asList,
+            ConvertService service) throws JsonParseException {
+        final String key = listIdentityKey(node, service);
+        if (key != null) {
+            JsonItem shared = service.getResolvedObject(key);
+            if (shared != null) {
+                return shared;
+            }
+            if (!node.isArray()) {
+                return convertStubbedList(key, elementClass, asList, service);
+            }
+        }
+        final JsonItem list = convertArray(node, elementClass, asList, service);
+        if (key != null && node.isArray()) {
+            service.getResolution().putResolvedObject(key, list);
+        }
+        return list;
+    }
+
+    /**
+     * Resolves a stub at a list field: when the linking set holds an array definition for the target key, that
+     * definition is converted here - typed by this field's element type - and registered, so stub and definition
+     * share one instance regardless of their order in the file. A stub without an array target degrades to an empty
+     * list, mirroring the behavior of unresolved object stubs.
+     */
+    private static JsonItem convertStubbedList(String key, JsonTypeDescriptor elementClass, boolean asList,
+            ConvertService service) throws JsonParseException {
+        final LinkNodeEntry target = service.getLinkingSet().getObjectIdMap().get(key);
+        if (target != null && target.getNode() != null && target.getNode().isArray()) {
+            final JsonItem list = convertArray(target.getNode(), elementClass, asList, service);
+            service.getResolution().putResolvedObject(key, list);
+            return list;
+        }
+        return new JsonList(new ArrayList<>(), asList, elementClass, service.incrementAtomicLong());
+    }
+
+    /**
+     * Finds the identity key of a list field value: the wood id of an array definition, or the id or link key of a
+     * stub object. Plain arrays and scalars carry no identity.
+     */
+    private static String listIdentityKey(JsonNode node, ConvertService service) throws JsonParseException {
+        if (node == null) {
+            return null;
+        }
+        final String providerName = service.getLinkingSet().getProviderName();
+        if (node.isArray()) {
+            return node.getObjectId(providerName);
+        }
+        if (node.isObject()) {
+            final String providerKey = node.getObjectId(providerName);
+            if (providerKey != null) {
+                return providerKey;
+            }
+            return node.getLink(providerName);
+        }
+        return null;
     }
 
     /**

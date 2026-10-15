@@ -246,7 +246,7 @@ public class JsonObjectConverter {
         }
 
         JsonItem paramObject = field.isAsListOrArray()
-                ? JsonNodeConverter.convertArray(childNode, castedChildType, field.isAsList(), service)
+                ? JsonNodeConverter.convertListField(childNode, castedChildType, field.isAsList(), service)
                 : JsonNodeConverter.convert(childNode, castedChildType, service);
 
         // Clone for CONTAINMENT fields to ensure ownership
@@ -339,7 +339,7 @@ public class JsonObjectConverter {
         JsonFieldTypeNote field = contextClass.getMappingAllFields();
         JsonTypeDescriptor childType = service.getType(field.getTypeName());
         JsonItem paramObject = field.isAsListOrArray()
-                ? JsonNodeConverter.convertArray(childNode, childType, field.isAsList(), service)
+                ? JsonNodeConverter.convertListField(childNode, childType, field.isAsList(), service)
                 : JsonNodeConverter.convert(childNode, childType, service);
 
         // Clone for CONTAINMENT fields if this is a JsonFieldDescriptor with owned flag

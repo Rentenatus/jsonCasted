@@ -12,34 +12,78 @@ package de.jare.jsoncasted.model.item;
  * {@code @} prefix.
  *
  * <p>
- * An annotation is implicitly defined as an array of strings. Transient annotations are session-local in the
- * editor and are skipped when the tree is saved back to JSON.</p>
+ * An annotation is implicitly defined as an array of strings. Every annotation is persistent - its values are
+ * written back on save.</p>
  *
  * @author Janusch Rentenatus
  */
 public class JsonAnnotation {
 
-    private final String name;
-    private boolean transientFlag;
+    /**
+     * Name of the editString annotation: a display template for objects of the described type (see the annotation
+     * concept). Its value is a string array with exactly one element, the template string.
+     */
+    public static final String EDIT_STRING = "editString";
 
     /**
-     * Constructs a persistent annotation.
-     *
-     * @param name The name of the annotation without the {@code @} prefix.
+     * Name of the doc annotation (annotation concept): free documentation of the carrier it annotates.
      */
-    public JsonAnnotation(String name) {
-        this(name, false);
-    }
+    public static final String DOC = "doc";
+
+    /**
+     * Name of the doc wildcard declaration: {@code doc:*} covers every field and the object level of the type.
+     */
+    public static final String DOC_ALL = "doc:*";
+
+    private final String name;
+
+    /**
+     * The declaration value of this annotation (see the annotation concept, decision 13): type knowledge that lives
+     * in the model itself, carried on the declaration instead of a modeling. {@code null} for value free
+     * declarations - instance values (@ keys of the modelings) are unaffected by this slot.
+     */
+    private String value;
 
     /**
      * Constructs an annotation.
      *
      * @param name The name of the annotation without the {@code @} prefix.
-     * @param transientFlag {@code true} if the annotation is skipped on save, {@code false} otherwise.
      */
-    public JsonAnnotation(String name, boolean transientFlag) {
+    public JsonAnnotation(String name) {
         this.name = name;
-        this.transientFlag = transientFlag;
+    }
+
+    /**
+     * Creates an editString declaration with its display template (annotation concept, decision 13): the template
+     * tells the display side how instances of the type are shown, e.g. {@code ${profile}}.
+     *
+     * @param template the display template
+     * @return the persistent editString annotation with the template as declaration value
+     */
+    public static JsonAnnotation editString(String template) {
+        return new JsonAnnotation(EDIT_STRING).withValue(template);
+    }
+
+    /**
+     * Creates a doc declaration with its documentation text - the type knowledge counterpart of an instance level
+     * {@code @doc}: the description of the annotated type itself. The lines join with line feeds, javadoc style -
+     * the file form writes them back as the array elements of the @doc key.
+     *
+     * @param text the lines of the documentation text
+     * @return the doc annotation with the joined lines as declaration value
+     */
+    public static JsonAnnotation doc(String... text) {
+        return new JsonAnnotation(DOC).withValue(text);
+    }
+
+    /**
+     * Creates the doc wildcard declaration {@code doc:*}: the annotated type is documentable everywhere (object
+     * level and every field), without a per-field declaration.
+     *
+     * @return the persistent doc wildcard annotation
+     */
+    public static JsonAnnotation doc() {
+        return new JsonAnnotation(DOC_ALL);
     }
 
     /**
@@ -52,21 +96,45 @@ public class JsonAnnotation {
     }
 
     /**
-     * Checks whether the annotation is transient. Transient annotations are not written back on save.
+     * Returns the declaration value of this annotation, or {@code null} when the declaration is value free.
      *
-     * @return {@code true} if the annotation is transient, {@code false} otherwise.
+     * @return the declaration value, or {@code null}
      */
-    public boolean isTransient() {
-        return transientFlag;
+    public String getValue() {
+        return value;
     }
 
     /**
-     * Sets the transient flag of the annotation.
+     * Sets the declaration value of this annotation.
      *
-     * @param transientFlag {@code true} to skip the annotation on save, {@code false} otherwise.
+     * @param value the declaration value, or {@code null} to clear it
      */
-    public void setTransient(boolean transientFlag) {
-        this.transientFlag = transientFlag;
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    /**
+     * Sets the declaration value from one or more lines and returns this annotation for chaining: the lines join
+     * with line feeds, javadoc style - the file form writes them back as the array elements of the @ key. No
+     * argument clears the value.
+     *
+     * @param lines the lines of the declaration value, or none to clear it
+     * @return this annotation
+     */
+    public JsonAnnotation withValue(String... lines) {
+        if (lines == null || lines.length == 0) {
+            this.value = null;
+            return this;
+        }
+        final StringBuilder joined = new StringBuilder();
+        for (String line : lines) {
+            if (joined.length() > 0) {
+                joined.append('\n');
+            }
+            joined.append(line == null ? "" : line);
+        }
+        this.value = joined.toString();
+        return this;
     }
 
     @Override

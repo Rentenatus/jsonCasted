@@ -13,11 +13,14 @@ import de.jare.jsoncasted.io.writer.getter.GetterFieldInfo;
 import de.jare.jsoncasted.io.writer.getter.ObjectGetter;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
+import de.jare.jsoncasted.io.writer.strategy.DefinitionalStrategy;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonLongObjBuilder;
 import de.jare.jsoncasted.model.builder.JsonStringBuilder;
+import de.jare.jsoncasted.model.item.JsonAnnotation;
+import de.jare.jsoncasted.model.item.JsonAnnotationCarrier;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
@@ -197,6 +200,21 @@ public class ObjectWriteWalker {
             }
             hasFieldKeys = hasFieldKeys || isFollowing;
 
+            // Annotation values (annotation concept, decision 13): a carrier emits its valued annotation
+            // declarations as @ keys - the file form of a declaration value is the @ key on the carrier, never a
+            // structured attribute of the annotations list. Lines of the value become the array elements.
+            if (ob instanceof JsonAnnotationCarrier carrier) {
+                for (JsonAnnotation annotation : carrier.getAnnotations()) {
+                    final String annotationValue = annotation.getValue();
+                    if (annotationValue == null || annotationValue.isBlank()) {
+                        continue;
+                    }
+                    strategy.writeAttrName(jClass, isFollowing, "@" + annotation.getName(), iString);
+                    writeAnnotationValue(annotationValue, iString);
+                    isFollowing = true;
+                }
+            }
+
             List< GetterFieldInfo> fieldInfos = objectGetter.extractFields(jClass, ob);
             for (GetterFieldInfo fieldInfo : fieldInfos) {
                 Object attr = fieldInfo.getAttribute();
@@ -205,7 +223,7 @@ public class ObjectWriteWalker {
                 if (attr == null && jClass.isSkippingNulls()) {
                     continue;
                 }
-                if (jClass.isSkippingEmpty() && isEmptyValue(attr)) {
+                if (jClass.isSkippingEmpty() && isEmptyValue(attr) && !isSharedListValue(next, attr)) {
                     continue;
                 }
 
@@ -230,6 +248,19 @@ public class ObjectWriteWalker {
             return col.isEmpty();
         }
         return attr instanceof java.util.Map<?, ?> map && map.isEmpty();
+    }
+
+    /**
+     * Checks whether the attribute is a shared list value under a sharing enabled field: an empty shared list must
+     * not be swallowed by skippingEmpty, otherwise the definition and its references would get lost.
+     *
+     * @param field the field declaration carrying the policy flags
+     * @param attr the attribute value to check
+     * @return true if the value is a shared list that must be written
+     */
+    private boolean isSharedListValue(JsonField field, Object attr) {
+        return field != null && field.isSameCollection() && attr instanceof List
+                && objectGetter.getDefinitionsContext().isSharedList(attr);
     }
 
     /**
@@ -336,7 +367,32 @@ public class ObjectWriteWalker {
      * @param definitionalOwner The owner object of the list.
      * @param iString The indentation string for formatted output.
      */
+    /**
+     * Writes the value of an annotation declaration as a string array: the lines of the declaration value become the
+     * elements, javadoc style - a multi line documentation reads as several elements, an editString template as one.
+     *
+     * @param annotationValue the declaration value
+     * @param iString the indentation string for formatted output
+     */
+    private void writeAnnotationValue(String annotationValue, WriteNodePath iString) {
+        final String[] lines = annotationValue.split("\n", -1);
+        strategy.writeStartArray(JSON_CLASS_STRING, null, true, iString);
+        try {
+            for (int i = 0; i < lines.length; i++) {
+                if (i > 0) {
+                    strategy.writeArraySeparator(true, iString);
+                }
+                strategy.writePrimitive(JSON_CLASS_STRING, lines[i], iString);
+            }
+        } finally {
+            strategy.writeEndArray(null, true, true, iString);
+        }
+    }
+
     protected void writeList(JsonType jTypeItem, Object attr, JsonField jField, Object definitionalOwner, WriteNodePath iString) {
+        if (writeListAsSharedReference(attr, jField, iString)) {
+            return;
+        }
         ListWriteWalker reWriter = new ListWriteWalker(
                 strategy,
                 objectGetter.getDefinitionsContext(),
@@ -348,6 +404,38 @@ public class ObjectWriteWalker {
                 objectGetter.getDebugLevel()
         );
         reWriter.writeList(attr);
+    }
+
+    /**
+     * Handles the collection sharing policy for a list field: a list instance that the pre-scan saw at more than one
+     * sharing enabled field becomes a definition with a wood id at its first written occurrence and a bare id
+     * reference at every later occurrence. The recording walk of the definitional strategy does not participate -
+     * only the printing pass may assign ids.
+     *
+     * @param attr the list value of the field.
+     * @param jField the field declaration carrying the policy flags.
+     * @param iString the indentation path for formatted output.
+     * @return true when the value was written as a bare reference and the list walk is done.
+     */
+    private boolean writeListAsSharedReference(Object attr, JsonField jField, WriteNodePath iString) {
+        if (strategy instanceof DefinitionalStrategy || jField == null
+                || !(jField.isSameCollection() || jField.isEqualsCollection()) || !(attr instanceof List)) {
+            return false;
+        }
+        if (jField.getKind() != null && jField.getKind().isOwned()) {
+            return false; // owned fields stay inline, mirroring the object sharing behavior
+        }
+        final DefinitionsContext context = objectGetter.getDefinitionsContext();
+        if (!context.isSharedList(attr)) {
+            return false;
+        }
+        final Long existingId = context.getSharedListLocalId(attr);
+        if (existingId == null) {
+            strategy.writeWoodIdPrefix(context.assignSharedListLocalId(attr), iString);
+            return false; // definition: the id prefix stands, the list content follows
+        }
+        strategy.writeBareWoodId(existingId, iString);
+        return true;
     }
 
     /**

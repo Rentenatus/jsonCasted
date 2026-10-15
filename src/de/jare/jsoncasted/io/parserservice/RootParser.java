@@ -126,6 +126,9 @@ public class RootParser {
             if (c == '(') {
                 return CastingParser.parse(psr);
             }
+            if (c == '<') {
+                return WoodIdParser.parse(psr);
+            }
             sb.append(c);
         }
         return JsonNode.varNode(sb.toString());

@@ -30,6 +30,18 @@ public class DefinitionsContext {
     // All objects found that are candidates for a reference ID or found that are going to be serialized are collected here. They
     private final Map<Object, DefinitionsContextObjectRecord> recordMap;
 
+    // Occurrences of list instances under sharing enabled fields, counted by the pre-scan.
+    private final Map<Object, Integer> listOccurrenceCount = new IdentityHashMap<>();
+
+    // Local ids of shared lists; a list enters this map when its definition is written.
+    private final Map<Object, Long> sharedListIds = new IdentityHashMap<>();
+
+    // Content groups of the equals policy: the component identity key of every equals noted list, and the
+    // occurrence count plus the assigned local id per key.
+    private final Map<Object, String> equalsKeyByList = new IdentityHashMap<>();
+    private final Map<String, Integer> equalsOccurrenceCount = new java.util.HashMap<>();
+    private final Map<String, Long> equalsGroupIds = new java.util.HashMap<>();
+
     public DefinitionsContext(JsonModel model, String modelFile) {
         this.model = model;
         this.modelFile = modelFile;
@@ -218,6 +230,102 @@ public class DefinitionsContext {
      */
     public DefinitionsContextObjectRecord remove(Object ob) {
         return recordMap.remove(ob);
+    }
+
+    /**
+     * Counts one occurrence of a list instance under a sharing enabled field. The pre-scan calls this for every
+     * list field value; a list seen at more than one occurrence is treated as shared.
+     *
+     * @param list the list instance to count.
+     */
+    public void noteListOccurrence(Object list) {
+        listOccurrenceCount.merge(list, 1, Integer::sum);
+    }
+
+    /**
+     * Notes one occurrence of a list under an equals enabled field: the list joins its content group - lists with the
+     * same component identity share one wood id, no matter whether they are the same instance.
+     *
+     * @param list the list instance to note.
+     */
+    public void noteEqualsListOccurrence(Object list) {
+        if (!(list instanceof List<?> values)) {
+            return;
+        }
+        final String contentKey = componentIdentityKey(values);
+        equalsKeyByList.put(list, contentKey);
+        equalsOccurrenceCount.merge(contentKey, 1, Integer::sum);
+    }
+
+    /**
+     * Builds the component identity key of a list: the size leads the key, then every element - primitives by type
+     * and value, objects by instance identity. Two lists carry the same key when they are component-wise identical.
+     *
+     * @param values the list elements.
+     * @return the component identity key, never null.
+     */
+    private static String componentIdentityKey(List<?> values) {
+        final StringBuilder sb = new StringBuilder(values.size()).append(':');
+        for (Object element : values) {
+            if (element == null) {
+                sb.append("null;");
+                continue;
+            }
+            if (element instanceof String || element instanceof Number
+                    || element instanceof Boolean || element instanceof Character) {
+                sb.append(element.getClass().getName()).append('=').append(element).append(';');
+                continue;
+            }
+            sb.append('#').append(System.identityHashCode(element)).append(';');
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Checks whether the pre-scan saw the list as shared: an equals noted list counts per content group, a same
+     * noted list counts per instance.
+     *
+     * @param list the list instance to check.
+     * @return true when the list is shared and deserves a wood id.
+     */
+    public boolean isSharedList(Object list) {
+        final String equalsKey = equalsKeyByList.get(list);
+        if (equalsKey != null) {
+            final Integer count = equalsOccurrenceCount.get(equalsKey);
+            return count != null && count > 1;
+        }
+        final Integer count = listOccurrenceCount.get(list);
+        return count != null && count > 1;
+    }
+
+    /**
+     * Assigns the wood id to a shared list and marks its definition as written. The first writing occurrence calls
+     * this; later occurrences read the id and become bare references. An equals noted list takes the id of its
+     * content group, so an equal sibling later writes a bare reference to the same id.
+     *
+     * @param list the shared list instance.
+     * @return the assigned local id.
+     */
+    public long assignSharedListLocalId(Object list) {
+        final String equalsKey = equalsKeyByList.get(list);
+        if (equalsKey != null) {
+            return equalsGroupIds.computeIfAbsent(equalsKey, k -> nextId());
+        }
+        return sharedListIds.computeIfAbsent(list, k -> nextId());
+    }
+
+    /**
+     * Returns the wood id of a shared list, or null when its definition is not written yet.
+     *
+     * @param list the list instance to look up.
+     * @return the assigned local id, or null.
+     */
+    public Long getSharedListLocalId(Object list) {
+        final String equalsKey = equalsKeyByList.get(list);
+        if (equalsKey != null) {
+            return equalsGroupIds.get(equalsKey);
+        }
+        return sharedListIds.get(list);
     }
 
     /**
