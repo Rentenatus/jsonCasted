@@ -866,6 +866,8 @@ public class JsonClass implements JsonType {
             );
             fd.setKind(jf.getKind());
             fd.setSortKey(jf.getSortKey() == 0 ? null : jf.getSortKey());
+            fd.setSameCollection(jf.isSameCollection());
+            fd.setEqualsCollection(jf.isEqualsCollection());
 
             for (JsonAnnotation annotation : jf.getAnnotations()) {
                 fd.addAnnotation(annotation);

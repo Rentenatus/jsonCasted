@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -207,6 +208,12 @@ public class ObjectCircleScannerWalker {
             Object fieldValue = jClass.getAttr(jsonField, ob, null);
 
             if (fieldValue != null) {
+                // Collection sharing policy: count the occurrences of list instances under sharing enabled
+                // fields, so the writer can turn repeated instances into one definition with references.
+                if (jsonField.isAsListOrArray() && jsonField.isSameCollection() && fieldValue instanceof List) {
+                    definitionsContext.noteListOccurrence(fieldValue);
+                }
+
                 JsonType fieldType = jsonField.getjType();
 
                 // Skip primitive types and their boxed variants

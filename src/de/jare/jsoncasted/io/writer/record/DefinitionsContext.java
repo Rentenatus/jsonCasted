@@ -30,6 +30,12 @@ public class DefinitionsContext {
     // All objects found that are candidates for a reference ID or found that are going to be serialized are collected here. They
     private final Map<Object, DefinitionsContextObjectRecord> recordMap;
 
+    // Occurrences of list instances under sharing enabled fields, counted by the pre-scan.
+    private final Map<Object, Integer> listOccurrenceCount = new IdentityHashMap<>();
+
+    // Local ids of shared lists; a list enters this map when its definition is written.
+    private final Map<Object, Long> sharedListIds = new IdentityHashMap<>();
+
     public DefinitionsContext(JsonModel model, String modelFile) {
         this.model = model;
         this.modelFile = modelFile;
@@ -218,6 +224,48 @@ public class DefinitionsContext {
      */
     public DefinitionsContextObjectRecord remove(Object ob) {
         return recordMap.remove(ob);
+    }
+
+    /**
+     * Counts one occurrence of a list instance under a sharing enabled field. The pre-scan calls this for every
+     * list field value; a list seen at more than one occurrence is treated as shared.
+     *
+     * @param list the list instance to count.
+     */
+    public void noteListOccurrence(Object list) {
+        listOccurrenceCount.merge(list, 1, Integer::sum);
+    }
+
+    /**
+     * Checks whether the pre-scan saw the list at more than one sharing enabled field.
+     *
+     * @param list the list instance to check.
+     * @return true when the list is shared and deserves a wood id.
+     */
+    public boolean isSharedList(Object list) {
+        final Integer count = listOccurrenceCount.get(list);
+        return count != null && count > 1;
+    }
+
+    /**
+     * Assigns the wood id to a shared list and marks its definition as written. The first writing occurrence calls
+     * this; later occurrences read the id and become bare references.
+     *
+     * @param list the shared list instance.
+     * @return the assigned local id.
+     */
+    public long assignSharedListLocalId(Object list) {
+        return sharedListIds.computeIfAbsent(list, k -> nextId());
+    }
+
+    /**
+     * Returns the wood id of a shared list, or null when its definition is not written yet.
+     *
+     * @param list the list instance to look up.
+     * @return the assigned local id, or null.
+     */
+    public Long getSharedListLocalId(Object list) {
+        return sharedListIds.get(list);
     }
 
     /**

@@ -131,6 +131,28 @@ public interface WriteStrategy {
     public void writeArraySeparator(boolean primitive, WriteNodePath iString);
 
     /**
+     * Writes the wood id notation prefix in front of a literal, e.g. {@code <"56">[...]}: the identity of an array
+     * that is shared between several fields.
+     *
+     * @param localId the local wood id of the shared list.
+     * @param iString the indentation path for formatted output.
+     */
+    default void writeWoodIdPrefix(long localId, WriteNodePath iString) {
+        // NoOp
+    }
+
+    /**
+     * Writes a bare wood id as the whole value, e.g. {@code <"56">}: the reference to a shared list whose
+     * definition stands somewhere else.
+     *
+     * @param localId the local wood id of the shared list.
+     * @param iString the indentation path for formatted output.
+     */
+    default void writeBareWoodId(long localId, WriteNodePath iString) {
+        // NoOp
+    }
+
+    /**
      * Determines whether an object should be skipped during processing. This can be used to avoid processing objects
      * that have already been written or should not be included in the output.
      *

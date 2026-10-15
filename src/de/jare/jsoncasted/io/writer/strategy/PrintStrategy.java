@@ -160,6 +160,24 @@ public class PrintStrategy implements WriteStrategy {
     }
 
     @Override
+    public void writeWoodIdPrefix(long localId, WriteNodePath iString) {
+        out.print('<');
+        out.print('"');
+        out.print(localId);
+        out.print('"');
+        out.print('>');
+    }
+
+    @Override
+    public void writeBareWoodId(long localId, WriteNodePath iString) {
+        out.print('<');
+        out.print('"');
+        out.print(localId);
+        out.print('"');
+        out.print('>');
+    }
+
+    @Override
     public void writeNodeValue(Object object, WriteNodePath iString) {
         out.print(String.valueOf(object));
     }

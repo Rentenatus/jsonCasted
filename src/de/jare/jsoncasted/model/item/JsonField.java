@@ -41,6 +41,8 @@ public class JsonField {
     private FieldKind kind;
     private JsonValidationMethod validationMethod;
     private int sortKey;
+    private boolean sameCollection = true;
+    private boolean equalsCollection = false;
     private final JsonAnnotationSupport annotationSupport = new JsonAnnotationSupport();
 
     /**
@@ -293,6 +295,51 @@ public class JsonField {
      */
     public JsonField withSortKey(int sortKey) {
         this.sortKey = sortKey;
+        return this;
+    }
+
+    /**
+     * Returns the collection sharing policy for this list field: the same list instance at several fields is written
+     * once as a wood identified definition and referenced at the other places. Default is {@code true}.
+     *
+     * @return true when the instance identity of the collection value is kept on writing.
+     */
+    public boolean isSameCollection() {
+        return sameCollection;
+    }
+
+    /**
+     * Declares the instance identity policy for this list field. The default is {@code true}: a list instance that
+     * hangs at several sharing enabled fields becomes one definition with a wood id, the other occurrences become
+     * bare id references.
+     *
+     * @param sameCollection whether to keep the instance identity of the collection value.
+     * @return this field, for a fluent declaration.
+     */
+    public JsonField withSameCollection(boolean sameCollection) {
+        this.sameCollection = sameCollection;
+        return this;
+    }
+
+    /**
+     * Returns the content equality policy for this list field: lists with equal content are written with the same
+     * wood id, merging distinct instances into one shared instance after a round trip. Default is {@code false}.
+     *
+     * @return true when equal collections share one wood id.
+     */
+    public boolean isEqualsCollection() {
+        return equalsCollection;
+    }
+
+    /**
+     * Declares the content equality policy for this list field. It wins over {@link #withSameCollection(boolean)}:
+     * identical instances are also equal. The comparison basis is the serialized projection.
+     *
+     * @param equalsCollection whether equal collections share one wood id.
+     * @return this field, for a fluent declaration.
+     */
+    public JsonField withEqualsCollection(boolean equalsCollection) {
+        this.equalsCollection = equalsCollection;
         return this;
     }
 
