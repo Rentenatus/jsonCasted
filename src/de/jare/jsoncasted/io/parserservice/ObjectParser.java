@@ -123,6 +123,9 @@ public class ObjectParser {
                 } else if (c == '(') {
                     requireOpenValue(psr, paramName, paramValue);
                     paramValue = CastingParser.parse(psr);
+                } else if (c == '<') {
+                    requireOpenValue(psr, paramName, paramValue);
+                    paramValue = WoodIdParser.parse(psr);
                 } else if (c == '{') {
                     requireOpenValue(psr, paramName, paramValue);
                     paramValue = ObjectParser.parse(psr);

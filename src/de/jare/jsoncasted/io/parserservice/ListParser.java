@@ -62,6 +62,11 @@ public class ListParser {
                     throw new JsonParseException(psr.getRow(), "Unexpected character '('");
                 }
                 item = CastingParser.parse(psr);
+            } else if (c == '<') {
+                if (item != null) {
+                    throw new JsonParseException(psr.getRow(), "Unexpected character '<'");
+                }
+                item = WoodIdParser.parse(psr);
             } else if (c == '{') {
                 if (item != null) {
                     throw new JsonParseException(psr.getRow(), "Unexpected character '{'");
