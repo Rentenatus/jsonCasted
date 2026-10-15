@@ -2,7 +2,7 @@
 
 **Status**: Konzept, nichts umgesetzt.
 **Betroffene Projekte**: `jsonCasted` (Parser, Writer, Konvertierung), `jsonCasted_edit` (Edit-Knoten, LinkingSet, TreeWriter), `WoodJsonJack` (Collection-Editor, Fields-Pane).
-**Abhaengigkeiten**: `CastingParser`, `ListParser`, `ObjectParser`, `JsonNode`, `JsonTerms`, `WoodIdFinder`, `JsonObjectConverter`/`JsonNodeConverter`, `WoodElementResolver`, `DefinitionsContext`, `EditNodePropertyArr`, `EditNodeObject`, `EditLinkingSet`, `JsonTreeConverter`, `EditTreeWriter`, `JsonJackCollectionEditorDialog`.
+**Abhaengigkeiten**: `CastingParser`, `ListParser`, `ObjectParser`, `JsonNode`, `JsonTerms`, `WoodIdFinder`, `JsonObjectConverter`/`JsonNodeConverter`, `WoodElementResolver`, `DefinitionsContext`, `JsonFieldTypeNote`, `EditNodePropertyArr`, `EditNodeObject`, `EditLinkingSet`, `JsonTreeConverter`, `EditTreeWriter`, `JsonJackCollectionEditorDialog`.
 
 ---
 
@@ -72,10 +72,14 @@ Beispiele:
 (Profile)<"56">{ ... }        // Cast + Id + Objekt
 <"56">{ ... }                 // Id + Objekt (Zucker fuer den _woodObjectId-Member)
 <"56">[ ... ]                 // Id + Array  — die entscheidende Neuerung
-(Profile)<"56">[ ... ]        // optional: Cast vor Array (offen, siehe Kap. 8)
 <"56">                       // bare Id: reine Referenz auf "this::56"
 <"save::56">                  // bare Id, cross-resource
 ```
+
+**Cast vor Arrays ist nicht vorgesehen**: `(Cast)[...]` bleibt unberuecksigt. Casts in
+Listen laufen heute und auch weiterhin ueber die **Elemente**: `[(Cast){...}, ...]`.
+Der Element-Cast waere bei langen Listen als Faktor muehsam — das Thema bleibt bewusst
+als offener Punkt notiert (Kap. 11), ohne dass die Grammatik es jetzt erlaubt.
 
 Die Reihenfolge ist **kanonisch festgelegt**: `(Cast)` vor `<id>`. Die umgekehrte Form
 `<56>(Profile){}` wird nicht unterstuetzt (aesthetisch abgelehnt, verdoppelt die
@@ -158,9 +162,33 @@ per LinkingSet aktualisiert (eine Trefferstelle wird zur Schleife, wie bei Objek
 
 ## 5. Umsetzung jsonCasted (Writer)
 
-1. **`DefinitionsContext`**: Identity-Map keyt zukuenftig auch `List`-Instanzen. Die
-   Entscheidung „welche Liste ist geteilt und bekommt eine Id" ist der harte Teil — die
-   Syntax nimmt sie nicht ab. Erste Fundstelle = Definition mit Id, weitere = Stub.
+1. **`DefinitionsContext`**: Identity-Map keyt zukuenftig auch `List`-Instanzen.
+   **Welche** Liste eine Id bekommt, ist keine Writer-Heuristik, sondern eine
+   **Modell-Entscheidung am Feld** (siehe 5.1): Erste Fundstelle einer teilbaren Liste
+   = Definition mit Id, weitere Fundstellen = Stub.
+
+### 5.1 Id-Vergabe-Politik am Feld: `withSameCollection` / `withEqualsCollection`
+
+Zwei Feld-Flags (in `JsonFieldTypeNote`, neben `asList`/`asArray`):
+
+| Flag | Bedeutung | Vergleich |
+|---|---|---|
+| (keines, Default) | Liste bekommt keine Id, Ausgabe bleibt strict-JSON | — |
+| `withSameCollection` | **Instanz-Identitaet** (`==`): dieselbe List-Instanz an N Stellen → eine Definition mit `<"id">`, N-1 Stubs. Treu am Instanzbestand | Java `==` |
+| `withEqualsCollection` | **Inhalt-Gleichheit**: auch verschiedene Instanzen mit gleichem Inhalt bekommen dieselbe Id. Obermenge von SAME — identische Instanzen sind auch gleich | Java `equals()` |
+
+- **Gegenbasis fuer EQUALS ist die serialisierte Projektion**, nicht Java-`equals()` der
+  In-Memory-Listen: Objekt-Elemente mit derselben woodId vergleichen damit automatisch
+  richtig; Java-`equals()` auf Modellinstanzen waere zerbrechlich.
+- **Semantische Konsequenz von EQUALS ist eine Normalisierung**: zwei blosse „gleiche"
+  Listen verschmelzen beim Round-Trip zu EINER geteilten Instanz — Live-Sharing entsteht
+  also erst nach dem erneuten Laden. SAME aendert am Instanzbestand nichts.
+- **Beide Flags gesetzt**: EQUALS gewinnt (tolerante Loesung); alternativ waere ein
+  Modellfehler denkbar (offen, Kap. 11).
+- **Reine Writer-Politik**: Die Leseseite ignoriert die Flags — `<"id">` im File erzeugt
+  Teilung immer, egal wie sie entstanden ist.
+- **Modell-des-Modells**: Die Flags sind Feld-Eigenschaften und damit automatisch im
+  Model-Editor editierbar (wie `asList`/`asArray` bzw. editString).
 2. **Ausgabeform**: Objekt-Ids bleiben Member (`_woodObjectId`), Array-Ids werden als
    `<"id">[...]` geschrieben — es existiert keine Strict-Form dafuer. Der Writer
    emittiert die Notation also nur dort, wo sie noetig ist.
@@ -216,7 +244,8 @@ per LinkingSet aktualisiert (eine Trefferstelle wird zur Schleife, wie bei Objek
 | Leere geteilte Liste | Writer gibt leere Arrays mit Id aus (skippingEmpty respektieren) |
 | Doppelte Ids | Warning, erster gewinnt (Kap. 6) |
 | Fremd-Tools (jq, Diff, andere Parser) | koennen Array-Ids nicht lesen — bewusst; Objekte behalten die Member-Form als Interop-Fallback |
-| Identitaetsvergabe „welche Liste ist geteilt" bleibt semantisch ungeloest | DefinitionsContext-Logik ist der groesste Brocken; Syntax macht sie nicht einfacher |
+| Identitaetsvergabe „welche Liste ist geteilt" | im Modell geloest: Feld-Politik `withSameCollection`/`withEqualsCollection` (Kap. 5.1); Restaufgabe ist die DefinitionsContext-Implementierung |
+| EQUALS verschmilzt „gleiche" Listen beim Round-Trip zu einer Instanz | bewusste Normalisierung; wer Treue will, nimmt SAME |
 
 ## 10. Reihenfolge (schrittweise, Test + Commit pro Phase)
 
@@ -225,8 +254,10 @@ per LinkingSet aktualisiert (eine Trefferstelle wird zur Schleife, wie bei Objek
    Notation parsen, Normalisierung quoted/unquoted, Duplikat-Warnung, Round-Trip Knoten↔Text.
 2. **Phase 2 — Konvertierung** (jsonCasted): List-Instanzen als Resolution-Ziele,
    bare Id an Listenfeld loest auf. Tests mit geteilter Liste (Java-Objektebene).
-3. **Phase 3 — Writer** (jsonCasted): DefinitionsContext fuer Listen, Ausgabe
-   `<"id">[...]`, leere geteilte Liste. Round-Trip-Tests Datei→Objekt→Datei.
+3. **Phase 3 — Writer** (jsonCasted): `JsonFieldTypeNote`-Flags
+   `withSameCollection`/`withEqualsCollection`, DefinitionsContext-Politik fuer Listen,
+   Ausgabe `<"id">[...]`, leere geteilte Liste. Round-Trip-Tests Datei→Objekt→Datei
+   (inkl. SAME: Instanz-Teilung; EQUALS: Verschmelzung gleicher Listen).
 4. **Phase 4 — Edit-Ebene** (jsonCasted_edit): EditNodeAbstract-Identitaet,
    EditLinkingSet-Verbreiterung, JsonTreeConverter, EditTreeWriter. Tests analog
    SoftParseNGTest (Baum laedt Ids, Writer emittiert sie zurueck).
@@ -235,8 +266,11 @@ per LinkingSet aktualisiert (eine Trefferstelle wird zur Schleife, wie bei Objek
 
 ## 11. Offene Punkte
 
-- `(Cast)[...]` vor Arrays erlauben? Heute verlangt `CastingParser` zwingend `{`.
-  Wenn ja: Elementtyp-Deklaration; wenn nein: Id ohne Cast vor Array.
+- `(Cast)[...]` vor Arrays: bewusst **nicht vorgesehen** — Casts in Listen laufen ueber
+  die Elemente (`[(Cast){...}, ...]`, heutiges Verhalten). Bei langen Listen waere ein
+  List-Cast ein Komfort; bleibt offen, die Grammatik erlaubt ihn nicht.
+- Beide Feld-Flags gesetzt (`withSameCollection` + `withEqualsCollection`):
+  Empfehlung ist „EQUALS gewinnt"; alternativ Modellfehler.
 - Member-Form bei Objekten: hat `_woodObjectId`-Member Vorrang vor dem `<id>`-Feld am
   Knoten, wenn beides da ist? (Vorschlag: Member gewinnt.)
 - Warning-Kanal: LOG reicht, oder Eintrag ins LinkingSet fuer die UI? (Vorschlag: beides.)
