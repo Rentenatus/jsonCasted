@@ -165,6 +165,8 @@ public class TestBoxNGTest {
             return;
         }
         assertNotNull(reloaded, "the reloaded box must build at all");
+        System.out.println("## testEqualsCollectionRoundTrip written json:");
+        System.out.println(json);
 
         final java.util.regex.Matcher def = java.util.regex.Pattern
                 .compile("\"list\":\\s*<\"(\\d+)\">\\s*\\[").matcher(json);
