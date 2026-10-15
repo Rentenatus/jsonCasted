@@ -76,8 +76,16 @@ public class PrintStrategy implements WriteStrategy {
 
     @Override
     public void writeStartObject(JsonClass jClass, Object ob, JsonField parentField, Object parent, boolean needsCast, boolean needsClassDef, WriteNodePath intentPath) {
+        writeStartObject(jClass, ob, parentField, parent, needsCast, needsClassDef, -1L, intentPath);
+    }
+
+    @Override
+    public void writeStartObject(JsonClass jClass, Object ob, JsonField parentField, Object parent, boolean needsCast, boolean needsClassDef, long woodIdPrefix, WriteNodePath intentPath) {
         if (jClass != null && needsCast) {
             writeCast(jClass, ob, intentPath);
+        }
+        if (woodIdPrefix >= 0) {
+            writeWoodIdPrefix(woodIdPrefix, intentPath);
         }
         out.print('{');
         if (jClass != null && needsClassDef) {

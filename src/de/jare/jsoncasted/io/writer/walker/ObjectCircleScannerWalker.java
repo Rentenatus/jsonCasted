@@ -6,6 +6,7 @@
 package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonWoodIdLevel;
 import de.jare.jsoncasted.io.JsonWriteException;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
@@ -211,7 +212,10 @@ public class ObjectCircleScannerWalker {
                 // Collection sharing policy: count the occurrences of list instances under sharing enabled
                 // fields, so the writer can turn repeated instances into one definition with references. The
                 // equals policy wins over the instance policy: equal content groups instead of instances.
-                if (jsonField.isAsListOrArray() && jsonField.isSameCollection() && fieldValue instanceof List) {
+                // The wood id level NEVER disables the sharing: no occurrences are noted, the writer keeps
+                // every list inline.
+                if (definitionsContext.getWoodIdLevel() != JsonWoodIdLevel.NEVER
+                        && jsonField.isAsListOrArray() && jsonField.isSameCollection() && fieldValue instanceof List) {
                     if (jsonField.isEqualsCollection()) {
                         definitionsContext.noteEqualsListOccurrence(fieldValue);
                     } else {
