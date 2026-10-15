@@ -30,6 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -90,6 +91,42 @@ public class TestBoxNGTest {
     @AfterMethod
     public void tearDownMethod() throws Exception {
 
+    }
+
+    /**
+     * Tests parsing and building with a valid testbox configuration. Target version using the new parser pipeline.
+     *
+     * @param configFile The configuration file to parse.
+     * @param definition The ImplTestDefinition to use.
+     * @return The built TestBox instance.
+     */
+    /**
+     * The wood id notation on the list field: an empty array definition with identity loads as an empty list -
+     * {@code "list": <"220">[]} is the identity carrier of an empty shared list, the rest of the box stays untouched.
+     */
+    @Test
+    public void testEmptyListAsWoodIdDefinition() {
+        final String json = "{\n"
+                + "  \"one\": (de.jare.impltest.lib.ValueInteger){ \"zahl\": 1 },\n"
+                + "  \"list\": <\"220\">[],\n"
+                + "  \"arr\": []\n"
+                + "}";
+        final ImplTestDefinition definition = ImplTestDefinition.getInstance();
+        final TestBox box;
+        try {
+            final JsonResource res = JsonParserService.parse(json, JsonDebugLevel.SIMPLE);
+            final WoodResolution resolution = JsonParser.parse(res, definition.getDescriptor(),
+                    definition.getRootClass().getcName(), JsonDebugLevel.SIMPLE);
+            final Object build = JsonBuilder.buildInstance(definition.getModel(), false, resolution.getAnswer());
+            assertNotNull(build, "the box must build at all");
+            box = (TestBox) build;
+        } catch (JsonParseException | IOException | NullPointerException | JsonBuildException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+            return;
+        }
+        assertNotNull(box.getList(), "the empty wood identified list must load as a list");
+        assertTrue(box.getList().isEmpty(), "the list definition is empty: " + box.getList());
     }
 
     /**
