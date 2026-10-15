@@ -175,6 +175,7 @@ public class PrintStrategy implements WriteStrategy {
         out.print(localId);
         out.print('"');
         out.print('>');
+        out.print("[]");
     }
 
     @Override
