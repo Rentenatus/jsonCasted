@@ -24,18 +24,18 @@ import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
 /**
- * The wood id level of the item definition steers the writer, analog to the casting level: NEVER ignores the
- * collection sharing policies and keeps object identities in the member form, NECESSARY (the default) writes ids
- * only where necessary, PREFIXED moves the object identities into the angle bracket notation - definitions carry
- * the id prefix, references become the bare id.
+ * The wood id level of the item definition steers the writer, analog to the casting level: NEVER ignores the collection
+ * sharing policies and keeps object identities in the member form, NECESSARY (the default) writes ids only where
+ * necessary, PREFIXED moves the object identities into the angle bracket notation - definitions carry the id prefix,
+ * references become the bare id.
  *
  * @author Janusch Rentenatus
  */
 public class JsonWoodIdLevelNGTest {
 
     /**
-     * NEVER ignores the sharing policies: the same list instance at two fields is written inline twice and the
-     * round trip yields two independent lists.
+     * NEVER ignores the sharing policies: the same list instance at two fields is written inline twice and the round
+     * trip yields two independent lists.
      */
     @Test
     public void testNeverDisablesListSharing() throws Exception {
@@ -87,9 +87,8 @@ public class JsonWoodIdLevelNGTest {
     }
 
     /**
-     * PREFIXED moves the object identities into the angle bracket notation: the definition carries the id prefix
-     * in front of the object, the references become the bare id - no _woodObjectId member and no _woodLink stub
-     * anywhere.
+     * PREFIXED moves the object identities into the angle bracket notation: the definition carries the id prefix in
+     * front of the object, the references become the bare id - no _woodObjectId member and no _woodLink stub anywhere.
      */
     @Test
     public void testPrefixedWritesAngleNotation() throws Exception {
@@ -155,10 +154,6 @@ public class JsonWoodIdLevelNGTest {
                 return JsonCastingLevel.NECESSARY_CLASS_DEF;
             }
 
-            @Override
-            public JsonWoodIdLevel getWoodIdLevel() {
-                return level;
-            }
         };
     }
 
