@@ -52,6 +52,7 @@ public class ObjectParser {
      */
     static JsonNode parse(ParseStreamReader psr) throws IOException, JsonParseException {
         JsonNode myObject = JsonNode.objectNode();
+        myObject.withSourcePosition(psr.getRow(), psr.getPos());
         while (psr.hasNext()) {
             String paramName = null;
             JsonNode paramValue = null;
@@ -108,30 +109,36 @@ public class ObjectParser {
                 }
                 if (c == '}') {
                     requireCleanValueEnd(psr, paramName, paramValue, sb);
-                    appendParam(myObject, paramName, paramValue, sb.toString());
+                    appendParam(myObject, paramName, paramValue, sb.toString(), psr.getRow(), psr.getPos());
                     return myObject;
                 }
                 if (c == '"') {
                     requireOpenValue(psr, paramName, paramValue);
                     paramValue = JsonNode.stringNode(StringParser.parse(psr, '"'));
+                    paramValue.withSourcePosition(psr.getRow(), psr.getPos());
                 } else if (c == '\'') {
                     requireOpenValue(psr, paramName, paramValue);
                     paramValue = JsonNode.stringNode(StringParser.parse(psr, '\''));
+                    paramValue.withSourcePosition(psr.getRow(), psr.getPos());
                 } else if (c == '[') {
                     requireOpenValue(psr, paramName, paramValue);
                     paramValue = ListParser.parse(psr);
+                    paramValue.withSourcePosition(psr.getRow(), psr.getPos());
                 } else if (c == '(') {
                     requireOpenValue(psr, paramName, paramValue);
                     paramValue = CastingParser.parse(psr);
+                    paramValue.withSourcePosition(psr.getRow(), psr.getPos());
                 } else if (c == '<') {
                     requireOpenValue(psr, paramName, paramValue);
                     paramValue = WoodIdParser.parse(psr);
+                    paramValue.withSourcePosition(psr.getRow(), psr.getPos());
                 } else if (c == '{') {
                     requireOpenValue(psr, paramName, paramValue);
                     paramValue = ObjectParser.parse(psr);
+                    paramValue.withSourcePosition(psr.getRow(), psr.getPos());
                 } else if (c == ',') {
                     requireCleanValueEnd(psr, paramName, paramValue, sb);
-                    appendParam(myObject, paramName, paramValue, sb.toString());
+                    appendParam(myObject, paramName, paramValue, sb.toString(), psr.getRow(), psr.getPos());
                     break;
                 } else {
                     // Content that follows a value without a separating
@@ -198,10 +205,16 @@ public class ObjectParser {
      * @param paramName the parameter name.
      * @param paramValue the parsed parameter value.
      * @param alternativ fallback string value if paramValue is null.
+     * @param row the source line for the fallback value node.
+     * @param pos the source column for the fallback value node.
      */
-    private static void appendParam(JsonNode myObject, String paramName, JsonNode paramValue, String alternativ) {
+    private static void appendParam(JsonNode myObject, String paramName, JsonNode paramValue, String alternativ, int row, int pos) {
         String key = paramKey(paramName);
-        myObject.put(key, paramValue != null ? paramValue : JsonNode.varNode(alternativ));
+        JsonNode value = paramValue != null ? paramValue : JsonNode.varNode(alternativ);
+        if (paramValue == null) {
+            value.withSourcePosition(row, pos);
+        }
+        myObject.put(key, value);
     }
 
     /**

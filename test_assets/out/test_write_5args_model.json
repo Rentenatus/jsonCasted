@@ -5,7 +5,7 @@
     "de.jare.jsonconfig.item.ConfigRoot": {
       "_woodObjectId": 3,
       "@doc": [
-      "Root of a seed configuration."],
+      "Root of a seed configuration.", "It carries the main logging and the profiles."],
       "@editString": [
       "config ${mainLogging}"],
       "typeName": "de.jare.jsonconfig.item.ConfigRoot",
@@ -13,8 +13,7 @@
           "@doc": [
           "The main logging of the seed."],
           "annotations": [{
-              "name": "doc",
-              "transientFlag": false
+              "name": "doc"
             }
             ],
           "fieldName": "mainLogging",
@@ -38,8 +37,7 @@
           "@doc": [
           "The profiles of the seed."],
           "annotations": [{
-              "name": "doc",
-              "transientFlag": false
+              "name": "doc"
             }
             ],
           "fieldName": "profiles",
@@ -56,16 +54,13 @@
       "primitive": false,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }, 
         {
-          "name": "doc",
-          "transientFlag": false
+          "name": "doc"
         }, 
         {
-          "name": "editString",
-          "transientFlag": false
+          "name": "editString"
         }
         ]
     },
@@ -82,8 +77,7 @@
         "collectionType": "none"
       },
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -95,8 +89,7 @@
       "primitive": true,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -113,8 +106,7 @@
         "collectionType": "array"
       },
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -126,8 +118,7 @@
       "primitive": true,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -139,8 +130,7 @@
       "primitive": true,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -155,8 +145,7 @@
           "@doc": [
           "Log level of this logger."],
           "annotations": [{
-              "name": "doc",
-              "transientFlag": false
+              "name": "doc"
             }
             ],
           "fieldName": "level",
@@ -171,8 +160,7 @@
           "@doc": [
           "File path of the log."],
           "annotations": [{
-              "name": "doc",
-              "transientFlag": false
+              "name": "doc"
             }
             ],
           "fieldName": "path",
@@ -189,16 +177,13 @@
       "primitive": false,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }, 
         {
-          "name": "doc",
-          "transientFlag": false
+          "name": "doc"
         }, 
         {
-          "name": "editString",
-          "transientFlag": false
+          "name": "editString"
         }
         ]
     },
@@ -210,8 +195,7 @@
       "primitive": true,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -223,8 +207,7 @@
       "primitive": true,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -236,8 +219,7 @@
       "primitive": true,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -249,8 +231,7 @@
       "primitive": true,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -267,8 +248,7 @@
         "collectionType": "none"
       },
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -280,8 +260,7 @@
       "primitive": true,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -293,8 +272,7 @@
       "primitive": true,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -318,8 +296,7 @@
           "@doc": [
           "Name of the profile."],
           "annotations": [{
-              "name": "doc",
-              "transientFlag": false
+              "name": "doc"
             }
             ],
           "fieldName": "profile",
@@ -334,8 +311,7 @@
           "@doc": [
           "Type of the profile."],
           "annotations": [{
-              "name": "doc",
-              "transientFlag": false
+              "name": "doc"
             }
             ],
           "fieldName": "type",
@@ -359,8 +335,7 @@
           "@doc": [
           "The features of this profile."],
           "annotations": [{
-              "name": "doc",
-              "transientFlag": false
+              "name": "doc"
             }
             ],
           "fieldName": "features",
@@ -377,16 +352,13 @@
       "primitive": false,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }, 
         {
-          "name": "editString",
-          "transientFlag": false
+          "name": "editString"
         }, 
         {
-          "name": "doc",
-          "transientFlag": false
+          "name": "doc"
         }
         ]
     },
@@ -398,8 +370,7 @@
       "primitive": true,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -411,8 +382,7 @@
       "primitive": true,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     },
@@ -436,8 +406,7 @@
           "@doc": [
           "Name of the feature."],
           "annotations": [{
-              "name": "doc",
-              "transientFlag": false
+              "name": "doc"
             }
             ],
           "fieldName": "feature",
@@ -490,16 +459,13 @@
       "primitive": false,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }, 
         {
-          "name": "doc",
-          "transientFlag": false
+          "name": "doc"
         }, 
         {
-          "name": "editString",
-          "transientFlag": false
+          "name": "editString"
         }
         ]
     },
@@ -519,8 +485,7 @@
       "primitive": true,
       "reflective": false,
       "annotations": [{
-          "name": "doc:*",
-          "transientFlag": false
+          "name": "doc:*"
         }
         ]
     }

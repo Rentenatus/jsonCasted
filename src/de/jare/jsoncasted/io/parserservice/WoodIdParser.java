@@ -63,7 +63,10 @@ public class WoodIdParser {
             }
             if (c == '{') {
                 psr.next();
-                return ObjectParser.parse(psr).put(TERM_WOOD_OBJECT_ID, JsonNode.stringNode(id));
+                JsonNode obj = ObjectParser.parse(psr);
+                JsonNode idNode = JsonNode.stringNode(id);
+                idNode.withSourcePosition(psr.getRow(), psr.getPos());
+                return obj.put(TERM_WOOD_OBJECT_ID, idNode);
             }
             if (c == '[') {
                 psr.next();
@@ -73,7 +76,10 @@ public class WoodIdParser {
             }
         }
         final JsonNode stub = JsonNode.objectNode();
-        stub.put(TERM_WOOD_LINK, JsonNode.stringNode(localizeKey(id)));
+        stub.withSourcePosition(psr.getRow(), psr.getPos());
+        JsonNode linkNode = JsonNode.stringNode(localizeKey(id));
+        linkNode.withSourcePosition(psr.getRow(), psr.getPos());
+        stub.put(TERM_WOOD_LINK, linkNode);
         return stub;
     }
 
