@@ -54,41 +54,49 @@ public class ListParser {
                 continue;
             }
             if (c == ']') {
-                addItem(list, item, sb);
-                return JsonNode.arrayNode(list);
+                addItem(list, item, sb, psr.getRow(), psr.getPos());
+                JsonNode arrayNode = JsonNode.arrayNode(list);
+                arrayNode.withSourcePosition(psr.getRow(), psr.getPos());
+                return arrayNode;
             }
             if (c == '(') {
                 if (item != null) {
                     throw new JsonParseException(psr.getRow(), "Unexpected character '('");
                 }
                 item = CastingParser.parse(psr);
+                item.withSourcePosition(psr.getRow(), psr.getPos());
             } else if (c == '<') {
                 if (item != null) {
                     throw new JsonParseException(psr.getRow(), "Unexpected character '<'");
                 }
                 item = WoodIdParser.parse(psr);
+                item.withSourcePosition(psr.getRow(), psr.getPos());
             } else if (c == '{') {
                 if (item != null) {
                     throw new JsonParseException(psr.getRow(), "Unexpected character '{'");
                 }
                 item = ObjectParser.parse(psr);
+                item.withSourcePosition(psr.getRow(), psr.getPos());
             } else if (c == '[') {
                 if (item != null) {
                     throw new JsonParseException(psr.getRow(), "Unexpected character '['");
                 }
                 item = ListParser.parse(psr);
+                item.withSourcePosition(psr.getRow(), psr.getPos());
             } else if (c == '"') {
                 if (item != null) {
                     throw new JsonParseException(psr.getRow(), "Unexpected character '\"'");
                 }
                 item = JsonNode.stringNode(StringParser.parse(psr, '"'));
+                item.withSourcePosition(psr.getRow(), psr.getPos());
             } else if (c == '\'') {
                 if (item != null) {
                     throw new JsonParseException(psr.getRow(), "Unexpected character '\''");
                 }
                 item = JsonNode.stringNode(StringParser.parse(psr, '\''));
+                item.withSourcePosition(psr.getRow(), psr.getPos());
             } else if (c == ',') {
-                addItem(list, item, sb);
+                addItem(list, item, sb, psr.getRow(), psr.getPos());
                 item = null;
                 sb = new StringBuilder();
             } else {
@@ -112,8 +120,10 @@ public class ListParser {
      * @param list the array list to add to.
      * @param item the parsed JsonNode item (may be null).
      * @param sb the string builder containing accumulated characters (may be empty).
+     * @param row the source line for fallback value nodes.
+     * @param pos the source column for fallback value nodes.
      */
-    private static void addItem(ArrayList<JsonNode> list, JsonNode item, StringBuilder sb) {
+    private static void addItem(ArrayList<JsonNode> list, JsonNode item, StringBuilder sb, int row, int pos) {
         if (item != null) {
             list.add(item);
             return;
@@ -123,9 +133,13 @@ public class ListParser {
             return;
         }
         if ("null".equals(toString.trim())) {
-            list.add(JsonNode.nullNode());
+            JsonNode nullNode = JsonNode.nullNode();
+            nullNode.withSourcePosition(row, pos);
+            list.add(nullNode);
         } else {
-            list.add(JsonNode.varNode(sb.toString()));
+            JsonNode varNode = JsonNode.varNode(sb.toString());
+            varNode.withSourcePosition(row, pos);
+            list.add(varNode);
         }
     }
 

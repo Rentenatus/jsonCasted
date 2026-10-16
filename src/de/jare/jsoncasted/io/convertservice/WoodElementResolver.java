@@ -53,6 +53,44 @@ public final class WoodElementResolver {
     }
 
     /**
+     * Creates a JsonParseException with source position information from the given node, if the node has position data
+     * available.
+     *
+     * @param node the node that caused the error (may be null).
+     * @param message the error message.
+     * @return a JsonParseException with position prefix if available, otherwise without.
+     */
+    private static JsonParseException withPosition(JsonNode node, String message) {
+        if (node != null && node.getSourceLine() != null) {
+            Integer col = node.getSourceColumn();
+            if (col != null) {
+                return new JsonParseException(node.getSourceLine(), col, message);
+            }
+            return new JsonParseException(node.getSourceLine(), message);
+        }
+        return new JsonParseException(message);
+    }
+
+    /**
+     * Wraps an existing JsonParseException with source position information from the given node, if the node has
+     * position data and the exception does not already have a position prefix.
+     *
+     * @param node the node that caused the error (may be null).
+     * @param ex the original exception.
+     * @return a JsonParseException with position prefix if available, otherwise the original.
+     */
+    private static JsonParseException withPosition(JsonNode node, JsonParseException ex) {
+        if (node != null && node.getSourceLine() != null && !ex.getMessage().startsWith("[")) {
+            Integer col = node.getSourceColumn();
+            if (col != null) {
+                return new JsonParseException(node.getSourceLine(), col, ex.getMessage());
+            }
+            return new JsonParseException(node.getSourceLine(), ex.getMessage());
+        }
+        return ex;
+    }
+
+    /**
      * Resolves all wood references in a JsonSystem.This method attempts to resolve all object references within the
      * system, loading external resources as needed when providers are not found.Attempts to resolve all wood references
      * in a JsonSystem.This method processes the main resource and all registered resources, resolving object references
@@ -116,12 +154,12 @@ public final class WoodElementResolver {
             }
 
             try {
-                JsonTypeDescriptor typeDescriptor = resolveContextClass(node, service.getDescriptor());
+                JsonTypeDescriptor typeDescriptor = resolveContextClass(node, key, service.getDescriptor());
                 JsonObjectConverter.convertObject(node, key, typeDescriptor, service);
                 resolvedThisRound.add(key);
                 progress = true;
             } catch (JsonParseException ex) {
-                service.getResolution().addException(ex);
+                service.getResolution().addException(withPosition(node, ex));
             }
 
         }
@@ -173,7 +211,7 @@ public final class WoodElementResolver {
                 }
             }
         } catch (JsonParseException ex) {
-            resolution.addException(ex);
+            resolution.addException(withPosition(node, ex));
             return false;
         }
 
@@ -218,23 +256,23 @@ public final class WoodElementResolver {
      * @return The resolved type descriptor.
      * @throws JsonParseException If the node is not an object, missing _class, or type not found.
      */
-    private static JsonTypeDescriptor resolveContextClass(JsonNode node, JsonModelDescriptor descriptor)
+    private static JsonTypeDescriptor resolveContextClass(JsonNode node, String key, JsonModelDescriptor descriptor)
             throws JsonParseException {
 
         if (node == null || !node.isObject() || node.asObjectValues() == null) {
-            throw new JsonParseException("Context node must be an object.");
+            throw withPosition(node, "Context node for " + key + " must be an object.");
         }
 
         JsonNode classNode = node.asObjectValues().get(JsonTerms.TERM_CLASS);
         if (classNode == null) {
-            throw new JsonParseException("Missing _class on containment node.");
+            throw withPosition(node, "Missing _class on containment node for " + key + ".");
         }
 
         String className = classNode.toText();
         JsonTypeDescriptor typeDescriptor = descriptor.getTypePerceptive(className);
 
         if (typeDescriptor == null) {
-            throw new JsonParseException("No JsonClass found in descriptor for _class=" + className);
+            throw withPosition(classNode, "No JsonClass found in descriptor for key " + key + " and _class=" + className);
         }
 
         return typeDescriptor;
@@ -357,13 +395,15 @@ public final class WoodElementResolver {
      * @param resolution The WoodResolution to populate with description file mapping.
      */
     public static void extractDescriptionFiles(JsonResource resource, WoodResolution resolution) {
+        JsonNode fileNameNode = null;
+        JsonNode modelNameNode = null;
         try {
             Map<String, JsonNode> modelValues = getWoodModelValues(resource);
             if (modelValues == null) {
                 return;
             }
-            JsonNode fileNameNode = modelValues.get(TERM_FILE_NAME);
-            JsonNode modelNameNode = modelValues.get("modelName");
+            fileNameNode = modelValues.get(TERM_FILE_NAME);
+            modelNameNode = modelValues.get("modelName");
             if (fileNameNode == null || modelNameNode == null) {
                 return;
             }
@@ -373,7 +413,8 @@ public final class WoodElementResolver {
                 resolution.putDescriptionFile(modelName, filePath);
             }
         } catch (JsonParseException ex) {
-            resolution.addException(ex);
+            JsonNode causeNode = fileNameNode != null ? fileNameNode : modelNameNode;
+            resolution.addException(withPosition(causeNode, ex));
         }
     }
 

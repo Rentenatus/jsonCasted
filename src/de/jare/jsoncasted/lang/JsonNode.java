@@ -40,6 +40,8 @@ public class JsonNode {
     private final Boolean boolValue;
     private JsonTypeDescriptor jsonDescriptor; // optional, set for OBJECT nodes
     private String woodObjectId; // identity for nodes that cannot carry members (arrays)
+    private Integer sourceLine; // line number in the source JSON text (1-based)
+    private Integer sourceColumn; // column position in the source JSON text (0-based)
 
     private JsonNode(JsonNodeType type,
             Map<String, JsonNode> objectValue,
@@ -56,6 +58,8 @@ public class JsonNode {
         this.numberLongValue = numberLongValue;
         this.boolValue = boolValue;
         this.jsonDescriptor = null;
+        this.sourceLine = null;
+        this.sourceColumn = null;
     }
 
     public static JsonNode objectNode() {
@@ -296,6 +300,55 @@ public class JsonNode {
      */
     public String getWoodObjectId() {
         return woodObjectId;
+    }
+
+    /**
+     * Returns the 1-based line number in the source JSON text where this node was parsed.
+     *
+     * @return the source line number, or {@code null} if not set.
+     */
+    public Integer getSourceLine() {
+        return sourceLine;
+    }
+
+    /**
+     * Sets the 1-based line number in the source JSON text where this node was parsed.
+     *
+     * @param sourceLine the line number, or {@code null} to clear.
+     */
+    public void setSourceLine(Integer sourceLine) {
+        this.sourceLine = sourceLine;
+    }
+
+    /**
+     * Returns the 0-based column position in the source JSON text where this node was parsed.
+     *
+     * @return the source column, or {@code null} if not set.
+     */
+    public Integer getSourceColumn() {
+        return sourceColumn;
+    }
+
+    /**
+     * Sets the 0-based column position in the source JSON text where this node was parsed.
+     *
+     * @param sourceColumn the column position, or {@code null} to clear.
+     */
+    public void setSourceColumn(Integer sourceColumn) {
+        this.sourceColumn = sourceColumn;
+    }
+
+    /**
+     * Sets both source position values at once and returns this node for chaining.
+     *
+     * @param line the 1-based line number.
+     * @param column the 0-based column position.
+     * @return this node.
+     */
+    public JsonNode withSourcePosition(int line, int column) {
+        this.sourceLine = line;
+        this.sourceColumn = column;
+        return this;
     }
 
     public String getCast() {

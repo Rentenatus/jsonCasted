@@ -118,10 +118,14 @@ public class RootParser {
                 return ListParser.parse(psr);
             }
             if (c == '"') {
-                return JsonNode.stringNode(StringParser.parse(psr, '"'));
+                JsonNode node = JsonNode.stringNode(StringParser.parse(psr, '"'));
+                node.withSourcePosition(psr.getRow(), psr.getPos());
+                return node;
             }
             if (c == '\'') {
-                return JsonNode.stringNode(StringParser.parse(psr, '\''));
+                JsonNode node = JsonNode.stringNode(StringParser.parse(psr, '\''));
+                node.withSourcePosition(psr.getRow(), psr.getPos());
+                return node;
             }
             if (c == '(') {
                 return CastingParser.parse(psr);
@@ -131,7 +135,9 @@ public class RootParser {
             }
             sb.append(c);
         }
-        return JsonNode.varNode(sb.toString());
+        JsonNode node = JsonNode.varNode(sb.toString());
+        node.withSourcePosition(psr.getRow(), psr.getPos());
+        return node;
     }
 
 }

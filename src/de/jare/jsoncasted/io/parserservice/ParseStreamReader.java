@@ -100,6 +100,15 @@ public class ParseStreamReader implements SimpleStringSplitter {
     }
 
     /**
+     * Returns the current column position within the line.
+     *
+     * @return the 0-based column position.
+     */
+    public int getPos() {
+        return pos;
+    }
+
+    /**
      * Consumes and returns the next character from the stream.
      *
      * @return the next character.

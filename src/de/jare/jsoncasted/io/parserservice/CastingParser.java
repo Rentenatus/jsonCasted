@@ -90,9 +90,13 @@ public class CastingParser {
             }
             if (c == '{') {
                 JsonNode ret = ObjectParser.parse(psr);
-                ret.put(TERM_CLASS, JsonNode.stringNode(cast));
+                JsonNode classNode = JsonNode.stringNode(cast);
+                classNode.withSourcePosition(psr.getRow(), psr.getPos());
+                ret.put(TERM_CLASS, classNode);
                 if (woodId != null) {
-                    ret.put(TERM_WOOD_OBJECT_ID, JsonNode.stringNode(woodId));
+                    JsonNode idNode = JsonNode.stringNode(woodId);
+                    idNode.withSourcePosition(psr.getRow(), psr.getPos());
+                    ret.put(TERM_WOOD_OBJECT_ID, idNode);
                 }
                 return ret;
             }
