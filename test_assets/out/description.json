@@ -1,16 +1,5 @@
 {
   "_woodDefinitions": [{
-      "_woodObjectId": 59,
-      "fieldName": "typeName",
-      "typeName": "String",
-      "collectionType": "none",
-      "required": true,
-      "constructorParam": true,
-      "getter": "getTypeName",
-      "setter": "setTypeName",
-      "sortKey": 11000
-    }, 
-    {
       "_woodObjectId": 61,
       "name": "doc:*"
     }, 
@@ -57,6 +46,17 @@
       "getter": "getCollectionType",
       "setter": "setCollectionType",
       "sortKey": 12000
+    }, 
+    {
+      "_woodObjectId": 59,
+      "fieldName": "typeName",
+      "typeName": "String",
+      "collectionType": "none",
+      "required": true,
+      "constructorParam": true,
+      "getter": "getTypeName",
+      "setter": "setTypeName",
+      "sortKey": 11000
     }],
   "_woodObjectId": 1,
   "modelName": "Full Model",

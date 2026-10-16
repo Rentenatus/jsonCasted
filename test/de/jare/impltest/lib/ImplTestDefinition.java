@@ -50,6 +50,7 @@ public class ImplTestDefinition implements JsonItemDefinition {
         final JsonClass asString = model.getJsonClass("String");
         final JsonClass asBoolean = model.getJsonClass("Boolean");
         final JsonClass asInteger = model.getJsonClass("Integer");
+        final JsonClass asLong = model.getJsonClass("Long");
 
         JsonClass valueBoolean = model.newJsonReflect(ValueBoolean.class);
         valueBoolean.addCParam("frage", asBoolean, "getFrage");
@@ -79,6 +80,8 @@ public class ImplTestDefinition implements JsonItemDefinition {
         testBox.addField("one", valueIx);
         testBox.addField("list", valueIx, LIST).withEqualsCollection(true);
         testBox.addField("list2", valueIx, LIST).withEqualsCollection(true);
+        testBox.addField("numbers", asLong, LIST).withEqualsCollection(true);
+        testBox.addField("numbers2", asLong, LIST).withEqualsCollection(true);
         testBox.addField("arr", valueIx, ARRAY);
         testBox.withSkippingNulls(true);
 

@@ -86,6 +86,9 @@ public final class WoodElementResolver {
 
     /**
      * Performs one iteration of the resolution loop across all resources.
+     * Keyed lists (array nodes) carry no class definition and resolve at field level
+     * (convertListField / convertStubbedList), so this loop skips them without conversion and
+     * removes them from the key set instead of letting them surface as unresolved.
      *
      * @param remainingKeys The set of keys that still need to be resolved.
      * @param service The convert service for resolution.
@@ -103,6 +106,11 @@ public final class WoodElementResolver {
             }
 
             final JsonNode node = entry.getNode();
+            if (node != null && node.isArray()) {
+                resolvedThisRound.add(key);
+                progress = true;
+                continue;
+            }
             if (!isConvertibleNow(node, linkingSet, service.getResolution())) {
                 continue;
             }

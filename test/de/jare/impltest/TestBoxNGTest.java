@@ -221,6 +221,81 @@ public class TestBoxNGTest {
     }
 
     /**
+     * The equals collection policy on the basic long lists mirrors the value object case: both numbers lists
+     * carry the same content - 42 and 123456 - the first list becomes the wood id definition, the second
+     * reuses the bare id, and the reloaded box writes the same sharing again.
+     */
+    @Test
+    public void testEqualsCollectionRoundTrip2() {
+        final ImplTestDefinition definition = ImplTestDefinition.getInstance();
+        final JsonItemDefinition prefixed = new JsonItemDefinition() {
+            @Override
+            public JsonModel getModel() {
+                return definition.getModel();
+            }
+
+            @Override
+            public JsonCastingLevel getCastingLevel() {
+                return definition.getCastingLevel();
+            }
+
+            @Override
+            public JsonWoodIdLevel getWoodIdLevel() {
+                return JsonWoodIdLevel.PREFIXED;
+            }
+        };
+        final TestBox box = new TestBox();
+        box.setNumbers(new ArrayList<>(Arrays.asList(42L, 123456L)));
+        box.setNumbers2(new ArrayList<>(Arrays.asList(42L, 123456L)));
+
+        final String json;
+        final TestBox reloaded;
+        try {
+            json = JsonObjectWriter.writeToString(box, prefixed, prefixed.getRootClass());
+            final JsonResource res = JsonParserService.parse(json, JsonDebugLevel.SIMPLE);
+            final WoodResolution resolution = JsonParser.parse(res, definition.getDescriptor(),
+                    definition.getRootClass().getcName(), JsonDebugLevel.SIMPLE);
+            final Object build = JsonBuilder.buildInstance(definition.getModel(), false, resolution.getAnswer());
+            reloaded = (TestBox) build;
+        } catch (JsonParseException | JsonWriteException | IOException | NullPointerException
+                | JsonBuildException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+            return;
+        }
+        assertNotNull(reloaded, "the reloaded box must build at all");
+        System.out.println("## testEqualsCollectionRoundTrip2 written json:");
+        System.out.println(json);
+
+        final java.util.regex.Matcher def = java.util.regex.Pattern
+                .compile("\"numbers\":\\s*<\"(\\d+)\">\\s*\\[").matcher(json);
+        assertTrue(def.find(), "the first numbers list must become the id definition: " + json);
+        assertTrue(json.matches("(?s).*\"numbers2\":\\s*<\"" + def.group(1) + "\">(?!\\s*\\[).*"),
+                "the second numbers list must reuse the bare id: " + json);
+        assertFalse(json.contains("_woodObjectId"), "PREFIXED must leave the object member form out: " + json);
+        assertFalse(json.contains("_woodLink"), "PREFIXED must leave the link stub out: " + json);
+        assertEquals(reloaded.getNumbers().size(), 2, "the first numbers list must keep its elements");
+        assertEquals(reloaded.getNumbers2().size(), 2, "the second numbers list must keep its elements");
+        assertEquals(reloaded.getNumbers().get(0), Long.valueOf(42));
+        assertEquals(reloaded.getNumbers().get(1), Long.valueOf(123456));
+        assertEquals(reloaded.getNumbers2().get(0), Long.valueOf(42));
+        assertEquals(reloaded.getNumbers2().get(1), Long.valueOf(123456));
+
+        final String rewritten;
+        try {
+            rewritten = JsonObjectWriter.writeToString(reloaded, prefixed, prefixed.getRootClass());
+        } catch (JsonParseException | JsonWriteException | IOException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+            fail(ex.getMessage(), ex);
+            return;
+        }
+        assertTrue(rewritten.matches("(?s).*\"numbers\":\\s*<\"\\d+\">\\s*\\[.*"),
+                "the reloaded first numbers list must still be the id definition: " + rewritten);
+        assertTrue(rewritten.matches("(?s).*\"numbers2\":\\s*<\"\\d+\">(?!\\s*\\[).*"),
+                "the reloaded second numbers list must still reuse the bare id: " + rewritten);
+    }
+
+    /**
      * Tests parsing and building with a valid testbox configuration. Target version using the new parser pipeline.
      *
      * @param configFile The configuration file to parse.
