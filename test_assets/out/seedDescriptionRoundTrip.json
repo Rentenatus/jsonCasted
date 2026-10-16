@@ -1,0 +1,496 @@
+{
+  "_woodObjectId": 1,
+  "modelName": "Seed",
+  "describedTypes": {
+    "de.jare.jsonconfig.item.ConfigRoot": {
+      "_woodObjectId": 3,
+      "@doc": [
+      "Root of a seed configuration.", "It carries the main logging and the profiles."],
+      "@editString": [
+      "config ${mainLogging}"],
+      "typeName": "de.jare.jsonconfig.item.ConfigRoot",
+      "fields": [{
+          "@doc": [
+          "The main logging of the seed."],
+          "annotations": [{
+              "name": "doc"
+            }
+            ],
+          "fieldName": "mainLogging",
+          "typeName": "de.jare.jsonconfig.item.ConfigLogging",
+          "collectionType": "none",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getMainLogging",
+          "setter": "setMainLogging"
+        }, 
+        {
+          "fieldName": "comments",
+          "typeName": "String",
+          "collectionType": "array",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getComments",
+          "setter": "setComments"
+        }, 
+        {
+          "@doc": [
+          "The profiles of the seed."],
+          "annotations": [{
+              "name": "doc"
+            }
+            ],
+          "fieldName": "profiles",
+          "typeName": "de.jare.jsonconfig.item.ConfigProfile",
+          "collectionType": "list",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getProfiles",
+          "setter": "setProfiles"
+        }
+        ],
+      "nodeType": "OBJECT",
+      "skippingNulls": false,
+      "primitive": false,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }, 
+        {
+          "name": "doc"
+        }, 
+        {
+          "name": "editString"
+        }
+        ]
+    },
+    "de.jare.jsoncasted.lang.JsonInstance<String>": {
+      "_woodObjectId": 12,
+      "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>",
+      "nodeType": "OBJECT",
+      "skippingNulls": false,
+      "primitive": false,
+      "reflective": false,
+      "mappingAllFields": {
+        "_woodObjectId": 13,
+        "typeName": "String",
+        "collectionType": "none"
+      },
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "double": {
+      "_woodObjectId": 15,
+      "typeName": "double",
+      "nodeType": "NUMBER",
+      "skippingNulls": false,
+      "primitive": true,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "de.jare.jsoncasted.lang.JsonInstance<String>[]": {
+      "_woodObjectId": 17,
+      "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>[]",
+      "nodeType": "OBJECT",
+      "skippingNulls": false,
+      "primitive": false,
+      "reflective": false,
+      "mappingAllFields": {
+        "_woodObjectId": 18,
+        "typeName": "String",
+        "collectionType": "array"
+      },
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "String": {
+      "_woodObjectId": 20,
+      "typeName": "String",
+      "nodeType": "STRING",
+      "skippingNulls": false,
+      "primitive": true,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "float": {
+      "_woodObjectId": 22,
+      "typeName": "float",
+      "nodeType": "NUMBER",
+      "skippingNulls": false,
+      "primitive": true,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "de.jare.jsonconfig.item.ConfigLogging": {
+      "_woodObjectId": 24,
+      "@doc": [
+      "Logging configuration: a level and a file path."],
+      "@editString": [
+      "${level|upper}: ${path}"],
+      "typeName": "de.jare.jsonconfig.item.ConfigLogging",
+      "fields": [{
+          "@doc": [
+          "Log level of this logger."],
+          "annotations": [{
+              "name": "doc"
+            }
+            ],
+          "fieldName": "level",
+          "typeName": "String",
+          "collectionType": "none",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getLevel",
+          "setter": "setLevel"
+        }, 
+        {
+          "@doc": [
+          "File path of the log."],
+          "annotations": [{
+              "name": "doc"
+            }
+            ],
+          "fieldName": "path",
+          "typeName": "String",
+          "collectionType": "none",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getPath",
+          "setter": "setPath"
+        }
+        ],
+      "nodeType": "OBJECT",
+      "skippingNulls": false,
+      "primitive": false,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }, 
+        {
+          "name": "doc"
+        }, 
+        {
+          "name": "editString"
+        }
+        ]
+    },
+    "de.jare.jsonconfig.item.ConfigProfileType": {
+      "_woodObjectId": 32,
+      "typeName": "de.jare.jsonconfig.item.ConfigProfileType",
+      "nodeType": "STRING",
+      "skippingNulls": false,
+      "primitive": true,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "Double": {
+      "_woodObjectId": 34,
+      "typeName": "Double",
+      "nodeType": "NUMBER",
+      "skippingNulls": false,
+      "primitive": true,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "int": {
+      "_woodObjectId": 36,
+      "typeName": "int",
+      "nodeType": "LONG",
+      "skippingNulls": false,
+      "primitive": true,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "long": {
+      "_woodObjectId": 38,
+      "typeName": "long",
+      "nodeType": "LONG",
+      "skippingNulls": false,
+      "primitive": true,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "de.jare.jsoncasted.lang.JsonInstance<Boolean>": {
+      "_woodObjectId": 40,
+      "typeName": "de.jare.jsoncasted.lang.JsonInstance<Boolean>",
+      "nodeType": "OBJECT",
+      "skippingNulls": false,
+      "primitive": false,
+      "reflective": false,
+      "mappingAllFields": {
+        "_woodObjectId": 41,
+        "typeName": "Boolean",
+        "collectionType": "none"
+      },
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "Integer": {
+      "_woodObjectId": 43,
+      "typeName": "Integer",
+      "nodeType": "LONG",
+      "skippingNulls": false,
+      "primitive": true,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "Float": {
+      "_woodObjectId": 45,
+      "typeName": "Float",
+      "nodeType": "NUMBER",
+      "skippingNulls": false,
+      "primitive": true,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "de.jare.jsonconfig.item.ConfigProfile": {
+      "_woodObjectId": 47,
+      "@editString": [
+      "${profile}"],
+      "@doc": [
+      "This is a profile."],
+      "typeName": "de.jare.jsonconfig.item.ConfigProfile",
+      "fields": [{
+          "fieldName": "profileLogging",
+          "typeName": "de.jare.jsonconfig.item.ConfigLogging",
+          "collectionType": "none",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getProfileLogging",
+          "setter": "setProfileLogging"
+        }, 
+        {
+          "@doc": [
+          "Name of the profile."],
+          "annotations": [{
+              "name": "doc"
+            }
+            ],
+          "fieldName": "profile",
+          "typeName": "String",
+          "collectionType": "none",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getProfile",
+          "setter": "setProfile"
+        }, 
+        {
+          "@doc": [
+          "Type of the profile."],
+          "annotations": [{
+              "name": "doc"
+            }
+            ],
+          "fieldName": "type",
+          "typeName": "de.jare.jsonconfig.item.ConfigProfileType",
+          "collectionType": "none",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getType",
+          "setter": "setType"
+        }, 
+        {
+          "fieldName": "comments",
+          "typeName": "String",
+          "collectionType": "array",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getComments",
+          "setter": "setComments"
+        }, 
+        {
+          "@doc": [
+          "The features of this profile."],
+          "annotations": [{
+              "name": "doc"
+            }
+            ],
+          "fieldName": "features",
+          "typeName": "de.jare.jsonconfig.item.ConfigFeature",
+          "collectionType": "list",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getFeatures",
+          "setter": "setFeatures"
+        }
+        ],
+      "nodeType": "OBJECT",
+      "skippingNulls": false,
+      "primitive": false,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }, 
+        {
+          "name": "editString"
+        }, 
+        {
+          "name": "doc"
+        }
+        ]
+    },
+    "boolean": {
+      "_woodObjectId": 59,
+      "typeName": "boolean",
+      "nodeType": "BOOLEAN",
+      "skippingNulls": false,
+      "primitive": true,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "Long": {
+      "_woodObjectId": 61,
+      "typeName": "Long",
+      "nodeType": "LONG",
+      "skippingNulls": false,
+      "primitive": true,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    },
+    "de.jare.jsonconfig.item.ConfigFeature": {
+      "_woodObjectId": 63,
+      "@doc": [
+      "A feature with its own logging, settings and labels."],
+      "@editString": [
+      "${feature}"],
+      "typeName": "de.jare.jsonconfig.item.ConfigFeature",
+      "fields": [{
+          "fieldName": "featureLogging",
+          "typeName": "de.jare.jsonconfig.item.ConfigLogging",
+          "collectionType": "none",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getFeatureLogging",
+          "setter": "setFeatureLogging"
+        }, 
+        {
+          "@doc": [
+          "Name of the feature."],
+          "annotations": [{
+              "name": "doc"
+            }
+            ],
+          "fieldName": "feature",
+          "typeName": "String",
+          "collectionType": "none",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getFeature",
+          "setter": "setFeature"
+        }, 
+        {
+          "fieldName": "comments",
+          "typeName": "String",
+          "collectionType": "array",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getComments",
+          "setter": "setComments"
+        }, 
+        {
+          "fieldName": "settings",
+          "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>",
+          "collectionType": "none",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getSettings",
+          "setter": "setSettings"
+        }, 
+        {
+          "fieldName": "labels",
+          "typeName": "de.jare.jsoncasted.lang.JsonInstance<String>[]",
+          "collectionType": "none",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getLabels",
+          "setter": "setLabels"
+        }, 
+        {
+          "fieldName": "enablements",
+          "typeName": "de.jare.jsoncasted.lang.JsonInstance<Boolean>",
+          "collectionType": "none",
+          "required": true,
+          "constructorParam": false,
+          "getter": "getEnablements",
+          "setter": "setEnablements"
+        }
+        ],
+      "nodeType": "OBJECT",
+      "skippingNulls": false,
+      "primitive": false,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }, 
+        {
+          "name": "doc"
+        }, 
+        {
+          "name": "editString"
+        }
+        ]
+    },
+    "Object": {
+      "_woodObjectId": 74,
+      "typeName": "Object",
+      "nodeType": "OBJECT",
+      "skippingNulls": false,
+      "primitive": false,
+      "reflective": false
+    },
+    "Boolean": {
+      "_woodObjectId": 75,
+      "typeName": "Boolean",
+      "nodeType": "BOOLEAN",
+      "skippingNulls": false,
+      "primitive": true,
+      "reflective": false,
+      "annotations": [{
+          "name": "doc:*"
+        }
+        ]
+    }
+  },
+  "repoDescriptors": {},
+  "withSelfDescription": false,
+  "rootNodeCast": "de.jare.jsonconfig.item.ConfigRoot"
+}
