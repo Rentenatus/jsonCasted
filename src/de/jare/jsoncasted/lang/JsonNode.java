@@ -6,6 +6,9 @@
  */
 package de.jare.jsoncasted.lang;
 
+import de.jare.jsoncasted.diff.DifferableNode;
+import de.jare.jsoncasted.diff.MerkleHasher;
+import de.jare.jsoncasted.diff.NodeKind;
 import de.jare.jsoncasted.io.JsonParseException;
 import static de.jare.jsoncasted.lang.JsonNodeType.ARRAY;
 import static de.jare.jsoncasted.lang.JsonNodeType.BOOLEAN;
@@ -29,7 +32,7 @@ import java.util.*;
  *
  * @author Janusch Renteantus
  */
-public class JsonNode {
+public class JsonNode implements DifferableNode {
 
     private final JsonNodeType type;
     private final Map<String, JsonNode> objectValue;
@@ -42,6 +45,8 @@ public class JsonNode {
     private String woodObjectId; // identity for nodes that cannot carry members (arrays)
     private Integer sourceLine; // line number in the source JSON text (1-based)
     private Integer sourceColumn; // column position in the source JSON text (0-based)
+    private String memberKey; // member key under which this node sits in its parent (set by put)
+    private Long merkleHash; // memoized Merkle subtree hash (diff machinery, see doc/TREE_DIFF.md)
 
     private JsonNode(JsonNodeType type,
             Map<String, JsonNode> objectValue,
@@ -129,6 +134,9 @@ public class JsonNode {
             throw new IllegalStateException("not an object node");
         }
         objectValue.put(key, value);
+        value.memberKey = key; // the child carries its member key for the diff projection
+        value.merkleHash = null; // the member key is part of the child's Merkle hash
+        merkleHash = null;
         return this;
     }
 
@@ -137,6 +145,7 @@ public class JsonNode {
             throw new IllegalStateException("not an array node");
         }
         arrayValue.add(value);
+        merkleHash = null;
         return this;
     }
 
@@ -291,6 +300,7 @@ public class JsonNode {
      */
     public void setWoodObjectId(String woodObjectId) {
         this.woodObjectId = woodObjectId;
+        this.merkleHash = null;
     }
 
     /**
@@ -385,6 +395,122 @@ public class JsonNode {
             return providerName + COLONCOLON + linkKey.substring(PREFIX_SELF.length());
         }
         return linkKey;
+    }
+
+    // --- DifferableNode: read-only semantic projection for the diff engine (see doc/TREE_DIFF.md) ---
+    @Override
+    public NodeKind getKind() {
+        switch (type) {
+            case OBJECT:
+                return NodeKind.OBJECT;
+            case ARRAY:
+                return NodeKind.ARRAY;
+            default:
+                return NodeKind.VALUE;
+        }
+    }
+
+    @Override
+    public String getObjektId() {
+        if (isObject() && objectValue != null) {
+            final JsonNode idNode = objectValue.get(JsonTerms.TERM_WOOD_OBJECT_ID);
+            if (idNode != null) {
+                try {
+                    return idNode.toText();
+                } catch (JsonParseException e) {
+                    return null; // unreadable id member: no identity for the diff
+                }
+            }
+        }
+        return woodObjectId;
+    }
+
+    @Override
+    public String getLinkTarget() {
+        if (isObject() && objectValue != null) {
+            final JsonNode linkNode = objectValue.get(JsonTerms.TERM_WOOD_LINK);
+            if (linkNode != null) {
+                return linkNode.asText();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String getMemberKey() {
+        return memberKey;
+    }
+
+    @Override
+    public String getName() {
+        // parse layer has no object-value name; the member name is the position (see getMemberKey) — never
+        // duplicated here, otherwise a subtree under another key could not hash/validate as the same content
+        return null;
+    }
+
+    @Override
+    public String getValue() {
+        // type-tagged so a string "5" and a long 5 are not conflated by the diff
+        switch (type) {
+            case STRING:
+                return "string:" + textValue;
+            case NUMBER:
+                return "number:" + numberValue;
+            case LONG:
+                return "long:" + numberLongValue;
+            case BOOLEAN:
+                return "boolean:" + boolValue;
+            case NULL:
+                return "null";
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public String getCastName() {
+        return getCast();
+    }
+
+    /**
+     * Returns the memoized Merkle subtree hash, computing it bottom-up on first query. Memoized hashes are a
+     * building-phase assumption: {@link #put(String, JsonNode)}, {@link #add(JsonNode)} and
+     * {@link #setWoodObjectId(String)} invalidate this node (and the inserted child); ancestors of a node mutated
+     * <em>after</em> hashing keep their stale hash and must be re-diffed from a freshly built or recomputed tree.
+     *
+     * @return the 64-bit Merkle hash of the subtree rooted at this node.
+     */
+    @Override
+    public long getMerkleHash() {
+        if (merkleHash == null) {
+            merkleHash = MerkleHasher.nodeHash(this); // children hash lazily through this call
+        }
+        return merkleHash;
+    }
+
+    @Override
+    public List<DifferableNode> children() {
+        if (isObject() && objectValue != null) {
+            // semantic projection: identity, link and cast members are exposed as projection fields
+            // (getObjektId/getLinkTarget/getCastName), never duplicated as children — otherwise one change
+            // would produce two deltas
+            final List<DifferableNode> result = new ArrayList<>(objectValue.size());
+            for (Map.Entry<String, JsonNode> entry : objectValue.entrySet()) {
+                if (JsonTerms.TERM_WOOD_OBJECT_ID.equals(entry.getKey())
+                        || JsonTerms.TERM_WOOD_LINK.equals(entry.getKey())
+                        || JsonTerms.TERM_CLASS.equals(entry.getKey())) {
+                    continue;
+                }
+                result.add(entry.getValue());
+            }
+            return result; // LinkedHashMap: insertion order preserved
+        }
+        if (isArray() && arrayValue != null) {
+            final List<DifferableNode> result = new ArrayList<>(arrayValue.size());
+            result.addAll(arrayValue);
+            return result;
+        }
+        return Collections.emptyList();
     }
 
     private static String escape(String s) {
