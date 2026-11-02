@@ -10,6 +10,7 @@
             <class name="de.jare.jsoncasted.model.descriptor.AnnotationValueAdoptionNGTest"/>
             <class name="de.jare.jsoncasted.model.item.AnnotationValueNGTest"/>
             <class name="de.jare.jsoncasted.diff.TreeDifferNGTest"/>
+            <class name="de.jare.jsoncasted.diff.ThreeWayDifferNGTest"/>
         </classes>
     </test>
 </suite>
