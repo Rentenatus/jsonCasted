@@ -450,16 +450,32 @@ public class JsonNode implements DifferableNode {
 
     @Override
     public String getValue() {
-        // type-tagged so a string "5" and a long 5 are not conflated by the diff
+        // raw scalar text; the type tag is exposed by getValueTag()
         switch (type) {
             case STRING:
-                return "string:" + textValue;
+                return textValue;
             case NUMBER:
-                return "number:" + numberValue;
+                return numberValue == null ? null : numberValue.toString();
             case LONG:
-                return "long:" + numberLongValue;
+                return numberLongValue == null ? null : numberLongValue.toString();
             case BOOLEAN:
-                return "boolean:" + boolValue;
+                return boolValue == null ? null : boolValue.toString();
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public String getValueTag() {
+        switch (type) {
+            case STRING:
+                return "string";
+            case NUMBER:
+                return "number";
+            case LONG:
+                return "long";
+            case BOOLEAN:
+                return "boolean";
             case NULL:
                 return "null";
             default:

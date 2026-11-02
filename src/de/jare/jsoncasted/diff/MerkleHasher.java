@@ -66,6 +66,7 @@ public final class MerkleHasher {
         h = mixField(h, node.getObjektId());
         h = mixField(h, node.getLinkTarget());
         h = mixField(h, node.getName());
+        h = mixField(h, node.getValueTag());
         h = mixField(h, node.getValue());
         h = mixField(h, node.getCastName());
         final List<DifferableNode> children = node.children();

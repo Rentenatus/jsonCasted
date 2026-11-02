@@ -54,6 +54,7 @@ public final class NodeValidator {
         if (!Objects.equals(left.getObjektId(), right.getObjektId())
                 || !Objects.equals(left.getLinkTarget(), right.getLinkTarget())
                 || !Objects.equals(left.getName(), right.getName())
+                || !Objects.equals(left.getValueTag(), right.getValueTag())
                 || !Objects.equals(left.getValue(), right.getValue())
                 || !Objects.equals(left.getCastName(), right.getCastName())) {
             return false;

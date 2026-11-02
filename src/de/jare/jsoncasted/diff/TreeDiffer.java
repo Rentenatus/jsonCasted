@@ -100,8 +100,8 @@ public final class TreeDiffer {
                 matchArrayChildren(b, t, path);
                 break;
             default:
-                if (!equalsNullable(b.getValue(), t.getValue())) {
-                    report.add(DeltaOp.modifyOp(path, DeltaProperty.VALUE, b.getValue(), t.getValue()));
+                if (!sameValue(b, t)) {
+                    report.add(DeltaOp.modifyOp(path, DeltaProperty.VALUE, valueText(b), valueText(t)));
                 }
                 break;
         }
@@ -354,5 +354,18 @@ public final class TreeDiffer {
 
     private static boolean equalsNullable(Object a, Object b) {
         return a == null ? b == null : a.equals(b);
+    }
+
+    /**
+     * Scalar comparison is tag-aware: a type-only change (string "5" to long 5) is a VALUE change.
+     */
+    private static boolean sameValue(DifferableNode b, DifferableNode t) {
+        return equalsNullable(b.getValueTag(), t.getValueTag()) && equalsNullable(b.getValue(), t.getValue());
+    }
+
+    private static String valueText(DifferableNode node) {
+        final String tag = node.getValueTag();
+        final String value = node.getValue();
+        return value == null ? tag : tag + ":" + value;
     }
 }

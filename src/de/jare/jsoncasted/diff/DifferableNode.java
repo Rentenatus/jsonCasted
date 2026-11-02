@@ -71,13 +71,23 @@ public interface DifferableNode {
     String getName();
 
     /**
-     * Returns the scalar value text of a VALUE node, type-tagged (e.g. {@code "string:abc"}, {@code "long:5"},
-     * {@code "number:5.0"}, {@code "boolean:true"}, {@code "null"}) so that a string "5" and a long 5 are not
-     * conflated. Non-VALUE nodes return {@code null}.
+     * Returns the scalar value text of a VALUE node (raw text, without type tag — the tag is exposed by
+     * {@link #getValueTag()}). Non-VALUE nodes return {@code null} on the parse layer; on the edit layer object
+     * nodes return their object value, which is also exposed as {@link #getName()}.
      *
-     * @return the tagged value text, or {@code null}.
+     * @return the raw value text, or {@code null}.
      */
     String getValue();
+
+    /**
+     * Returns the scalar type tag of this node: {@code "string"}, {@code "long"}, {@code "number"},
+     * {@code "boolean"} or {@code "null"} for nodes carrying a scalar, {@code null} otherwise. The tag is part of
+     * the Merkle hash and of the VALUE comparison, so a type-only change (string "5" to long 5) is a VALUE change,
+     * never a semantic no-op.
+     *
+     * @return the scalar type tag, or {@code null}.
+     */
+    String getValueTag();
 
     /**
      * Returns the class/cast name of this node ({@code _class} member), or {@code null}.
