@@ -231,14 +231,25 @@ public final class TreeDiffer {
         }
 
         if (identicalPairs && pairOfBase.length == tChildren.size() && !monotonic && pairOfBase.length > 1) {
-            // REORDER stays sibling-level: pairwise equal children in different order — one op, not N moves
+            // REORDER stays sibling-level: pairwise equal children in different order — one op, not N moves.
+            // The labels mirror what the tree renderer shows: member key for keyed members, wood id for
+            // identified rows, the visible value for primitive rows; duplicates get the base index appended
+            // so the permutation stays readable.
             final int[] baseIndexOf = new int[tChildren.size()];
             for (int i = 0; i < pairOfBase.length; i++) {
                 baseIndexOf[pairOfBase[i]] = i;
             }
-            final List<String> newOrder = new ArrayList<>();
+            final List<String> rawLabels = new ArrayList<>();
+            final Map<String, Integer> labelCounts = new HashMap<>();
             for (int j = 0; j < tChildren.size(); j++) {
-                newOrder.add(label(tChildren.get(j), baseIndexOf[j]));
+                final String raw = label(tChildren.get(j), baseIndexOf[j]);
+                rawLabels.add(raw);
+                labelCounts.merge(raw, 1, Integer::sum);
+            }
+            final List<String> newOrder = new ArrayList<>(rawLabels.size());
+            for (int j = 0; j < rawLabels.size(); j++) {
+                final String raw = rawLabels.get(j);
+                newOrder.add(labelCounts.get(raw) > 1 ? raw + "#" + baseIndexOf[j] : raw);
             }
             report.add(DeltaOp.reorderOp(path, newOrder));
         } else {
@@ -346,11 +357,30 @@ public final class TreeDiffer {
         return node.getObjektId() != null;
     }
 
+    /**
+     * The visible identity of a child for order descriptions — what the tree renderer shows: the member key for
+     * keyed members, the wood id for identified rows, the value for primitive rows (the tree renders the value as
+     * the row label), the raw base index only as last resort for anonymous containers.
+     */
     private static String label(DifferableNode node, int baseIndex) {
-        if (node.getMemberKey() != null) {
-            return node.getMemberKey();
+        final String memberKey = node.getMemberKey();
+        if (memberKey != null) {
+            return memberKey;
         }
-        return node.getObjektId() != null ? node.getObjektId() : String.valueOf(baseIndex);
+        final String objektId = node.getObjektId();
+        if (objektId != null) {
+            return objektId;
+        }
+        final String name = node.getName();
+        if (name != null && !name.isEmpty()) {
+            return name; // edit layer: a primitive row renders its value as the node name
+        }
+        final String tag = node.getValueTag();
+        if (tag != null) {
+            final String value = node.getValue();
+            return value == null ? tag : tag + ":" + value;
+        }
+        return String.valueOf(baseIndex);
     }
 
     private static boolean equalsNullable(Object a, Object b) {

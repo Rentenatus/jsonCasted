@@ -165,7 +165,8 @@ public class TreeDifferNGTest {
         DeltaOp op = report.getOps().get(0);
         assertEquals(op.getType(), DeltaType.REORDER);
         assertEquals(op.getKey(), "$");
-        assertEquals(op.getNewOrder(), List.of("2", "1", "0"));
+        // labels mirror the tree renderer: primitive rows carry their value
+        assertEquals(op.getNewOrder(), List.of("string:c", "string:b", "string:a"));
     }
 
     /**
