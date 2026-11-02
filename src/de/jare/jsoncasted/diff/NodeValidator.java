@@ -56,7 +56,7 @@ public final class NodeValidator {
                 || !Objects.equals(left.getName(), right.getName())
                 || !Objects.equals(left.getValueTag(), right.getValueTag())
                 || !Objects.equals(left.getValue(), right.getValue())
-                || !Objects.equals(left.getCastName(), right.getCastName())) {
+                || !Objects.equals(DifferableNode.contentCast(left), DifferableNode.contentCast(right))) {
             return false;
         }
         final List<DifferableNode> leftChildren = left.children();

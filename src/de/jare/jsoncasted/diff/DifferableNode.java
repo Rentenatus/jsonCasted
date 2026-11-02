@@ -97,6 +97,30 @@ public interface DifferableNode {
     String getCastName();
 
     /**
+     * Tells whether the cast of this node was assigned by type resolution instead of being carried by the file:
+     * parse feedback, not content (see doc/TREE_DIFF.md) — the diff projection ignores an inferred cast, otherwise
+     * the deterministic resolution of both sides degenerates into no-op noise or phantom conflicts. The parse layer
+     * never infers, so the default is {@code false}.
+     *
+     * @return {@code true} when the cast is inference-derived.
+     */
+    default boolean isCastInferred() {
+        return false;
+    }
+
+    /**
+     * Returns the content cast of the node: the cast when it is content (the file's {@code _class} entry or an
+     * explicit user decision), {@code null} when it is inference-derived parse feedback. This is what the Merkle
+     * hash, the validator and the CLASS comparison of the engine use.
+     *
+     * @param node the node, never {@code null}.
+     * @return the content cast, or {@code null}.
+     */
+    static String contentCast(DifferableNode node) {
+        return node.isCastInferred() ? null : node.getCastName();
+    }
+
+    /**
      * Returns the Merkle subtree hash of this node (see {@link MerkleHasher} for the canonical recipe). Equal hashes
      * are a filter candidate only — every hash-equal pairing must be confirmed by a deep equals validation before it
      * takes effect ("hash filters, equals decides").

@@ -68,7 +68,7 @@ public final class MerkleHasher {
         h = mixField(h, node.getName());
         h = mixField(h, node.getValueTag());
         h = mixField(h, node.getValue());
-        h = mixField(h, node.getCastName());
+        h = mixField(h, DifferableNode.contentCast(node)); // inferred casts are parse feedback, not content
         final List<DifferableNode> children = node.children();
         h = mixLong(h, children.size());
         for (DifferableNode child : children) {

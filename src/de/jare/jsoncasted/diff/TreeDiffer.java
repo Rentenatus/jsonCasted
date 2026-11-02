@@ -88,8 +88,9 @@ public final class TreeDiffer {
         if (!equalsNullable(b.getName(), t.getName())) {
             report.add(DeltaOp.modifyOp(path, DeltaProperty.NAME, b.getName(), t.getName()));
         }
-        if (!equalsNullable(b.getCastName(), t.getCastName())) {
-            report.add(DeltaOp.modifyOp(path, DeltaProperty.CLASS, b.getCastName(), t.getCastName()));
+        if (!equalsNullable(DifferableNode.contentCast(b), DifferableNode.contentCast(t))) {
+            report.add(DeltaOp.modifyOp(path, DeltaProperty.CLASS,
+                    DifferableNode.contentCast(b), DifferableNode.contentCast(t)));
         }
         switch (b.getKind()) {
             case OBJECT:
