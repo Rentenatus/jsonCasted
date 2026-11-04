@@ -17,6 +17,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
@@ -236,6 +237,23 @@ public class JsonProjectNGTest {
         } catch (IllegalStateException expected) {
             assertTrue(expected.getMessage().contains("closed"));
         }
+    }
+
+    @Test(dependsOnMethods = "closedProjectRefusesRegistryAccess")
+    public void missingProviderFileIsToleratedWithWarning() throws IOException, JsonParseException {
+        buildSharedFixture("dep");
+        write("main-missing.json", "{" + box(provider("ghost", path("ghost.json")))
+                + ", \"one\": 1}");
+
+        // the same tolerance the convert layer lives by: a missing provider file warns and continues instead
+        // of failing the whole project (a legacy Open of the same file works too)
+        final JsonProject project = JsonProject.open(new File(tempDir.resolve("main-missing.json").toString()), DEBUG);
+        assertNotNull(project.getMainResource(), "the project must open despite the dangling reference");
+        assertFalse(project.getWarnings().isEmpty(), "the missing file is collected as a warning");
+        assertTrue(project.getWarnings().get(0).contains("not found"),
+                "warning: " + project.getWarnings().get(0));
+        assertNull(project.findBySynonym("ghost"), "the ghost stays unregistered");
+        project.close();
     }
 
     private static File mainFile() {
