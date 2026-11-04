@@ -10,6 +10,7 @@
             <class name="de.jare.jsoncasted.model.descriptor.AnnotationValueAdoptionNGTest"/>
             <class name="de.jare.jsoncasted.model.item.AnnotationValueNGTest"/>
             <class name="de.jare.jsoncasted.lang.JsonResourceStateNGTest"/>
+            <class name="de.jare.jsoncasted.lang.JsonProjectNGTest"/>
         </classes>
     </test>
 </suite>
