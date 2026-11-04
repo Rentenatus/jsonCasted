@@ -7,17 +7,21 @@ package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonWoodIdLevel;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.WriteStrategy;
 import de.jare.jsoncasted.io.writer.getter.GetterFieldInfo;
 import de.jare.jsoncasted.io.writer.getter.ObjectGetter;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContextObjectRecord;
+import de.jare.jsoncasted.io.writer.strategy.DefinitionalStrategy;
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.lang.JsonTerms;
 import de.jare.jsoncasted.model.JsonType;
 import de.jare.jsoncasted.model.builder.JsonLongObjBuilder;
 import de.jare.jsoncasted.model.builder.JsonStringBuilder;
+import de.jare.jsoncasted.model.item.JsonAnnotation;
+import de.jare.jsoncasted.model.item.JsonAnnotationCarrier;
 import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsoncasted.model.item.JsonField;
 import de.jare.jsoncasted.model.item.JsonMap;
@@ -132,6 +136,15 @@ public class ObjectWriteWalker {
      * @param jClass the JSON class of the object
      */
     protected void writeObjectAsLink(JsonClass jClass, final Object ob) {
+        // PREFIXED level: a local reference becomes the bare id instead of the _woodLink stub. A cross resource
+        // repository key keeps the member form - it addresses another resource, not the local identity.
+        if (objectGetter.getDefinitionsContext().getWoodIdLevel() == JsonWoodIdLevel.PREFIXED) {
+            DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
+            if (record != null && record.getLocalId() >= 0 && isLocalRepositoryKey(record)) {
+                strategy.writeBareWoodId(record.getLocalId(), intentPath);
+                return;
+            }
+        }
         try {
             WriteNodePath iString = intentPath.append("  ");
             writeStart(jClass, ob, iString);
@@ -169,7 +182,9 @@ public class ObjectWriteWalker {
         boolean hasFieldKeys = false;
         WriteNodePath iString = intentPath.append("  ").appendOb(ob);
         try {
-            writeStart(jClass, ob, iString);
+            // PREFIXED level: the identity moves from the member into the prefix in front of the object
+            final long woodIdPrefix = prefixedWoodId(ob);
+            writeStart(jClass, ob, woodIdPrefix, iString);
 
             hasFieldKeys = hasFieldKeys(jClass, ob);
 
@@ -181,21 +196,38 @@ public class ObjectWriteWalker {
                 isFollowing = writeDefinitions(iString, isFollowing);
 
                 // Write _woodObjectId if a local ID is assigned in DefinitionsContext
-                // Owned-Objekte erhalten KEINE _woodObjectId
-                boolean isOwnedFieldContext = parentField != null && parentField.getKind().isOwned();
-                if (!isOwnedFieldContext) {
-                    DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
-                    if (record != null) {
-                        long localId = record.getLocalId();
-                        if (localId >= 0) {
-                            strategy.writeAttrName(jClass, isFollowing, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
-                            strategy.writePrimitive(JSON_CLASS_LONG, localId, iString);
-                            isFollowing = true;
+                // Owned-Objekte erhalten KEINE _woodObjectId, der PREFIXED Level schreibt den Praefix am Start
+                if (woodIdPrefix < 0) {
+                    boolean isOwnedFieldContext = parentField != null && parentField.getKind().isOwned();
+                    if (!isOwnedFieldContext) {
+                        DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
+                        if (record != null) {
+                            long localId = record.getLocalId();
+                            if (localId >= 0) {
+                                strategy.writeAttrName(jClass, isFollowing, JsonTerms.TERM_WOOD_OBJECT_ID, iString);
+                                strategy.writePrimitive(JSON_CLASS_LONG, localId, iString);
+                                isFollowing = true;
+                            }
                         }
                     }
                 }
             }
             hasFieldKeys = hasFieldKeys || isFollowing;
+
+            // Annotation values (annotation concept, decision 13): a carrier emits its valued annotation
+            // declarations as @ keys - the file form of a declaration value is the @ key on the carrier, never a
+            // structured attribute of the annotations list. Lines of the value become the array elements.
+            if (ob instanceof JsonAnnotationCarrier carrier) {
+                for (JsonAnnotation annotation : carrier.getAnnotations()) {
+                    final String annotationValue = annotation.getValue();
+                    if (annotationValue == null || annotationValue.isBlank()) {
+                        continue;
+                    }
+                    strategy.writeAttrName(jClass, isFollowing, "@" + annotation.getName(), iString);
+                    writeAnnotationValue(annotationValue, iString);
+                    isFollowing = true;
+                }
+            }
 
             List< GetterFieldInfo> fieldInfos = objectGetter.extractFields(jClass, ob);
             for (GetterFieldInfo fieldInfo : fieldInfos) {
@@ -205,7 +237,7 @@ public class ObjectWriteWalker {
                 if (attr == null && jClass.isSkippingNulls()) {
                     continue;
                 }
-                if (jClass.isSkippingEmpty() && isEmptyValue(attr)) {
+                if (jClass.isSkippingEmpty() && isEmptyValue(attr) && !isSharedListValue(next, attr)) {
                     continue;
                 }
 
@@ -233,6 +265,19 @@ public class ObjectWriteWalker {
     }
 
     /**
+     * Checks whether the attribute is a shared list value under a sharing enabled field: an empty shared list must
+     * not be swallowed by skippingEmpty, otherwise the definition and its references would get lost.
+     *
+     * @param field the field declaration carrying the policy flags
+     * @param attr the attribute value to check
+     * @return true if the value is a shared list that must be written
+     */
+    private boolean isSharedListValue(JsonField field, Object attr) {
+        return field != null && field.isSameCollection() && attr instanceof List
+                && objectGetter.getDefinitionsContext().isSharedList(attr);
+    }
+
+    /**
      * Checks if an object has field keys for serialization.
      *
      * @param jClass the JSON class of the object
@@ -244,9 +289,48 @@ public class ObjectWriteWalker {
     }
 
     void writeStart(final JsonClass jClass, final Object ob, WriteNodePath iString) {
+        writeStart(jClass, ob, -1L, iString);
+    }
+
+    void writeStart(final JsonClass jClass, final Object ob, long woodIdPrefix, WriteNodePath iString) {
         final boolean needsCast = objectGetter.needsCast(jClass);
         final boolean needsClassDef = !needsCast && objectGetter.needsClassDef(jClass);
-        strategy.writeStartObject(jClass, ob, parentField, parent, needsCast, needsClassDef, iString);
+        strategy.writeStartObject(jClass, ob, parentField, parent, needsCast, needsClassDef, woodIdPrefix, iString);
+    }
+
+    /**
+     * Checks whether the repository key of a record addresses the local resource: no key at all, or the generated
+     * self form of the local id. Only then the PREFIXED level may write the bare angle bracket reference; a foreign
+     * resource key keeps the _woodLink member.
+     *
+     * @param record the record of the referenced object.
+     * @return true when the identity is local.
+     */
+    private static boolean isLocalRepositoryKey(DefinitionsContextObjectRecord record) {
+        final String repositoryKey = record.getRepositoryKey();
+        return repositoryKey == null || repositoryKey.equals("self::" + record.getLocalId());
+    }
+
+    /**
+     * Returns the wood id that the PREFIXED level writes in front of the object instead of the _woodObjectId
+     * member, or -1 when the member form applies (lower level, owned field context, or no assigned record).
+     *
+     * @param ob the object about to be written as a definition.
+     * @return the local wood id for the prefix, or a negative value for the member form.
+     */
+    private long prefixedWoodId(Object ob) {
+        if (objectGetter.getDefinitionsContext().getWoodIdLevel() != JsonWoodIdLevel.PREFIXED) {
+            return -1L;
+        }
+        boolean isOwnedFieldContext = parentField != null && parentField.getKind().isOwned();
+        if (isOwnedFieldContext) {
+            return -1L;
+        }
+        DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
+        if (record == null || record.getLocalId() < 0) {
+            return -1L;
+        }
+        return record.getLocalId();
     }
 
     /**
@@ -336,7 +420,32 @@ public class ObjectWriteWalker {
      * @param definitionalOwner The owner object of the list.
      * @param iString The indentation string for formatted output.
      */
+    /**
+     * Writes the value of an annotation declaration as a string array: the lines of the declaration value become the
+     * elements, javadoc style - a multi line documentation reads as several elements, an editString template as one.
+     *
+     * @param annotationValue the declaration value
+     * @param iString the indentation string for formatted output
+     */
+    private void writeAnnotationValue(String annotationValue, WriteNodePath iString) {
+        final String[] lines = annotationValue.split("\n", -1);
+        strategy.writeStartArray(JSON_CLASS_STRING, null, true, iString);
+        try {
+            for (int i = 0; i < lines.length; i++) {
+                if (i > 0) {
+                    strategy.writeArraySeparator(true, iString);
+                }
+                strategy.writePrimitive(JSON_CLASS_STRING, lines[i], iString);
+            }
+        } finally {
+            strategy.writeEndArray(null, true, true, iString);
+        }
+    }
+
     protected void writeList(JsonType jTypeItem, Object attr, JsonField jField, Object definitionalOwner, WriteNodePath iString) {
+        if (writeListAsSharedReference(attr, jField, iString)) {
+            return;
+        }
         ListWriteWalker reWriter = new ListWriteWalker(
                 strategy,
                 objectGetter.getDefinitionsContext(),
@@ -348,6 +457,41 @@ public class ObjectWriteWalker {
                 objectGetter.getDebugLevel()
         );
         reWriter.writeList(attr);
+    }
+
+    /**
+     * Handles the collection sharing policy for a list field: a list instance that the pre-scan saw at more than one
+     * sharing enabled field becomes a definition with a wood id at its first written occurrence and a bare id
+     * reference at every later occurrence. The recording walk of the definitional strategy does not participate -
+     * only the printing pass may assign ids.
+     *
+     * @param attr the list value of the field.
+     * @param jField the field declaration carrying the policy flags.
+     * @param iString the indentation path for formatted output.
+     * @return true when the value was written as a bare reference and the list walk is done.
+     */
+    private boolean writeListAsSharedReference(Object attr, JsonField jField, WriteNodePath iString) {
+        if (strategy instanceof DefinitionalStrategy || jField == null
+                || !(jField.isSameCollection() || jField.isEqualsCollection()) || !(attr instanceof List)) {
+            return false;
+        }
+        if (objectGetter.getDefinitionsContext().getWoodIdLevel() == JsonWoodIdLevel.NEVER) {
+            return false; // the level forbids the wood id notation, the policy flags are ignored
+        }
+        if (jField.getKind() != null && jField.getKind().isOwned()) {
+            return false; // owned fields stay inline, mirroring the object sharing behavior
+        }
+        final DefinitionsContext context = objectGetter.getDefinitionsContext();
+        if (!context.isSharedList(attr)) {
+            return false;
+        }
+        final Long existingId = context.getSharedListLocalId(attr);
+        if (existingId == null) {
+            strategy.writeWoodIdPrefix(context.assignSharedListLocalId(attr), iString);
+            return false; // definition: the id prefix stands, the list content follows
+        }
+        strategy.writeBareWoodId(existingId, iString);
+        return true;
     }
 
     /**

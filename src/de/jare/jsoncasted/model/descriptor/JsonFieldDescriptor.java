@@ -34,7 +34,7 @@ import java.util.Objects;
  *
  * @author Janusch Rentenatus
  */
-public class JsonFieldDescriptor extends JsonFieldTypeNote {
+public class JsonFieldDescriptor extends JsonFieldTypeNote implements de.jare.jsoncasted.model.item.JsonAnnotationCarrier {
 
     private final String fieldName;
     private final boolean required;

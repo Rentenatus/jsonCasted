@@ -67,6 +67,15 @@ public interface JsonItemDefinition {
      */
     public JsonCastingLevel getCastingLevel();
 
+    /**
+     * Returns the wood id level for this definition.
+     *
+     * @return the JsonWoodIdLevel determining when wood ids are written and in which form.
+     */
+    default JsonWoodIdLevel getWoodIdLevel() {
+        return JsonWoodIdLevel.NECESSARY;
+    }
+
     default ValidationResult validateDefinition() {
         Objects.requireNonNull(getModel(), "JsonModel is null.");
         return (new ValidationRunner()).validate(getModel());

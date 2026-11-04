@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  *
  * <p>This class traverses a JSON node tree and builds a {@link LinkingSet} that tracks:
  * <ul>
- *   <li>All nodes with {@code _woodObjectId} (object identity)</li>
+ *   <li>All nodes with an identity - the {@code _woodObjectId} member on objects, the id field on arrays</li>
  *   <li>All nodes with {@code _woodLink} (cross-resource references)</li>
  * </ul>
  *
@@ -74,16 +74,7 @@ public final class WoodIdFinder {
         }
 
         if (node.isObject()) {
-            try {
-                String key = node.getObjectId(providerName);
-                if (key != null) {
-                    final LinkNodeEntry linkNodeEntry = new LinkNodeEntry(node, key, path);
-                    result.getObjectIdMap().put(key, linkNodeEntry);
-                }
-            } catch (JsonParseException ex) {
-                result.registerException(path, node, ex);
-                LOG.log(Level.WARNING, "Could not read _woodObjectId as text.", ex);
-            }
+            registerObjectId(path, node, providerName, result);
 
             try {
                 String normalizedKey = node.getLink(providerName);
@@ -109,12 +100,44 @@ public final class WoodIdFinder {
         }
 
         if (node.isArray()) {
+            registerObjectId(path, node, providerName, result);
+
             List<JsonNode> array = node.asArray();
             for (int i = 0; i < array.size(); i++) {
                 final JsonNode childNode = array.get(i);
                 String childPath = path + "[" + i + "]";
                 traverse(childPath, childNode, providerName, result, debugLevel);
             }
+        }
+    }
+
+    /**
+     * Registers the wood identity of a node in the object id map. A duplicated id does not overwrite the first
+     * occurrence: it is registered as a warning instead, so the resolution stays with the first definition. This
+     * covers both identity forms, the {@code _woodObjectId} member on objects and the id field on arrays.
+     *
+     * @param path the current path in the tree (for reporting).
+     * @param node the node whose identity is registered.
+     * @param providerName the provider name for id normalization.
+     * @param result the linking set to populate.
+     */
+    private static void registerObjectId(String path, JsonNode node, String providerName, LinkingSet result) {
+        try {
+            String key = node.getObjectId(providerName);
+            if (key == null) {
+                return;
+            }
+            final LinkNodeEntry linkNodeEntry = new LinkNodeEntry(node, key, path);
+            final LinkNodeEntry existing = result.getObjectIdMap().putIfAbsent(key, linkNodeEntry);
+            if (existing != null) {
+                final String message = "Duplicate _woodObjectId '" + key + "' at " + path
+                        + " - the first occurrence at " + existing.getPath() + " wins.";
+                result.registerWarning(message);
+                LOG.log(Level.WARNING, message);
+            }
+        } catch (JsonParseException ex) {
+            result.registerException(path, node, ex);
+            LOG.log(Level.WARNING, "Could not read _woodObjectId as text.", ex);
         }
     }
 

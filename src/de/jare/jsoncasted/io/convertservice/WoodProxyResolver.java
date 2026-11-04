@@ -11,6 +11,7 @@ import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.parserservice.ParseStreamReader;
 import de.jare.jsoncasted.io.parserservice.RootParser;
+import de.jare.jsoncasted.lang.JsonProject;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonSystem;
 import static de.jare.jsoncasted.lang.JsonTerms.SELF_SYNONYM;
@@ -86,6 +87,24 @@ public final class WoodProxyResolver {
      */
     public static void resolveProviders(JsonSystem sys, JsonDebugLevel debugLevel)
             throws IOException, JsonParseException {
+        resolveProviders(sys, null, debugLevel);
+    }
+
+    /**
+     * Project-aware variant of the provider resolution (concept doc/JSON_PROJECT.md, integration step 2): the
+     * load step asks the {@link JsonProject} registry first, so every provider file is parsed exactly once and
+     * shared across all resolutions ({@code B == B'}). A null project behaves exactly as the two-argument
+     * signature - the legacy path stays untouched.
+     *
+     * @param sys The JsonSystem containing the main resource with provider box.
+     * @param project The project registry, or null for the legacy per-session loads.
+     * @param debugLevel The debug level for controlling debug output.
+     * @throws IOException If I/O errors occur during loading.
+     * @throws JsonParseException If parsing fails for any provider file, or if a cycle or an identity rule
+     * (synonym conflict, consumed alias) is violated.
+     */
+    public static void resolveProviders(JsonSystem sys, JsonProject project, JsonDebugLevel debugLevel)
+            throws IOException, JsonParseException {
         Objects.requireNonNull(sys, "sys must not be null");
         Objects.requireNonNull(debugLevel, "debugLevel must not be null");
 
@@ -93,6 +112,11 @@ public final class WoodProxyResolver {
         if (mainResource == null) {
             sys.setSortedSynonyms(Collections.singletonList(SELF_SYNONYM));
             return;
+        }
+
+        // the resolution is running - a project-aware resolution consumes the resources it is fed with
+        if (project != null) {
+            mainResource.markConsumed();
         }
 
         LinkingSet mainLinkingSet = mainResource.getLinkingSet();
@@ -198,12 +222,34 @@ public final class WoodProxyResolver {
         for (String synonym : sortedSynonyms) {
             JsonResource existing = sys.findResourcesBySynonym(synonym);
             if (existing != null) {
+                if (project != null) {
+                    existing.markConsumed();
+                }
                 continue;
             }
 
             WoodProvider provider = allProvidersMap.get(synonym);
             if (provider == null) {
                 debugLevel.warning(() -> new DebugTuple("Provider not found for synonym: {0}", synonym));
+                continue;
+            }
+
+            if (project != null) {
+                // registry first: the shared instance when it exists, else one parse plus registration. The
+                // identity rules (alias, synonym conflict) live in the project and throw through here.
+                try {
+                    JsonResource shared = project.acquire(synonym, new File(provider.getFilename()), debugLevel);
+
+                    sys.addResource(shared);
+
+                    LinkingSet loadedLinkingSet = shared.getLinkingSet();
+                    if (loadedLinkingSet != null) {
+                        mergeLinkingSets(mainLinkingSet, loadedLinkingSet);
+                    }
+                    shared.markConsumed();
+                } catch (FileNotFoundException ex) {
+                    debugLevel.warning(ex, () -> "Provider file not found: " + provider.getFilename());
+                }
                 continue;
             }
 
@@ -236,10 +282,14 @@ public final class WoodProxyResolver {
     public static JsonResource load(WoodProvider provider, JsonDebugLevel debugLevel)
             throws FileNotFoundException, IOException, JsonParseException {
         File file = new File(provider.getFilename());
-        ParseStreamReader psr = new ParseStreamReader(new FileReader(file), debugLevel);
         JsonResource subContainer = JsonResource.forFile(provider.getFilename());
         subContainer.setProviderName(provider.getSynonym());
-        return RootParser.parse(psr, subContainer, debugLevel);
+        // try-with-resources: the reader must close after the parse, otherwise the file handle stays open
+        // (Windows locks the file against deletion and external changes then)
+        try (FileReader reader = new FileReader(file)) {
+            ParseStreamReader psr = new ParseStreamReader(reader, debugLevel);
+            return RootParser.parse(psr, subContainer, debugLevel);
+        }
     }
 
     /**

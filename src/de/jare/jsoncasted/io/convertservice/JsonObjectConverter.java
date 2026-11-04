@@ -245,8 +245,20 @@ public class JsonObjectConverter {
             return;
         }
 
+        // Enrich _class with the resolved concrete type, mirroring the writer: the writer emits _class for the
+        // concrete cast, so the parse side fills it in when the file leaves it out. This must happen AFTER the
+        // cast resolution - a _class with the declared type would be read as an explicit cast and could be a
+        // rejected interface name. A map node has keys instead of members - writing _class into it would create
+        // a bogus map key that later builds into a broken entry.
+        if (childNode.isObject() && childNode.asObjectValues().get(TERM_CLASS) == null
+                && castedChildType.getMappingAllFields() == null) {
+            if (!castedChildType.isPrimitive()) {
+                childNode.asObjectValues().put(TERM_CLASS, JsonNode.stringNode(castedChildType.getTypeName()));
+            }
+        }
+
         JsonItem paramObject = field.isAsListOrArray()
-                ? JsonNodeConverter.convertArray(childNode, castedChildType, field.isAsList(), service)
+                ? JsonNodeConverter.convertListField(childNode, castedChildType, field.isAsList(), service)
                 : JsonNodeConverter.convert(childNode, castedChildType, service);
 
         // Clone for CONTAINMENT fields to ensure ownership
@@ -339,7 +351,7 @@ public class JsonObjectConverter {
         JsonFieldTypeNote field = contextClass.getMappingAllFields();
         JsonTypeDescriptor childType = service.getType(field.getTypeName());
         JsonItem paramObject = field.isAsListOrArray()
-                ? JsonNodeConverter.convertArray(childNode, childType, field.isAsList(), service)
+                ? JsonNodeConverter.convertListField(childNode, childType, field.isAsList(), service)
                 : JsonNodeConverter.convert(childNode, childType, service);
 
         // Clone for CONTAINMENT fields if this is a JsonFieldDescriptor with owned flag

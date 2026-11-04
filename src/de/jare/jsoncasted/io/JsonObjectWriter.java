@@ -42,7 +42,7 @@ public class JsonObjectWriter {
      * @param ob The object to serialize.
      * @param definition The JSON item definition containing model information.
      * @param root The root JSON class for the object.
-     * @param charsetName The name of a supported null     {@linkplain java.nio.charset.Charset
+     * @param charsetName The name of a supported null null     {@linkplain java.nio.charset.Charset
      *                    charset}, for example "UTF-8".
      * @return JSON string representation of the object.
      * @throws JsonParseException If parsing fails during serialization.
@@ -124,6 +124,7 @@ public class JsonObjectWriter {
             out = new FileOutputStream(fileObject);
             final DefinitionsContext definitionsContext = new DefinitionsContext(definition.getModel(),
                     fileModel.getAbsolutePath());
+            definitionsContext.setWoodIdLevel(definition.getWoodIdLevel());
             write(ob, out, definitionsContext, definition.getCastingLevel(), root, JsonDebugLevel.SIMPLE);
             out.close();
         } catch (FileNotFoundException ex) {
@@ -147,7 +148,7 @@ public class JsonObjectWriter {
     public static String writeToString(Object ob, JsonItemDefinition definition, String charsetName)
             throws JsonParseException, IOException, JsonWriteException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        write(ob, out, definition, null);
+        write(ob, out, definition, definition.getRootClass());
         return new String(out.toByteArray(), java.nio.charset.Charset.forName(charsetName));
     }
 
@@ -165,7 +166,7 @@ public class JsonObjectWriter {
     public static String writeToString(Object ob, JsonItemDefinition definition)
             throws JsonParseException, IOException, JsonWriteException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        write(ob, out, definition, null);
+        write(ob, out, definition, definition.getRootClass());
         return new String(out.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
     }
 
@@ -183,7 +184,7 @@ public class JsonObjectWriter {
         FileOutputStream out;
         try {
             out = new FileOutputStream(file);
-            write(ob, out, definition, null);
+            write(ob, out, definition, definition.getRootClass());
             out.close();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE,
@@ -205,6 +206,7 @@ public class JsonObjectWriter {
     public static void write(Object ob, OutputStream out, JsonItemDefinition definition, JsonClass root)
             throws IOException, JsonParseException, JsonWriteException {
         final DefinitionsContext definitionsContext = new DefinitionsContext(definition.getModel(), null);
+        definitionsContext.setWoodIdLevel(definition.getWoodIdLevel());
         write(ob, out, definitionsContext, definition.getCastingLevel(), root, JsonDebugLevel.SIMPLE);
     }
 
@@ -223,6 +225,7 @@ public class JsonObjectWriter {
     public static void write(Object ob, OutputStream out, JsonItemDefinition definition, JsonClass root,
             JsonDebugLevel debugLevel) throws IOException, JsonWriteException, JsonParseException {
         final DefinitionsContext definitionsContext = new DefinitionsContext(definition.getModel(), null);
+        definitionsContext.setWoodIdLevel(definition.getWoodIdLevel());
         write(ob, out, definitionsContext, definition.getCastingLevel(), root, debugLevel);
     }
 
@@ -377,7 +380,7 @@ public class JsonObjectWriter {
         FileOutputStream out;
         try {
             out = new FileOutputStream(file);
-            write(ob, out, definition, null, debugLevel);
+            write(ob, out, definition, definition.getRootClass(), debugLevel);
             out.close();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(JsonObjectWriter.class.getName()).log(Level.SEVERE,

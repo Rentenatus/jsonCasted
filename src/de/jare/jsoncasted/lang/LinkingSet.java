@@ -37,6 +37,7 @@ public class LinkingSet {
     private Map<String, LinkNodeEntry> linkMap;
     private final Set<String> providerSynonyms;
     private final List<JsonExceptionEntry> scanExceptions;
+    private final List<String> warnings;
 
     /**
      * Constructs a LinkingSet for the specified provider.
@@ -48,6 +49,7 @@ public class LinkingSet {
         this.objectIdMap = new LinkedHashMap<>();
         this.linkMap = new LinkedHashMap<>();
         this.scanExceptions = new ArrayList<>();
+        this.warnings = new ArrayList<>();
         this.providerSynonyms = new LinkedHashSet<>();
     }
 
@@ -205,6 +207,35 @@ public class LinkingSet {
      */
     public Set<String> getUnmodifiableUnconnectedSet() {
         return Collections.unmodifiableSet(getUnconnectedSet());
+    }
+
+    /**
+     * Registers a non-fatal warning that occurred during scanning/parsing, e.g. a duplicated wood id.
+     *
+     * @param message the warning text.
+     * @throws NullPointerException if message is null.
+     */
+    public void registerWarning(String message) {
+        Objects.requireNonNull(message, "message must not be null");
+        warnings.add(message);
+    }
+
+    /**
+     * Returns whether any warning was registered.
+     *
+     * @return {@code true} if there is at least one warning.
+     */
+    public boolean hasWarnings() {
+        return !warnings.isEmpty();
+    }
+
+    /**
+     * Returns an unmodifiable list of the registered warnings.
+     *
+     * @return unmodifiable list of warning texts.
+     */
+    public List<String> getWarnings() {
+        return Collections.unmodifiableList(warnings);
     }
 
     /**

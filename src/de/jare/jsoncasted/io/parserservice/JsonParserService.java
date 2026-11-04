@@ -139,8 +139,14 @@ public class JsonParserService {
      * @throws JsonParseException if JSON parsing fails.
      */
     public static JsonResource parse(Reader reader, JsonResource container, JsonDebugLevel debugLevel) throws IOException, JsonParseException, JsonParseException {
-        ParseStreamReader psr = new ParseStreamReader(reader, debugLevel);
-        return RootParser.parse(psr, container, debugLevel);
+        // the rail owns the reader: closing here releases the file handle after the parse (Windows locks the
+        // file against deletion and external changes otherwise). Reader.close is idempotent - callers that
+        // manage their own reader (try-with-resources) are not harmed by the second close, StringReader closes
+        // are no-ops.
+        try (Reader in = reader) {
+            ParseStreamReader psr = new ParseStreamReader(in, debugLevel);
+            return RootParser.parse(psr, container, debugLevel);
+        }
     }
 
 }

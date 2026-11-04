@@ -32,16 +32,6 @@ public class JsonAnnotationSupport {
     }
 
     /**
-     * Declares an annotation.
-     *
-     * @param name The annotation name without the {@code @} prefix.
-     * @param transientFlag {@code true} if the annotation is skipped on save, {@code false} otherwise.
-     */
-    public void addAnnotation(String name, boolean transientFlag) {
-        addAnnotation(new JsonAnnotation(name, transientFlag));
-    }
-
-    /**
      * Adds a declared annotation.
      *
      * @param annotation The annotation to add.

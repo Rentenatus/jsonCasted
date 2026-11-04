@@ -6,6 +6,7 @@
 package de.jare.jsoncasted.io.writer.walker;
 
 import de.jare.jsoncasted.io.JsonCastingLevel;
+import de.jare.jsoncasted.io.JsonWoodIdLevel;
 import de.jare.jsoncasted.io.JsonWriteException;
 import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.record.DefinitionsContext;
@@ -19,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -207,6 +209,20 @@ public class ObjectCircleScannerWalker {
             Object fieldValue = jClass.getAttr(jsonField, ob, null);
 
             if (fieldValue != null) {
+                // Collection sharing policy: count the occurrences of list instances under sharing enabled
+                // fields, so the writer can turn repeated instances into one definition with references. The
+                // equals policy wins over the instance policy: equal content groups instead of instances.
+                // The wood id level NEVER disables the sharing: no occurrences are noted, the writer keeps
+                // every list inline.
+                if (definitionsContext.getWoodIdLevel() != JsonWoodIdLevel.NEVER
+                        && jsonField.isAsListOrArray() && jsonField.isSameCollection() && fieldValue instanceof List) {
+                    if (jsonField.isEqualsCollection()) {
+                        definitionsContext.noteEqualsListOccurrence(fieldValue);
+                    } else {
+                        definitionsContext.noteListOccurrence(fieldValue);
+                    }
+                }
+
                 JsonType fieldType = jsonField.getjType();
 
                 // Skip primitive types and their boxed variants

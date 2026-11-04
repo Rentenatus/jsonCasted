@@ -20,6 +20,10 @@ public class TestBox {
     private ValueInterface one;
     private ValueInterface[] arr;
     private List<ValueInterface> list;
+    private List<ValueInterface> list2;
+    private List<Long> numbers;
+    private List<Long> numbers2;
+
 
     /**
      * Returns the subsub value.
@@ -92,6 +96,61 @@ public class TestBox {
     public void setList(List<ValueInterface> list) {
         this.list = list;
     }
+
+    /**
+     * Returns the second list of values.
+     *
+     * @return The ValueInterface instances of the second list.
+     */
+    public List<ValueInterface> getList2() {
+        return list2;
+    }
+
+    /**
+     * Sets the second list of values.
+     *
+     * @param list2 The ValueInterface instances to set.
+     */
+    public void setList2(List<ValueInterface> list2) {
+        this.list2 = list2;
+    }
+
+    /**
+     * Returns the list of numbers.
+     *
+     * @return The Long instances of the numbers list.
+     */
+    public List<Long> getNumbers() {
+        return numbers;
+    }
+
+    /**
+     * Sets the list of numbers.
+     *
+     * @param numbers The Long instances to set.
+     */
+    public void setNumbers(List<Long> numbers) {
+        this.numbers = numbers;
+    }
+
+    /**
+     * Returns the second list of numbers.
+     *
+     * @return The Long instances of the second numbers list.
+     */
+    public List<Long> getNumbers2() {
+        return numbers2;
+    }
+
+    /**
+     * Sets the second list of numbers.
+     *
+     * @param numbers2 The Long instances to set.
+     */
+    public void setNumbers2(List<Long> numbers2) {
+        this.numbers2 = numbers2;
+    }
+
 
     @Override
     public String toString() {

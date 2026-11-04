@@ -38,6 +38,17 @@ public class JsonParseException extends Exception {
     }
 
     /**
+     * Constructs a JsonParseException with a specified error message and source position.
+     *
+     * @param lineNumber line number (1-based)
+     * @param columnNumber column number (0-based)
+     * @param message the error message describing the parsing failure.
+     */
+    public JsonParseException(int lineNumber, int columnNumber, String message) {
+        super("[" + lineNumber + ":" + columnNumber + "] " + message);
+    }
+
+    /**
      * Constructs a JsonParseException with a specified error message and cause.
      *
      * @param message the error message describing the parsing failure.

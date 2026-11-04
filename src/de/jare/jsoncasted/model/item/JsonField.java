@@ -41,6 +41,8 @@ public class JsonField {
     private FieldKind kind;
     private JsonValidationMethod validationMethod;
     private int sortKey;
+    private boolean sameCollection = true;
+    private boolean equalsCollection = false;
     private final JsonAnnotationSupport annotationSupport = new JsonAnnotationSupport();
 
     /**
@@ -297,22 +299,59 @@ public class JsonField {
     }
 
     /**
-     * Declares a field level annotation on this field.
+     * Returns the collection sharing policy for this list field: the same list instance at several fields is written
+     * once as a wood identified definition and referenced at the other places. Default is {@code true}.
      *
-     * @param name The annotation name without the {@code @} prefix.
+     * @return true when the instance identity of the collection value is kept on writing.
      */
-    public void addAnnotation(String name) {
-        annotationSupport.addAnnotation(name);
+    public boolean isSameCollection() {
+        return sameCollection;
+    }
+
+    /**
+     * Declares the instance identity policy for this list field. The default is {@code true}: a list instance that
+     * hangs at several sharing enabled fields becomes one definition with a wood id, the other occurrences become
+     * bare id references.
+     *
+     * @param sameCollection whether to keep the instance identity of the collection value.
+     * @return this field, for a fluent declaration.
+     */
+    public JsonField withSameCollection(boolean sameCollection) {
+        this.sameCollection = sameCollection;
+        return this;
+    }
+
+    /**
+     * Returns the content equality policy for this list field: lists that are component-wise identical share one
+     * wood id - same size first, then element by element: primitives by value, objects by instance. Default is
+     * {@code false}.
+     *
+     * @return true when equal collections share one wood id.
+     */
+    public boolean isEqualsCollection() {
+        return equalsCollection;
+    }
+
+    /**
+     * Declares the content equality policy for this list field. It wins over {@link #withSameCollection(boolean)}:
+     * identical instances are also component-wise identical. The comparison is component-wise - the size leads,
+     * then every element: primitives by value, objects by instance identity.
+     *
+     * @param equalsCollection whether equal collections share one wood id.
+     * @return this field, for a fluent declaration.
+     */
+    public JsonField withEqualsCollection(boolean equalsCollection) {
+        this.equalsCollection = equalsCollection;
+        return this;
     }
 
     /**
      * Declares a field level annotation on this field.
      *
      * @param name The annotation name without the {@code @} prefix.
-     * @param transientFlag {@code true} if the annotation is skipped on save, {@code false} otherwise.
      */
-    public void addAnnotation(String name, boolean transientFlag) {
-        annotationSupport.addAnnotation(name, transientFlag);
+    public void addAnnotation(String name) {
+        annotationSupport.addAnnotation(name);
     }
 
     /**

@@ -75,7 +75,6 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
                 .withSkippingNulls(true)
                 .withSkippingEmpty(true);
         descriptAnnotation.addCParam("name", asString).withSortKey(10000);
-        descriptAnnotation.addField("transientFlag", asBoolean, "isTransient", "setTransient").withSortKey(11000);
         descriptField.addField("annotations", descriptAnnotation, JsonCollectionType.LIST);
 
         descriptType = model.newJsonReflect(JsonTypeDescriptor.class)
@@ -95,6 +94,10 @@ public class JsonModelDescriptorDefinition implements JsonItemDefinition {
         descriptType.addField("parent", descriptType)
                 .makeAsReference();
         descriptType.addField("annotations", descriptAnnotation, JsonCollectionType.LIST);
+        // editString (annotation concept): a declared object annotation of every type entry, so description files
+        // can carry the display template of the described type as "@editString": ["${name}"]. The model editor
+        // shows the annotation row automatically; the runtime adoption runs JsonModelDescriptor.adoptAnnotationValues.
+        descriptType.addAnnotation(JsonAnnotation.EDIT_STRING);
 
         JsonMap typeMap = model.newRawJsonMapIndividually((new JsonInstance<JsonTypeDescriptor>()).getClass(), (String) null, descriptType);
         JsonMap modeldMap = model.newRawJsonMapIndividually((new JsonInstance<JsonModelDescriptor>()).getClass(), (String) null, descriptField);

@@ -8,6 +8,7 @@ package de.jare.jsoncasted.model.descriptor;
 
 import de.jare.jsoncasted.lang.JsonNodeType;
 import de.jare.jsoncasted.model.item.JsonAnnotation;
+import de.jare.jsoncasted.model.item.JsonAnnotationCarrier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -35,7 +36,7 @@ import java.util.Objects;
  *
  * @author Janusch Rentenatus
  */
-public class JsonTypeDescriptor {
+public class JsonTypeDescriptor implements de.jare.jsoncasted.model.item.JsonAnnotationCarrier {
 
     private final String typeName;
     private final List<JsonTypeDescriptor> implementors = new ArrayList<>();
@@ -185,8 +186,8 @@ public class JsonTypeDescriptor {
     public List<JsonFieldDescriptor> getFields() {
         return Collections.unmodifiableList(fields);
     }
-    
-    public  void setFields(List<JsonFieldDescriptor> fields) {
+
+    public void setFields(List<JsonFieldDescriptor> fields) {
         this.fields.clear();
         if (fields != null) {
             this.fields.addAll(fields);
@@ -303,14 +304,13 @@ public class JsonTypeDescriptor {
     }
 
     /**
-     * Adds a declared annotation and returns this descriptor for chaining.
+     * Adds a declared annotation.
      *
      * @param annotation the annotation to add.
-     * @return this type descriptor.
      */
-    public JsonTypeDescriptor addAnnotation(JsonAnnotation annotation) {
+    @Override
+    public void addAnnotation(JsonAnnotation annotation) {
         annotations.add(Objects.requireNonNull(annotation, "annotation"));
-        return this;
     }
 
     /**
