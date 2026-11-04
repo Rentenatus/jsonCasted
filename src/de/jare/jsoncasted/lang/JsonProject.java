@@ -391,10 +391,13 @@ public final class JsonProject {
     }
 
     /**
-     * Bridges the project into the existing resolution: a {@link JsonSystem} whose resources are the registry
-     * instances (dedupe without loading) with the sorted synonyms of the project's dependency graph.
+     * Bridges the project into the existing resolution: a {@link JsonSystem} for one resource with its
+     * transitive provider closure (the resource itself plus every provider reachable through the boxes) -
+     * the same set a per-resource parse session would hold, but built from the SHARED instances. The sorted
+     * synonyms of the whole project graph serve as the order; synonyms outside the closure simply find no
+     * resource in the system.
      *
-     * @param main the main resource of the system - the project's main normally.
+     * @param main the resource to convert - the project's main normally, any sub resource in the editor.
      * @return the system, not null.
      * @throws JsonParseException when the provider graph contains a cycle.
      */
@@ -402,13 +405,69 @@ public final class JsonProject {
         Objects.requireNonNull(main, "main must not be null");
         requireOpen();
         final JsonSystem sys = JsonSystem.of(main.getExpectedBox(), main);
-        for (Entry entry : byPath.values()) {
-            if (entry.resource != main && !sys.getResources().contains(entry.resource)) {
-                sys.addResource(entry.resource);
+        final Set<String> queued = new LinkedHashSet<>();
+        final Deque<String> queue = new ArrayDeque<>();
+        enqueueSynonyms(main, queue, queued);
+        while (!queue.isEmpty()) {
+            final String synonym = queue.poll();
+            final JsonResource resource = existingForSynonym(synonym);
+            if (resource == null || sys.getResources().contains(resource)) {
+                continue;
             }
+            sys.addResource(resource);
+            enqueueSynonyms(resource, queue, queued);
         }
         sys.setSortedSynonyms(getSortedSynonyms());
         return sys;
+    }
+
+    /**
+     * Queues the resource's box provider synonyms, deduped per system build.
+     */
+    private void enqueueSynonyms(JsonResource resource, Deque<String> queue, Set<String> queued) {
+        final WoodProviderBox box = resource.getExpectedBox();
+        if (box == null) {
+            return;
+        }
+        for (WoodProvider provider : box.getProviders()) {
+            if (queued.add(provider.getSynonym())) {
+                queue.add(provider.getSynonym());
+            }
+        }
+    }
+
+    /**
+     * The registry-first load lane for the convert layer (doc/JSON_PROJECT.md, integration step 2): a synonym
+     * request is served from the registry when possible - first by synonym, then by path (the alias rules
+     * decide), only a double miss actually parses the file and registers the fresh instance. The io layer
+     * calls this instead of loading, so {@code B == B'} holds across resolutions.
+     *
+     * @param synonym the requesting provider synonym (the ID namespace), not null.
+     * @param file the provider file, not null.
+     * @param debug the debug level for the load.
+     * @return the shared instance for the file, fresh on a double miss.
+     * @throws IOException if the file cannot be read on a miss.
+     * @throws JsonParseException if the parse or an identity rule fails (synonym conflict, consumed alias).
+     */
+    public JsonResource acquire(String synonym, File file, JsonDebugLevel debug)
+            throws IOException, JsonParseException {
+        Objects.requireNonNull(synonym, "synonym must not be null");
+        Objects.requireNonNull(file, "file must not be null");
+        requireOpen();
+
+        JsonResource shared = findBySynonym(synonym);
+        if (shared != null) {
+            return shared;
+        }
+        final String canonicalPath = canonicalPathOf(file);
+        if (canonicalPath != null) {
+            final JsonResource byPath = findByPath(canonicalPath);
+            if (byPath != null) {
+                return byPath.getProviderName().equals(synonym)
+                        ? byPath : register(forSynonym(byPath, synonym));
+            }
+        }
+        return register(load(file, synonym, debug));
     }
 
     /**

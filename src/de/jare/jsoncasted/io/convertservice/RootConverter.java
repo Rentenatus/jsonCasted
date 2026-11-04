@@ -10,6 +10,7 @@ import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.item.JsonItem;
 import de.jare.jsoncasted.lang.JsonNode;
+import de.jare.jsoncasted.lang.JsonProject;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonSystem;
 import de.jare.jsoncasted.lang.JsonTerms;
@@ -49,6 +50,35 @@ public final class RootConverter {
      */
     public static WoodResolution convert(JsonResource res, String cName, JsonModelDescriptor descriptor,
             JsonDebugLevel debugLevel) throws JsonParseException {
+        return convert(res, cName, descriptor, debugLevel, null);
+    }
+
+    /**
+     * Converts a JSON resource into a JsonItem through the project registry (concept doc/JSON_PROJECT.md,
+     * integration step 2): the resolution runs on the project's shared instances - the resource's transitive
+     * provider closure comes from {@link JsonProject#toSystem}, provider loads ask the registry first, so
+     * every file is parsed exactly once per project ({@code B == B'}). A null project behaves exactly as the
+     * four-argument signature.
+     *
+     * @param project The project registry with the shared instances, or null for the legacy per-session convert.
+     * @param res The JSON resource to convert - the project's main normally, any registered sub resource too.
+     * @param cName The name of the context/root class for type resolution.
+     * @param descriptor The model descriptor containing type definitions.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return The converted JsonItem in WoodResolution, or null if the resource or its root is null.
+     * @throws JsonParseException If conversion fails.
+     */
+    public static WoodResolution convert(JsonProject project, JsonResource res, String cName,
+            JsonModelDescriptor descriptor, JsonDebugLevel debugLevel) throws JsonParseException {
+        return convert(res, cName, descriptor, debugLevel, project);
+    }
+
+    /**
+     * The one convert body: identical flow for both entries, only the system build differs - the project
+     * contributes the shared resource closure, the legacy path builds a fresh {@link JsonSystem}.
+     */
+    private static WoodResolution convert(JsonResource res, String cName, JsonModelDescriptor descriptor,
+            JsonDebugLevel debugLevel, JsonProject project) throws JsonParseException {
 
         if (res == null) {
             return null;
@@ -62,9 +92,10 @@ public final class RootConverter {
         if (rootNode != null && rootNode.isObject() && rootNode.asObjectValues().get(TERM_CLASS) == null) {
             rootNode.asObjectValues().put(TERM_CLASS, JsonNode.stringNode(cName));
         }
-        JsonSystem sys = JsonSystem.of(res);
+        JsonSystem sys;
         try {
-            WoodProxyResolver.resolveProviders(sys, debugLevel);
+            sys = project != null ? project.toSystem(res) : JsonSystem.of(res);
+            WoodProxyResolver.resolveProviders(sys, project, debugLevel);
         } catch (IOException ex) {
             throw new JsonParseException("Failed to resolve the proxies.", ex);
         }
