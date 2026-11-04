@@ -483,15 +483,24 @@ public final class JsonProject {
             final WoodProvider provider = queue.poll();
             final String synonym = provider.getSynonym();
 
-            JsonResource shared = findBySynonym(synonym);
-            if (shared == null) {
-                final String path = canonicalPathOf(new File(provider.getFilename()));
-                shared = path != null ? findByPath(path) : null;
-            }
-            if (shared == null) {
-                shared = register(load(new File(provider.getFilename()), synonym, debug));
-            } else {
-                shared = register(forSynonym(shared, synonym));
+            JsonResource shared;
+            try {
+                shared = findBySynonym(synonym);
+                if (shared == null) {
+                    final String path = canonicalPathOf(new File(provider.getFilename()));
+                    shared = path != null ? findByPath(path) : null;
+                }
+                if (shared == null) {
+                    shared = register(load(new File(provider.getFilename()), synonym, debug));
+                } else {
+                    shared = register(forSynonym(shared, synonym));
+                }
+            } catch (FileNotFoundException ex) {
+                // the same tolerance the convert layer lives by (WoodProxyResolver warns and continues): a
+                // missing provider file is a warning, not a project failure - dangling references are a case
+                // for the validator
+                warnings.add("Provider file not found: " + provider.getFilename());
+                continue;
             }
             mergeIntoMain(shared);
             enqueueProviders(shared, queue, queuedFilenames);
