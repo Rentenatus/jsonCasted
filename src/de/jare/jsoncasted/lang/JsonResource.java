@@ -8,6 +8,7 @@ package de.jare.jsoncasted.lang;
 
 import static de.jare.jsoncasted.lang.JsonTerms.SELF_SYNONYM;
 import de.jare.jsoncasted.wood.WoodProviderBox;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +40,13 @@ public final class JsonResource {
     private List<JsonNode> definitionNodes;
 
     private LinkingSet linkingSet;
+
+    // State model of doc/JSON_PROJECT.md: every file carries its own status and fingerprint - diff and merge must
+    // also work for a standalone resource outside any project. The consumption axis: REGISTERED (parsed, not yet
+    // fed into a resolution) vs CONSUMED (used by at least one resolution - no silent reload then); the freshness
+    // axis (FRESH/STALE) is computable from the fingerprint alone. The project aggregates, the resource carries.
+    private ResourceFingerprint fingerprint;
+    private boolean consumed;
 
     private JsonResource() {
         this.importedProviderSynonyms = new ArrayList<>();
@@ -326,6 +334,79 @@ public final class JsonResource {
      */
     public void setLinkingSet(LinkingSet linkingSet) {
         this.linkingSet = linkingSet;
+    }
+
+    /**
+     * Captures the fingerprint of the origin file (concept doc/JSON_PROJECT.md, state model): the load-time state
+     * the freshness axis compares against. No-op for resources without a file (in-memory constructs, definitions).
+     */
+    public void captureFingerprint() {
+        if (hasResourceFile()) {
+            this.fingerprint = ResourceFingerprint.of(new File(resourceFile));
+        }
+    }
+
+    /**
+     * Returns the captured fingerprint of the origin file.
+     *
+     * @return the fingerprint, or null when never captured or the resource has no file.
+     */
+    public ResourceFingerprint getFingerprint() {
+        return fingerprint;
+    }
+
+    /**
+     * Overwrites the captured fingerprint - the refresh hook for a successful save or an explicit reload.
+     *
+     * @param fingerprint the new fingerprint, may be null.
+     */
+    public void setFingerprint(ResourceFingerprint fingerprint) {
+        this.fingerprint = fingerprint;
+    }
+
+    /**
+     * Tells whether this resource was already fed into at least one resolution (consumption axis, concept
+     * doc/JSON_PROJECT.md): a consumed instance must not be silently reloaded - existing resolutions would
+     * diverge from the state they were built on. REGISTERED is the opposite of CONSUMED.
+     *
+     * @return true when at least one resolution used this instance.
+     */
+    public boolean isConsumed() {
+        return consumed;
+    }
+
+    /**
+     * Flags this resource as consumed - called by the first resolution that uses the instance.
+     */
+    public void markConsumed() {
+        this.consumed = true;
+    }
+
+    /**
+     * FRESHness is a detection, not a decision (concept doc/JSON_PROJECT.md): the captured fingerprint against
+     * the file as it is NOW. An in-memory resource (no captured fingerprint) is fresh by definition - there is no
+     * file state to detach from; a vanished or unreadable origin file counts as stale (the cache detached).
+     *
+     * @return true when the origin file deviates from the captured load-time state.
+     */
+    public boolean isStale() {
+        if (fingerprint == null) {
+            return false;
+        }
+        if (!hasResourceFile()) {
+            return false;
+        }
+        final ResourceFingerprint current = ResourceFingerprint.of(new File(resourceFile));
+        return current == null || fingerprint.differsFrom(current);
+    }
+
+    /**
+     * The opposite of {@link #isStale()}.
+     *
+     * @return true when the cached instance still maps its origin file.
+     */
+    public boolean isFresh() {
+        return !isStale();
     }
 
     @Override
