@@ -12,6 +12,8 @@
             <class name="de.jare.jsoncasted.lang.JsonResourceStateNGTest"/>
             <class name="de.jare.jsoncasted.lang.JsonProjectNGTest"/>
             <class name="de.jare.jsoncasted.iotest.WoodProxyResolverProjectNGTest"/>
+            <class name="de.jare.jsoncasted.diff.TreeDifferNGTest"/>
+            <class name="de.jare.jsoncasted.diff.ThreeWayDifferNGTest"/>
         </classes>
     </test>
 </suite>
