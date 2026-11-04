@@ -5,6 +5,20 @@ largely already built on `feature/treediff`). This plan translates the concept's
 phases with concrete anchors, tests and a definition of done. Step 5 (diff & merge rollout) stays
 concept-level and gets its own plan when steps 1–4 are proven.
 
+## Status (2026-11): phases 1–4 COMPLETE, all on develop
+
+| Phase | State | Commits / notes |
+|-------|-------|-----------------|
+| 1 — `JsonProject` core | **done** | `66faf2b` fingerprint + state model, `77be3c5` registry with the identity matrix (B == B', alias, synonym conflict, Kahn, dependents, reload, toSystem). Late addition: a missing provider file warns instead of failing the open (same tolerance as the legacy resolution), and every `acquire` verifies the fingerprint (REGISTERED+STALE silently reloads, CONSUMED+STALE warns and keeps, vanished file keeps the cache) |
+| 2 — io layer project-aware | **done** | `7cafa55` `WoodProxyResolver.acquire` lane, `resolveProviders(sys, project, debug)`, `RootConverter.convert(project, ...)`, toSystem as transitive provider closure; side fix: the parse rails closed no reader (Windows file locks) |
+| 3 — `EditProject` session clamp | **done** (jsonCasted_edit develop `d001d6a`) | state axes on `EditTree` (CLEAN/EDITED via the command funnels, CURRENT/OUTDATED via the adopted fingerprint), `EditProject` with one conversion per resource, `resolveLink` across the session index, `SaveGuard` quadrant |
+| 4 — WoodJsonJack integration | **done** (WoodJsonJack develop) | Open/Close Project (main editable, sub resources read only views `[synonym]`), closable tabs with close guard, promote via "Show Project Resource...", `(outdated)` tab markers, save guard in the save flow (re-import / 3-way merge / overwrite / discard), **Diff Changes (vs. Disk)** (working copy left, disk right; W3 with a base state, W2 forced by the conflict dialog's "User diff"), change propagation (history listener on the editable session trees, dependents repaint + log) |
+| 5 — parse-layer diff & merge | open | own concept + plan; the rails (`TREE_DIFF.md`, engine, merger, base retention) are built |
+
+Remaining beyond phase 5: the R10 dependent list per node (radiating marks show the badge only),
+the CRC32 fingerprint stage (interface is the upgrade path), W3's take-all does not batch
+conflicts by design (they are per-node decisions), origin push.
+
 ## Ground truth: what exists today (anchors)
 
 | Anchor | Where | Role today |
