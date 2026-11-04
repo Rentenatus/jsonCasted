@@ -256,6 +256,61 @@ public class JsonProjectNGTest {
         project.close();
     }
 
+    @Test(dependsOnMethods = "missingProviderFileIsToleratedWithWarning")
+    public void registeredStaleAcquireReloadsSilently() throws IOException, JsonParseException {
+        buildSharedFixture("dep");
+        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
+        final JsonResource b = project.findBySynonym("dep");
+        assertNotNull(b);
+        assertFalse(b.isConsumed(), "sanity: no resolution ran, REGISTERED");
+
+        // the file changes under the cache before any resolution consumed the instance
+        write("B.json", "{\"shared\": {\"_woodObjectId\": \"5\", \"text\": \"changed\"}}");
+        assertTrue(b.isStale(), "sanity: STALE detected");
+        final int warningsBefore = project.getWarnings().size();
+
+        final JsonResource acquired = project.acquire("dep", new File(path("B.json")), DEBUG);
+        assertNotSame(acquired, b, "REGISTERED+STALE silently reloads - nobody consumed the old state");
+        assertTrue(acquired.isFresh(), "the fresh parse is FRESH");
+        assertEquals(project.getWarnings().size(), warningsBefore, "the reload is silent");
+        project.close();
+    }
+
+    @Test(dependsOnMethods = "registeredStaleAcquireReloadsSilently")
+    public void consumedStaleAcquireWarnsAndKeeps() throws IOException, JsonParseException {
+        buildSharedFixture("dep");
+        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
+        final JsonResource b = project.findBySynonym("dep");
+        b.markConsumed();
+
+        write("B.json", "{\"shared\": {\"_woodObjectId\": \"5\", \"text\": \"changed again\"}}");
+        assertTrue(b.isStale(), "sanity: STALE detected");
+        final int warningsBefore = project.getWarnings().size();
+
+        final JsonResource acquired = project.acquire("dep", new File(path("B.json")), DEBUG);
+        assertSame(acquired, b, "CONSUMED+STALE warns and KEEPS - a reload would invalidate resolutions");
+        assertEquals(project.getWarnings().size(), warningsBefore + 1, "the conflict is reported");
+        assertTrue(project.getWarnings().get(warningsBefore).contains("CONSUMED + STALE"),
+                "warning: " + project.getWarnings().get(warningsBefore));
+        project.close();
+    }
+
+    @Test(dependsOnMethods = "consumedStaleAcquireWarnsAndKeeps")
+    public void vanishedFileKeepsTheCache() throws IOException, JsonParseException {
+        buildSharedFixture("dep");
+        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
+        final JsonResource b = project.findBySynonym("dep");
+        Files.delete(tempDir.resolve("B.json"));
+        assertTrue(b.isStale(), "a vanished file counts as STALE");
+
+        final JsonResource acquired = project.acquire("dep", new File(path("B.json")), DEBUG);
+        assertSame(acquired, b, "nothing to reload - the registered instance stays for this session");
+        assertFalse(project.getWarnings().isEmpty());
+        assertTrue(project.getWarnings().get(project.getWarnings().size() - 1).contains("vanished"),
+                "warning: " + project.getWarnings().get(project.getWarnings().size() - 1));
+        project.close();
+    }
+
     private static File mainFile() {
         return tempDir.resolve("main.json").toFile();
     }

@@ -457,17 +457,53 @@ public final class JsonProject {
 
         JsonResource shared = findBySynonym(synonym);
         if (shared != null) {
-            return shared;
+            return reuseChecked(shared, synonym, debug);
         }
         final String canonicalPath = canonicalPathOf(file);
         if (canonicalPath != null) {
             final JsonResource byPath = findByPath(canonicalPath);
             if (byPath != null) {
-                return byPath.getProviderName().equals(synonym)
+                final JsonResource reconciled = byPath.getProviderName().equals(synonym)
                         ? byPath : register(forSynonym(byPath, synonym));
+                return reuseChecked(reconciled, synonym, debug);
             }
         }
         return register(load(file, synonym, debug));
+    }
+
+    /**
+     * Every reuse verifies the fingerprint against the file (concept doc/JSON_PROJECT.md state model): the
+     * combination decides. REGISTERED+STALE silently reloads - nobody consumed the old state, no resolution
+     * can lose ground; the fresh instance returns to REGISTERED+FRESH. CONSUMED+STALE warns and KEEPS the
+     * instance (decided open question 5: warn + keep) - a reload would silently invalidate already resolved
+     * references. A vanished file keeps the cache too: there is nothing to reload, the registry stays usable
+     * for the rest of the session.
+     */
+    private JsonResource reuseChecked(JsonResource shared, String synonym, JsonDebugLevel debug)
+            throws IOException, JsonParseException {
+        if (!shared.isStale()) {
+            return shared;
+        }
+        if (shared.isConsumed()) {
+            warnings.add("CONSUMED + STALE: the file of '" + synonym
+                    + "' changed under a consumed cache - the shared instance stays, a reload would "
+                    + "invalidate resolved references");
+            return shared;
+        }
+        final String canonicalPath = shared.hasResourceFile()
+                ? canonicalPathOf(new File(shared.getResourceFile())) : null;
+        if (canonicalPath == null) {
+            return shared;
+        }
+        try {
+            reload(canonicalPath, debug);
+        } catch (FileNotFoundException ex) {
+            warnings.add("The file of '" + synonym
+                    + "' vanished under the cache - the registered instance stays for this session");
+            return shared;
+        }
+        final JsonResource fresh = findByPath(canonicalPath);
+        return fresh != null ? fresh : shared;
     }
 
     /**
