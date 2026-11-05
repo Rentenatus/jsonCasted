@@ -175,6 +175,22 @@ public class WoodProjectNGTest {
         assertNull(PartitionType.getByName("unknown"));
     }
 
+    /**
+     * The role defaults of concept section 2: gen is output meant to be read and target is
+     * build output - both are readonly without an explicit flag; the editable roles stay
+     * editable; an explicit flag wins over any default (gen mounted writable on purpose).
+     */
+    @Test
+    public void readonlyDefaultsFollowTheRole() {
+        assertFalse(new Partition("src", PartitionType.SRC, "./src", null).isReadonly());
+        assertFalse(new Partition("json", PartitionType.JSON, "./json", null).isReadonly());
+        assertTrue(new Partition("gen", PartitionType.GEN, "./gen", null).isReadonly());
+        assertTrue(new Partition("target", PartitionType.TARGET, "./target", null).isReadonly());
+
+        assertFalse(new Partition("genwritable", PartitionType.GEN, "./gen", false).isReadonly());
+        assertTrue(new Partition("srclocked", PartitionType.SRC, "./src", true).isReadonly());
+    }
+
     @Test
     public void writtenProjectDocumentIsReadableJson() throws Exception {
         File projectRoot = newProjectRoot("readable");

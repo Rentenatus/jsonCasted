@@ -66,8 +66,19 @@ public class Partition {
         this.readonly = readonly;
     }
 
+    /**
+     * Effective readonly of the mount (concept section 2, the role table): the explicit
+     * {@code readonly} flag wins; without one the role decides - {@code gen} is generator
+     * output meant to be read (default readonly) and {@code target} is build output wiped by
+     * builds (readonly). The other roles default to editable.
+     *
+     * @return true when no editor action saves into this mount
+     */
     public boolean isReadonly() {
-        return readonly != null && readonly;
+        if (readonly != null) {
+            return readonly;
+        }
+        return type == PartitionType.GEN || type == PartitionType.TARGET;
     }
 
     /**
