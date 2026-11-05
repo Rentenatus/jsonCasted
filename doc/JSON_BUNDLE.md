@@ -1,4 +1,4 @@
-# JsonProject: Project-level Resource Registry
+# JsonBundle: Bundle-level Resource Registry
 
 ## Problem
 
@@ -11,7 +11,7 @@ Cross-resource references (`_woodProviders`/`_woodLink`) are resolved today **pe
 Consequence: if resource A depends on B and resource E depends on B, two independent
 parse sessions produce `{A, B}` and `{E, B'}` — B exists twice as unrelated
 `JsonResource` instances (own node tree, own `LinkingSet`). In-memory edits diverge;
-there is no shared instance and no project-wide identity.
+there is no shared instance and no bundle-wide identity.
 
 The editor layer (jsonCasted_edit / WoodJsonJack) does not bundle at all yet:
 `JsonTreeConverter.fromJsonFile` parses exactly one file per tab and never calls
@@ -19,18 +19,18 @@ The editor layer (jsonCasted_edit / WoodJsonJack) does not bundle at all yet:
 
 ## Goal
 
-A long-lived project object **above** `JsonResource` that guarantees `B == B'`:
-every file of a project is parsed exactly once, held once, and shared by all
+A long-lived bundle object **above** `JsonResource` that guarantees `B == B'`:
+every file of a bundle is parsed exactly once, held once, and shared by all
 consuming resources — at parse time as well as later in the editor session.
 
 ## Location
 
 `de.jare.jsoncasted.lang` in jsonCasted, alongside `JsonResource`, `JsonSystem`,
-`LinkingSet`. Rationale: the project is pure resource/session state — it operates
+`LinkingSet`. Rationale: the bundle is pure resource/session state — it operates
 on `lang` types only and must not depend on `io` writer internals. The `io` layer
 (`RootConverter`, `WoodProxyResolver`) consumes it; the editor layer adapts it.
 
-`JsonResource` itself stays unchanged: the project does not wrap it, it owns and
+`JsonResource` itself stays unchanged: the bundle does not wrap it, it owns and
 registers instances.
 
 ---
@@ -67,7 +67,7 @@ were built with the wrong namespace. Rule:
 2. A later synonym reference to an already-registered path does **not** rename
    silently: it rebuilds the `LinkingSet` via `WoodIdFinder.buildLinkingSet`
    (idempotent, scan-only) and registers a warning. If the resource is already
-   converted/consumed, the project refuses the alias with an exception instead
+   converted/consumed, the bundle refuses the alias with an exception instead
    (rebuild would invalidate resolved references).
 
 ---
@@ -77,10 +77,10 @@ were built with the wrong namespace. Rule:
 ```java
 package de.jare.jsoncasted.lang;
 
-public final class JsonProject {
+public final class JsonBundle {
 
     // --- lifecycle -------------------------------------------------------
-    public static JsonProject open(File mainFile, JsonDebugLevel debug)
+    public static JsonBundle open(File mainFile, JsonDebugLevel debug)
             throws IOException, JsonParseException;
 
     public JsonResource getMainResource();
@@ -110,12 +110,12 @@ public final class JsonProject {
 
 Design decisions:
 
-- **Ownership:** the project owns all resources for its lifetime. No per-tab
-  refcounting in v1 — a resource lives as long as the project is open. (A
+- **Ownership:** the bundle owns all resources for its lifetime. No per-tab
+  refcounting in v1 — a resource lives as long as the bundle is open. (A
   refcount can be added later without breaking the API.)
 - **Reuse, not rewrite:** topological sort, cycle detection, and load order are
   taken from `WoodProxyResolver` (Kahn's algorithm already lives there). The
-  project only replaces the "load" step with "registry lookup, else load + register".
+  bundle only replaces the "load" step with "registry lookup, else load + register".
 - **LinkingSet hygiene:** as today, `mergeLinkingSets` copies foreign keys into
   the *main* resource's linking set; the shared B instance keeps its own clean
   per-resource set. This must stay that way — a shared B must never accumulate
@@ -141,17 +141,17 @@ public interface ResourceFingerprint {          // pluggable comparator
 // false alarms from touch/re-save and same-size edits (FAT 2s granularity)
 ```
 
-### State model — parse layer (`JsonResource` within `JsonProject`)
+### State model — parse layer (`JsonResource` within `JsonBundle`)
 
 **Design rule: every file carries its own status and fingerprint.** The state
-lives on the `JsonResource` itself, not only in the project registry — because
-diff and merge must also work for a **standalone resource outside any project
-structure**. The project only aggregates and coordinates (policies, dependency
+lives on the `JsonResource` itself, not only in the bundle registry — because
+diff and merge must also work for a **standalone resource outside any bundle
+structure**. The bundle only aggregates and coordinates (policies, dependency
 graph, dependents).
 
 - `JsonResource` gains a fingerprint captured at load time (see
   `ResourceFingerprint` below) — `FRESH`/`STALE` is then computable anywhere,
-  with or without a project.
+  with or without a bundle.
 - `JsonResource` gains a consumption flag set when a resolution first uses it
   — `REGISTERED`/`CONSUMED` is intrinsic to the resource, too.
 
@@ -191,25 +191,25 @@ working copy detached from its file — that state is called `OUTDATED` (below).
 
 ## Integration: io layer (jsonCasted)
 
-`WoodProxyResolver` gets a project-aware variant:
+`WoodProxyResolver` gets a bundle-aware variant:
 
 ```
 resolveProviders(JsonSystem sys, JsonDebugLevel debug)                 // today: load always
-resolveProviders(JsonSystem sys, JsonProject project, JsonDebugLevel)  // new: ask project first
+resolveProviders(JsonSystem sys, JsonBundle bundle, JsonDebugLevel)  // new: ask bundle first
 ```
 
 Load step becomes:
 
-1. `project.findBySynonym(synonym)` → hit: reuse instance, skip parsing.
-2. Miss: `project.findByPath(canonical(provider.getFilename()))` → hit:
+1. `bundle.findBySynonym(synonym)` → hit: reuse instance, skip parsing.
+2. Miss: `bundle.findByPath(canonical(provider.getFilename()))` → hit:
    synonym reconciliation (see above), reuse instance.
 3. Miss: `WoodProxyResolver.load(provider, debug)` as today, then
-   `project.register(loaded)`.
+   `bundle.register(loaded)`.
 
-`RootConverter` gets an overload `convert(JsonProject, JsonResource, ...)`
-which builds the `JsonSystem` from the project (`toSystem`) instead of
+`RootConverter` gets an overload `convert(JsonBundle, JsonResource, ...)`
+which builds the `JsonSystem` from the bundle (`toSystem`) instead of
 `JsonSystem.of(res)`. The old signatures remain and behave exactly as today
-(project == null). Nothing breaks for existing callers.
+(bundle == null). Nothing breaks for existing callers.
 
 ### What deliberately does NOT change
 
@@ -231,37 +231,37 @@ role: it holds `root` (EditNode tree), `providerName`, its own `EditLinkingSet`,
 in the editor: `JsonTreeConverter.fromJsonFile` parses it, converts it into the
 `EditTree` (`convertRessourceToEditTree`), and discards it. The shared,
 mutable object of an editor session is the **EditTree**, not the
-`JsonResource`. A `JsonProject` alone therefore cannot clamp the session.
+`JsonResource`. A `JsonBundle` alone therefore cannot clamp the session.
 
 ### Two clamps, two truths
 
-- **`JsonProject` (lang)** — file truth: loads the resource graph with
+- **`JsonBundle` (lang)** — file truth: loads the resource graph with
   `B == B'`, manages fingerprints/reload, guarantees every file is parsed
   exactly once.
-- **`EditProject` (new, `de.jare.jsoncasted.editor.core`)** — session truth:
+- **`EditBundle` (new, `de.jare.jsoncasted.editor.core`)** — session truth:
   registry `{canonical path, synonym} → EditTree`, exactly parallel to the
-  parse layer. Both layers stay in lockstep: `EditProject` obtains the resource
-  graph from **one** `JsonProject` load and converts each `JsonResource`
+  parse layer. Both layers stay in lockstep: `EditBundle` obtains the resource
+  graph from **one** `JsonBundle` load and converts each `JsonResource`
   exactly **once** into an `EditTree`. B then exists as a single EditTree
   shared by the A and E tabs.
 
 Work distribution:
 
-- `WoodWindow`/`JackMasterControl` hold one `EditProject` per open project and
+- `WoodWindow`/`JackMasterControl` hold one `EditBundle` per open bundle and
   replace the flat `editorTrees` list: tabs are views on `EditTree`s owned by
-  the `EditProject`, not their own parses.
+  the `EditBundle`, not their own parses.
 - Cross-tab link resolution: `EditLinkingSet.findLinkTarget` stays tree-local
-  but gets a fallback to the `EditProject` index (lookup in the linking set of
+  but gets a fallback to the `EditBundle` index (lookup in the linking set of
   the **target resource's** EditTree). Anchor points: `WoodLinkValidator`,
   `JsonJackObjectTableModel`.
 - Change propagation via the existing `EventBus` (`editor.events`): B changed
-  → `EditProject` computes dependents → A/E tabs with affected link targets
+  → `EditBundle` computes dependents → A/E tabs with affected link targets
   invalidate/refresh.
 - **Save semantics:** one resource = one file = one truth. Saving from the
   A-context never writes B's content; `EditTreeWriter` keeps writing only its
   own tree (already true today and must remain so).
 
-### State model — edit layer (`EditTree` within `EditProject`)
+### State model — edit layer (`EditTree` within `EditBundle`)
 
 Deliberately separate vocabulary from the parse layer:
 
@@ -344,7 +344,7 @@ this document yet.
 1. **Merge on the parse layer is useful after all** — revising the earlier
    assessment. When the cached B is `CONSUMED` + `STALE` and B' (new file
    state) carries changes that can be merged into B, then switching **all**
-   consumers to B' keeps the project consistent: reload into the shared
+   consumers to B' keeps the bundle consistent: reload into the shared
    instance (or merge in place) and re-resolve dependents. The earlier
    "no author on the parse layer" argument only rules out *silent* switches —
    the `CONSUMED` + `STALE` conflict still decides via policy, and
@@ -377,29 +377,29 @@ this document yet.
    The state model above is deliberately designed to represent the conflict
    case (`EDITED` + `OUTDATED`) now, so diff/merge can be added later without
    breaking either clamp. Recommendation: own rollout stage after the
-   JsonProject/EditProject cores, not part of steps 1–4.
+   JsonBundle/EditBundle cores, not part of steps 1–4.
 
-7. **Diff/merge is per-resource, not per-project.** A single resource can be
-   diffed/merged even when it is not wrapped in a project structure — this is
+7. **Diff/merge is per-resource, not per-bundle.** A single resource can be
+   diffed/merged even when it is not wrapped in a bundle structure — this is
    exactly why status and fingerprint must live on the resource itself (see
-   the state model design rule), with the project as pure aggregation.
+   the state model design rule), with the bundle as pure aggregation.
    Priority order: layer-2 diff/merge (`EDITED` + `OUTDATED`) first, the
    layer-1 "switch all consumers to B'" policy afterwards.
 
-| Step | Project | Content |
+| Step | Bundle | Content |
 |------|---------|---------|
-| 1 | jsonCasted | `JsonProject` core: registry, identity rules, fingerprint (`ResourceFingerprint`), state model, provider-name reconciliation, topological graph + TestNG tests (A→B, E→B share one instance; synonym conflict throws; alias rebuilds; `REGISTERED`+`STALE` reloads silently, `CONSUMED`+`STALE` reports) |
-| 2 | jsonCasted | `WoodProxyResolver`/`RootConverter` project-aware variants, old signatures delegate with project == null |
-| 3 | jsonCasted_edit | `EditProject` (session clamp): EditTree registry, `EditLinkingSet` fallback to project index, edit-layer state model (`CLEAN/EDITED`, `CURRENT/OUTDATED`), `EventBus` propagation, dirty-vs-file policy hook |
-| 4 | WoodJsonJack | project open/close, shared B tab (visibility axis), save guards, conflict policy UI |
+| 1 | jsonCasted | `JsonBundle` core: registry, identity rules, fingerprint (`ResourceFingerprint`), state model, provider-name reconciliation, topological graph + TestNG tests (A→B, E→B share one instance; synonym conflict throws; alias rebuilds; `REGISTERED`+`STALE` reloads silently, `CONSUMED`+`STALE` reports) |
+| 2 | jsonCasted | `WoodProxyResolver`/`RootConverter` bundle-aware variants, old signatures delegate with bundle == null |
+| 3 | jsonCasted_edit | `EditBundle` (session clamp): EditTree registry, `EditLinkingSet` fallback to bundle index, edit-layer state model (`CLEAN/EDITED`, `CURRENT/OUTDATED`), `EventBus` propagation, dirty-vs-file policy hook |
+| 4 | WoodJsonJack | bundle open/close, shared B tab (visibility axis), save guards, conflict policy UI |
 | 5 (later, optional) | both | tree diff & merge per the outlook above — only after 1–4; concept to be elaborated separately |
 
 Steps 1–2 are pure additions; no existing behavior changes unless a caller
-opts into the project. Steps 3–4 are editor work and can follow independently.
+opts into the bundle. Steps 3–4 are editor work and can follow independently.
 
 ## Open questions (to decide before implementation)
 
-1. Should `JsonProject` be persistable (project file listing members), or is it
+1. Should `JsonBundle` be persistable (bundle file listing members), or is it
    purely derived from the main resource's provider graph? (Derived is
    sufficient for the A/E/B case.)
 2. Alias policy: is synonym reconciliation via `LinkingSet` rebuild acceptable,

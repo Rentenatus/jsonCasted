@@ -13,7 +13,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
 /**
- * Fingerprint of a resource's origin file, capture at load time (concept doc/JSON_PROJECT.md, state model):
+ * Fingerprint of a resource's origin file, capture at load time (concept doc/JSON_BUNDLE.md, state model):
  * every reuse of a registered resource verifies the fingerprint against the file to detect a change under the
  * cache. Stage 1 compares {@code {FileTime mtime, size}} - cheap and exact enough for the registry use; the
  * interface is the upgrade path for a content digest stage (CRC32) against touch/re-save false alarms.

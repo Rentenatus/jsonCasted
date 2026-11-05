@@ -3,8 +3,8 @@
 ## Purpose and scope
 
 This concept works through the **requirements of the diff logic** — deliberately
-*before* implementing the `JsonProject`/`EditProject` cores (see
-`JSON_PROJECT.md`), because only a full understanding of the diff requirements
+*before* implementing the `JsonBundle`/`EditBundle` cores (see
+`JSON_BUNDLE.md`), because only a full understanding of the diff requirements
 tells us **which data the core must carry**. Each requirement below is traced
 to existing code, to planned concepts, or to a discovered gap.
 
@@ -21,7 +21,7 @@ Priority order (decided in discussion):
 |----|-------|----------|-------|--------|
 | U1 | 2 | `EDITED` + `OUTDATED` conflict | base, ours (EditTree), theirs (fresh file parse) | merged EditTree + conflict list |
 | U2 | 1 | `CONSUMED` + `STALE` report | base (cached JsonNode instance), theirs (fresh parse) | DeltaOp report + impact list |
-| U3 | 1 | switch consumers to B' | U2 report + policy decision | reload/re-resolve instruction for the project |
+| U3 | 1 | switch consumers to B' | U2 report + policy decision | reload/re-resolve instruction for the bundle |
 | U4 | both | compare two arbitrary trees | any two parses of the same model | DeltaOp report (debug/version compare; falls out of U1/U2 for free) |
 
 **Hard rule:** a diff never mutates either side. Merges are applied as commands
@@ -155,7 +155,7 @@ ordered `List` (verified). No core change needed.
 A `LINK_TARGET` delta or an identity REMOVE/ADD radiates: the decision must
 show which **dependents** are affected. Lookup sources:
 `EditLinkingSet.getReferencesTo(linkTarget)` (exists) and
-`EditProject.getDependents(synonym)` (planned in `JSON_PROJECT.md`, step 3).
+`EditBundle.getDependents(synonym)` (planned in `JSON_BUNDLE.md`, step 3).
 Removing a wood ID that is still referenced must surface as a conflict of its
 own, not silently create dangling links.
 
@@ -168,10 +168,10 @@ own, not silently create dangling links.
 - `diff(base, theirs)` yields the DeltaOp report.
 - **Impact analysis:** removed/changed qualified IDs are intersected with the
   `LinkingSet.linkMap` keys (parse layer, exists) → affected references →
-  affected dependent resources (project graph). A report entry reads:
+  affected dependent resources (bundle graph). A report entry reads:
   "object `dep::5` removed — referenced by A (`$.content[2].ref`) and E
   (`$.items[0]`)".
-- The report feeds the `CONSUMED` + `STALE` policy from `JSON_PROJECT.md`:
+- The report feeds the `CONSUMED` + `STALE` policy from `JSON_BUNDLE.md`:
   `KEEP_OLD_AND_WARN` (default) or `SWITCH_TO_NEW` (reload shared instance,
   re-resolve dependents — the "merge" outcome discussed).
 
@@ -184,7 +184,7 @@ explicit:
 
 | Role | Origin | Held where | Representation during the diff |
 |------|--------|------------|-------------------------------|
-| **base** | layer 1 (parse product, JsonNode tree) | **on layer 2**: the `EditTree`/`EditProject` retains the snapshot (G1) — layer-1 *data* on layer-2 *storage* | converted to EditNodes transiently at diff time, via the same import path as theirs |
+| **base** | layer 1 (parse product, JsonNode tree) | **on layer 2**: the `EditTree`/`EditBundle` retains the snapshot (G1) — layer-1 *data* on layer-2 *storage* | converted to EditNodes transiently at diff time, via the same import path as theirs |
 | **ours** | layer 2 native | the `EditTree` itself — the only permanent layer-2 tree | native |
 | **theirs** | layer 1 (fresh parse) | **nowhere** — transient: create at conflict time, convert, diff, discard | converted to EditNodes immediately after parsing |
 
@@ -390,13 +390,13 @@ Design boundaries — the interface must **not** break these:
 | R1 | Qualified wood ID per node | matching phase 1 | **exists** (`JsonNode.getObjectId`, `EditNodeAbstract.getObjektId`) |
 | R2 | Link target per node | radiating analysis | **exists** (`JsonNode.getLink`, `EditNodeAbstract.getLinkTarget`) |
 | R3 | Deterministic child order | traversal | **exists** (`LinkedHashMap`, ordered children list) |
-| R4 | Fingerprint + status on the resource itself | change detection, conflict quadrant | planned (`JSON_PROJECT.md` state model) — now motivated by diff as well. **Edit-layer refinement:** the `EditTree` *adopts* the fingerprint of its origin file at import (the layer-1 `JsonResource` is discarded) and refreshes it on every save; this is what lets the editor decide whether a plain overwrite is allowed (see save guard in `JSON_PROJECT.md`) |
+| R4 | Fingerprint + status on the resource itself | change detection, conflict quadrant | planned (`JSON_BUNDLE.md` state model) — now motivated by diff as well. **Edit-layer refinement:** the `EditTree` *adopts* the fingerprint of its origin file at import (the layer-1 `JsonResource` is discarded) and refreshes it on every save; this is what lets the editor decide whether a plain overwrite is allowed (see save guard in `JSON_BUNDLE.md`) |
 | R5 | **Retention of the import state (base) per EditTree** | U1 3-way — *the* precondition | **GAP G1** |
 | R6 | Re-parse "theirs" through the normal import path, isolated node identities | U1 | exists as a **rule** (no code gap): never match by `editId` |
 | R7 | Command layer for replay of deltas | merge application | **exists** (command package, all basic ops) |
 | R8 | **One undo step per merge** (transaction/composite command) | merge UX | **GAP G2** — commands exist only singly; `HistoryManager` needs a composite/transaction entry |
 | R9 | Reference tracking (who links to a target) | radiating analysis | **exists** (`EditLinkingSet.getReferencesTo`, `LinkingSet.linkMap`) |
-| R10 | Dependents lookup per synonym | radiating analysis | planned (`JsonProject`/`EditProject.getDependents`) |
+| R10 | Dependents lookup per synonym | radiating analysis | planned (`JsonBundle`/`EditBundle.getDependents`) |
 | R11 | **Merkle subtree hashes** (separate from `lastParsedHash`): bottom-up at parse on `JsonNode` (base + theirs, free) and incrementally maintained per command on `EditNodeAbstract` (O(depth)) | O(changed) diff pruning, move/reorder detection, semantic no-op detection | **GAP G3 (now concrete)** — verified: `computeHash()` today is 32-bit, local-only (childCount, no child hashes), includes `editId` → not cross-parse-comparable; needs a new dedicated `merkleHash` field on both node types + a defined 64-bit canonical mixer |
 | R12 | Paths for anonymous nodes | matching phase 2 | no core change — diff builds paths during traversal |
 | R13 | **`DifferableNode` interface** (`de.jare.jsoncasted.diff`) implemented by `JsonNode` and `EditNodeAbstract`; diff engine written once against it | whole pipeline, both layers | **planned in this concept** — read-only semantic projection; no mutation API; engine emits DeltaOps, application stays layer-specific |
@@ -418,7 +418,7 @@ Design boundaries — the interface must **not** break these:
   reparse-trigger role unchanged.
 
 Everything else the diff needs is either already in the code or already
-planned in `JSON_PROJECT.md` — the concept confirms the core design instead of
+planned in `JSON_BUNDLE.md` — the concept confirms the core design instead of
 overturning it.
 
 ---

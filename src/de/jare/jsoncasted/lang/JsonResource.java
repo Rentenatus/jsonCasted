@@ -41,10 +41,10 @@ public final class JsonResource {
 
     private LinkingSet linkingSet;
 
-    // State model of doc/JSON_PROJECT.md: every file carries its own status and fingerprint - diff and merge must
-    // also work for a standalone resource outside any project. The consumption axis: REGISTERED (parsed, not yet
+    // State model of doc/JSON_BUNDLE.md: every file carries its own status and fingerprint - diff and merge must
+    // also work for a standalone resource outside any bundle. The consumption axis: REGISTERED (parsed, not yet
     // fed into a resolution) vs CONSUMED (used by at least one resolution - no silent reload then); the freshness
-    // axis (FRESH/STALE) is computable from the fingerprint alone. The project aggregates, the resource carries.
+    // axis (FRESH/STALE) is computable from the fingerprint alone. The bundle aggregates, the resource carries.
     private ResourceFingerprint fingerprint;
     private boolean consumed;
 
@@ -337,7 +337,7 @@ public final class JsonResource {
     }
 
     /**
-     * Captures the fingerprint of the origin file (concept doc/JSON_PROJECT.md, state model): the load-time state
+     * Captures the fingerprint of the origin file (concept doc/JSON_BUNDLE.md, state model): the load-time state
      * the freshness axis compares against. No-op for resources without a file (in-memory constructs, definitions).
      */
     public void captureFingerprint() {
@@ -366,7 +366,7 @@ public final class JsonResource {
 
     /**
      * Tells whether this resource was already fed into at least one resolution (consumption axis, concept
-     * doc/JSON_PROJECT.md): a consumed instance must not be silently reloaded - existing resolutions would
+     * doc/JSON_BUNDLE.md): a consumed instance must not be silently reloaded - existing resolutions would
      * diverge from the state they were built on. REGISTERED is the opposite of CONSUMED.
      *
      * @return true when at least one resolution used this instance.
@@ -383,7 +383,7 @@ public final class JsonResource {
     }
 
     /**
-     * FRESHness is a detection, not a decision (concept doc/JSON_PROJECT.md): the captured fingerprint against
+     * FRESHness is a detection, not a decision (concept doc/JSON_BUNDLE.md): the captured fingerprint against
      * the file as it is NOW. An in-memory resource (no captured fingerprint) is fresh by definition - there is no
      * file state to detach from; a vanished or unreadable origin file counts as stale (the cache detached).
      *

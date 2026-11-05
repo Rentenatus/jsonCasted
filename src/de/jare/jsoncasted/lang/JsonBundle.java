@@ -30,8 +30,8 @@ import java.util.Queue;
 import java.util.Set;
 
 /**
- * A long-lived project above {@link JsonResource} (concept doc/JSON_PROJECT.md): it guarantees {@code B == B'} -
- * every file of the project is parsed exactly once, held once and shared by all consuming resources, at parse
+ * A long-lived bundle above {@link JsonResource} (concept doc/JSON_BUNDLE.md): it guarantees {@code B == B'} -
+ * every file of the bundle is parsed exactly once, held once and shared by all consuming resources, at parse
  * time as well as later in the editor session.
  *
  * <p>
@@ -44,15 +44,15 @@ import java.util.Set;
  * </p>
  *
  * <p>
- * The project owns all resources for its lifetime (v1: no refcounting). It consumes the parser service for
- * loading but never the convert service - the io convert layer consumes the project (phase 2 of
- * doc/PLAN_JsonProject.md). Fingerprints are captured at load; the FRESH/STALE and REGISTERED/CONSUMED states
- * live on the {@link JsonResource} itself, the project only aggregates and coordinates.
+ * The bundle owns all resources for its lifetime (v1: no refcounting). It consumes the parser service for
+ * loading but never the convert service - the io convert layer consumes the bundle (phase 2 of
+ * doc/PLAN_JsonBundle.md). Fingerprints are captured at load; the FRESH/STALE and REGISTERED/CONSUMED states
+ * live on the {@link JsonResource} itself, the bundle only aggregates and coordinates.
  * </p>
  *
  * @author Janusch Rentenatus
  */
-public final class JsonProject {
+public final class JsonBundle {
 
     /**
      * One registry entry: the shared instance with its canonical path and its first (identity-winning) synonym.
@@ -78,31 +78,31 @@ public final class JsonProject {
     private boolean closed;
 
     /**
-     * Opens the project of a main file: parses the main resource, walks its provider graph transitively, loads
+     * Opens the bundle of a main file: parses the main resource, walks its provider graph transitively, loads
      * and registers every referenced file exactly once, captures each fingerprint and merges the providers'
      * linking sets into the main resource's set (the shared instances keep their own clean per-resource sets -
      * concept hygiene rule).
      *
      * @param mainFile the main resource file, not null.
      * @param debug the debug level, not null.
-     * @return the open project.
+     * @return the open bundle.
      * @throws IOException if a file cannot be read.
      * @throws JsonParseException if a file fails to parse, a provider synonym conflict or a dependency cycle
      * appears.
      */
-    public static JsonProject open(File mainFile, JsonDebugLevel debug) throws IOException, JsonParseException {
+    public static JsonBundle open(File mainFile, JsonDebugLevel debug) throws IOException, JsonParseException {
         Objects.requireNonNull(mainFile, "mainFile must not be null");
         Objects.requireNonNull(debug, "debug must not be null");
 
         final JsonResource main = loadSelf(mainFile.getPath(), debug);
-        final JsonProject project = new JsonProject(main, debug);
-        project.register(main);
-        project.loadProviderGraph(debug);
-        return project;
+        final JsonBundle bundle = new JsonBundle(main, debug);
+        bundle.register(main);
+        bundle.loadProviderGraph(debug);
+        return bundle;
     }
 
     /**
-     * Loads one file as the given synonym - the single load rail of the project (same semantics the convert
+     * Loads one file as the given synonym - the single load rail of the bundle (same semantics the convert
      * layer uses today: file becomes the resourceFile, synonym becomes the provider name).
      */
     private static JsonResource load(File file, String synonym, JsonDebugLevel debug)
@@ -125,13 +125,13 @@ public final class JsonProject {
         }
     }
 
-    private JsonProject(JsonResource mainResource, JsonDebugLevel debug) {
+    private JsonBundle(JsonResource mainResource, JsonDebugLevel debug) {
         this.mainResource = mainResource;
         this.debug = debug;
     }
 
     /**
-     * Returns the project's main resource.
+     * Returns the bundle's main resource.
      *
      * @return the main resource, not null while open.
      */
@@ -140,7 +140,7 @@ public final class JsonProject {
     }
 
     /**
-     * Closes the project: releases every held resource.
+     * Closes the bundle: releases every held resource.
      */
     public void close() {
         byPath.clear();
@@ -150,7 +150,7 @@ public final class JsonProject {
     }
 
     /**
-     * Returns the project's alias and reconciliation warnings (concept identity rules).
+     * Returns the bundle's alias and reconciliation warnings (concept identity rules).
      *
      * @return unmodifiable warning lines, empty when none.
      */
@@ -391,13 +391,13 @@ public final class JsonProject {
     }
 
     /**
-     * Bridges the project into the existing resolution: a {@link JsonSystem} for one resource with its
+     * Bridges the bundle into the existing resolution: a {@link JsonSystem} for one resource with its
      * transitive provider closure (the resource itself plus every provider reachable through the boxes) -
      * the same set a per-resource parse session would hold, but built from the SHARED instances. The sorted
-     * synonyms of the whole project graph serve as the order; synonyms outside the closure simply find no
+     * synonyms of the whole bundle graph serve as the order; synonyms outside the closure simply find no
      * resource in the system.
      *
-     * @param main the resource to convert - the project's main normally, any sub resource in the editor.
+     * @param main the resource to convert - the bundle's main normally, any sub resource in the editor.
      * @return the system, not null.
      * @throws JsonParseException when the provider graph contains a cycle.
      */
@@ -437,7 +437,7 @@ public final class JsonProject {
     }
 
     /**
-     * The registry-first load lane for the convert layer (doc/JSON_PROJECT.md, integration step 2): a synonym
+     * The registry-first load lane for the convert layer (doc/JSON_BUNDLE.md, integration step 2): a synonym
      * request is served from the registry when possible - first by synonym, then by path (the alias rules
      * decide), only a double miss actually parses the file and registers the fresh instance. The io layer
      * calls this instead of loading, so {@code B == B'} holds across resolutions.
@@ -472,7 +472,7 @@ public final class JsonProject {
     }
 
     /**
-     * Every reuse verifies the fingerprint against the file (concept doc/JSON_PROJECT.md state model): the
+     * Every reuse verifies the fingerprint against the file (concept doc/JSON_BUNDLE.md state model): the
      * combination decides. REGISTERED+STALE silently reloads - nobody consumed the old state, no resolution
      * can lose ground; the fresh instance returns to REGISTERED+FRESH. CONSUMED+STALE warns and KEEPS the
      * instance (decided open question 5: warn + keep) - a reload would silently invalidate already resolved
@@ -533,7 +533,7 @@ public final class JsonProject {
                 }
             } catch (FileNotFoundException ex) {
                 // the same tolerance the convert layer lives by (WoodProxyResolver warns and continues): a
-                // missing provider file is a warning, not a project failure - dangling references are a case
+                // missing provider file is a warning, not a bundle failure - dangling references are a case
                 // for the validator
                 warnings.add("Provider file not found: " + provider.getFilename());
                 continue;
@@ -635,7 +635,7 @@ public final class JsonProject {
 
     private void requireOpen() {
         if (closed) {
-            throw new IllegalStateException("The project is closed");
+            throw new IllegalStateException("The bundle is closed");
         }
     }
 }

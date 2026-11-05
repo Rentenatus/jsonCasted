@@ -11,7 +11,7 @@ import de.jare.debug.JsonDebugLevel;
 import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.parserservice.ParseStreamReader;
 import de.jare.jsoncasted.io.parserservice.RootParser;
-import de.jare.jsoncasted.lang.JsonProject;
+import de.jare.jsoncasted.lang.JsonBundle;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonSystem;
 import static de.jare.jsoncasted.lang.JsonTerms.SELF_SYNONYM;
@@ -91,19 +91,19 @@ public final class WoodProxyResolver {
     }
 
     /**
-     * Project-aware variant of the provider resolution (concept doc/JSON_PROJECT.md, integration step 2): the
-     * load step asks the {@link JsonProject} registry first, so every provider file is parsed exactly once and
-     * shared across all resolutions ({@code B == B'}). A null project behaves exactly as the two-argument
+     * Bundle-aware variant of the provider resolution (concept doc/JSON_BUNDLE.md, integration step 2): the
+     * load step asks the {@link JsonBundle} registry first, so every provider file is parsed exactly once and
+     * shared across all resolutions ({@code B == B'}). A null bundle behaves exactly as the two-argument
      * signature - the legacy path stays untouched.
      *
      * @param sys The JsonSystem containing the main resource with provider box.
-     * @param project The project registry, or null for the legacy per-session loads.
+     * @param bundle The bundle registry, or null for the legacy per-session loads.
      * @param debugLevel The debug level for controlling debug output.
      * @throws IOException If I/O errors occur during loading.
      * @throws JsonParseException If parsing fails for any provider file, or if a cycle or an identity rule
      * (synonym conflict, consumed alias) is violated.
      */
-    public static void resolveProviders(JsonSystem sys, JsonProject project, JsonDebugLevel debugLevel)
+    public static void resolveProviders(JsonSystem sys, JsonBundle bundle, JsonDebugLevel debugLevel)
             throws IOException, JsonParseException {
         Objects.requireNonNull(sys, "sys must not be null");
         Objects.requireNonNull(debugLevel, "debugLevel must not be null");
@@ -114,8 +114,8 @@ public final class WoodProxyResolver {
             return;
         }
 
-        // the resolution is running - a project-aware resolution consumes the resources it is fed with
-        if (project != null) {
+        // the resolution is running - a bundle-aware resolution consumes the resources it is fed with
+        if (bundle != null) {
             mainResource.markConsumed();
         }
 
@@ -222,7 +222,7 @@ public final class WoodProxyResolver {
         for (String synonym : sortedSynonyms) {
             JsonResource existing = sys.findResourcesBySynonym(synonym);
             if (existing != null) {
-                if (project != null) {
+                if (bundle != null) {
                     existing.markConsumed();
                 }
                 continue;
@@ -234,11 +234,11 @@ public final class WoodProxyResolver {
                 continue;
             }
 
-            if (project != null) {
+            if (bundle != null) {
                 // registry first: the shared instance when it exists, else one parse plus registration. The
-                // identity rules (alias, synonym conflict) live in the project and throw through here.
+                // identity rules (alias, synonym conflict) live in the bundle and throw through here.
                 try {
-                    JsonResource shared = project.acquire(synonym, new File(provider.getFilename()), debugLevel);
+                    JsonResource shared = bundle.acquire(synonym, new File(provider.getFilename()), debugLevel);
 
                     sys.addResource(shared);
 

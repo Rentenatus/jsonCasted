@@ -26,8 +26,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * The identity core of doc/JSON_PROJECT.md (step 1, second half): the project registry guarantees
- * {@code B == B'} - every file of the project is parsed exactly once and shared by all consumers. Fixtures build
+ * The identity core of doc/JSON_BUNDLE.md (step 1, second half): the bundle registry guarantees
+ * {@code B == B'} - every file of the bundle is parsed exactly once and shared by all consumers. Fixtures build
  * the A/E/B constellation with temp files: the main references the sub providers A and E, both reference B.
  *
  * <p>
@@ -38,7 +38,7 @@ import org.testng.annotations.Test;
  *
  * @author Janusch Rentenatus
  */
-public class JsonProjectNGTest {
+public class JsonBundleNGTest {
 
     private static final JsonDebugLevel DEBUG = JsonDebugLevel.SIMPLE;
 
@@ -46,7 +46,7 @@ public class JsonProjectNGTest {
 
     @BeforeClass
     public static void createTempDir() throws IOException {
-        tempDir = Files.createTempDirectory("jsonproject-registry");
+        tempDir = Files.createTempDirectory("jsonbundle-registry");
     }
 
     @AfterClass
@@ -104,62 +104,62 @@ public class JsonProjectNGTest {
     @Test
     public void sharedShapeOpensWithFingerprintPerResource() throws IOException, JsonParseException {
         buildSharedFixture("dep");
-        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
+        final JsonBundle bundle = JsonBundle.open(mainFile(), DEBUG);
 
-        final JsonResource viaSynonym = project.findBySynonym("dep");
+        final JsonResource viaSynonym = bundle.findBySynonym("dep");
         assertNotNull(viaSynonym, "B must be findable under the shared synonym");
         assertTrue(viaSynonym.isFresh(), "the fingerprint captured at load matches the file");
         assertTrue(viaSynonym.getFingerprint() != null, "captured at load");
         assertFalse(viaSynonym.isConsumed(), "no resolution ran - REGISTERED");
-        project.close();
+        bundle.close();
     }
 
     @Test(dependsOnMethods = "sharedShapeOpensWithFingerprintPerResource")
     public void bIsOneInstanceForBothConsumers() throws IOException, JsonParseException {
         buildSharedFixture("dep");
-        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
+        final JsonBundle bundle = JsonBundle.open(mainFile(), DEBUG);
 
-        final JsonResource b = project.findBySynonym("dep");
+        final JsonResource b = bundle.findBySynonym("dep");
         final String canonicalB = new File(b.getResourceFile()).getCanonicalPath();
-        assertSame(project.findByPath(canonicalB), b,
+        assertSame(bundle.findByPath(canonicalB), b,
                 "B == B' - the synonym lookup and the path lookup share ONE instance");
-        assertEquals(project.getSortedSynonyms().size(), 4, "self, subA, subE and dep");
-        assertTrue(project.getWarnings().isEmpty(), "the same synonym twice is the normal share case");
-        project.close();
+        assertEquals(bundle.getSortedSynonyms().size(), 4, "self, subA, subE and dep");
+        assertTrue(bundle.getWarnings().isEmpty(), "the same synonym twice is the normal share case");
+        bundle.close();
     }
 
     @Test(dependsOnMethods = "bIsOneInstanceForBothConsumers")
     public void aliasSharesTheInstanceAndRebuildsTheSet() throws IOException, JsonParseException {
         buildAliasFixture();
-        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
+        final JsonBundle bundle = JsonBundle.open(mainFile(), DEBUG);
 
-        final JsonResource asDep = project.findBySynonym("dep");
-        final JsonResource asBase = project.findBySynonym("base");
+        final JsonResource asDep = bundle.findBySynonym("dep");
+        final JsonResource asBase = bundle.findBySynonym("base");
         assertNotNull(asDep, "B must be findable under its first synonym");
         assertNotNull(asBase, "B must be findable under the reconciled alias");
         assertSame(asDep, asBase, "the alias shares the instance - first synonym wins");
-        assertFalse(project.getWarnings().isEmpty(), "the alias is collected as a warning");
-        assertTrue(project.getWarnings().get(0).contains("Alias"), "warning: " + project.getWarnings().get(0));
-        project.close();
+        assertFalse(bundle.getWarnings().isEmpty(), "the alias is collected as a warning");
+        assertTrue(bundle.getWarnings().get(0).contains("Alias"), "warning: " + bundle.getWarnings().get(0));
+        bundle.close();
     }
 
     @Test(dependsOnMethods = "aliasSharesTheInstanceAndRebuildsTheSet")
     public void aliasForConsumedInstanceIsRefused() throws IOException, JsonParseException {
         buildAliasFixture();
-        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
+        final JsonBundle bundle = JsonBundle.open(mainFile(), DEBUG);
 
-        final JsonResource b = project.findBySynonym("dep");
+        final JsonResource b = bundle.findBySynonym("dep");
         b.markConsumed();
 
         final JsonResource aliasRequest = JsonResource.forFile(b.getResourceFile());
         aliasRequest.setProviderName("lateAlias");
         try {
-            project.register(aliasRequest);
+            bundle.register(aliasRequest);
             fail("an alias for a CONSUMED instance must be refused - the rebuild would invalidate resolutions");
         } catch (JsonParseException expected) {
             assertTrue(expected.getMessage().contains("Alias refused"), "message: " + expected.getMessage());
         }
-        project.close();
+        bundle.close();
     }
 
     @Test(dependsOnMethods = "aliasForConsumedInstanceIsRefused")
@@ -173,7 +173,7 @@ public class JsonProjectNGTest {
                 provider("subE", eConflict)) + ", \"one\": 1}");
 
         try {
-            JsonProject.open(conflictMainFile(), DEBUG);
+            JsonBundle.open(conflictMainFile(), DEBUG);
             fail("the same synonym owned by two different files must throw");
         } catch (JsonParseException expected) {
             assertTrue(expected.getMessage().contains("Synonym"), "message: " + expected.getMessage());
@@ -183,132 +183,132 @@ public class JsonProjectNGTest {
     @Test(dependsOnMethods = "synonymConflictOfTwoFilesThrows")
     public void dependentsOfTheGraphNodes() throws IOException, JsonParseException {
         buildSharedFixture("dep");
-        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
+        final JsonBundle bundle = JsonBundle.open(mainFile(), DEBUG);
 
-        assertTrue(project.getDependents("subA").contains("self"), "the main box references subA");
-        assertTrue(project.getDependents("dep").contains("subA"), "A references dep");
-        assertTrue(project.getDependents("dep").contains("subE"), "E references dep");
-        assertTrue(project.getDependents("self").isEmpty(), "nobody references the main");
-        project.close();
+        assertTrue(bundle.getDependents("subA").contains("self"), "the main box references subA");
+        assertTrue(bundle.getDependents("dep").contains("subA"), "A references dep");
+        assertTrue(bundle.getDependents("dep").contains("subE"), "E references dep");
+        assertTrue(bundle.getDependents("self").isEmpty(), "nobody references the main");
+        bundle.close();
     }
 
     @Test(dependsOnMethods = "dependentsOfTheGraphNodes")
     public void reloadReplacesTheSharedInstance() throws IOException, JsonParseException {
         buildSharedFixture("dep");
-        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
+        final JsonBundle bundle = JsonBundle.open(mainFile(), DEBUG);
 
-        final JsonResource b = project.findBySynonym("dep");
+        final JsonResource b = bundle.findBySynonym("dep");
         final String canonicalB = new File(b.getResourceFile()).getCanonicalPath();
 
         // the file changes on disk under the cache
         write("B.json", "{\"shared\": {\"_woodObjectId\": \"5\", \"text\": \"B changed\"}}");
         assertTrue(b.isStale(), "the change under the cache is detected");
 
-        project.reload(canonicalB, DEBUG);
-        final JsonResource fresh = project.findBySynonym("dep");
+        bundle.reload(canonicalB, DEBUG);
+        final JsonResource fresh = bundle.findBySynonym("dep");
         assertNotSame(fresh, b, "reload replaces the shared instance");
         assertTrue(fresh.isFresh(), "the fresh parse is FRESH again");
         assertFalse(fresh.isConsumed(), "and REGISTERED again");
-        project.close();
+        bundle.close();
     }
 
     @Test(dependsOnMethods = "reloadReplacesTheSharedInstance")
     public void toSystemCarriesTheRegistryInstances() throws IOException, JsonParseException {
         buildSharedFixture("dep");
-        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
+        final JsonBundle bundle = JsonBundle.open(mainFile(), DEBUG);
 
-        final JsonSystem sys = project.toSystem(project.getMainResource());
-        assertSame(sys.getMainResource(), project.getMainResource());
-        assertSame(sys.findResourcesBySynonym("dep"), project.findBySynonym("dep"),
-                "the system carries the shared project instances - no second parse");
-        assertEquals(sys.getSortedSynonyms().size(), 4, "the sorted synonyms come from the project graph");
-        project.close();
+        final JsonSystem sys = bundle.toSystem(bundle.getMainResource());
+        assertSame(sys.getMainResource(), bundle.getMainResource());
+        assertSame(sys.findResourcesBySynonym("dep"), bundle.findBySynonym("dep"),
+                "the system carries the shared bundle instances - no second parse");
+        assertEquals(sys.getSortedSynonyms().size(), 4, "the sorted synonyms come from the bundle graph");
+        bundle.close();
     }
 
     @Test(dependsOnMethods = "toSystemCarriesTheRegistryInstances")
-    public void closedProjectRefusesRegistryAccess() throws IOException, JsonParseException {
+    public void closedBundleRefusesRegistryAccess() throws IOException, JsonParseException {
         buildSharedFixture("dep");
-        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
-        project.close();
+        final JsonBundle bundle = JsonBundle.open(mainFile(), DEBUG);
+        bundle.close();
 
         try {
-            project.findBySynonym("dep");
-            fail("a closed project must refuse registry access");
+            bundle.findBySynonym("dep");
+            fail("a closed bundle must refuse registry access");
         } catch (IllegalStateException expected) {
             assertTrue(expected.getMessage().contains("closed"));
         }
     }
 
-    @Test(dependsOnMethods = "closedProjectRefusesRegistryAccess")
+    @Test(dependsOnMethods = "closedBundleRefusesRegistryAccess")
     public void missingProviderFileIsToleratedWithWarning() throws IOException, JsonParseException {
         buildSharedFixture("dep");
         write("main-missing.json", "{" + box(provider("ghost", path("ghost.json")))
                 + ", \"one\": 1}");
 
         // the same tolerance the convert layer lives by: a missing provider file warns and continues instead
-        // of failing the whole project (a legacy Open of the same file works too)
-        final JsonProject project = JsonProject.open(new File(tempDir.resolve("main-missing.json").toString()), DEBUG);
-        assertNotNull(project.getMainResource(), "the project must open despite the dangling reference");
-        assertFalse(project.getWarnings().isEmpty(), "the missing file is collected as a warning");
-        assertTrue(project.getWarnings().get(0).contains("not found"),
-                "warning: " + project.getWarnings().get(0));
-        assertNull(project.findBySynonym("ghost"), "the ghost stays unregistered");
-        project.close();
+        // of failing the whole bundle (a legacy Open of the same file works too)
+        final JsonBundle bundle = JsonBundle.open(new File(tempDir.resolve("main-missing.json").toString()), DEBUG);
+        assertNotNull(bundle.getMainResource(), "the bundle must open despite the dangling reference");
+        assertFalse(bundle.getWarnings().isEmpty(), "the missing file is collected as a warning");
+        assertTrue(bundle.getWarnings().get(0).contains("not found"),
+                "warning: " + bundle.getWarnings().get(0));
+        assertNull(bundle.findBySynonym("ghost"), "the ghost stays unregistered");
+        bundle.close();
     }
 
     @Test(dependsOnMethods = "missingProviderFileIsToleratedWithWarning")
     public void registeredStaleAcquireReloadsSilently() throws IOException, JsonParseException {
         buildSharedFixture("dep");
-        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
-        final JsonResource b = project.findBySynonym("dep");
+        final JsonBundle bundle = JsonBundle.open(mainFile(), DEBUG);
+        final JsonResource b = bundle.findBySynonym("dep");
         assertNotNull(b);
         assertFalse(b.isConsumed(), "sanity: no resolution ran, REGISTERED");
 
         // the file changes under the cache before any resolution consumed the instance
         write("B.json", "{\"shared\": {\"_woodObjectId\": \"5\", \"text\": \"changed\"}}");
         assertTrue(b.isStale(), "sanity: STALE detected");
-        final int warningsBefore = project.getWarnings().size();
+        final int warningsBefore = bundle.getWarnings().size();
 
-        final JsonResource acquired = project.acquire("dep", new File(path("B.json")), DEBUG);
+        final JsonResource acquired = bundle.acquire("dep", new File(path("B.json")), DEBUG);
         assertNotSame(acquired, b, "REGISTERED+STALE silently reloads - nobody consumed the old state");
         assertTrue(acquired.isFresh(), "the fresh parse is FRESH");
-        assertEquals(project.getWarnings().size(), warningsBefore, "the reload is silent");
-        project.close();
+        assertEquals(bundle.getWarnings().size(), warningsBefore, "the reload is silent");
+        bundle.close();
     }
 
     @Test(dependsOnMethods = "registeredStaleAcquireReloadsSilently")
     public void consumedStaleAcquireWarnsAndKeeps() throws IOException, JsonParseException {
         buildSharedFixture("dep");
-        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
-        final JsonResource b = project.findBySynonym("dep");
+        final JsonBundle bundle = JsonBundle.open(mainFile(), DEBUG);
+        final JsonResource b = bundle.findBySynonym("dep");
         b.markConsumed();
 
         write("B.json", "{\"shared\": {\"_woodObjectId\": \"5\", \"text\": \"changed again\"}}");
         assertTrue(b.isStale(), "sanity: STALE detected");
-        final int warningsBefore = project.getWarnings().size();
+        final int warningsBefore = bundle.getWarnings().size();
 
-        final JsonResource acquired = project.acquire("dep", new File(path("B.json")), DEBUG);
+        final JsonResource acquired = bundle.acquire("dep", new File(path("B.json")), DEBUG);
         assertSame(acquired, b, "CONSUMED+STALE warns and KEEPS - a reload would invalidate resolutions");
-        assertEquals(project.getWarnings().size(), warningsBefore + 1, "the conflict is reported");
-        assertTrue(project.getWarnings().get(warningsBefore).contains("CONSUMED + STALE"),
-                "warning: " + project.getWarnings().get(warningsBefore));
-        project.close();
+        assertEquals(bundle.getWarnings().size(), warningsBefore + 1, "the conflict is reported");
+        assertTrue(bundle.getWarnings().get(warningsBefore).contains("CONSUMED + STALE"),
+                "warning: " + bundle.getWarnings().get(warningsBefore));
+        bundle.close();
     }
 
     @Test(dependsOnMethods = "consumedStaleAcquireWarnsAndKeeps")
     public void vanishedFileKeepsTheCache() throws IOException, JsonParseException {
         buildSharedFixture("dep");
-        final JsonProject project = JsonProject.open(mainFile(), DEBUG);
-        final JsonResource b = project.findBySynonym("dep");
+        final JsonBundle bundle = JsonBundle.open(mainFile(), DEBUG);
+        final JsonResource b = bundle.findBySynonym("dep");
         Files.delete(tempDir.resolve("B.json"));
         assertTrue(b.isStale(), "a vanished file counts as STALE");
 
-        final JsonResource acquired = project.acquire("dep", new File(path("B.json")), DEBUG);
+        final JsonResource acquired = bundle.acquire("dep", new File(path("B.json")), DEBUG);
         assertSame(acquired, b, "nothing to reload - the registered instance stays for this session");
-        assertFalse(project.getWarnings().isEmpty());
-        assertTrue(project.getWarnings().get(project.getWarnings().size() - 1).contains("vanished"),
-                "warning: " + project.getWarnings().get(project.getWarnings().size() - 1));
-        project.close();
+        assertFalse(bundle.getWarnings().isEmpty());
+        assertTrue(bundle.getWarnings().get(bundle.getWarnings().size() - 1).contains("vanished"),
+                "warning: " + bundle.getWarnings().get(bundle.getWarnings().size() - 1));
+        bundle.close();
     }
 
     private static File mainFile() {

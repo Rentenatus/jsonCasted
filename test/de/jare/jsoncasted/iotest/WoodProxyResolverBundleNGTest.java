@@ -11,7 +11,7 @@ import de.jare.jsoncasted.io.JsonParseException;
 import de.jare.jsoncasted.io.convertservice.RootConverter;
 import de.jare.jsoncasted.io.convertservice.WoodProxyResolver;
 import de.jare.jsoncasted.io.convertservice.WoodResolution;
-import de.jare.jsoncasted.lang.JsonProject;
+import de.jare.jsoncasted.lang.JsonBundle;
 import de.jare.jsoncasted.lang.JsonResource;
 import de.jare.jsoncasted.lang.JsonSystem;
 import de.jare.impltest.lib.ImplTestDefinition;
@@ -31,14 +31,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * The project-aware io layer of doc/JSON_PROJECT.md (doc/PLAN_JsonProject.md phase 2): the provider
- * resolution asks the registry first, the convert overload builds the system from the project - the shared
+ * The bundle-aware io layer of doc/JSON_BUNDLE.md (doc/PLAN_JsonBundle.md phase 2): the provider
+ * resolution asks the registry first, the convert overload builds the system from the bundle - the shared
  * instance B flows into the resolution instead of a fresh parse. The legacy signatures keep their per-session
- * behavior untouched (project == null) and still demo the old divergence.
+ * behavior untouched (bundle == null) and still demo the old divergence.
  *
  * @author Janusch Rentenatus
  */
-public class WoodProxyResolverProjectNGTest {
+public class WoodProxyResolverBundleNGTest {
 
     private static final JsonDebugLevel DEBUG = JsonDebugLevel.SIMPLE;
 
@@ -46,7 +46,7 @@ public class WoodProxyResolverProjectNGTest {
 
     @BeforeClass
     public static void createTempDir() throws IOException {
-        tempDir = Files.createTempDirectory("jsonproject-io");
+        tempDir = Files.createTempDirectory("jsonbundle-io");
     }
 
     @AfterClass
@@ -70,7 +70,7 @@ public class WoodProxyResolverProjectNGTest {
     }
 
     /**
-     * A references B (synonym dep) with a wood link; the project main P references A as subA.
+     * A references B (synonym dep) with a wood link; the bundle main P references A as subA.
      */
     private String buildFixture() throws IOException {
         final String b = write("B.json", "{\"shared\": {\"_woodObjectId\": \"5\", \"text\": \"B\"}}");
@@ -81,85 +81,85 @@ public class WoodProxyResolverProjectNGTest {
     }
 
     @Test
-    public void projectAwareResolutionSharesTheProvidersInstance() throws IOException, JsonParseException {
+    public void bundleAwareResolutionSharesTheProvidersInstance() throws IOException, JsonParseException {
         buildFixture();
-        final JsonProject project = JsonProject.open(tempDir.resolve("P.json").toFile(), DEBUG);
-        final JsonResource registryB = project.findBySynonym("dep");
+        final JsonBundle bundle = JsonBundle.open(tempDir.resolve("P.json").toFile(), DEBUG);
+        final JsonResource registryB = bundle.findBySynonym("dep");
 
         // a per-resource system around the shared A - exactly what a sub-resource convert builds
-        final JsonResource sharedA = project.findBySynonym("subA");
+        final JsonResource sharedA = bundle.findBySynonym("subA");
         final JsonSystem sys = JsonSystem.of(sharedA);
-        WoodProxyResolver.resolveProviders(sys, project, DEBUG);
+        WoodProxyResolver.resolveProviders(sys, bundle, DEBUG);
 
         assertSame(sys.findResourcesBySynonym("dep"), registryB,
                 "B == B' - the io seam serves the registry instance, no second parse");
         assertTrue(registryB.isConsumed(), "the resolution fed with B flips it to CONSUMED");
         assertTrue(sharedA.isConsumed(), "the resolved main is consumed as well");
-        project.close();
+        bundle.close();
     }
 
-    @Test(dependsOnMethods = "projectAwareResolutionSharesTheProvidersInstance")
+    @Test(dependsOnMethods = "bundleAwareResolutionSharesTheProvidersInstance")
     public void legacyResolutionStillLoadsItsOwnInstance() throws IOException, JsonParseException {
         buildFixture();
-        final JsonProject project = JsonProject.open(tempDir.resolve("P.json").toFile(), DEBUG);
-        final JsonResource registryB = project.findBySynonym("dep");
+        final JsonBundle bundle = JsonBundle.open(tempDir.resolve("P.json").toFile(), DEBUG);
+        final JsonResource registryB = bundle.findBySynonym("dep");
 
-        final JsonResource sharedA = project.findBySynonym("subA");
+        final JsonResource sharedA = bundle.findBySynonym("subA");
         final JsonSystem sys = JsonSystem.of(sharedA);
         WoodProxyResolver.resolveProviders(sys, DEBUG);
 
         assertNotSame(sys.findResourcesBySynonym("dep"), registryB,
                 "the legacy path keeps its per-session behavior: its own fresh parse (the old divergence)");
-        assertFalse(registryB.isConsumed(), "the legacy session knows no project - no consumption flips");
-        project.close();
+        assertFalse(registryB.isConsumed(), "the legacy session knows no bundle - no consumption flips");
+        bundle.close();
     }
 
     @Test(dependsOnMethods = "legacyResolutionStillLoadsItsOwnInstance")
-    public void convertThroughTheProjectResolvesWithoutSecondParses() throws IOException, JsonParseException {
+    public void convertThroughTheBundleResolvesWithoutSecondParses() throws IOException, JsonParseException {
         buildFixture();
-        final JsonProject project = JsonProject.open(tempDir.resolve("P.json").toFile(), DEBUG);
-        final JsonResource registryB = project.findBySynonym("dep");
+        final JsonBundle bundle = JsonBundle.open(tempDir.resolve("P.json").toFile(), DEBUG);
+        final JsonResource registryB = bundle.findBySynonym("dep");
 
-        final WoodResolution resolution = RootConverter.convert(project, project.getMainResource(),
+        final WoodResolution resolution = RootConverter.convert(bundle, bundle.getMainResource(),
                 ImplTestDefinition.getInstance().getRootClass().getcName(),
                 ImplTestDefinition.getInstance().getDescriptor(), DEBUG);
 
         assertNotNull(resolution, "the convert must resolve the main resource");
         assertNotNull(resolution.getAnswer(), "the main resource answers");
-        assertTrue(registryB.isConsumed(), "the project-aware resolve consumed the shared B");
+        assertTrue(registryB.isConsumed(), "the bundle-aware resolve consumed the shared B");
         assertTrue(tempDir.resolve("B.json").toFile().exists(), "fixture intact");
 
         // a second convert of the SAME resource reuses everything: B stays the install instance
-        final JsonResource before = project.findBySynonym("dep");
-        RootConverter.convert(project, project.getMainResource(),
+        final JsonResource before = bundle.findBySynonym("dep");
+        RootConverter.convert(bundle, bundle.getMainResource(),
                 ImplTestDefinition.getInstance().getRootClass().getcName(),
                 ImplTestDefinition.getInstance().getDescriptor(), DEBUG);
-        assertSame(project.findBySynonym("dep"), before, "no reload between two project-aware converts");
-        project.close();
+        assertSame(bundle.findBySynonym("dep"), before, "no reload between two bundle-aware converts");
+        bundle.close();
     }
 
-    @Test(dependsOnMethods = "convertThroughTheProjectResolvesWithoutSecondParses")
+    @Test(dependsOnMethods = "convertThroughTheBundleResolvesWithoutSecondParses")
     public void toSystemClosureCarriesOnlyTheReachableProviders() throws IOException, JsonParseException {
         buildFixture();
-        // an unrelated E: part of the project graph (referenced by P) but NOT of A's provider closure
+        // an unrelated E: part of the bundle graph (referenced by P) but NOT of A's provider closure
         final String e = write("E.json", "{\"e\": true}");
         Files.write(tempDir.resolve("P.json"), ("{\"_woodProviders\": [{\"synonym\": \"subA\", \"filename\": \""
                 + escaped(tempDir.resolve("A.json").toAbsolutePath().toString()) + "\"},"
                 + "{\"synonym\": \"subE\", \"filename\": \"" + escaped(e) + "\"}], \"anything\": 1}")
                 .getBytes(StandardCharsets.UTF_8));
-        final JsonProject project = JsonProject.open(tempDir.resolve("P.json").toFile(), DEBUG);
+        final JsonBundle bundle = JsonBundle.open(tempDir.resolve("P.json").toFile(), DEBUG);
 
-        final JsonResource sharedA = project.findBySynonym("subA");
-        final JsonResource projectE = project.findBySynonym("subE");
-        assertNotNull(projectE, "E belongs to the project");
+        final JsonResource sharedA = bundle.findBySynonym("subA");
+        final JsonResource bundleE = bundle.findBySynonym("subE");
+        assertNotNull(bundleE, "E belongs to the bundle");
 
-        final JsonSystem aSystem = project.toSystem(sharedA);
+        final JsonSystem aSystem = bundle.toSystem(sharedA);
         assertSame(aSystem.getMainResource(), sharedA);
-        assertSame(aSystem.findResourcesBySynonym("dep"), project.findBySynonym("dep"),
+        assertSame(aSystem.findResourcesBySynonym("dep"), bundle.findBySynonym("dep"),
                 "A's closure contains its provider B");
         assertNull(aSystem.findResourcesBySynonym("subE"),
                 "A's closure contains ONLY its providers - E stays outside");
-        assertFalse(aSystem.getResources().contains(projectE), "E never leaks into A's resolution");
-        project.close();
+        assertFalse(aSystem.getResources().contains(bundleE), "E never leaks into A's resolution");
+        bundle.close();
     }
 }

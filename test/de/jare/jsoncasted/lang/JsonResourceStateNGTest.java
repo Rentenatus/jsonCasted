@@ -22,8 +22,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * State model of doc/JSON_PROJECT.md step 1 on the resource itself: fingerprint capture, consumption flag and
- * the FRESH/STALE detection - all computable for a standalone resource without any project around it.
+ * State model of doc/JSON_BUNDLE.md step 1 on the resource itself: fingerprint capture, consumption flag and
+ * the FRESH/STALE detection - all computable for a standalone resource without any bundle around it.
  *
  * @author Janusch Rentenatus
  */
@@ -33,7 +33,7 @@ public class JsonResourceStateNGTest {
 
     @BeforeClass
     public static void createTempDir() throws IOException {
-        tempDir = Files.createTempDirectory("jsonproject-state");
+        tempDir = Files.createTempDirectory("jsonbundle-state");
     }
 
     @AfterClass
