@@ -33,6 +33,10 @@ public final class JsonResource {
 
     private String resourceFile;
     private String providerName;
+    // Bundle-scoped IDs (concept WoodJsonJack CONCEPT_ProjectView.md section 7, strategy B): the
+    // namespace label of the owning bundle - null means the session default namespace, which is
+    // the single-world behavior of every session without a project layer.
+    private String namespace;
     private JsonNode root;
     private WoodProviderBox expectedBox;
     private List<String> importedProviderSynonyms;
@@ -150,6 +154,28 @@ public final class JsonResource {
      */
     public void setProviderName(String providerName) {
         this.providerName = providerName;
+    }
+
+    /**
+     * Returns the namespace label of the owning bundle (bundle-scoped IDs, concept strategy B):
+     * Wood object IDs and provider synonyms are unique within their bundle only - resolution
+     * happens relative to the asking bundle. Null means the session default namespace.
+     *
+     * @return the namespace label, or null for the session default.
+     */
+    public String getNamespace() {
+        return namespace;
+    }
+
+    /**
+     * Sets the namespace label of the owning bundle (bundle-scoped IDs, concept strategy B).
+     * The label is assigned by the wiring layer that knows bundle membership; the engine itself
+     * never guesses it.
+     *
+     * @param namespace the namespace label, or null for the session default.
+     */
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 
     /**

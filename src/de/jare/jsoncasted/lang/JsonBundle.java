@@ -55,27 +55,55 @@ import java.util.Set;
 public final class JsonBundle {
 
     /**
-     * One registry entry: the shared instance with its canonical path and its first (identity-winning) synonym.
+     * One registry entry: the shared instance with its canonical path, its first (identity-winning)
+     * synonym and the OWN Wood ID keys of the resource at registration time (bundle scoping: the wire
+     * supervision compares what a namespace OWNS, never the merged resolution set of a receiver).
      */
     private static final class Entry {
 
         private final String canonicalPath;
         private final String firstSynonym;
+        private final Set<String> ownIdKeys;
         private JsonResource resource;
 
         private Entry(String canonicalPath, String firstSynonym, JsonResource resource) {
             this.canonicalPath = canonicalPath;
             this.firstSynonym = firstSynonym;
             this.resource = resource;
+            this.ownIdKeys = ownIdKeysOf(resource);
+        }
+
+        private static Set<String> ownIdKeysOf(JsonResource resource) {
+            final Set<String> keys = new LinkedHashSet<>();
+            final LinkingSet set = resource.getLinkingSet();
+            if (set != null) {
+                keys.addAll(set.getObjectIdMap().keySet());
+            }
+            return keys;
         }
     }
 
     private final JsonDebugLevel debug;
     private final JsonResource mainResource;
     private final Map<String, Entry> byPath = new LinkedHashMap<>();
-    private final Map<String, String> synonymToPath = new LinkedHashMap<>();
+    // Bundle-scoped IDs (concept WoodJsonJack CONCEPT_ProjectView.md section 7, strategy B): the synonym
+    // registry is namespaced - the label empty string is the session default (single-world behavior of a
+    // session without a project layer), every bundle label owns its own synonym world.
+    private final Map<String, Map<String, String>> synonymToPathByNamespace = new LinkedHashMap<>();
+    // The import wiring of the descriptor input structure (concept section 6/7): the asking bundle may
+    // resolve into the wired namespaces - cross-bundle resolution exists nowhere else (strategy B).
+    private final Map<String, Set<String>> wiredNamespaces = new LinkedHashMap<>();
     private final List<String> warnings = new ArrayList<>();
+    // The wiring layer's file-to-namespace decision (namespaced open lane); null in the legacy lane.
+    private java.util.function.Function<File, String> providerNamespaceResolver;
     private boolean closed;
+
+    /**
+     * The key of the session default namespace: every session without a project layer lives here, and
+     * resources without a namespace label belong to it. Sessions with the default namespace only behave
+     * exactly as before bundle scoping.
+     */
+    public static final String DEFAULT_NAMESPACE = "";
 
     /**
      * Opens the bundle of a main file: parses the main resource, walks its provider graph transitively, loads
@@ -99,6 +127,60 @@ public final class JsonBundle {
         bundle.register(main);
         bundle.loadProviderGraph(debug);
         return bundle;
+    }
+
+    /**
+     * Opens the bundle in the namespaced mode (concept WoodJsonJack CONCEPT_ProjectView.md section 7,
+     * strategy B - phase 5 engine prerequisite): the main file carries its bundle's namespace label and
+     * every provider file is labeled by the caller's resolver before registration - files of the same
+     * bundle return the same label (null falls back to the main namespace), files of other bundles return
+     * their own. Registration, lookup and resolution are namespaced from here on; the legacy
+     * {@link #open(File, JsonDebugLevel)} lane (all default namespace) stays byte-identical.
+     *
+     * @param mainFile the main resource file, not null.
+     * @param mainNamespace the namespace label of the opened bundle (its bundle name), null forbidden.
+     * @param providerNamespaceResolver decides the owning bundle of a provider file (the wiring layer -
+     * the engine never guesses membership); null return means the same namespace as the main.
+     * @param debug the debug level, not null.
+     * @return the open bundle.
+     * @throws IOException if a file cannot be read.
+     * @throws JsonParseException if a file fails to parse, a provider synonym conflict within a namespace,
+     * a supervised ID collision of wired namespaces or a dependency cycle appears.
+     */
+    public static JsonBundle open(File mainFile, String mainNamespace,
+            java.util.function.Function<File, String> providerNamespaceResolver, JsonDebugLevel debug)
+            throws IOException, JsonParseException {
+        Objects.requireNonNull(mainFile, "mainFile must not be null");
+        Objects.requireNonNull(mainNamespace, "mainNamespace must not be null");
+        Objects.requireNonNull(providerNamespaceResolver, "providerNamespaceResolver must not be null");
+        Objects.requireNonNull(debug, "debug must not be null");
+
+        final JsonResource main = loadSelf(mainFile.getPath(), debug);
+        main.setNamespace(mainNamespace);
+        final JsonBundle bundle = new JsonBundle(main, debug);
+        bundle.providerNamespaceResolver = providerNamespaceResolver;
+        bundle.register(main);
+        bundle.loadProviderGraph(debug);
+        return bundle;
+    }
+
+    /**
+     * Wires the import edge of the descriptor input structure (concept section 6/7): the importing
+     * namespace may resolve resources of the imported namespace. Cross-bundle resolution exists only
+     * through this explicit wiring - never implicitly (strategy B). The merge supervision guards every
+     * join of two namespaces in one resolution scope against colliding Wood ID keys.
+     *
+     * @param importingNamespace the asking bundle's namespace label, not null.
+     * @param importedNamespace the imported bundle's namespace label, not null.
+     * @throws JsonParseException when both namespaces' registered ID keys collide - the explicit
+     * {@code RerollID} preparation (concept section 7.1) is the remedy, never a silent overwrite.
+     */
+    public void wire(String importingNamespace, String importedNamespace) throws JsonParseException {
+        Objects.requireNonNull(importingNamespace, "importingNamespace must not be null");
+        Objects.requireNonNull(importedNamespace, "importedNamespace must not be null");
+        requireOpen();
+        superviseNamespaceJoin(importingNamespace, importedNamespace);
+        wiredNamespaces.computeIfAbsent(importingNamespace, k -> new LinkedHashSet<>()).add(importedNamespace);
     }
 
     /**
@@ -144,7 +226,8 @@ public final class JsonBundle {
      */
     public void close() {
         byPath.clear();
-        synonymToPath.clear();
+        synonymToPathByNamespace.clear();
+        wiredNamespaces.clear();
         mainResource.setLinkingSet(null);
         closed = true;
     }
@@ -161,12 +244,14 @@ public final class JsonBundle {
     /**
      * Registers a resource and returns the instance that owns its canonical path - the shared instance on a
      * path hit (the passed instance is discarded then), the passed instance itself on a miss. The identity
-     * rules and provider-name reconciliation follow the concept matrix.
+     * rules and provider-name reconciliation follow the concept matrix; under bundle scoping (strategy B)
+     * the synonym ownership check is namespaced: the same synonym may be owned by different files as long
+     * as they belong to different bundles - within one namespace the matrix holds unchanged.
      *
      * @param resource the loaded resource, not null.
      * @return the registered instance for the resource's path.
-     * @throws JsonParseException on a synonym conflict (another file owns the namespace) or on an alias for an
-     * already consumed instance.
+     * @throws JsonParseException on a synonym conflict within the namespace (another file of the same
+     * bundle owns the namespace) or on an alias for an already consumed instance.
      */
     public JsonResource register(JsonResource resource) throws JsonParseException {
         Objects.requireNonNull(resource, "resource must not be null");
@@ -174,14 +259,16 @@ public final class JsonBundle {
 
         final String path = canonicalPathOf(resource);
         final String synonym = resource.getProviderName();
+        final String namespaceKey = namespaceKey(resource);
         final Entry entry = path == null ? null : byPath.get(path);
         if (entry != null) {
             return aliasOrShare(entry, resource, synonym);
         }
-        if (isSynonymTaken(synonym, null)) {
-            final JsonResource owner = existingForSynonym(synonym);
+        if (isSynonymTaken(namespaceKey, synonym, null)) {
+            final JsonResource owner = existingForSynonym(namespaceKey, synonym);
             throw new JsonParseException("Synonym '" + synonym + "' is already taken by '"
                     + (owner != null ? owner.getResourceFile() : "<unknown>")
+                    + "' in namespace '" + namespaceLabel(namespaceKey)
                     + "' - another file cannot own the ID namespace");
         }
         resource.captureFingerprint();
@@ -189,7 +276,7 @@ public final class JsonBundle {
         if (path != null) {
             byPath.put(path, fresh);
         }
-        synonymToPath.put(synonym, path);
+        synonymsOf(namespaceKey).put(synonym, path);
         return resource;
     }
 
@@ -203,6 +290,9 @@ public final class JsonBundle {
             throws JsonParseException {
         final JsonResource shared = entry.resource;
         if (entry.firstSynonym.equals(requestedSynonym)) {
+            // shared path, shared synonym: both namespaces may reference the instance (bundle scoping - the
+            // instance identity is the path, the synonym ownership is per namespace)
+            synonymsOf(namespaceKey(requested)).put(requestedSynonym, entry.canonicalPath);
             return shared;
         }
         if (shared.isConsumed()) {
@@ -213,11 +303,18 @@ public final class JsonBundle {
         if (shared.hasRoot()) {
             shared.setLinkingSet(WoodIdFinder.buildLinkingSet(shared.getRoot(), requestedSynonym, debug));
         }
-        synonymToPath.put(requestedSynonym, entry.canonicalPath);
+        synonymToPathPut(requested, requestedSynonym, entry.canonicalPath);
         warnings.add("Alias: '" + entry.canonicalPath + "' is registered as '" + entry.firstSynonym
                 + "' and was also referenced as '" + requestedSynonym + "' - the linking set was rebuilt,"
                 + " the first synonym wins");
         return shared;
+    }
+
+    /**
+     * The synonym registration of the alias case under the requesting resource's namespace (strategy B).
+     */
+    private void synonymToPathPut(JsonResource requested, String synonym, String canonicalPath) {
+        synonymsOf(namespaceKey(requested)).put(synonym, canonicalPath);
     }
 
     /**
@@ -238,9 +335,28 @@ public final class JsonBundle {
      * @param synonym the provider synonym, not null.
      * @return the instance owning the synonym, or null when unknown.
      */
+    /**
+     * Returns the registered instance owning the synonym in the session default namespace - the legacy
+     * single-world lookup (identical behavior when no namespaces are in play).
+     *
+     * @param synonym the provider synonym, not null.
+     * @return the instance owning the synonym, or null when unknown.
+     */
     public JsonResource findBySynonym(String synonym) {
+        return findBySynonym(DEFAULT_NAMESPACE, synonym);
+    }
+
+    /**
+     * Returns the registered instance owning the synonym within a namespace (bundle scoping, strategy
+     * B): {@code save::…} of bundle one and {@code save::…} of bundle two are different worlds.
+     *
+     * @param namespace the namespace label of the owning bundle, null for the session default.
+     * @param synonym the provider synonym, not null.
+     * @return the instance owning the synonym in that namespace, or null when unknown.
+     */
+    public JsonResource findBySynonym(String namespace, String synonym) {
         requireOpen();
-        final JsonResource resource = existingForSynonym(synonym);
+        final JsonResource resource = existingForSynonym(namespaceKey(namespace), synonym);
         if (resource == null) {
             return null;
         }
@@ -250,16 +366,18 @@ public final class JsonBundle {
     }
 
     /**
-     * Tells whether the synonym is already an owned ID namespace.
+     * Tells whether the synonym is already an owned ID namespace within the namespace of the registering
+     * resource (strategy B: the check is namespaced).
      *
+     * @param namespaceKey the internal namespace key of the registering resource, not null.
      * @param synonym the synonym to check, not null.
      * @param exceptPath a canonical path that does not count as taken (the same file re-referencing itself),
      * may be null.
-     * @return true when another file owns the synonym.
+     * @return true when another file of the same namespace owns the synonym.
      */
-    public boolean isSynonymTaken(String synonym, String exceptPath) {
+    public boolean isSynonymTaken(String namespaceKey, String synonym, String exceptPath) {
         requireOpen();
-        final String ownerPath = synonymToPath.get(synonym);
+        final String ownerPath = synonymsOf(namespaceKey).get(synonym);
         if (ownerPath == null) {
             return false;
         }
@@ -407,10 +525,26 @@ public final class JsonBundle {
         final JsonSystem sys = JsonSystem.of(main.getExpectedBox(), main);
         final Set<String> queued = new LinkedHashSet<>();
         final Deque<String> queue = new ArrayDeque<>();
+        if (main.getNamespace() != null) {
+            // bundle scoping (strategy B): resolution happens relative to the asking bundle - own
+            // namespace first, then the explicitly wired import namespaces (concept section 6/7)
+            enqueueScopedSynonyms(main.getNamespace(), main, queue, queued);
+            while (!queue.isEmpty()) {
+                final String synonym = queue.poll();
+                final JsonResource resource = resolveInScope(main.getNamespace(), synonym);
+                if (resource == null || sys.getResources().contains(resource)) {
+                    continue;
+                }
+                sys.addResource(resource);
+                enqueueScopedSynonyms(main.getNamespace(), resource, queue, queued);
+            }
+            sys.setSortedSynonyms(sortedSynonymsOf(sys.getResources()));
+            return sys;
+        }
         enqueueSynonyms(main, queue, queued);
         while (!queue.isEmpty()) {
             final String synonym = queue.poll();
-            final JsonResource resource = existingForSynonym(synonym);
+            final JsonResource resource = existingForSynonym(DEFAULT_NAMESPACE, synonym);
             if (resource == null || sys.getResources().contains(resource)) {
                 continue;
             }
@@ -419,6 +553,105 @@ public final class JsonBundle {
         }
         sys.setSortedSynonyms(getSortedSynonyms());
         return sys;
+    }
+
+    /**
+     * Queues the resource's box provider synonyms in namespaced mode, deduped per system build. The queue
+     * key stays the bare synonym - the scope lookup resolves it.
+     */
+    private void enqueueScopedSynonyms(String namespace, JsonResource resource, Deque<String> queue,
+            Set<String> queued) {
+        final WoodProviderBox box = resource.getExpectedBox();
+        if (box == null) {
+            return;
+        }
+        for (WoodProvider provider : box.getProviders()) {
+            if (queued.add(provider.getSynonym())) {
+                queue.add(provider.getSynonym());
+            }
+        }
+    }
+
+    /**
+     * Resolution scope of the asking namespace (strategy B): the own namespace first, then the wired
+     * import namespaces (breadth, cycle-safe). The default namespace resolves globally as before when the
+     * asking resource carries no label.
+     */
+    private JsonResource resolveInScope(String asking, String synonym) {
+        final JsonResource own = existingForSynonym(namespaceKey(asking), synonym);
+        if (own != null) {
+            return own;
+        }
+        final Set<String> visited = new LinkedHashSet<>();
+        final Deque<String> pending = new ArrayDeque<>(wiredNamespaces.getOrDefault(
+                namespaceKey(asking), Collections.emptySet()));
+        while (!pending.isEmpty()) {
+            final String candidate = pending.poll();
+            if (!visited.add(candidate)) {
+                continue;
+            }
+            final JsonResource found = existingForSynonym(candidate, synonym);
+            if (found != null) {
+                return found;
+            }
+            pending.addAll(wiredNamespaces.getOrDefault(candidate, Collections.emptySet()));
+        }
+        return null;
+    }
+
+    /**
+     * Topological order over the given resources only (Kahn's algorithm, in-system order of the namespaced
+     * lane): dependencies first, the asking resource's own provider name last.
+     */
+    private List<String> sortedSynonymsOf(List<JsonResource> resources) throws JsonParseException {
+        final Set<String> allSynonyms = new LinkedHashSet<>();
+        final Map<String, WoodProvider> allProviders = new LinkedHashMap<>();
+        for (JsonResource resource : resources) {
+            collectGraph(resource, allSynonyms, allProviders);
+        }
+        final Map<String, Set<String>> graph = new LinkedHashMap<>();
+        final Map<String, Integer> inDegree = new LinkedHashMap<>();
+        for (String synonym : allSynonyms) {
+            graph.put(synonym, new LinkedHashSet<>());
+            inDegree.put(synonym, 0);
+        }
+        for (JsonResource resource : resources) {
+            final String resourceSynonym = resource.getProviderName();
+            final WoodProviderBox box = resource.getExpectedBox();
+            if (box != null && resourceSynonym != null) {
+                for (WoodProvider provider : box.getProviders()) {
+                    final String dependency = provider.getSynonym();
+                    if (graph.containsKey(dependency) && graph.containsKey(resourceSynonym)
+                            && graph.get(dependency).add(resourceSynonym)) {
+                        inDegree.merge(resourceSynonym, 1, Integer::sum);
+                    }
+                }
+            }
+        }
+        final Queue<String> queue = new LinkedList<>();
+        for (String synonym : allSynonyms) {
+            if (inDegree.getOrDefault(synonym, 0) == 0) {
+                queue.add(synonym);
+            }
+        }
+        final List<String> sorted = new LinkedList<>();
+        while (!queue.isEmpty()) {
+            final String current = queue.poll();
+            sorted.add(current);
+            for (String dependent : graph.get(current)) {
+                final int degree = inDegree.get(dependent) - 1;
+                inDegree.put(dependent, degree);
+                if (degree == 0) {
+                    queue.add(dependent);
+                }
+            }
+        }
+        if (sorted.size() != allSynonyms.size()) {
+            final Set<String> unsorted = new LinkedHashSet<>(allSynonyms);
+            unsorted.removeAll(sorted);
+            throw new JsonParseException("Cycle detected in provider dependencies: " + unsorted);
+        }
+        return sorted;
     }
 
     /**
@@ -451,11 +684,33 @@ public final class JsonBundle {
      */
     public JsonResource acquire(String synonym, File file, JsonDebugLevel debug)
             throws IOException, JsonParseException {
+        return acquire(DEFAULT_NAMESPACE, synonym, file, debug);
+    }
+
+    /**
+     * Namespaced variant of the registry-first load lane (bundle scoping, strategy B): the synonym request
+     * is served from the requesting namespace, a fresh load registers under it. This is the correct lane
+     * for provider files of the asking bundle (the descriptor files); files of OTHER bundles enter a
+     * session only through explicit wiring - pre-registered with their own namespace by the wiring layer
+     * (concept section 6/7).
+     *
+     * @param namespace the asking bundle's namespace label, null for the session default.
+     * @param synonym the requesting provider synonym (the ID namespace), not null.
+     * @param file the provider file, not null.
+     * @param debug the debug level for the load.
+     * @return the shared instance for the file, fresh on a double miss.
+     * @throws IOException if the file cannot be read on a miss.
+     * @throws JsonParseException if the parse or an identity rule fails (synonym conflict within the
+     * namespace, consumed alias).
+     */
+    public JsonResource acquire(String namespace, String synonym, File file, JsonDebugLevel debug)
+            throws IOException, JsonParseException {
         Objects.requireNonNull(synonym, "synonym must not be null");
         Objects.requireNonNull(file, "file must not be null");
         requireOpen();
 
-        JsonResource shared = findBySynonym(synonym);
+        final String namespaceKey = namespaceKey(namespace);
+        JsonResource shared = findBySynonym(namespaceKey, synonym);
         if (shared != null) {
             return reuseChecked(shared, synonym, debug);
         }
@@ -468,7 +723,11 @@ public final class JsonBundle {
                 return reuseChecked(reconciled, synonym, debug);
             }
         }
-        return register(load(file, synonym, debug));
+        final JsonResource fresh = load(file, synonym, debug);
+        if (namespace != null) {
+            fresh.setNamespace(namespace);
+        }
+        return register(fresh);
     }
 
     /**
@@ -514,6 +773,7 @@ public final class JsonBundle {
         final Deque<WoodProvider> queue = new ArrayDeque<>();
         final Map<String, String> queuedFilenames = new LinkedHashMap<>();
         enqueueProviders(mainResource, queue, queuedFilenames);
+        final String mainNamespaceKey = namespaceKey(mainResource);
 
         while (!queue.isEmpty()) {
             final WoodProvider provider = queue.poll();
@@ -521,13 +781,15 @@ public final class JsonBundle {
 
             JsonResource shared;
             try {
-                shared = findBySynonym(synonym);
+                shared = findBySynonym(mainNamespaceKey, synonym);
                 if (shared == null) {
                     final String path = canonicalPathOf(new File(provider.getFilename()));
                     shared = path != null ? findByPath(path) : null;
                 }
                 if (shared == null) {
-                    shared = register(load(new File(provider.getFilename()), synonym, debug));
+                    shared = register(withNamespace(
+                            load(new File(provider.getFilename()), synonym, debug),
+                            new File(provider.getFilename())));
                 } else {
                     shared = register(forSynonym(shared, synonym));
                 }
@@ -541,6 +803,19 @@ public final class JsonBundle {
             mergeIntoMain(shared);
             enqueueProviders(shared, queue, queuedFilenames);
         }
+    }
+
+    /**
+     * Namespaced labeling of the load lane: the wiring layer's resolver decides the owning bundle of a
+     * fresh provider file (null = the same namespace as the main, the descriptor files case); in the
+     * legacy lane no label is set and everything stays in the session default namespace.
+     */
+    private JsonResource withNamespace(JsonResource resource, File source) {
+        if (providerNamespaceResolver != null && resource.getNamespace() == null) {
+            final String resolved = providerNamespaceResolver.apply(source);
+            resource.setNamespace(resolved != null ? resolved : mainResource.getNamespace());
+        }
+        return resource;
     }
 
     /**
@@ -559,7 +834,8 @@ public final class JsonBundle {
     /**
      * Queues the resource's box providers: deduped by synonym (a re-reference of the same file is the normal
      * share case), but the concept's namespace rule holds at queue time already - the same synonym owned by a
-     * DIFFERENT file is a conflict and throws.
+     * DIFFERENT file within the SAME namespace (strategy B) is a conflict and throws. Bundles of different
+     * namespaces may own the same synonym - the definitive check runs at registration, per namespace.
      */
     private void enqueueProviders(JsonResource resource, Deque<WoodProvider> queue,
             Map<String, String> queuedFilenames) throws JsonParseException {
@@ -569,7 +845,8 @@ public final class JsonBundle {
         }
         for (WoodProvider provider : box.getProviders()) {
             final String filename = canonicalPathOf(new File(provider.getFilename()));
-            final String known = queuedFilenames.putIfAbsent(provider.getSynonym(), filename);
+            final String queueKey = namespaceKey(resource) + "\u0000" + provider.getSynonym();
+            final String known = queuedFilenames.putIfAbsent(queueKey, filename);
             if (known == null) {
                 queue.add(provider);
             } else if (!known.equals(filename)) {
@@ -582,16 +859,77 @@ public final class JsonBundle {
 
     /**
      * LinkingSet hygiene of the concept: foreign keys go into the main resource's set only - a shared instance
-     * never accumulates another resource's keys.
+     * never accumulates another resource's keys. Under bundle scoping (strategy B) the merge is the
+     * supervision point of cross-bundle wiring: joining two namespaces in one resolution scope refuses on
+     * colliding Wood ID keys ({@code syn::id} of both sides overlap) - no silent overwrite, the explicit
+     * {@code RerollID} preparation (concept WoodJsonJack CONCEPT_ProjectView.md section 7.1) is the remedy.
+     * Within one namespace the merge behaves as before.
      */
-    private void mergeIntoMain(JsonResource shared) {
-        final LinkingSet mainSet = mainResource.getLinkingSet();
-        final LinkingSet sharedSet = shared.getLinkingSet();
-        if (mainSet == null || sharedSet == null || shared == mainResource) {
+    private void mergeIntoMain(JsonResource shared) throws JsonParseException {
+        mergeSupervised(mainResource, mainResource.getLinkingSet(), shared, shared.getLinkingSet());
+    }
+
+    /**
+     * The supervised merge of the io layer too (bundle scoping, strategy B): keyset hygiene of the concept
+     * - foreign keys go into the receiving set only - plus the collision refusal at the join of two
+     * namespaces in one resolution scope. Within one namespace the merge behaves as before.
+     *
+     * @param targetOwner the resource whose set receives (the asking bundle), not null.
+     * @param target the receiving linking set, null is a no-op.
+     * @param sourceOwner the resource whose set is merged in, not null.
+     * @param source the merged linking set, null is a no-op.
+     * @throws JsonParseException when both namespaces are different and their Wood ID keys collide - the
+     * explicit {@code RerollID} preparation (concept WoodJsonJack CONCEPT_ProjectView.md section 7.1)
+     * is the remedy, never a silent overwrite.
+     */
+    public static void mergeSupervised(JsonResource targetOwner, LinkingSet target,
+            JsonResource sourceOwner, LinkingSet source) throws JsonParseException {
+        if (target == null || source == null || targetOwner == sourceOwner) {
             return;
         }
-        mainSet.getObjectIdMap().putAll(sharedSet.getObjectIdMap());
-        mainSet.getLinkMap().putAll(sharedSet.getLinkMap());
+        final String targetKey = namespaceKeyOf(targetOwner);
+        final String sourceKey = namespaceKeyOf(sourceOwner);
+        if (!targetKey.equals(sourceKey)) {
+            final Set<String> collisions = new LinkedHashSet<>();
+            for (String key : source.getObjectIdMap().keySet()) {
+                if (target.getObjectIdMap().containsKey(key)) {
+                    collisions.add(key);
+                }
+            }
+            if (!collisions.isEmpty()) {
+                throw new JsonParseException("Wood ID collision of namespaces '" + targetKey + "' and '"
+                        + sourceKey + "': " + collisions
+                        + " - the bundles collide in one resolution scope; the explicit RerollID "
+                        + "preparation is the remedy, not a silent overwrite");
+            }
+        }
+        target.getObjectIdMap().putAll(source.getObjectIdMap());
+        target.getLinkMap().putAll(source.getLinkMap());
+    }
+
+    /**
+     * The wire-time supervision (concept section 7.1): joining the namespaces' registered ID key sets
+     * refuses on overlap - the reroll is the explicit preparation.
+     */
+    private void superviseNamespaceJoin(String importing, String imported) throws JsonParseException {
+        final Set<String> importingKeys = registeredIdKeys(importing);
+        final Set<String> importedKeys = registeredIdKeys(imported);
+        final Set<String> collisions = new LinkedHashSet<>(importingKeys);
+        collisions.retainAll(importedKeys);
+        if (!collisions.isEmpty()) {
+            throw new JsonParseException("Wood ID collision of namespaces '" + importing + "' and '" + imported
+                    + "': " + collisions + " - wire them collision-free first (explicit RerollID)");
+        }
+    }
+
+    private Set<String> registeredIdKeys(String namespace) {
+        final Set<String> keys = new LinkedHashSet<>();
+        for (Entry entry : byPath.values()) {
+            if (entry.resource != null && namespaceKey(entry.resource).equals(namespaceKey(namespace))) {
+                keys.addAll(entry.ownIdKeys);
+            }
+        }
+        return keys;
     }
 
     private void collectGraph(JsonResource resource, Set<String> synonyms,
@@ -609,13 +947,43 @@ public final class JsonBundle {
         }
     }
 
-    private JsonResource existingForSynonym(String synonym) {
-        final String path = synonymToPath.get(synonym);
+    private JsonResource existingForSynonym(String namespaceKey, String synonym) {
+        final String path = synonymsOf(namespaceKey).get(synonym);
         if (path == null) {
             return null;
         }
         final Entry entry = byPath.get(path);
         return entry != null ? entry.resource : null;
+    }
+
+    /**
+     * The synonyms of one namespace (strategy B): every bundle label owns its own synonym world. The map
+     * is created lazily; the registry as a whole is mutable during load only.
+     */
+    private Map<String, String> synonymsOf(String namespaceKey) {
+        return synonymToPathByNamespace.computeIfAbsent(namespaceKey, k -> new LinkedHashMap<>());
+    }
+
+    /**
+     * The internal namespace key of a resource: null means the session default namespace.
+     */
+    private static String namespaceKeyOf(JsonResource resource) {
+        return resource != null && resource.getNamespace() != null ? resource.getNamespace() : DEFAULT_NAMESPACE;
+    }
+
+    private String namespaceKey(JsonResource resource) {
+        return namespaceKeyOf(resource);
+    }
+
+    /**
+     * The internal namespace key of a label: null means the session default namespace.
+     */
+    private static String namespaceKey(String namespace) {
+        return namespace != null ? namespace : DEFAULT_NAMESPACE;
+    }
+
+    private String namespaceLabel(String namespaceKey) {
+        return namespaceKey.isEmpty() ? "<default>" : namespaceKey;
     }
 
     private static String canonicalPathOf(JsonResource resource) {

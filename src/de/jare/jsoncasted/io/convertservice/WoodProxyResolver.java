@@ -244,7 +244,7 @@ public final class WoodProxyResolver {
 
                     LinkingSet loadedLinkingSet = shared.getLinkingSet();
                     if (loadedLinkingSet != null) {
-                        mergeLinkingSets(mainLinkingSet, loadedLinkingSet);
+                        JsonBundle.mergeSupervised(mainResource, mainLinkingSet, shared, loadedLinkingSet);
                     }
                     shared.markConsumed();
                 } catch (FileNotFoundException ex) {
@@ -259,7 +259,7 @@ public final class WoodProxyResolver {
 
                 LinkingSet loadedLinkingSet = loaded.getLinkingSet();
                 if (loadedLinkingSet != null) {
-                    mergeLinkingSets(mainLinkingSet, loadedLinkingSet);
+                    JsonBundle.mergeSupervised(mainResource, mainLinkingSet, loaded, loadedLinkingSet);
                 }
             } catch (FileNotFoundException ex) {
                 debugLevel.warning(ex, () -> "Provider file not found: " + provider.getFilename());
@@ -290,20 +290,6 @@ public final class WoodProxyResolver {
             ParseStreamReader psr = new ParseStreamReader(reader, debugLevel);
             return RootParser.parse(psr, subContainer, debugLevel);
         }
-    }
-
-    /**
-     * Merges the object IDs and links from the source linking set into the target.
-     *
-     * @param target The linking set to merge into.
-     * @param source The linking set to merge from.
-     */
-    private static void mergeLinkingSets(LinkingSet target, LinkingSet source) {
-        if (target == null || source == null) {
-            return;
-        }
-        target.getObjectIdMap().putAll(source.getObjectIdMap());
-        target.getLinkMap().putAll(source.getLinkMap());
     }
 
 }
