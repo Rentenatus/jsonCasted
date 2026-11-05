@@ -125,8 +125,9 @@ public final class WoodProxyResolver {
             return;
         }
 
-        // Collect all provider synonyms and build synonym -> provider map
-        Map<String, WoodProvider> allProvidersMap = new LinkedHashMap<>();
+        // Collect all provider synonyms and build synonym -> provider map. The declaring owner
+        // travels with the entry: the strict file-relative filename resolution needs it.
+        Map<String, OwnedProvider> allProvidersMap = new LinkedHashMap<>();
         Set<String> allSynonyms = new LinkedHashSet<>();
 
         // Collect from mainResource
@@ -139,7 +140,7 @@ public final class WoodProxyResolver {
             for (WoodProvider provider : mainBox.getProviders()) {
                 String synonym = provider.getSynonym();
                 allSynonyms.add(synonym);
-                allProvidersMap.putIfAbsent(synonym, provider);
+                allProvidersMap.putIfAbsent(synonym, new OwnedProvider(provider, mainResource));
             }
         }
 
@@ -154,7 +155,7 @@ public final class WoodProxyResolver {
                 for (WoodProvider provider : box.getProviders()) {
                     String synonym = provider.getSynonym();
                     allSynonyms.add(synonym);
-                    allProvidersMap.putIfAbsent(synonym, provider);
+                    allProvidersMap.putIfAbsent(synonym, new OwnedProvider(provider, resource));
                 }
             }
         }
@@ -228,17 +229,18 @@ public final class WoodProxyResolver {
                 continue;
             }
 
-            WoodProvider provider = allProvidersMap.get(synonym);
-            if (provider == null) {
+            OwnedProvider owned = allProvidersMap.get(synonym);
+            if (owned == null) {
                 debugLevel.warning(() -> new DebugTuple("Provider not found for synonym: {0}", synonym));
                 continue;
             }
+            final File providerFile = providerFileOf(owned);
 
             if (bundle != null) {
                 // registry first: the shared instance when it exists, else one parse plus registration. The
                 // identity rules (alias, synonym conflict) live in the bundle and throw through here.
                 try {
-                    JsonResource shared = bundle.acquire(synonym, new File(provider.getFilename()), debugLevel);
+                    JsonResource shared = bundle.acquire(synonym, providerFile, debugLevel);
 
                     sys.addResource(shared);
 
@@ -248,13 +250,13 @@ public final class WoodProxyResolver {
                     }
                     shared.markConsumed();
                 } catch (FileNotFoundException ex) {
-                    debugLevel.warning(ex, () -> "Provider file not found: " + provider.getFilename());
+                    debugLevel.warning(ex, () -> "Provider file not found: " + providerFile);
                 }
                 continue;
             }
 
             try {
-                JsonResource loaded = load(provider, debugLevel);
+                JsonResource loaded = load(owned.provider, providerFile, debugLevel);
                 sys.addResource(loaded);
 
                 LinkingSet loadedLinkingSet = loaded.getLinkingSet();
@@ -262,7 +264,7 @@ public final class WoodProxyResolver {
                     JsonBundle.mergeSupervised(mainResource, mainLinkingSet, loaded, loadedLinkingSet);
                 }
             } catch (FileNotFoundException ex) {
-                debugLevel.warning(ex, () -> "Provider file not found: " + provider.getFilename());
+                debugLevel.warning(ex, () -> "Provider file not found: " + providerFile);
             }
         }
 
@@ -270,7 +272,67 @@ public final class WoodProxyResolver {
     }
 
     /**
-     * Loads a JSON resource from a wood provider.
+     * One provider entry with the resource that declares it - the resolution base of the strict
+     * file-relative filename rule travels with the entry.
+     */
+    private static final class OwnedProvider {
+
+        final WoodProvider provider;
+        final JsonResource owner;
+
+        OwnedProvider(WoodProvider provider, JsonResource owner) {
+            this.provider = provider;
+            this.owner = owner;
+        }
+    }
+
+    /**
+     * The strict file-relative resolution of a provider filename (binding, concept
+     * CONCEPT_ProjectView.md): a relative filename resolves against the folder of the file that
+     * declares it; an absolute filename passes through unchanged. Before this rule relative
+     * filenames resolved against the working directory of the process - a bundle only loaded
+     * completely when the editor happened to run in the right folder.
+     *
+     * @param owned the provider entry with its declaring owner
+     * @return the provider file
+     */
+    private static File providerFileOf(OwnedProvider owned) {
+        final String filename = owned.provider.getFilename();
+        final File raw = new File(filename);
+        if (raw.isAbsolute() || !owned.owner.hasResourceFile()) {
+            return raw;
+        }
+        return new File(new File(owned.owner.getResourceFile()).getParentFile(), filename);
+    }
+
+    /**
+     * Loads a JSON resource from a wood provider file - the strict file-relative resolution
+     * happened at the owner before this call; the loader takes the resolved file as it is.
+     *
+     * @param provider The wood provider containing the synonym (used as the provider name).
+     * @param file The resolved provider file.
+     * @param debugLevel The debug level for controlling debug output.
+     * @return The loaded JSON resource.
+     * @throws FileNotFoundException If the provider file cannot be found.
+     * @throws IOException If I/O errors occur during loading.
+     * @throws JsonParseException If parsing fails.
+     */
+    public static JsonResource load(WoodProvider provider, File file, JsonDebugLevel debugLevel)
+            throws FileNotFoundException, IOException, JsonParseException {
+        JsonResource subContainer = JsonResource.forFile(file.getPath());
+        subContainer.setProviderName(provider.getSynonym());
+        // try-with-resources: the reader must close after the parse, otherwise the file handle stays open
+        // (Windows locks the file against deletion and external changes then)
+        try (FileReader reader = new FileReader(file)) {
+            ParseStreamReader psr = new ParseStreamReader(reader, debugLevel);
+            return RootParser.parse(psr, subContainer, debugLevel);
+        }
+    }
+
+    /**
+     * Loads a JSON resource from a wood provider - the legacy working-directory-relative form.
+     * Kept for callers outside the resolution loop; the resolution loop resolves strictly
+     * file-relative (see {@link #providerFileOf}).
      *
      * @param provider The wood provider containing the file information.
      * @param debugLevel The debug level for controlling debug output.
@@ -281,15 +343,7 @@ public final class WoodProxyResolver {
      */
     public static JsonResource load(WoodProvider provider, JsonDebugLevel debugLevel)
             throws FileNotFoundException, IOException, JsonParseException {
-        File file = new File(provider.getFilename());
-        JsonResource subContainer = JsonResource.forFile(provider.getFilename());
-        subContainer.setProviderName(provider.getSynonym());
-        // try-with-resources: the reader must close after the parse, otherwise the file handle stays open
-        // (Windows locks the file against deletion and external changes then)
-        try (FileReader reader = new FileReader(file)) {
-            ParseStreamReader psr = new ParseStreamReader(reader, debugLevel);
-            return RootParser.parse(psr, subContainer, debugLevel);
-        }
+        return load(provider, new File(provider.getFilename()), debugLevel);
     }
 
 }

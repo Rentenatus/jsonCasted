@@ -770,26 +770,26 @@ public final class JsonBundle {
      * miss, queue the loaded providers' own boxes - every file exactly once, alias rules on re-references.
      */
     private void loadProviderGraph(JsonDebugLevel debug) throws IOException, JsonParseException {
-        final Deque<WoodProvider> queue = new ArrayDeque<>();
+        final Deque<ProviderRef> queue = new ArrayDeque<>();
         final Map<String, String> queuedFilenames = new LinkedHashMap<>();
         enqueueProviders(mainResource, queue, queuedFilenames);
         final String mainNamespaceKey = namespaceKey(mainResource);
 
         while (!queue.isEmpty()) {
-            final WoodProvider provider = queue.poll();
-            final String synonym = provider.getSynonym();
+            final ProviderRef ref = queue.poll();
+            final String synonym = ref.provider.getSynonym();
+            final File file = providerFileOf(ref.owner, ref.provider);
 
             JsonResource shared;
             try {
                 shared = findBySynonym(mainNamespaceKey, synonym);
                 if (shared == null) {
-                    final String path = canonicalPathOf(new File(provider.getFilename()));
+                    final String path = canonicalPathOf(file);
                     shared = path != null ? findByPath(path) : null;
                 }
                 if (shared == null) {
                     shared = register(withNamespace(
-                            load(new File(provider.getFilename()), synonym, debug),
-                            new File(provider.getFilename())));
+                            load(file, synonym, debug), file));
                 } else {
                     shared = register(forSynonym(shared, synonym));
                 }
@@ -797,12 +797,48 @@ public final class JsonBundle {
                 // the same tolerance the convert layer lives by (WoodProxyResolver warns and continues): a
                 // missing provider file is a warning, not a bundle failure - dangling references are a case
                 // for the validator
-                warnings.add("Provider file not found: " + provider.getFilename());
+                warnings.add("Provider file not found: " + file);
                 continue;
             }
             mergeIntoMain(shared);
             enqueueProviders(shared, queue, queuedFilenames);
         }
+    }
+
+    /**
+     * One queued provider entry with its declaring owner: the resolution base of the filename travels
+     * with the entry (strict file-relative resolution, concept CONCEPT_ProjectView.md - the provider
+     * filename belongs to the file that declares it, never to the working directory of the process).
+     */
+    private static final class ProviderRef {
+
+        final WoodProvider provider;
+        final JsonResource owner;
+
+        ProviderRef(WoodProvider provider, JsonResource owner) {
+            this.provider = provider;
+            this.owner = owner;
+        }
+    }
+
+    /**
+     * The strict file-relative resolution of a provider filename (binding): a relative filename
+     * resolves against the folder of the file that declares it; an absolute filename passes through
+     * unchanged. Before this rule a relative filename resolved against the working directory - a
+     * bundle only loaded completely when the editor happened to run in the right folder, and the
+     * editor session silently missed provider trees elsewhere.
+     *
+     * @param owner the resource whose box declares the provider entry (the resolution base)
+     * @param provider the provider entry with the filename
+     * @return the provider file, absolute or relative-to-owner as declared
+     */
+    private static File providerFileOf(JsonResource owner, WoodProvider provider) {
+        final String filename = provider.getFilename();
+        final File raw = new File(filename);
+        if (raw.isAbsolute() || !owner.hasResourceFile()) {
+            return raw;
+        }
+        return new File(new File(owner.getResourceFile()).getParentFile(), filename);
     }
 
     /**
@@ -837,18 +873,18 @@ public final class JsonBundle {
      * DIFFERENT file within the SAME namespace (strategy B) is a conflict and throws. Bundles of different
      * namespaces may own the same synonym - the definitive check runs at registration, per namespace.
      */
-    private void enqueueProviders(JsonResource resource, Deque<WoodProvider> queue,
+    private void enqueueProviders(JsonResource resource, Deque<ProviderRef> queue,
             Map<String, String> queuedFilenames) throws JsonParseException {
         final WoodProviderBox box = resource.getExpectedBox();
         if (box == null) {
             return;
         }
         for (WoodProvider provider : box.getProviders()) {
-            final String filename = canonicalPathOf(new File(provider.getFilename()));
+            final String filename = canonicalPathOf(providerFileOf(resource, provider));
             final String queueKey = namespaceKey(resource) + "\u0000" + provider.getSynonym();
             final String known = queuedFilenames.putIfAbsent(queueKey, filename);
             if (known == null) {
-                queue.add(provider);
+                queue.add(new ProviderRef(provider, resource));
             } else if (!known.equals(filename)) {
                 throw new JsonParseException("Synonym '" + provider.getSynonym() + "' is referenced with two "
                         + "files ('" + known + "' and '" + filename + "') - the ID namespace cannot be owned "
