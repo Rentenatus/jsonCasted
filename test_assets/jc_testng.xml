@@ -39,6 +39,7 @@
     <class name="de.jare.jsoncasted.model.descriptor.NullHardeningNGTest"/>
     <class name="de.jare.jsoncasted.model.item.AnnotationValueNGTest"/>
     <class name="de.jare.jsoncasted.parser.JsonParserNodeInputNGTest"/>
+    <class name="de.jare.jsoncasted.project.BundleImportResolverNGTest"/>
     <class name="de.jare.jsoncasted.project.WoodProjectNGTest"/>
     <class name="de.jare.jsoncasted.validation.model.ReflectionValidatorNGTest"/>
     <class name="de.jare.jsonconfig.def.JsonConfigFactoryNGTest"/>
