@@ -692,6 +692,8 @@ The **Wood system** provides EMF-like reference and resource mechanics directly 
   ]
 }
 ```
+*A relative `filename` resolves strictly against the folder of the file that declares it*
+(binding; absolute paths pass through - see `doc/WOOD_STRUCTURE.md`).
 
 **2. Define Object Identity:**
 ```json

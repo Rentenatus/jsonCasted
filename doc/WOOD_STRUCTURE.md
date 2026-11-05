@@ -86,6 +86,10 @@ The Wood system uses reserved JSON property names (defined in `JsonTerms.java`) 
 - `_woodProviders` defines external JSON files that can be loaded
 - Each provider has a **synonym** (logical name) and **filename** (physical location)
 - Objects can reference external resources: `"_woodLink": "users::user_42"`
+- **Filename resolution (binding, WoodJsonJack `CONCEPT_ProjectView.md` question 7):**
+  a relative provider `filename` resolves **strictly against the folder of the file that
+  declares it**; absolute filenames pass through. (Historically relative filenames resolved
+  against the process working directory — that rule is gone; the fixtures were converted.)
 
 ---
 

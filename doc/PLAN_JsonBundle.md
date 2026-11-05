@@ -21,6 +21,10 @@ conflicts by design (they are per-node decisions), origin push.
 
 ## Ground truth: what exists today (anchors)
 
+*(State at planning time - kept as the phase derivations' anchor set; the phases since replaced
+most of the "today" rows with their built counterparts, see the status table above and
+`doc/JSON_BUNDLE.md`.)*
+
 | Anchor | Where | Role today |
 |--------|-------|------------|
 | `JsonResource` | `de.jare.jsoncasted.lang` | one parse result; transient |

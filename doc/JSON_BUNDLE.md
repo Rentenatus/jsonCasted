@@ -1,8 +1,19 @@
 # JsonBundle: Bundle-level Resource Registry
 
+> **Status (2026-11): BUILT - this document is the original design, the implementation followed
+> it.** Steps 1-5 below are complete (see `PLAN_JsonBundle.md` for the per-phase build record):
+> the `JsonBundle` registry with the identity matrix and the state model, the bundle-aware
+> io layer, the `EditBundle` session clamp with save guard, the WoodJsonJack integration, and
+> the diff/merge rails per `TREE_DIFF.md`. Later additions on top (not part of this document's
+> scope): bundle-scoped identities - Strategy B - with supervised merging, the namespaced open
+> lane (WoodJsonJack `CONCEPT_ProjectView.md` section 7), and the project layer with its
+> `.woodbundle.json` descriptor. The class sketch and the "today" claims below document the
+> state at proposal time, kept for the design rationale.
+
 ## Problem
 
-Cross-resource references (`_woodProviders`/`_woodLink`) are resolved today **per parse session**:
+Cross-resource references (`_woodProviders`/`_woodLink`) were resolved per parse session
+(the state before this concept; kept as historical rationale):
 
 - `RootConverter.convert` creates a fresh `JsonSystem` per call.
 - `WoodProxyResolver.resolveProviders` loads every provider file with `WoodProxyResolver.load`.
@@ -13,9 +24,10 @@ parse sessions produce `{A, B}` and `{E, B'}` — B exists twice as unrelated
 `JsonResource` instances (own node tree, own `LinkingSet`). In-memory edits diverge;
 there is no shared instance and no bundle-wide identity.
 
-The editor layer (jsonCasted_edit / WoodJsonJack) does not bundle at all yet:
-`JsonTreeConverter.fromJsonFile` parses exactly one file per tab and never calls
-`WoodProxyResolver`. Cross-file links stay unconnected within a tab.
+The editor layer (jsonCasted_edit / WoodJsonJack) did not bundle at all at that time:
+`JsonTreeConverter.fromJsonFile` parsed exactly one file per tab and never called
+`WoodProxyResolver`. Cross-file links stayed unconnected within a tab. Both gaps are closed
+since; the editor side clamps the session via `EditBundle` (below).
 
 ## Goal
 
@@ -225,7 +237,7 @@ which builds the `JsonSystem` from the bundle (`toSystem`) instead of
 
 ## Integration: editor layer (jsonCasted_edit / WoodJsonJack)
 
-There is **no** `EditResource` class today — `EditTree` already plays that
+There is no `EditResource` class — `EditTree` already plays that
 role: it holds `root` (EditNode tree), `providerName`, its own `EditLinkingSet`,
 `expectedBox`, and the descriptor. But `JsonResource` is a **transient** object
 in the editor: `JsonTreeConverter.fromJsonFile` parses it, converts it into the
@@ -238,7 +250,7 @@ mutable object of an editor session is the **EditTree**, not the
 - **`JsonBundle` (lang)** — file truth: loads the resource graph with
   `B == B'`, manages fingerprints/reload, guarantees every file is parsed
   exactly once.
-- **`EditBundle` (new, `de.jare.jsoncasted.editor.core`)** — session truth:
+- **`EditBundle` (`de.jare.jsoncasted.editor.core`, built)** — session truth:
   registry `{canonical path, synonym} → EditTree`, exactly parallel to the
   parse layer. Both layers stay in lockstep: `EditBundle` obtains the resource
   graph from **one** `JsonBundle` load and converts each `JsonResource`
@@ -318,9 +330,8 @@ Vocabulary boundaries:
   lifecycle vocabulary. The same applies to node-level `EditStatus`
   (OKAY/ERROR…), which is parse feedback per node, not file state.
 - The edit-layer state axes are likewise carried by the `EditTree` itself
-  (import fingerprint + working-copy state). Today no dirty tracking exists
-  anywhere for editor trees (only `ThemesModel.hasUnsavedChanges`, for
-  settings) — the `CLEAN`/`EDITED` axis closes a real gap.
+  (import fingerprint + working-copy state — both axes are built on the `EditTree`, the
+  `CLEAN`/`EDITED` dirty axis included; the gap this concept identified is closed).
 
 Optional third axis, **visibility** (answers open question 3): `BACKGROUND`
 (dependency-only resource, no tab of its own) vs. `FOREGROUND` (promoted to
@@ -386,30 +397,28 @@ this document yet.
    Priority order: layer-2 diff/merge (`EDITED` + `OUTDATED`) first, the
    layer-1 "switch all consumers to B'" policy afterwards.
 
-| Step | Bundle | Content |
-|------|---------|---------|
-| 1 | jsonCasted | `JsonBundle` core: registry, identity rules, fingerprint (`ResourceFingerprint`), state model, provider-name reconciliation, topological graph + TestNG tests (A→B, E→B share one instance; synonym conflict throws; alias rebuilds; `REGISTERED`+`STALE` reloads silently, `CONSUMED`+`STALE` reports) |
-| 2 | jsonCasted | `WoodProxyResolver`/`RootConverter` bundle-aware variants, old signatures delegate with bundle == null |
-| 3 | jsonCasted_edit | `EditBundle` (session clamp): EditTree registry, `EditLinkingSet` fallback to bundle index, edit-layer state model (`CLEAN/EDITED`, `CURRENT/OUTDATED`), `EventBus` propagation, dirty-vs-file policy hook |
-| 4 | WoodJsonJack | bundle open/close, shared B tab (visibility axis), save guards, conflict policy UI |
-| 5 (later, optional) | both | tree diff & merge per the outlook above — only after 1–4; concept to be elaborated separately |
+| Step | Bundle | Content | State |
+|------|---------|---------|-------|
+| 1 | jsonCasted | `JsonBundle` core: registry, identity rules, fingerprint (`ResourceFingerprint`), state model, provider-name reconciliation, topological graph + TestNG tests (A→B, E→B share one instance; synonym conflict throws; alias rebuilds; `REGISTERED`+`STALE` reloads silently, `CONSUMED`+`STALE` reports) | **built** |
+| 2 | jsonCasted | `WoodProxyResolver`/`RootConverter` bundle-aware variants, old signatures delegate with bundle == null | **built** |
+| 3 | jsonCasted_edit | `EditBundle` (session clamp): EditTree registry, `EditLinkingSet` fallback to bundle index, edit-layer state model (`CLEAN/EDITED`, `CURRENT/OUTDATED`), `EventBus` propagation, dirty-vs-file policy hook | **built** |
+| 4 | WoodJsonJack | bundle open/close, shared B tab (visibility axis), save guards, conflict policy UI | **built** |
+| 5 (later, optional) | both | tree diff & merge per the outlook above — only after 1–4; concept elaborated in `TREE_DIFF.md`, rails and UI built (see `PLAN_JsonBundle.md` and WoodJsonJack `CONCEPT_TreeDiffView.md`) | **built** |
 
 Steps 1–2 are pure additions; no existing behavior changes unless a caller
-opts into the bundle. Steps 3–4 are editor work and can follow independently.
+opts into the bundle. Steps 3–4 are editor work and followed independently.
 
-## Open questions (to decide before implementation)
+## Open questions — all decided in the meantime
 
-1. Should `JsonBundle` be persistable (bundle file listing members), or is it
-   purely derived from the main resource's provider graph? (Derived is
-   sufficient for the A/E/B case.)
-2. Alias policy: is synonym reconciliation via `LinkingSet` rebuild acceptable,
-   or should a path-alias under a new synonym be rejected outright?
-3. Visibility axis: which default for a dependency-only resource B —
-   `BACKGROUND` (invisible until promoted) or a read-only view? (Vocabulary
-   already reserved: `BACKGROUND`/`FOREGROUND`.)
-4. Fingerprint stage 2: does the editor need the content digest (CRC32) from
-   day one, or is `{mtime, size}` sufficient for v1 with the comparator
-   interface as the upgrade path?
-5. `CONSUMED` + `STALE` policy default: keep old state and warn, or reload and
-   re-resolve dependents automatically? (Recommendation: warn + keep — matches
-   the "no silent reload" rule.)
+1. Persistable bundle file? — **Decided: derived** (the bundle derives from the main resource's
+   provider graph, no bundle file); the later project layer added an orthogonal persistence:
+   the `.woodbundle.json` folder descriptor (WoodJsonJack `CONCEPT_ProjectView.md` section 4).
+2. Alias policy — **decided by the build:** share with reconciliation (first synonym wins,
+   `LinkingSet` rebuild, warning), refusal when the resource is already consumed.
+3. Visibility axis — **settled by practice,** the `BACKGROUND`/`FOREGROUND` vocabulary was not
+   adopted: sub resources open as their own read-only `[synonym]` views in the tab (promoted by
+   default, editable main), which is the editor behavior `PLAN_JsonBundle.md` recorded.
+4. Fingerprint stage 2 — decided: v1 ships `{mtime, size}`; the CRC32 content digest stays an
+   upgrade path through the comparator interface.
+5. `CONSUMED` + `STALE` policy — **decided:** warn and keep (no silent reload), matches the
+   build record in `PLAN_JsonBundle.md`.

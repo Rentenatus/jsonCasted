@@ -391,17 +391,22 @@ Design boundaries — the interface must **not** break these:
 | R2 | Link target per node | radiating analysis | **exists** (`JsonNode.getLink`, `EditNodeAbstract.getLinkTarget`) |
 | R3 | Deterministic child order | traversal | **exists** (`LinkedHashMap`, ordered children list) |
 | R4 | Fingerprint + status on the resource itself | change detection, conflict quadrant | planned (`JSON_BUNDLE.md` state model) — now motivated by diff as well. **Edit-layer refinement:** the `EditTree` *adopts* the fingerprint of its origin file at import (the layer-1 `JsonResource` is discarded) and refreshes it on every save; this is what lets the editor decide whether a plain overwrite is allowed (see save guard in `JSON_BUNDLE.md`) |
-| R5 | **Retention of the import state (base) per EditTree** | U1 3-way — *the* precondition | **GAP G1** |
+| R5 | **Retention of the import state (base) per EditTree** | U1 3-way — *the* precondition | **CLOSED (G1)** — `EditTree.adoptBaseSnapshot` holds the imported `JsonResource`; the save refresh is `adoptSavedBase` |
 | R6 | Re-parse "theirs" through the normal import path, isolated node identities | U1 | exists as a **rule** (no code gap): never match by `editId` |
 | R7 | Command layer for replay of deltas | merge application | **exists** (command package, all basic ops) |
-| R8 | **One undo step per merge** (transaction/composite command) | merge UX | **GAP G2** — commands exist only singly; `HistoryManager` needs a composite/transaction entry |
+| R8 | **One undo step per merge** (transaction/composite command) | merge UX | **CLOSED (G2)** — `CompositeEditCommand` (one history entry, atomic undo via reverse child order); the reroll transaction of the project view reuses it too |
 | R9 | Reference tracking (who links to a target) | radiating analysis | **exists** (`EditLinkingSet.getReferencesTo`, `LinkingSet.linkMap`) |
 | R10 | Dependents lookup per synonym | radiating analysis | planned (`JsonBundle`/`EditBundle.getDependents`) |
-| R11 | **Merkle subtree hashes** (separate from `lastParsedHash`): bottom-up at parse on `JsonNode` (base + theirs, free) and incrementally maintained per command on `EditNodeAbstract` (O(depth)) | O(changed) diff pruning, move/reorder detection, semantic no-op detection | **GAP G3 (now concrete)** — verified: `computeHash()` today is 32-bit, local-only (childCount, no child hashes), includes `editId` → not cross-parse-comparable; needs a new dedicated `merkleHash` field on both node types + a defined 64-bit canonical mixer |
+| R11 | **Merkle subtree hashes** (separate from `lastParsedHash`): bottom-up at parse on `JsonNode` (base + theirs, free) and incrementally maintained per command on `EditNodeAbstract` (O(depth)) | O(changed) diff pruning, move/reorder detection, semantic no-op detection | **CLOSED (G3)** — dedicated `merkleHash` on both node types, `MerkleHasher` in `de.jare.jsoncasted.diff`, lazy invalidation per mutation (`markMerkleDirty`); the historical finding (32-bit, local-only, `editId`-polluted `computeHash()`) is the design rationale kept below |
 | R12 | Paths for anonymous nodes | matching phase 2 | no core change — diff builds paths during traversal |
 | R13 | **`DifferableNode` interface** (`de.jare.jsoncasted.diff`) implemented by `JsonNode` and `EditNodeAbstract`; diff engine written once against it | whole pipeline, both layers | **planned in this concept** — read-only semantic projection; no mutation API; engine emits DeltaOps, application stays layer-specific |
 
 ### Discovered gaps (consolidated)
+
+> All three gaps are **closed** since (see the requirement table above for the anchors):
+> G1 via `adoptBaseSnapshot`/`adoptSavedBase`, G2 via `CompositeEditCommand`, G3 via the
+> dedicated `merkleHash` on both node types with `MerkleHasher`. The text below is the
+> original gap analysis, kept for the rationale.
 
 - **G1 — base retention:** `EditTree` must keep a structural snapshot of the
   import state (base). Cheapest form: keep the imported `JsonNode` tree (or a
