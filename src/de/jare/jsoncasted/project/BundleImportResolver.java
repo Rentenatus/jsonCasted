@@ -232,25 +232,50 @@ public class BundleImportResolver {
 
     /**
      * Channel 2 (project-local convenience): the bundle of that name in one of the project's
-     * own partitions - recursively searched, partition order first. Two hits of the same name
-     * in one project are ambiguous and refused by the conflict check of the project scan.
+     * own partitions - recursively searched, the live partitions first and the isolated sources
+     * LAST (a same-named live bundle always wins - an old isolated version never shadows the
+     * current one; the isolated hit happens only when nothing live carries the name). Two
+     * hits of the same name in one project are ambiguous and refused by the conflict check of
+     * the project scan.
+     *
+     * @param projectRoot the folder that contains .wood/project.json
+     * @param bundleName the wanted bundle name
+     * @return the bundle folder of that name, or null when no partition carries it
      */
     private File findProjectLocalBundle(File projectRoot, String bundleName) {
         final ProjectDocument document = loadProjectOrNull(projectRoot);
         if (document == null) {
             return null;
         }
+        final List<Partition> isolatedLate = new ArrayList<>();
         for (Partition partition : document.getRoots()) {
-            final File partitionFolder = partition.resolve(projectRoot);
-            if (partitionFolder == null || !partitionFolder.isDirectory()) {
+            if (partition.getType() == PartitionType.ISOLATED) {
+                isolatedLate.add(partition); // isolated sources serve only as the last resort
                 continue;
             }
-            final File hit = findBundleFolderNamed(partitionFolder, bundleName);
+            final File hit = searchBundleIn(partition, projectRoot, bundleName);
+            if (hit != null) {
+                return hit;
+            }
+        }
+        for (Partition partition : isolatedLate) {
+            final File hit = searchBundleIn(partition, projectRoot, bundleName);
             if (hit != null) {
                 return hit;
             }
         }
         return null;
+    }
+
+    /**
+     * One partition's recursive search for a bundle folder of the wanted name.
+     */
+    private File searchBundleIn(Partition partition, File projectRoot, String bundleName) {
+        final File partitionFolder = partition.resolve(projectRoot);
+        if (partitionFolder == null || !partitionFolder.isDirectory()) {
+            return null;
+        }
+        return findBundleFolderNamed(partitionFolder, bundleName);
     }
 
     /**
@@ -366,7 +391,12 @@ public class BundleImportResolver {
         final Map<String, List<File>> importersByBundle = new LinkedHashMap<>();
         final ProjectDocument document = loadProjectOrNull(projectRoot);
         if (document != null) {
+            // the conflict scan sees the LIVE project only: isolated sources are view-only old
+            // worlds (their own imports included) and never take part in the identity conflict
             for (Partition partition : document.getRoots()) {
+                if (partition.getType() == PartitionType.ISOLATED) {
+                    continue;
+                }
                 final File partitionFolder = partition.resolve(projectRoot);
                 if (partitionFolder != null && partitionFolder.isDirectory()) {
                     collectVersionImports(partitionFolder, versionsByBundle, importersByBundle);

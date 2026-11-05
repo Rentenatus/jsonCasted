@@ -21,6 +21,7 @@ import java.util.List;
  */
 public enum PartitionType implements JsonEnumTemplate {
 
+    ISOLATED("isolated"),
     SRC("src"),
     TEST("test"),
     ASSETS("assets"),
@@ -28,7 +29,7 @@ public enum PartitionType implements JsonEnumTemplate {
     GEN("gen"),
     TARGET("target");
 
-    private static final PartitionType[] VALUES_ARRAY = new PartitionType[]{SRC, TEST, ASSETS, JSON, GEN, TARGET};
+    private static final PartitionType[] VALUES_ARRAY = new PartitionType[]{ISOLATED, SRC, TEST, ASSETS, JSON, GEN, TARGET};
 
     public static final List<PartitionType> VALUES = Collections.unmodifiableList(Arrays.asList(VALUES_ARRAY));
 

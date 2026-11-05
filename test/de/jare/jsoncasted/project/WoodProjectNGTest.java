@@ -165,7 +165,8 @@ public class WoodProjectNGTest {
     }
 
     @Test
-    public void partitionTypeEnumParsesTheSixRoles() {
+    public void partitionTypeEnumParsesTheSevenRoles() {
+        assertEquals(PartitionType.getByName("isolated"), PartitionType.ISOLATED);
         assertEquals(PartitionType.getByName("src"), PartitionType.SRC);
         assertEquals(PartitionType.getByName("test"), PartitionType.TEST);
         assertEquals(PartitionType.getByName("assets"), PartitionType.ASSETS);
@@ -179,6 +180,7 @@ public class WoodProjectNGTest {
      * The role defaults of concept section 2: gen is output meant to be read and target is
      * build output - both are readonly without an explicit flag; the editable roles stay
      * editable; an explicit flag wins over any default (gen mounted writable on purpose).
+     * The isolated source is view-only by definition (phase 9): default readonly.
      */
     @Test
     public void readonlyDefaultsFollowTheRole() {
@@ -186,6 +188,8 @@ public class WoodProjectNGTest {
         assertFalse(new Partition("json", PartitionType.JSON, "./json", null).isReadonly());
         assertTrue(new Partition("gen", PartitionType.GEN, "./gen", null).isReadonly());
         assertTrue(new Partition("target", PartitionType.TARGET, "./target", null).isReadonly());
+        assertTrue(new Partition("oldstuff", PartitionType.ISOLATED, "./old", null).isReadonly(),
+                "an isolated source is a view to look at, never a mount to write into");
 
         assertFalse(new Partition("genwritable", PartitionType.GEN, "./gen", false).isReadonly());
         assertTrue(new Partition("srclocked", PartitionType.SRC, "./src", true).isReadonly());

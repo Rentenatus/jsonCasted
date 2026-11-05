@@ -160,6 +160,55 @@ public class BundleImportResolverNGTest {
         assertTrue(conflicts.get(0).contains("refused"), conflicts.get(0));
     }
 
+    /**
+     * Phase 9 - isolated sources (concept section 12, phase 9): a same-named isolated version
+     * never shadows the live bundle (the json partitions always win), but a name nothing live
+     * carries is served by the isolated source as the last resort - the deliberate hook for
+     * view-only old worlds.
+     */
+    @Test
+    public void testIsolatedSourcesServeAsLastResortOnly() throws Exception {
+        addIsolatedPartition();
+        final File importer = newBundle("myproject/json/profiles/app", "app",
+                importWithVersion("base.lib", "1.0"));
+        newBundle("myproject/json/profiles/lib/base", "base.lib", null);
+        newBundle("myproject/old/json/profiles/lib/base", "base.lib", null); // the old isolated copy
+
+        final BundleImportResolver.ImportResolution resolution
+                = only(resolver.resolveImports(projectRoot, importer));
+        assertEquals(resolution.getChannel(), BundleImportResolver.Channel.PROJECT_LOCAL);
+        assertEquals(resolution.getBundleFolder().getCanonicalPath(),
+                new File(projectRoot, "json/profiles/lib/base").getCanonicalPath(),
+                "the live bundle wins - the isolated copy never shadows it");
+
+        // nothing live carries the name: the isolated source is the last resort
+        final File importerWithRetiredName = newBundle("myproject/json/profiles/app2", "app2",
+                importWithVersion("retired.lib", "independent"));
+        newBundle("myproject/old/json/profiles/lib/retired", "retired.lib", null);
+
+        final BundleImportResolver.ImportResolution lastResort
+                = only(resolver.resolveImports(projectRoot, importerWithRetiredName));
+        assertEquals(lastResort.getChannel(), BundleImportResolver.Channel.PROJECT_LOCAL);
+        assertEquals(lastResort.getBundleFolder().getCanonicalPath(),
+                new File(projectRoot, "old/json/profiles/lib/retired").getCanonicalPath(),
+                "the isolated source serves when nothing live carries the name");
+    }
+
+    /**
+     * Phase 9: the version conflict scan sees the LIVE project only - the isolated sources are
+     * view-only old worlds, their own imports never take part in the project's conflict rules.
+     */
+    @Test
+    public void testIsolatedDescriptorsStayOutOfTheConflictScan() throws Exception {
+        addIsolatedPartition();
+        newBundle("myproject/json/profiles/one", "one", importWithVersion("base.logging", "1.1"));
+        // the isolated old world pins a different version of the same imported bundle
+        newBundle("myproject/old/json/profiles/two", "two", importWithVersion("base.logging", "1.2"));
+
+        assertTrue(resolver.findVersionConflicts(projectRoot).isEmpty(),
+                "the isolated source's imports never conflict the live project");
+    }
+
     //
     // helpers
     //
@@ -171,6 +220,17 @@ public class BundleImportResolverNGTest {
         assertTrue(new File(projectRoot, "json/profiles").mkdirs());
         write("myproject/.wood/project.json", "{\n  \"name\": \"myproject\",\n  \"roots\": [\n"
                 + "    { \"name\": \"profiles\", \"type\": \"json\", \"path\": \"./json/profiles\" }\n"
+                + "  ]\n}\n");
+    }
+
+    /**
+     * Extends the fixture with an isolated partition: the view-only old world below ./old.
+     */
+    private void addIsolatedPartition() throws IOException {
+        assertTrue(new File(projectRoot, "old/json/profiles/lib").mkdirs());
+        write("myproject/.wood/project.json", "{\n  \"name\": \"myproject\",\n  \"roots\": [\n"
+                + "    { \"name\": \"profiles\", \"type\": \"json\", \"path\": \"./json/profiles\" },\n"
+                + "    { \"name\": \"oldstuff\", \"type\": \"isolated\", \"path\": \"./old/json/profiles\" }\n"
                 + "  ]\n}\n");
     }
 
