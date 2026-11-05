@@ -162,9 +162,10 @@ public class BundleImportResolverNGTest {
 
     /**
      * Phase 9 - isolated sources (concept section 12, phase 9): a same-named isolated version
-     * never shadows the live bundle (the json partitions always win), but a name nothing live
-     * carries is served by the isolated source as the last resort - the deliberate hook for
-     * view-only old worlds.
+     * never shadows the live bundle (the json partitions always win). A name nothing live
+     * carries is a FIND in the isolated source: the content materializes deep-copy into the
+     * import cache exactly once - an old world never binds live, the importer works against
+     * the frozen clone, and the isolated folder stays untouched.
      */
     @Test
     public void testIsolatedSourcesServeAsLastResortOnly() throws Exception {
@@ -180,18 +181,35 @@ public class BundleImportResolverNGTest {
         assertEquals(resolution.getBundleFolder().getCanonicalPath(),
                 new File(projectRoot, "json/profiles/lib/base").getCanonicalPath(),
                 "the live bundle wins - the isolated copy never shadows it");
+        assertFalse(cacheOf("base.lib", "1.0").exists(),
+                "a live project-local hit wires directly, no cache stand materializes");
 
-        // nothing live carries the name: the isolated source is the last resort
+        // nothing live carries the name: the isolated source is a FIND - the frozen stand clones
         final File importerWithRetiredName = newBundle("myproject/json/profiles/app2", "app2",
                 importWithVersion("retired.lib", "independent"));
-        newBundle("myproject/old/json/profiles/lib/retired", "retired.lib", null);
+        final File isolatedRetired = newBundle("myproject/old/json/profiles/lib/retired",
+                "retired.lib", null);
 
-        final BundleImportResolver.ImportResolution lastResort
+        final BundleImportResolver.ImportResolution firstFind
                 = only(resolver.resolveImports(projectRoot, importerWithRetiredName));
-        assertEquals(lastResort.getChannel(), BundleImportResolver.Channel.PROJECT_LOCAL);
-        assertEquals(lastResort.getBundleFolder().getCanonicalPath(),
-                new File(projectRoot, "old/json/profiles/lib/retired").getCanonicalPath(),
-                "the isolated source serves when nothing live carries the name");
+        assertEquals(firstFind.getChannel(), BundleImportResolver.Channel.ISOLATED,
+                "the isolated hit is its own channel, never a live project-local wiring");
+        assertEquals(firstFind.getBundleFolder().getCanonicalPath(),
+                cacheOf("retired.lib", "independent").getCanonicalPath(),
+                "the importer gets the cache stand, not the isolated folder");
+        assertTrue(new File(firstFind.getBundleFolder(), "retired.lib.json").isFile(),
+                "the stand carries the copied content");
+
+        // materialize once: a marker in the stand survives; the isolated view stays untouched
+        Files.write(new File(firstFind.getBundleFolder(), "marker.txt").toPath(),
+                "touched".getBytes(StandardCharsets.UTF_8));
+        final BundleImportResolver.ImportResolution secondFind
+                = only(resolver.resolveImports(projectRoot, importerWithRetiredName));
+        assertEquals(secondFind.getChannel(), BundleImportResolver.Channel.ISOLATED);
+        assertEquals(secondFind.getBundleFolder(), firstFind.getBundleFolder(),
+                "the same stand serves again - never refreshed within a version");
+        assertFalse(new File(isolatedRetired, "marker.txt").exists(),
+                "the isolated folder is a view - the import never writes into it");
     }
 
     /**

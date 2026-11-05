@@ -21,11 +21,13 @@ import java.util.Set;
  * The import resolution of the descriptor input structure (concept WoodJsonJack
  * CONCEPT_ProjectView.md section 6 - the Maven analogy): the resolution order is binding -
  * path imports resolve direct and project-relative (reactor, live reference); a bundle of the
- * wanted name found in one of the project's own partitions is the project-local convenience
- * hit; a version import materializes the local bundle repository deep-copy into the project's
- * import cache, exactly once (version pinning is the immutability promise - the cache is never
- * refreshed within a version); everything else stays unresolved with guidance - there is no
- * remote fetch in v1.
+ * wanted name found in one of the project's own live partitions is the project-local convenience
+ * hit; an ISOLATED source serves the same convenience only as the LAST resort and as a FIND
+ * (phase 9): its content materializes deep-copy into the project's import cache exactly once -
+ * an old world never binds live, the importer works against the frozen clone; a repository
+ * version import materializes the same way (version pinning is the immutability promise - the
+ * cache is never refreshed within a version); everything else stays unresolved with guidance -
+ * there is no remote fetch in v1.
  *
  * <p>
  * Strict by decision (binding): no transitive resolution - the imported bundle's own imports
@@ -40,10 +42,12 @@ public class BundleImportResolver {
 
     /**
      * The channel an import resolved through (concept section 6): the reactor path import, the
-     * project-local convenience hit, the materialized repository dependency - or unresolved.
+     * project-local convenience hit, the materialized repository dependency, the materialized
+     * stand of an ISOLATED source (phase 9: an old world to look at - a hit clones into the
+     * living project, never a live link into the ghost world) - or unresolved.
      */
     public enum Channel {
-        PATH, PROJECT_LOCAL, REPOSITORY, UNRESOLVED
+        PATH, PROJECT_LOCAL, ISOLATED, REPOSITORY, UNRESOLVED
     }
 
     /**
@@ -183,9 +187,23 @@ public class BundleImportResolver {
      * project's import cache; nothing else exists in v1.
      */
     private ImportResolution resolveVersionImport(File projectRoot, BundleImport entry) {
-        final File local = findProjectLocalBundle(projectRoot, entry.getBundle());
+        final LocalHit local = findProjectLocalBundle(projectRoot, entry.getBundle());
+        if (local != null && !local.isolated) {
+            return new ImportResolution(entry, Channel.PROJECT_LOCAL, local.folder, null);
+        }
         if (local != null) {
-            return new ImportResolution(entry, Channel.PROJECT_LOCAL, local, null);
+            // phase 9: the isolated hit is a FIND, not a wiring - an old world never binds live.
+            // The content clones into the project's import cache exactly once (the frozen stand
+            // of the repository rail); the isolated folder stays a view, untouched.
+            final File stand = materializeFromSource(projectRoot, local.folder,
+                    entry.getBundle(), entry.getVersion());
+            if (stand != null) {
+                return new ImportResolution(entry, Channel.ISOLATED, stand, null);
+            }
+            return new ImportResolution(entry, Channel.UNRESOLVED, null,
+                    "The isolated source '" + entry.getBundle() + " of " + local.folder.getName()
+                    + "' could not materialize into the import cache ("
+                    + local.folder.getAbsolutePath() + ").");
         }
         if (entry.getVersion() == null || entry.getVersion().isBlank()) {
             return new ImportResolution(entry, Channel.UNRESOLVED, null,
@@ -234,37 +252,53 @@ public class BundleImportResolver {
      * Channel 2 (project-local convenience): the bundle of that name in one of the project's
      * own partitions - recursively searched, the live partitions first and the isolated sources
      * LAST (a same-named live bundle always wins - an old isolated version never shadows the
-     * current one; the isolated hit happens only when nothing live carries the name). Two
-     * hits of the same name in one project are ambiguous and refused by the conflict check of
-     * the project scan.
+     * current one; the isolated hit happens only when nothing live carries the name, and it is
+     * a FIND: the caller materializes a copy, it never wires the isolated folder live).
+     * Two hits of the same name in one project are ambiguous and refused by the conflict check
+     * of the project scan.
      *
      * @param projectRoot the folder that contains .wood/project.json
      * @param bundleName the wanted bundle name
-     * @return the bundle folder of that name, or null when no partition carries it
+     * @return the hit with its isolated flag, or null when no partition carries the name
      */
-    private File findProjectLocalBundle(File projectRoot, String bundleName) {
+    private LocalHit findProjectLocalBundle(File projectRoot, String bundleName) {
         final ProjectDocument document = loadProjectOrNull(projectRoot);
         if (document == null) {
             return null;
         }
-        final List<Partition> isolatedLate = new ArrayList<>();
+        // pass 1: the live partitions - a hit here is a live reference (channel PROJECT_LOCAL)
         for (Partition partition : document.getRoots()) {
             if (partition.getType() == PartitionType.ISOLATED) {
-                isolatedLate.add(partition); // isolated sources serve only as the last resort
                 continue;
             }
             final File hit = searchBundleIn(partition, projectRoot, bundleName);
             if (hit != null) {
-                return hit;
+                return new LocalHit(hit, false);
             }
         }
-        for (Partition partition : isolatedLate) {
+        // pass 2: the isolated sources - a hit here is a FIND, never a wiring
+        for (Partition partition : document.getRoots()) {
+            if (partition.getType() != PartitionType.ISOLATED) {
+                continue;
+            }
             final File hit = searchBundleIn(partition, projectRoot, bundleName);
             if (hit != null) {
-                return hit;
+                return new LocalHit(hit, true);
             }
         }
         return null;
+    }
+
+    /** One project-local hit: the bundle folder and whether it lives in an isolated source. */
+    private static final class LocalHit {
+
+        final File folder;
+        final boolean isolated;
+
+        LocalHit(File folder, boolean isolated) {
+            this.folder = folder;
+            this.isolated = isolated;
+        }
     }
 
     /**
@@ -327,14 +361,39 @@ public class BundleImportResolver {
     private File materializeFromRepository(File projectRoot, String bundleName, String version) {
         final File cacheFolder = cacheFolderFor(projectRoot, bundleName, version);
         if (cacheFolder.isDirectory()) {
-            return cacheFolder; // materialized once - never refreshed within a version
+            return cacheFolder; // materialized once - serves even when the repository lost the entry
         }
         final File repositoryFolder = repositoryFolderFor(bundleName, version);
         if (!repositoryFolder.isDirectory() || !service.getBundleDescriptorFile(repositoryFolder).isFile()) {
             return null;
         }
+        return materializeFromSource(projectRoot, repositoryFolder, bundleName, version);
+    }
+
+    /**
+     * The materialize-once rail of the frozen stands (phase 9: the isolated hit uses it like the
+     * repository dependency): deep-copy the source bundle into the project's import cache
+     * {@code .wood/cache/<name>/<version>/}, exactly once - a second resolve serves the existing
+     * stand, the source folder stays untouched (the repository file and the isolated view are
+     * never edited in place through an import).
+     *
+     * @param projectRoot the folder that contains .wood/project.json
+     * @param sourceFolder the bundle folder to clone (repository entry or isolated hit)
+     * @param bundleName the imported bundle's name
+     * @param version the declared pin (the cache key)
+     * @return the cache stand, or null when the copy failed
+     */
+    private File materializeFromSource(File projectRoot, File sourceFolder,
+            String bundleName, String version) {
+        if (version == null || version.isBlank()) {
+            return null; // nothing to pin the cache under - the caller's guidance explains
+        }
+        final File cacheFolder = cacheFolderFor(projectRoot, bundleName, version);
+        if (cacheFolder.isDirectory()) {
+            return cacheFolder; // materialized once - never refreshed within a version
+        }
         try {
-            copyFolder(repositoryFolder, cacheFolder);
+            copyFolder(sourceFolder, cacheFolder);
         } catch (IOException e) {
             return null; // guidance comes from the unresolved message
         }
