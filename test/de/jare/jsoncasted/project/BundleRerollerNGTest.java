@@ -145,6 +145,35 @@ public class BundleRerollerNGTest {
         assertEquals(plan.getLinkCount(), 0);
     }
 
+    /**
+     * The synonym switch (ids always reroll): with the switch off the bundle keeps its wiring
+     * names, the ids still reroll, the internal references only exchange their id part - external
+     * references stay untouched and dangling validation still applies.
+     */
+    @Test
+    public void testSynonymSwitchOffKeepsTheWiringNames() {
+        final BundleReroller.RerollPlan plan = BundleReroller.plan(
+                setOf("5"), setOf("shared"), setOf("ext"),
+                setOf("shared::5", "ext::5", "this::5"),
+                Collections.emptyList(), false);
+
+        assertFalse(plan.isRefused(), "nothing dangles: " + plan.getProblems());
+        assertEquals(plan.getIdCount(), 1, "the ids reroll regardless of the switch");
+        assertEquals(plan.getSynonymCount(), 0, "the switch is off - no synonym rerolls");
+        final String newId = plan.getIdMap().get("5");
+        assertEquals(plan.getLinkMap().get("shared::5"), "shared::" + newId,
+                "the internal link keeps its wiring name, only the id part rerolls");
+        assertEquals(plan.getLinkMap().get("this::5"), "this::" + newId);
+        assertFalse(plan.getLinkMap().containsKey("ext::5"),
+                "external references stay untouched - in both switch positions");
+
+        // with the switch off a dangling internal reference still refuses the plan
+        final BundleReroller.RerollPlan dangling = BundleReroller.plan(
+                setOf("5"), setOf("shared"), setOf("ext"),
+                setOf("shared::42"), Collections.emptyList(), false);
+        assertTrue(dangling.isRefused(), "the id validation is not optional");
+    }
+
     //
     // helpers
     //
