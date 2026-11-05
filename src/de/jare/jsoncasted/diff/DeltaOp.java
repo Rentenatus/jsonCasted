@@ -178,6 +178,19 @@ public final class DeltaOp {
     }
 
     /**
+     * A copy with a different new value text - the pick boundary translation of a cross-world pair
+     * rewrites the value of a theirs reference (concept WoodJsonJack CONCEPT_ProjectView.md,
+     * question 10); everything else, especially the match key, stays as it is.
+     *
+     * @param rewiredValue the translated new value
+     * @return the copied op with the rewired value
+     */
+    public DeltaOp withNewValue(String rewiredValue) {
+        return new DeltaOp(type, key, property, oldValue, rewiredValue, subtree, parentKey,
+                fieldOrIndex, newParentKey, newIndex, newOrder, radiating);
+    }
+
+    /**
      * @return the subtree for ADD/REMOVE/MOVE, else {@code null}.
      */
     public DifferableNode getSubtree() {
