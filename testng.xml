@@ -14,6 +14,7 @@
             <class name="de.jare.jsoncasted.iotest.WoodProxyResolverBundleNGTest"/>
             <class name="de.jare.jsoncasted.diff.TreeDifferNGTest"/>
             <class name="de.jare.jsoncasted.diff.ThreeWayDifferNGTest"/>
+            <class name="de.jare.jsoncasted.project.WoodProjectNGTest"/>
         </classes>
     </test>
 </suite>
