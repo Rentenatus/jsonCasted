@@ -220,6 +220,14 @@ public class ProjectFileService {
                 problems.add(label + ": exactly one channel is required - path (reactor) or version (dependency).");
             }
         }
+        for (String protectedName : descriptor.getProtected()) {
+            if (protectedName == null || protectedName.isBlank()) {
+                problems.add("Bundle '" + descriptor.getName() + "': protected entry without a file name.");
+            } else if (!descriptor.hasFile(protectedName)) {
+                problems.add("Bundle '" + descriptor.getName() + "': protected file '" + protectedName
+                        + "' is not part of the files list.");
+            }
+        }
         return problems;
     }
 

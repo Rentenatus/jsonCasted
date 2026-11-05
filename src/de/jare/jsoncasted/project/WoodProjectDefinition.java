@@ -60,6 +60,7 @@ public class WoodProjectDefinition implements JsonItemDefinition {
         bundleRoot.addField("name", asString).addAnnotation(JsonAnnotation.doc("Display and import identity within the project, defaults to the folder name."));
         bundleRoot.addField("main", asString).addAnnotation(JsonAnnotation.doc("The entry point file a double-click opens."));
         bundleRoot.addField("files", asString, LIST).addAnnotation(JsonAnnotation.doc("The JSON files of this bundle, relative names only."));
+        bundleRoot.addField("protected", asString, LIST).addAnnotation(JsonAnnotation.doc("Protected files of this bundle: temporary read-only fence per declared file, opens as a read-only view until removed."));
         bundleRoot.addField("imports", bundleImport, LIST).addAnnotation(JsonAnnotation.doc("Imports of this bundle, path or version based."));
         bundleRoot.addAnnotation(JsonAnnotation.doc("Bundle descriptor: a folder of JSON files with one identity."));
         bundleRoot.addAnnotation(JsonAnnotation.editString("${name}"));

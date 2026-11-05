@@ -126,6 +126,7 @@ public class WoodProjectNGTest {
 
         BundleDescriptor descriptor = new BundleDescriptor("config1", "config1.json");
         descriptor.getFiles().add("configDesc.json");
+        descriptor.protect("configDesc.json");
         descriptor.getImports().add(new BundleImport("profile.base", "../profile-base", null));
         descriptor.getImports().add(new BundleImport("base.logging", null, "1.2"));
 
@@ -136,6 +137,8 @@ public class WoodProjectNGTest {
         assertEquals(loaded.getMain(), "config1.json");
         assertEquals(loaded.getFiles().size(), 2);
         assertTrue(loaded.hasFile("configDesc.json"));
+        assertTrue(loaded.isProtected("configDesc.json"));
+        assertFalse(loaded.isProtected("config1.json"));
         assertEquals(loaded.getImports().size(), 2);
 
         BundleImport reactor = loaded.getImports().get(0);
@@ -161,6 +164,12 @@ public class WoodProjectNGTest {
         descriptor.getImports().add(new BundleImport("both", "../path", "1.2"));
         descriptor.getImports().add(new BundleImport(null, null, null));
 
+        assertEquals(service.validateBundle(bundleFolder, descriptor).size(), 5);
+
+        // a fence guards a declared resource: protecting an undeclared file is a problem
+        descriptor.protect("ghost.json");
+        assertEquals(service.validateBundle(bundleFolder, descriptor).size(), 6);
+        descriptor.unprotect("ghost.json");
         assertEquals(service.validateBundle(bundleFolder, descriptor).size(), 5);
     }
 

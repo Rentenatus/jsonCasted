@@ -22,10 +22,12 @@ public class BundleDescriptor {
     private String name;
     private String main;
     private List<String> files;
+    private List<String> protectedFiles;
     private List<BundleImport> imports;
 
     public BundleDescriptor() {
         this.files = new ArrayList<>();
+        this.protectedFiles = new ArrayList<>();
         this.imports = new ArrayList<>();
     }
 
@@ -34,6 +36,7 @@ public class BundleDescriptor {
         this.main = main;
         this.files = new ArrayList<>();
         this.files.add(main);
+        this.protectedFiles = new ArrayList<>();
         this.imports = new ArrayList<>();
     }
 
@@ -77,6 +80,56 @@ public class BundleDescriptor {
 
     public boolean hasFile(String fileName) {
         return fileName != null && getFiles().contains(fileName);
+    }
+
+    /**
+     * The protected files of this bundle (concept CONCEPT_ProjectView.md, phase 20): a
+     * temporary read-only fence per file - the user guards a resource against their own quick
+     * fingers and against assistants working through the editor. Read-only in the OPENING
+     * sense: the file opens as a read-only view until the fence is removed. Traveled inside
+     * the descriptor on purpose - the protection is part of the bundle's shared truth, not
+     * of a user's local state.
+     *
+     * @return the protected file names (relative, like files), never null
+     */
+    public List<String> getProtected() {
+        if (protectedFiles == null) {
+            protectedFiles = new ArrayList<>();
+        }
+        return protectedFiles;
+    }
+
+    public void setProtected(List<String> protectedFiles) {
+        this.protectedFiles = protectedFiles;
+    }
+
+    /**
+     * @param fileName the relative file name in question
+     * @return true when the file opens read-only (the fence is set)
+     */
+    public boolean isProtected(String fileName) {
+        return fileName != null && getProtected().contains(fileName);
+    }
+
+    /**
+     * Sets the read-only fence, a repeated call is a no-op. The validator demands a protected
+     * file to be part of the files list - the fence guards a declared resource.
+     *
+     * @param fileName the relative file name to protect
+     */
+    public void protect(String fileName) {
+        if (fileName != null && !isProtected(fileName)) {
+            getProtected().add(fileName);
+        }
+    }
+
+    /**
+     * Removes the read-only fence.
+     *
+     * @param fileName the relative file name to release
+     */
+    public void unprotect(String fileName) {
+        getProtected().remove(fileName);
     }
 
 }
