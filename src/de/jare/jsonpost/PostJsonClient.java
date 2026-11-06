@@ -93,6 +93,26 @@ public class PostJsonClient {
     }
 
     /**
+     * Chat-style typed post: serializes a {@link de.jare.jsonpost.item.PostChatRequest} with
+     * the {@link de.jare.jsonpost.def.JsonPostDefinition} and parses the answer into a
+     * {@link de.jare.jsonpost.item.PostChatResponse} - the definition-driven path for
+     * message-based APIs (ollama /api/chat, hosted chat completions).
+     *
+     * @param request the chat request bean
+     * @param url the URL to post to
+     * @param timeoutDelay read/connect timeout in ms
+     * @return the parsed chat response
+     * @throws JsonBuildException on serialization errors
+     * @throws IOException on transport errors
+     */
+    public de.jare.jsonpost.item.PostChatResponse postChat(de.jare.jsonpost.item.PostChatRequest request, String url, int timeoutDelay) throws JsonBuildException, IOException {
+
+        de.jare.jsonpost.def.JsonPostDefinition def = de.jare.jsonpost.def.JsonPostDefinition.INSTANCE;
+        return (de.jare.jsonpost.item.PostChatResponse) post(request, url, timeoutDelay, def,
+                def.getChatRequestRoot(), def.getChatResponseRoot());
+    }
+
+    /**
      * Posts a raw JSON string to the specified URL and returns the raw response string -
      * the lightweight variant for APIs that do not need a JsonItemDefinition (e.g. a local
      * ollama {@code /api/generate} call).
