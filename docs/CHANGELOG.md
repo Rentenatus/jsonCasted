@@ -208,7 +208,7 @@ As this is pre-1.0, minor version bumps may include breaking changes.
 
 ## Links
 
-- [README.md](README.md) - Project overview and examples
+- [README.md](../README.md) - Project overview and examples
 - [JSON_CASTED.md](JSON_CASTED.md) - Comprehensive technical documentation
 - [License](LICENSE) - Eclipse Public License 2.0
 
