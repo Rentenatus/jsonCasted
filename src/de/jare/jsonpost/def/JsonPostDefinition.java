@@ -15,6 +15,9 @@ import de.jare.jsoncasted.model.item.JsonClass;
 import de.jare.jsonpost.item.PostChatRequest;
 import de.jare.jsonpost.item.PostChatResponse;
 import de.jare.jsonpost.item.PostMessage;
+import de.jare.jsonpost.item.PostToolCall;
+import de.jare.jsonpost.item.PostToolDef;
+import de.jare.jsonpost.item.PostToolFunction;
 
 /**
  * The model definition of the POST interface (package {@code jsonpost.def}): describes the
@@ -41,13 +44,35 @@ public class JsonPostDefinition implements JsonItemDefinition {
         final JsonClass asString = model.getJsonClass("String");
         final JsonClass asBoolean = model.getJsonClass("Boolean");
 
+        JsonClass toolFunctionClass = model.newJsonReflect(PostToolFunction.class);
+        toolFunctionClass.addField("name", asString);
+        toolFunctionClass.addField("description", asString);
+        toolFunctionClass.addField("parameters", asString);
+
+        JsonClass toolDefClass = model.newJsonReflect(PostToolDef.class);
+        toolDefClass.addField("type", asString);
+        toolDefClass.addField("function", toolFunctionClass);
+
+        JsonClass toolCallClass = model.newJsonReflect(PostToolCall.class);
+        toolCallClass.addField("id", asString);
+        toolCallClass.addField("type", asString);
+        toolCallClass.addField("name", asString);
+        toolCallClass.addField("arguments", asString);
+
         messageClass = model.newJsonReflect(PostMessage.class);
         messageClass.addField("role", asString);
         messageClass.addField("content", asString);
+        // list field with custom getter/setter names: construct the JsonField directly
+        messageClass.add(new de.jare.jsoncasted.model.item.JsonField("tool_calls", toolCallClass, LIST,
+                "getToolCalls", "setToolCalls", de.jare.jsoncasted.io.JsonValidationMethod.NONE));
+        messageClass.addField("tool_call_id", asString, "getToolCallId", "setToolCallId");
+        messageClass.addField("name", asString);
 
         chatRequestRoot = model.newJsonReflect(PostChatRequest.class);
         chatRequestRoot.addField("model", asString);
         chatRequestRoot.addField("messages", messageClass, LIST);
+        chatRequestRoot.addField("tools", toolDefClass, LIST);
+        chatRequestRoot.addField("tool_choice", asString, "getToolChoice", "setToolChoice");
         chatRequestRoot.addField("stream", asBoolean);
         chatRequestRoot.addField("format", asString);
         chatRequestRoot.addField("response_format", asString, "getResponseFormat", "setResponseFormat");

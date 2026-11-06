@@ -20,6 +20,8 @@ public class PostChatRequest {
 
     private String model;
     private List<PostMessage> messages = new ArrayList<>();
+    private List<PostToolDef> tools = new ArrayList<>();   // exposed tool catalog (function schemas)
+    private String toolChoice;                              // "auto" | "none" | {"type":"function",...} raw
     private boolean stream;
     private String format;
     private String responseFormat;   // raw JSON for hosted providers: {"type":"json_object"}
@@ -50,6 +52,32 @@ public class PostChatRequest {
     public PostChatRequest addMessage(String role, String content) {
         messages.add(new PostMessage(role, content));
         return this;
+    }
+
+    public PostChatRequest addMessage(PostMessage message) {
+        messages.add(message);
+        return this;
+    }
+
+    public List<PostToolDef> getTools() {
+        return tools;
+    }
+
+    public void setTools(List<PostToolDef> tools) {
+        this.tools = tools;
+    }
+
+    public PostChatRequest addTool(PostToolDef tool) {
+        tools.add(tool);
+        return this;
+    }
+
+    public String getToolChoice() {
+        return toolChoice;
+    }
+
+    public void setToolChoice(String toolChoice) {
+        this.toolChoice = toolChoice;
     }
 
     public boolean isStream() {

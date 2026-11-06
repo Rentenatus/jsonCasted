@@ -10,6 +10,7 @@ import com.sun.net.httpserver.HttpServer;
 import de.jare.jsonpost.def.JsonPostDefinition;
 import de.jare.jsonpost.item.PostChatRequest;
 import de.jare.jsonpost.item.PostChatResponse;
+import de.jare.jsonpost.item.PostMessage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -95,5 +96,36 @@ public class PostJsonChatNGTest {
                 "response_format serialized as raw JSON: " + lastRequestBody);
         Assert.assertEquals(lastAuthHeader, "Bearer test-key", "Authorization header sent");
         Assert.assertEquals(response.getMessage().getRole(), "assistant");
+    }
+
+    @Test
+    public void testToolMessagesAndToolCallsSerialize() throws Exception {
+        // the full tool-loop message list: system prompt, user prompt, assistant with
+        // tool_calls, tool result message - plus the tools catalog on the request
+        PostChatRequest req = new PostChatRequest("qwen2.5:3b")
+                .addMessage(PostMessage.ROLE_SYSTEM, "You answer strict JSON.")
+                .addMessage(PostMessage.ROLE_USER, "Read a.txt");
+        PostMessage assistant = new PostMessage(PostMessage.ROLE_ASSISTANT, null);
+        assistant.getToolCalls().add(new de.jare.jsonpost.item.PostToolCall("call_1", "fs.read", "{\"path\":\"a.txt\"}"));
+        req.addMessage(assistant);
+        PostMessage tool = new PostMessage(PostMessage.ROLE_TOOL, "hello");
+        tool.setToolCallId("call_1");
+        tool.setName("fs.read");
+        req.addMessage(tool);
+        req.addTool(new de.jare.jsonpost.item.PostToolDef(
+                new de.jare.jsonpost.item.PostToolFunction("fs.read", "read a file", "{\"type\":\"object\"}")));
+        req.setToolChoice("auto");
+
+        new PostJsonClient().postChat(req, baseUrl + "/api/chat", 5000);
+
+        Assert.assertTrue(lastRequestBody.contains("\"role\": \"system\""), "system prompt message");
+        Assert.assertTrue(lastRequestBody.contains("\"role\": \"user\""), "user prompt message");
+        Assert.assertTrue(lastRequestBody.contains("\"role\": \"assistant\""), "assistant message");
+        Assert.assertTrue(lastRequestBody.contains("\"role\": \"tool\""), "tool result message");
+        Assert.assertTrue(lastRequestBody.contains("tool_calls"), "tool_calls serialized");
+        Assert.assertTrue(lastRequestBody.contains("call_1"), "tool call id + tool_call_id serialized");
+        Assert.assertTrue(lastRequestBody.contains("\"tools\": ["), "tools catalog serialized");
+        Assert.assertTrue(lastRequestBody.contains("fs.read"), "tool function name serialized");
+        Assert.assertTrue(lastRequestBody.contains("tool_choice"), "tool_choice serialized");
     }
 }
