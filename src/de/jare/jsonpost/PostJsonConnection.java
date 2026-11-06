@@ -30,12 +30,24 @@ public class PostJsonConnection {
         createHttpURLConnection(url, timeoutDelay, "POST", true);
     }
 
+    public void createHttpURLConnection(String url, int timeoutDelay, java.util.Map<String, String> headers) throws MalformedURLException, ProtocolException, IOException {
+        createHttpURLConnection(url, timeoutDelay, "POST", true, headers);
+    }
+
     /**
      * Creates the HTTP connection with an explicit method (POST | GET | ...).
      *
      * @param doOutput whether the connection allows a request body (POST) - GET connections read only
      */
     public void createHttpURLConnection(String url, int timeoutDelay, String method, boolean doOutput) throws MalformedURLException, ProtocolException, IOException {
+        createHttpURLConnection(url, timeoutDelay, method, doOutput, null);
+    }
+
+    /**
+     * Creates the HTTP connection with explicit method, body flag and extra headers
+     * (e.g. Authorization: Bearer ... for hosted providers).
+     */
+    public void createHttpURLConnection(String url, int timeoutDelay, String method, boolean doOutput, java.util.Map<String, String> headers) throws MalformedURLException, ProtocolException, IOException {
         synchronized (monitor) {
             if (connection != null) {
                 throw new IllegalStateException("Connection allredy exists.");
@@ -49,6 +61,11 @@ public class PostJsonConnection {
             // Setzen des Inhaltstyps auf JSON
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Accept", "application/json");
+            if (headers != null) {
+                for (java.util.Map.Entry<String, String> h : headers.entrySet()) {
+                    connection.setRequestProperty(h.getKey(), h.getValue());
+                }
+            }
             // Aktivieren Sie das Schreiben auf die Verbindung
             connection.setDoOutput(doOutput);
         }

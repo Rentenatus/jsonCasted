@@ -49,6 +49,15 @@ public class PostJsonClient {
     }
 
     /**
+     * Like {@link #post(Object, String, int, JsonItemDefinition, JsonClass, JsonClass)}, but
+     * with extra HTTP headers (e.g. {@code Authorization: Bearer <key>} for hosted providers).
+     */
+    public Object post(Object request, String url, int timeoutDelay, JsonItemDefinition definition, final JsonClass writeClass, final JsonClass readClass, java.util.Map<String, String> headers) throws JsonBuildException, IOException {
+        String answer = post(request, url, timeoutDelay, definition, writeClass, headers);
+        return buildObject(answer, definition, readClass);
+    }
+
+    /**
      * Posts a JSON request to the specified URL and returns the raw JSON response as a string.
      *
      * @param request The request object to be serialized and sent.
@@ -61,6 +70,14 @@ public class PostJsonClient {
      * @throws IOException
      */
     public String post(Object request, String url, int timeoutDelay, JsonItemDefinition definition, final JsonClass writeClass) throws JsonBuildException, IOException {
+        return post(request, url, timeoutDelay, definition, writeClass, (java.util.Map<String, String>) null);
+    }
+
+    /**
+     * Like {@link #post(Object, String, int, JsonItemDefinition, JsonClass)}, but with extra
+     * HTTP headers on the connection.
+     */
+    public String post(Object request, String url, int timeoutDelay, JsonItemDefinition definition, final JsonClass writeClass, java.util.Map<String, String> headers) throws JsonBuildException, IOException {
         String post = "{}";
         boolean hasWrite = request != null && writeClass != null;
         if (hasWrite) try {
@@ -74,7 +91,7 @@ public class PostJsonClient {
         // Erstellen Sie eine HTTP-Verbindung zu der URL
         final PostJsonConnection connectionGuard = new PostJsonConnection();
         try {
-            connectionGuard.createHttpURLConnection(url, timeoutDelay);
+            connectionGuard.createHttpURLConnection(url, timeoutDelay, headers);
             if (hasWrite) {
                 connectionGuard.write(post);
                 answer = connectionGuard.read();
@@ -110,6 +127,17 @@ public class PostJsonClient {
         de.jare.jsonpost.def.JsonPostDefinition def = de.jare.jsonpost.def.JsonPostDefinition.INSTANCE;
         return (de.jare.jsonpost.item.PostChatResponse) post(request, url, timeoutDelay, def,
                 def.getChatRequestRoot(), def.getChatResponseRoot());
+    }
+
+    /**
+     * Like {@link #postChat(de.jare.jsonpost.item.PostChatRequest, String, int)}, but with
+     * extra HTTP headers - e.g. {@code Authorization: Bearer <apiKey>} for hosted providers.
+     */
+    public de.jare.jsonpost.item.PostChatResponse postChat(de.jare.jsonpost.item.PostChatRequest request, String url, int timeoutDelay, java.util.Map<String, String> headers) throws JsonBuildException, IOException {
+
+        de.jare.jsonpost.def.JsonPostDefinition def = de.jare.jsonpost.def.JsonPostDefinition.INSTANCE;
+        return (de.jare.jsonpost.item.PostChatResponse) post(request, url, timeoutDelay, def,
+                def.getChatRequestRoot(), def.getChatResponseRoot(), headers);
     }
 
     /**

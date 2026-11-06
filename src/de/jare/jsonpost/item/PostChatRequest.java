@@ -22,6 +22,7 @@ public class PostChatRequest {
     private List<PostMessage> messages = new ArrayList<>();
     private boolean stream;
     private String format;
+    private String responseFormat;   // raw JSON for hosted providers: {"type":"json_object"}
 
     public PostChatRequest() {
     }
@@ -65,5 +66,13 @@ public class PostChatRequest {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public String getResponseFormat() {
+        return responseFormat;
+    }
+
+    public void setResponseFormat(String responseFormat) {
+        this.responseFormat = responseFormat;
     }
 }

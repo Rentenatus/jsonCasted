@@ -50,6 +50,7 @@ public class JsonPostDefinition implements JsonItemDefinition {
         chatRequestRoot.addField("messages", messageClass, LIST);
         chatRequestRoot.addField("stream", asBoolean);
         chatRequestRoot.addField("format", asString);
+        chatRequestRoot.addField("response_format", asString, "getResponseFormat", "setResponseFormat");
 
         chatResponseRoot = model.newJsonReflect(PostChatResponse.class);
         chatResponseRoot.addField("message", messageClass);

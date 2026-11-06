@@ -32,12 +32,14 @@ public class PostJsonChatNGTest {
     private HttpServer server;
     private String baseUrl;
     private volatile String lastRequestBody;
+    private volatile String lastAuthHeader;
 
     @BeforeClass
     public void startServer() throws IOException {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/api/chat", exchange -> {
             lastRequestBody = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            lastAuthHeader = exchange.getRequestHeaders().getFirst("Authorization");
             String resp = "{\"model\":\"qwen2.5:3b\",\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"worked\\\"}\"},\"done\":true}";
             byte[] out = resp.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -80,5 +82,18 @@ public class PostJsonChatNGTest {
         Assert.assertEquals(response.getMessage().getContent(), "{\"decision\":\"worked\"}");
         Assert.assertTrue(response.isDone());
         Assert.assertEquals(response.getModel(), "qwen2.5:3b");
+    }
+
+    @Test
+    public void testPostChatWithHeadersAndResponseFormat() throws Exception {
+        PostChatRequest req = new PostChatRequest("mistral-small").addMessage("user", "hi");
+        req.setResponseFormat("{\"type\":\"json_object\"}");
+        java.util.Map<String, String> headers = java.util.Map.of("Authorization", "Bearer test-key");
+        PostChatResponse response = new PostJsonClient().postChat(req, baseUrl + "/api/chat", 5000, headers);
+
+        Assert.assertTrue(lastRequestBody.contains("response_format") && lastRequestBody.contains("json_object"),
+                "response_format serialized as raw JSON: " + lastRequestBody);
+        Assert.assertEquals(lastAuthHeader, "Bearer test-key", "Authorization header sent");
+        Assert.assertEquals(response.getMessage().getRole(), "assistant");
     }
 }
