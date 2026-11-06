@@ -39,6 +39,14 @@ public class PostJsonChatNGTest {
     public void startServer() throws IOException {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/api/chat", exchange -> {
+            if ("/api/chat".equals(exchange.getRequestURI().getPath()) && exchange.getRequestHeaders().getFirst("X-Want-Error") != null) {
+                byte[] out = "{\"error\":{\"message\":\"model not found\"}}".getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(404, out.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(out);
+                }
+                return;
+            }
             lastRequestBody = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             lastAuthHeader = exchange.getRequestHeaders().getFirst("Authorization");
             String resp = "{\"model\":\"qwen2.5:3b\",\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"worked\\\"}\"},\"done\":true}";
@@ -127,5 +135,47 @@ public class PostJsonChatNGTest {
         Assert.assertTrue(lastRequestBody.contains("\"tools\": ["), "tools catalog serialized");
         Assert.assertTrue(lastRequestBody.contains("fs.read"), "tool function name serialized");
         Assert.assertTrue(lastRequestBody.contains("tool_choice"), "tool_choice serialized");
+    }
+
+    @Test
+    public void testResponseWithToolCallsParsesBack() throws Exception {
+        // server answers an assistant message carrying tool_calls - the read side must
+        // map them into PostChatResponse.message.toolCalls
+        server.createContext("/api/toolchat", exchange -> {
+            String resp = "{\"model\":\"qwen2.5:3b\",\"message\":{\"role\":\"assistant\",\"content\":null,"
+                    + "\"tool_calls\":[{\"id\":\"call_9\",\"type\":\"function\",\"name\":\"fs.read\",\"arguments\":\"{\\\"path\\\":\\\"a.txt\\\"}\"}]},\"done\":false}";
+            byte[] out = resp.getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, out.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(out);
+            }
+        });
+        PostChatRequest req = new PostChatRequest("qwen2.5:3b").addMessage("user", "read a.txt");
+        PostChatResponse resp = new PostJsonClient().postChat(req, baseUrl + "/api/toolchat", 5000);
+
+        Assert.assertEquals(resp.getMessage().getRole(), "assistant");
+        Assert.assertEquals(resp.getMessage().getToolCalls().size(), 1, "tool_calls parsed on the read side");
+        Assert.assertEquals(resp.getMessage().getToolCalls().get(0).getId(), "call_9");
+        Assert.assertEquals(resp.getMessage().getToolCalls().get(0).getName(), "fs.read");
+        Assert.assertFalse(resp.isDone());
+    }
+
+    @Test
+    public void testErrorResponseCarriesApiMessage() {
+        server.createContext("/api/missing", exchange -> {
+            byte[] out = "{\"error\":{\"message\":\"model not found\"}}".getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(404, out.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(out);
+            }
+        });
+        try {
+            new PostJsonClient().getRaw(baseUrl + "/api/missing", 5000);
+            Assert.fail("expected IOException with the API error body");
+        } catch (IOException e) {
+            Assert.assertTrue(e.getMessage().contains("HTTP 404"), e.getMessage());
+            Assert.assertTrue(e.getMessage().contains("model not found"), "API error message included: " + e.getMessage());
+        }
     }
 }

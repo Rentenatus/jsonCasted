@@ -80,6 +80,22 @@ public class PostJsonConnection {
     }
 
     public String read() throws IOException {
+        // bei non-2xx den Error-Body lesen, damit der Aufrufer die API-Fehlermeldung sieht
+        int code;
+        synchronized (monitor) {
+            code = connection.getResponseCode();
+        }
+        if (code >= 400) {
+            InputStream err;
+            synchronized (monitor) {
+                err = connection.getErrorStream();
+            }
+            if (err != null) {
+                String body = new String(err.readAllBytes(), StandardCharsets.UTF_8);
+                throw new IOException("HTTP " + code + ": " + body);
+            }
+            throw new IOException("HTTP " + code);
+        }
         StringBuilder answer = null;
         String line;
         // Erstellen Sie einen Eingabestream, um die Antwort von der Verbindung zu lesen

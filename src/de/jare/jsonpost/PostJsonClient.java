@@ -174,9 +174,18 @@ public class PostJsonClient {
      */
     public String getRaw(String url, int timeoutDelay) throws IOException {
 
+        return getRaw(url, timeoutDelay, null);
+    }
+
+    /**
+     * Like {@link #getRaw(String, int)}, but with extra HTTP headers (e.g. Authorization
+     * for authenticated GET endpoints).
+     */
+    public String getRaw(String url, int timeoutDelay, java.util.Map<String, String> headers) throws IOException {
+
         final PostJsonConnection connectionGuard = new PostJsonConnection();
         try {
-            connectionGuard.createHttpURLConnection(url, timeoutDelay, "GET", false);
+            connectionGuard.createHttpURLConnection(url, timeoutDelay, "GET", false, headers);
             return connectionGuard.read();
         } finally {
             connectionGuard.disconnect();
