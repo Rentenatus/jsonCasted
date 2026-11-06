@@ -106,4 +106,13 @@ public class JsonPostDefinition implements JsonItemDefinition {
     public JsonCastingLevel getCastingLevel() {
         return JsonCastingLevel.NEVER;
     }
+
+    /**
+     * API payloads are written fully inline/cloned: no {@code _woodObjectId} members, no
+     * {@code _woodLink} references, no shared list definitions in the posted JSON.
+     */
+    @Override
+    public de.jare.jsoncasted.io.JsonWoodIdLevel getWoodIdLevel() {
+        return de.jare.jsoncasted.io.JsonWoodIdLevel.INLINE;
+    }
 }

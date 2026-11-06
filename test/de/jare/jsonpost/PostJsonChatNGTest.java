@@ -135,6 +135,8 @@ public class PostJsonChatNGTest {
         Assert.assertTrue(lastRequestBody.contains("\"tools\": ["), "tools catalog serialized");
         Assert.assertTrue(lastRequestBody.contains("fs.read"), "tool function name serialized");
         Assert.assertTrue(lastRequestBody.contains("tool_choice"), "tool_choice serialized");
+        Assert.assertFalse(lastRequestBody.contains("_woodObjectId"), "INLINE level: no wood id in the API payload");
+        Assert.assertFalse(lastRequestBody.contains("_woodLink"), "INLINE level: no wood link in the API payload");
     }
 
     @Test

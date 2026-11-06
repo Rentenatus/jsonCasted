@@ -110,6 +110,9 @@ public class ListWriteWalker {
             return false;
         }
         DefinitionsContext context = listGetter.getDefinitionsContext();
+        if (context.getWoodIdLevel() == de.jare.jsoncasted.io.JsonWoodIdLevel.INLINE) {
+            return false; // INLINE writes every entry inline/cloned, never as a link
+        }
         DefinitionsContextObjectRecord record = context.getRecord(entry);
         return record != null && record.isAssigned();
     }

@@ -215,6 +215,7 @@ public class ObjectCircleScannerWalker {
                 // The wood id level NEVER disables the sharing: no occurrences are noted, the writer keeps
                 // every list inline.
                 if (definitionsContext.getWoodIdLevel() != JsonWoodIdLevel.NEVER
+                        && definitionsContext.getWoodIdLevel() != JsonWoodIdLevel.INLINE
                         && jsonField.isAsListOrArray() && jsonField.isSameCollection() && fieldValue instanceof List) {
                     if (jsonField.isEqualsCollection()) {
                         definitionsContext.noteEqualsListOccurrence(fieldValue);

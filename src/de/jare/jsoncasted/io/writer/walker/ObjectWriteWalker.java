@@ -199,7 +199,8 @@ public class ObjectWriteWalker {
                 // Owned-Objekte erhalten KEINE _woodObjectId, der PREFIXED Level schreibt den Praefix am Start
                 if (woodIdPrefix < 0) {
                     boolean isOwnedFieldContext = parentField != null && parentField.getKind().isOwned();
-                    if (!isOwnedFieldContext) {
+                    if (!isOwnedFieldContext
+                            && objectGetter.getDefinitionsContext().getWoodIdLevel() != JsonWoodIdLevel.INLINE) {
                         DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(ob);
                         if (record != null) {
                             long localId = record.getLocalId();
@@ -407,6 +408,9 @@ public class ObjectWriteWalker {
         if (attr == null) {
             return false;
         }
+        if (objectGetter.getDefinitionsContext().getWoodIdLevel() == JsonWoodIdLevel.INLINE) {
+            return false; // INLINE writes every object inline/cloned, never as a link
+        }
         DefinitionsContextObjectRecord record = objectGetter.getDefinitionsContext().getRecord(attr);
         return record != null && record.isAssigned();
     }
@@ -475,8 +479,9 @@ public class ObjectWriteWalker {
                 || !(jField.isSameCollection() || jField.isEqualsCollection()) || !(attr instanceof List)) {
             return false;
         }
-        if (objectGetter.getDefinitionsContext().getWoodIdLevel() == JsonWoodIdLevel.NEVER) {
-            return false; // the level forbids the wood id notation, the policy flags are ignored
+        if (objectGetter.getDefinitionsContext().getWoodIdLevel() == JsonWoodIdLevel.NEVER
+                || objectGetter.getDefinitionsContext().getWoodIdLevel() == JsonWoodIdLevel.INLINE) {
+            return false; // these levels forbid the wood id notation, the policy flags are ignored
         }
         if (jField.getKind() != null && jField.getKind().isOwned()) {
             return false; // owned fields stay inline, mirroring the object sharing behavior

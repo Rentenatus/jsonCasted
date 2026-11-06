@@ -29,6 +29,12 @@ public enum JsonWoodIdLevel {
      */
     NEVER(0),
     /**
+     * Everything inline, fully cloned: no {@code _woodObjectId} member, no {@code _woodLink} references, no shared
+     * list definitions - every occurrence of an object or list is written out in full. This is the level for plain
+     * API payloads (e.g. jsonpost) where wood id notation would only be noise.
+     */
+    INLINE(1),
+    /**
      * Wood ids only where necessary: shared lists become {@code <"id">[...]} definitions with bare
      * {@code <"id">} references, referenced objects carry the {@code _woodObjectId} member. This is the default.
      */

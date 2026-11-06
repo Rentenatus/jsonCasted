@@ -123,6 +123,46 @@ public class JsonWoodIdLevelNGTest {
         assertSame(answer.getParam("left"), answer.getParam("right"));
     }
 
+    /**
+     * INLINE writes everything inline/cloned: a node referenced by two reference fields is written out twice in
+     * full - no _woodObjectId member, no _woodLink, no angle bracket notation anywhere. The round trip yields two
+     * independent but equal nodes.
+     */
+    @Test
+    public void testInlineClonesSharedObjectsWithoutAnyWoodId() throws Exception {
+        final SharedNode node = new SharedNode("core");
+        final SharedRefBox box = boxOf(node);
+        final String json = writeRef(box, JsonWoodIdLevel.INLINE);
+
+        assertFalse(json.contains("_woodObjectId"), "INLINE must not write the member form: " + json);
+        assertFalse(json.contains("_woodLink"), "INLINE must not write links: " + json);
+        assertFalse(json.contains("<\""), "INLINE must not write the prefix notation: " + json);
+
+        final SharedRefBox answer = buildRef(json);
+        assertNotSame(answer.getLeft(), answer.getRight(), "INLINE must clone: two independent nodes");
+        assertEquals(answer.getLeft().getText(), "core");
+        assertEquals(answer.getRight().getText(), "core");
+    }
+
+    /**
+     * INLINE also disables the list sharing: the same list instance at two fields is written inline twice.
+     */
+    @Test
+    public void testInlineDisablesListSharing() throws Exception {
+        final SharedBox box = new SharedBox();
+        final java.util.List<String> shared = new java.util.ArrayList<>(java.util.Arrays.asList("a", "b"));
+        box.setLeft(shared);
+        box.setRight(shared);
+
+        final String json = writeBox(box, JsonWoodIdLevel.INLINE);
+        assertFalse(json.contains("<\""), "INLINE must not write the wood id notation: " + json);
+        assertFalse(json.contains("_woodObjectId"), "INLINE must not write the member form: " + json);
+
+        final JsonObject answer = parseBox(json);
+        assertNotSame(answer.getParam("left"), answer.getParam("right"),
+                "INLINE must leave the lists independent");
+    }
+
     private SharedRefBox boxOf(SharedNode node) {
         final SharedRefBox box = new SharedRefBox();
         box.setLeft(node);
