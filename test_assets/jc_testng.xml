@@ -16,6 +16,7 @@
 <suite name="JsonCastedSuite">
   <test name="JsonCastedTests">
     <classes>
+    <class name="de.jare.jsonpost.PostJsonClientNGTest"/>
     <class name="de.jare.impltest.TestBoxNGTest"/>
     <class name="de.jare.impltest.TestBoxNGTest2"/>
     <class name="de.jare.impltest.TestBoxNGTest3"/>

@@ -93,6 +93,49 @@ public class PostJsonClient {
     }
 
     /**
+     * Posts a raw JSON string to the specified URL and returns the raw response string -
+     * the lightweight variant for APIs that do not need a JsonItemDefinition (e.g. a local
+     * ollama {@code /api/generate} call).
+     *
+     * @param body the raw JSON request body
+     * @param url the URL to post to
+     * @param timeoutDelay read/connect timeout in ms
+     * @return the raw response body
+     * @throws IOException on transport errors or non-2xx responses
+     */
+    public String postRaw(String body, String url, int timeoutDelay) throws IOException {
+
+        final PostJsonConnection connectionGuard = new PostJsonConnection();
+        try {
+            connectionGuard.createHttpURLConnection(url, timeoutDelay);
+            connectionGuard.write(body);
+            return connectionGuard.read();
+        } finally {
+            connectionGuard.disconnect();
+        }
+    }
+
+    /**
+     * Sends a GET request and returns the raw response string - e.g. for health probes
+     * like ollama's {@code /api/tags}.
+     *
+     * @param url the URL to query
+     * @param timeoutDelay read/connect timeout in ms
+     * @return the raw response body
+     * @throws IOException on transport errors or non-2xx responses
+     */
+    public String getRaw(String url, int timeoutDelay) throws IOException {
+
+        final PostJsonConnection connectionGuard = new PostJsonConnection();
+        try {
+            connectionGuard.createHttpURLConnection(url, timeoutDelay, "GET", false);
+            return connectionGuard.read();
+        } finally {
+            connectionGuard.disconnect();
+        }
+    }
+
+    /**
      * Builds an object from the JSON response string using the provided definition and read class.
      *
      * @param answer The JSON response string to be deserialized.

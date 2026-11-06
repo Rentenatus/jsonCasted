@@ -27,6 +27,15 @@ public class PostJsonConnection {
     final Object monitor = new Object();
 
     public void createHttpURLConnection(String url, int timeoutDelay) throws MalformedURLException, ProtocolException, IOException {
+        createHttpURLConnection(url, timeoutDelay, "POST", true);
+    }
+
+    /**
+     * Creates the HTTP connection with an explicit method (POST | GET | ...).
+     *
+     * @param doOutput whether the connection allows a request body (POST) - GET connections read only
+     */
+    public void createHttpURLConnection(String url, int timeoutDelay, String method, boolean doOutput) throws MalformedURLException, ProtocolException, IOException {
         synchronized (monitor) {
             if (connection != null) {
                 throw new IllegalStateException("Connection allredy exists.");
@@ -34,12 +43,14 @@ public class PostJsonConnection {
             connection = (HttpURLConnection) new URL(url).openConnection();
             // Setzen des Timeouts
             connection.setReadTimeout(timeoutDelay);
-            // Setzen der Methode auf POST
-            connection.setRequestMethod("POST");
+            connection.setConnectTimeout(timeoutDelay);
+            // Setzen der Methode
+            connection.setRequestMethod(method);
             // Setzen des Inhaltstyps auf JSON
             connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
             // Aktivieren Sie das Schreiben auf die Verbindung
-            connection.setDoOutput(true);
+            connection.setDoOutput(doOutput);
         }
     }
 
