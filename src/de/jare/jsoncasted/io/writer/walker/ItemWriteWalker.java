@@ -12,6 +12,7 @@ import de.jare.jsoncasted.item.JsonList;
 import de.jare.jsoncasted.item.JsonObject;
 import de.jare.jsoncasted.item.JsonValue;
 import de.jare.jsoncasted.lang.JsonTerms;
+import de.jare.jsoncasted.tools.SimpleStringSplitter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -218,14 +219,7 @@ public class ItemWriteWalker {
      * @return The escaped string safe for JSON output.
      */
     static String escape(String s) {
-        if (s == null) {
-            return null;
-        }
-        return s.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
+        return SimpleStringSplitter.mask(s);
     }
 
 }

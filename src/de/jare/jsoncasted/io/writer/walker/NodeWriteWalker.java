@@ -10,6 +10,7 @@ import de.jare.jsoncasted.io.writer.WriteNodePath;
 import de.jare.jsoncasted.io.writer.WriteStrategy;
 import de.jare.jsoncasted.lang.JsonNode;
 import de.jare.jsoncasted.lang.JsonNodeType;
+import de.jare.jsoncasted.tools.SimpleStringSplitter;
 import static de.jare.jsoncasted.lang.JsonNodeType.ARRAY;
 import static de.jare.jsoncasted.lang.JsonNodeType.BOOLEAN;
 import static de.jare.jsoncasted.lang.JsonNodeType.LONG;
@@ -211,13 +212,6 @@ public class NodeWriteWalker {
      * @return The escaped string safe for JSON output.
      */
     static String escape(String s) {
-        if (s == null) {
-            return null;
-        }
-        return s.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
+        return SimpleStringSplitter.mask(s);
     }
 }

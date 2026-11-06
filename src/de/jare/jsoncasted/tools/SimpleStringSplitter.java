@@ -251,7 +251,8 @@ public interface SimpleStringSplitter {
      * @return The formatted string.
      */
     public default String maskEscapes(Object attr) {
-        String roh = simpleReplace(String.valueOf(attr), "\"", "\\\"");
+        String roh = simpleReplace(String.valueOf(attr), "\\", "\\\\");
+        roh = simpleReplace(roh, "\"", "\\\"");
         roh = simpleReplace(roh, "\r", "\\r");
         roh = simpleReplace(roh, "\t", "\\t");
         roh = simpleReplace(roh, "\b", "\\b");
@@ -271,7 +272,43 @@ public interface SimpleStringSplitter {
         roh = simpleReplace(roh, "\\t", "\t");
         roh = simpleReplace(roh, "\\b", "\b");
         roh = simpleReplace(roh, "\\f", "\f");
-        return simpleReplace(roh, "\\n", "\n");
+        roh = simpleReplace(roh, "\\n", "\n");
+        return simpleReplace(roh, "\\\\", "\\");
+    }
+
+    /**
+     * Static access to {@link #maskEscapes(Object)} for classes that do not implement this interface.
+     *
+     * @param attr The string attribute (null stays null).
+     * @return The escaped string.
+     */
+    public static String mask(Object attr) {
+        if (attr == null) {
+            return null;
+        }
+        return Holder.INSTANCE.maskEscapes(attr);
+    }
+
+    /**
+     * Static access to {@link #buildEscapes(Object)} for classes that do not implement this interface.
+     *
+     * @param attr The string attribute (null stays null).
+     * @return The unescaped string.
+     */
+    public static String unmask(Object attr) {
+        if (attr == null) {
+            return null;
+        }
+        return Holder.INSTANCE.buildEscapes(attr);
+    }
+
+    /** Lazy holder for the stateless default implementation. */
+    final class Holder {
+        private Holder() {
+        }
+
+        private static final SimpleStringSplitter INSTANCE = new SimpleStringSplitter() {
+        };
     }
 
     /**

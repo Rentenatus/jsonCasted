@@ -10,6 +10,7 @@ import de.jare.jsoncasted.diff.DifferableNode;
 import de.jare.jsoncasted.diff.MerkleHasher;
 import de.jare.jsoncasted.diff.NodeKind;
 import de.jare.jsoncasted.io.JsonParseException;
+import de.jare.jsoncasted.tools.SimpleStringSplitter;
 import static de.jare.jsoncasted.lang.JsonNodeType.ARRAY;
 import static de.jare.jsoncasted.lang.JsonNodeType.BOOLEAN;
 import static de.jare.jsoncasted.lang.JsonNodeType.LONG;
@@ -530,10 +531,7 @@ public class JsonNode implements DifferableNode {
     }
 
     private static String escape(String s) {
-        if (s == null) {
-            return null;
-        }
-        return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
+        return SimpleStringSplitter.mask(s);
     }
 
 }
