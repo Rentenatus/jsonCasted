@@ -61,9 +61,9 @@ public class BundleRerollerNGTest {
     }
 
     /**
-     * The plan generates fresh values disjoint from everything: the r-prefixed ids skip every id
-     * and synonym the disjoint trees carry (a tree that already owns "r1" pushes the generator to
-     * the next free number), the synonyms chain a suffix until they are free too.
+     * The plan generates fresh values disjoint from everything (both switches on): the r-prefixed
+     * ids skip every id the disjoint trees carry (a tree that already owns "r1" pushes the
+     * generator to the next free number), the synonyms chain a suffix until they are free too.
      */
     @Test
     public void testFreshValuesAreDisjointFromTheWholeProject() {
@@ -72,7 +72,7 @@ public class BundleRerollerNGTest {
         final BundleReroller.RerollPlan plan = BundleReroller.plan(
                 setOf("5", "9"), setOf("shared", "core"), setOf("ext"),
                 setOf("shared::5", "core::9", "ext::9", "this::5"),
-                Arrays.asList(disjoint));
+                Arrays.asList(disjoint), true, true);
 
         assertFalse(plan.isRefused(), "nothing dangles: " + plan.getProblems());
         assertEquals(plan.getIdCount(), 2, "both bundle ids reroll");
@@ -90,16 +90,16 @@ public class BundleRerollerNGTest {
     }
 
     /**
-     * The reference rewrite is consistent: internal links carry the new synonym and the new id,
-     * self references keep their prefix with the new id, external references stay untouched, and
-     * the rewritten link resolves under the new identities.
+     * The reference rewrite is consistent (both switches on): internal links carry the new
+     * synonym and the new id, self references keep their prefix with the new id, external
+     * references stay untouched, and the rewritten link resolves under the new identities.
      */
     @Test
     public void testLinksRewriteConsistently() {
         final BundleReroller.RerollPlan plan = BundleReroller.plan(
                 setOf("5"), setOf("shared"), setOf("ext"),
                 setOf("shared::5", "ext::5", "this::5"),
-                Collections.emptyList());
+                Collections.emptyList(), true, true);
 
         assertFalse(plan.isRefused(), "nothing dangles: " + plan.getProblems());
         final Map<String, String> links = plan.getLinkMap();
@@ -146,32 +146,80 @@ public class BundleRerollerNGTest {
     }
 
     /**
-     * The synonym switch (ids always reroll): with the switch off the bundle keeps its wiring
-     * names, the ids still reroll, the internal references only exchange their id part - external
-     * references stay untouched and dangling validation still applies.
+     * The binding default (concept section 7.1 amended): the synonyms reroll, the wood ids stay -
+     * same ids across bundle copies are a strong hint for the compare. The internal references
+     * carry the new synonym but keep their id part; a self reference needs no rewrite at all and
+     * stays out of the link map; external references stay untouched; dangling validation still
+     * applies.
      */
     @Test
-    public void testSynonymSwitchOffKeepsTheWiringNames() {
+    public void testDefaultRerollsSynonymsNotIds() {
         final BundleReroller.RerollPlan plan = BundleReroller.plan(
                 setOf("5"), setOf("shared"), setOf("ext"),
                 setOf("shared::5", "ext::5", "this::5"),
-                Collections.emptyList(), false);
+                Collections.emptyList());
 
         assertFalse(plan.isRefused(), "nothing dangles: " + plan.getProblems());
-        assertEquals(plan.getIdCount(), 1, "the ids reroll regardless of the switch");
-        assertEquals(plan.getSynonymCount(), 0, "the switch is off - no synonym rerolls");
+        assertEquals(plan.getIdCount(), 0, "the default keeps the ids - they are a compare hint");
+        assertEquals(plan.getIdMap().size(), 0);
+        assertEquals(plan.getSynonymCount(), 1, "the synonyms reroll by default");
+        final String newShared = plan.getSynonymMap().get("shared");
+        assertEquals(plan.getLinkMap().get("shared::5"), newShared + "::5",
+                "the internal link gets the new wiring name but keeps its id");
+        assertFalse(plan.getLinkMap().containsKey("this::5"),
+                "a self reference without id reroll would not change - no rewrite registered");
+        assertFalse(plan.getLinkMap().containsKey("ext::5"),
+                "external references stay untouched - in every switch position");
+
+        // the dangling validation is not optional - also with the ids kept
+        final BundleReroller.RerollPlan dangling = BundleReroller.plan(
+                setOf("5"), setOf("shared"), setOf("ext"),
+                setOf("shared::42"), Collections.emptyList());
+        assertTrue(dangling.isRefused(), "the id validation applies regardless of the switches");
+    }
+
+    /**
+     * The id switch (the exception): with the id switch on and the synonym switch off the bundle
+     * keeps its wiring names, the ids reroll, the internal references only exchange their id part.
+     */
+    @Test
+    public void testIdSwitchOnRerollsIdsOnly() {
+        final BundleReroller.RerollPlan plan = BundleReroller.plan(
+                setOf("5"), setOf("shared"), setOf("ext"),
+                setOf("shared::5", "ext::5", "this::5"),
+                Collections.emptyList(), true, false);
+
+        assertFalse(plan.isRefused(), "nothing dangles: " + plan.getProblems());
+        assertEquals(plan.getIdCount(), 1, "the id switch is on - the ids reroll");
+        assertEquals(plan.getSynonymCount(), 0, "the synonym switch is off - no synonym rerolls");
         final String newId = plan.getIdMap().get("5");
         assertEquals(plan.getLinkMap().get("shared::5"), "shared::" + newId,
                 "the internal link keeps its wiring name, only the id part rerolls");
         assertEquals(plan.getLinkMap().get("this::5"), "this::" + newId);
         assertFalse(plan.getLinkMap().containsKey("ext::5"),
-                "external references stay untouched - in both switch positions");
+                "external references stay untouched - in every switch position");
+    }
 
-        // with the switch off a dangling internal reference still refuses the plan
+    /**
+     * Both switches off: a valid plan with nothing to rewrite - "nothing to reroll" is a state,
+     * not an error; the dangling validation still refuses bad references.
+     */
+    @Test
+    public void testBothSwitchesOffPlansEmptyAndValid() {
+        final BundleReroller.RerollPlan plan = BundleReroller.plan(
+                setOf("5"), setOf("shared"), setOf("ext"),
+                setOf("shared::5", "this::5"),
+                Collections.emptyList(), false, false);
+
+        assertFalse(plan.isRefused());
+        assertEquals(plan.getIdCount(), 0);
+        assertEquals(plan.getSynonymCount(), 0);
+        assertEquals(plan.getLinkCount(), 0, "no rewrite happens - no link is registered");
+
         final BundleReroller.RerollPlan dangling = BundleReroller.plan(
                 setOf("5"), setOf("shared"), setOf("ext"),
-                setOf("shared::42"), Collections.emptyList(), false);
-        assertTrue(dangling.isRefused(), "the id validation is not optional");
+                setOf("shared::42"), Collections.emptyList(), false, false);
+        assertTrue(dangling.isRefused(), "the validation is not optional");
     }
 
     //

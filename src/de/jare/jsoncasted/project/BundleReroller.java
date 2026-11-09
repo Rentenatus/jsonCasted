@@ -29,9 +29,11 @@ import java.util.TreeSet;
 /**
  * The identity refresh tool RerollID (concept WoodJsonJack CONCEPT_ProjectView.md, section 7.1 -
  * implementation plan phase 8): the machinery of the rejected Strategy A survives as an explicit,
- * on-demand action for bundles that are about to enter one shared resolution scope. Every wood
- * object id and every provider synonym of the bundle is replaced by a freshly generated one,
- * every internal reference is rewritten consistently. The rewrite scope is the bundle itself -
+ * on-demand action for bundles that are about to enter one shared resolution scope. The provider
+ * synonyms of the bundle are replaced by freshly generated ones (the default - the wiring names
+ * must be fresh per tree); the wood object ids reroll only on explicit request (the exception -
+ * same ids across bundle copies are a strong hint for the compare). Every internal reference is
+ * rewritten consistently. The rewrite scope is the bundle itself -
  * well-defined precisely because ids are bundle-scoped (Strategy B).
  *
  * <p>
@@ -214,8 +216,10 @@ public final class BundleReroller {
     }
 
     /**
-     * Computes the reroll plan (concept section 7.1, binding default): ids AND provider synonyms
-     * reroll - see {@link #plan(Set, Set, Set, Set, List, boolean)}.
+     * Computes the reroll plan (concept section 7.1, binding default): the provider synonyms
+     * reroll, the wood object ids stay - see
+     * {@link #plan(Set, Set, Set, Set, List, boolean, boolean)}. Same ids in a copied bundle are a
+     * strong hint for the compare, the synonyms are the wiring names that must be fresh per tree.
      *
      * @param bundleRawIds every raw id defined anywhere in the bundle, not null
      * @param bundleSynonyms synonyms whose referenced file lies inside the bundle (rerolled), not null
@@ -227,30 +231,34 @@ public final class BundleReroller {
      */
     public static RerollPlan plan(Set<String> bundleRawIds, Set<String> bundleSynonyms,
             Set<String> externalSynonyms, Set<String> bundleLinks, List<TreeIds> disjunctToBundles) {
-        return plan(bundleRawIds, bundleSynonyms, externalSynonyms, bundleLinks, disjunctToBundles, true);
+        return plan(bundleRawIds, bundleSynonyms, externalSynonyms, bundleLinks, disjunctToBundles, false, true);
     }
 
     /**
-     * Computes the reroll plan with the synonym switch (concept section 7.1, amended: ids always
-     * reroll, provider synonyms reroll only with the switch on - the default is on; the internal
-     * references still rewrite consistently, they just keep their wiring names). Input: the
-     * bundle's own identity inventory (its raw ids, the synonyms that reference files INSIDE the
-     * bundle, the synonyms that reference files outside it and its qualified links) plus the
-     * disjoint trees - the new values collide with none of their id sets or synonyms. External
-     * references stay untouched, dangling internal references refuse the plan.
+     * Computes the reroll plan with both switches (concept section 7.1, amended: provider
+     * synonyms reroll by default - the wiring names must be fresh per tree; the wood object ids
+     * reroll only as the exception, because same ids in a copied bundle are a strong hint for the
+     * compare. The internal references always rewrite consistently - they carry the new synonym
+     * and/or the new id, whichever the switches produced). Input: the bundle's own identity
+     * inventory (its raw ids, the synonyms that reference files INSIDE the bundle, the synonyms
+     * that reference files outside it and its qualified links) plus the disjoint trees - the new
+     * values collide with none of their id sets or synonyms. External references stay untouched,
+     * dangling internal references refuse the plan.
      *
      * @param bundleRawIds every raw id defined anywhere in the bundle, not null
      * @param bundleSynonyms synonyms whose referenced file lies inside the bundle, not null
      * @param externalSynonyms synonyms whose referenced file lies outside the bundle (kept), not null
      * @param bundleLinks every qualified link target referenced inside the bundle, not null
      * @param disjunctToBundles the trees to stay disjoint from, not null
-     * @param rerollSynonyms true rerolls the provider synonyms too (the binding default); false
-     * keeps the wiring names and rerolls the ids only
+     * @param rerollIds true rerolls the wood object ids too (the exception, default off); false
+     * keeps the ids - they stay a compare hint across bundle copies
+     * @param rerollSynonyms true rerolls the provider synonyms (the binding default); false keeps
+     * the wiring names
      * @return the plan - check {@link RerollPlan#isRefused()} before applying
      */
     public static RerollPlan plan(Set<String> bundleRawIds, Set<String> bundleSynonyms,
             Set<String> externalSynonyms, Set<String> bundleLinks, List<TreeIds> disjunctToBundles,
-            boolean rerollSynonyms) {
+            boolean rerollIds, boolean rerollSynonyms) {
         Objects.requireNonNull(bundleRawIds, "bundleRawIds must not be null");
         Objects.requireNonNull(bundleSynonyms, "bundleSynonyms must not be null");
         Objects.requireNonNull(externalSynonyms, "externalSynonyms must not be null");
@@ -268,13 +276,17 @@ public final class BundleReroller {
             takenSynonyms.addAll(disjoint.getSynonyms());
         }
 
-        // the new identities: r1, r2, ... - the first value free of every id set wins
+        // the new identities: r1, r2, ... - the first value free of every id set wins. Only with
+        // the id switch on (the exception); by default the ids stay - same numbers across bundle
+        // copies are a strong hint for the compare.
         final Map<String, String> idMap = new LinkedHashMap<>();
-        for (String oldId : new TreeSet<>(bundleRawIds)) {
-            idMap.put(oldId, firstFreeId(takenIds, freshIds));
+        if (rerollIds) {
+            for (String oldId : new TreeSet<>(bundleRawIds)) {
+                idMap.put(oldId, firstFreeId(takenIds, freshIds));
+            }
         }
         // the new synonyms: old_1, old_2, ... - the first value free of every synonym set wins.
-        // With the switch off the bundle keeps its wiring names - the ids reroll regardless.
+        // With the switch off the bundle keeps its wiring names.
         final Map<String, String> synonymMap = new LinkedHashMap<>();
         if (rerollSynonyms) {
             for (String oldSynonym : new TreeSet<>(bundleSynonyms)) {
@@ -289,8 +301,9 @@ public final class BundleReroller {
             }
         }
 
-        // the link rewrites: internal references carry the new synonym and the new id; external
-        // ones stay as they are; dangling ones refuse the plan
+        // the link rewrites: internal references carry the new synonym and/or the new id,
+        // whichever the switches produced; a link that would not change is not a rewrite and stays
+        // out of the map. External references stay as they are; dangling ones refuse the plan.
         final Map<String, String> linkMap = new LinkedHashMap<>();
         final List<String> problems = new ArrayList<>();
         for (String link : new TreeSet<>(bundleLinks)) {
@@ -305,14 +318,14 @@ public final class BundleReroller {
                 continue; // external reference - not the reroll's business
             }
             // a self reference keeps its prefix (this::/self:: stay the tree's own point of view);
-            // only the id part is rerolled
+            // only the id part can reroll
             if (THIS_SYNONYM.equals(synonym) || SELF_SYNONYM.equals(synonym)) {
                 if (!bundleRawIds.contains(id)) {
                     problems.add("Dangling reference: the link '" + link
                             + "' points at an id the bundle does not define.");
                     continue;
                 }
-                linkMap.put(link, synonym + COLONCOLON + idMap.get(id));
+                putIfChanged(linkMap, link, synonym + COLONCOLON + rerolledId(idMap, id));
                 continue;
             }
             if (!bundleSynonyms.contains(synonym)) {
@@ -325,14 +338,34 @@ public final class BundleReroller {
                         + "' points at an id the bundle does not define.");
                 continue;
             }
-            linkMap.put(link, rerolledSynonym(synonymMap, synonym) + COLONCOLON + idMap.get(id));
+            putIfChanged(linkMap, link,
+                    rerolledSynonym(synonymMap, synonym) + COLONCOLON + rerolledId(idMap, id));
         }
         return new RerollPlan(idMap, synonymMap, linkMap, problems);
     }
 
     /**
+     * The id part of a rewritten internal link: the rerolled id when the plan has one (id switch
+     * on), the id as it was otherwise (id switch off - the default).
+     */
+    private static String rerolledId(Map<String, String> idMap, String id) {
+        final String fresh = idMap.get(id);
+        return fresh != null ? fresh : id;
+    }
+
+    /**
+     * Registers a link rewrite - unless the rewritten target equals the original, then the link
+     * needs no rewrite at all (both switches off) and stays out of the map.
+     */
+    private static void putIfChanged(Map<String, String> linkMap, String link, String rewritten) {
+        if (!rewritten.equals(link)) {
+            linkMap.put(link, rewritten);
+        }
+    }
+
+    /**
      * The synonym part of a rewritten internal link: the rerolled name when the plan has one
-     * (switch on), the wiring name as it was otherwise (switch off - the ids reroll regardless).
+     * (switch on), the wiring name as it was otherwise (switch off).
      */
     private static String rerolledSynonym(Map<String, String> synonymMap, String synonym) {
         final String fresh = synonymMap.get(synonym);
