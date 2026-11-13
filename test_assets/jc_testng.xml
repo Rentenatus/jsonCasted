@@ -26,6 +26,7 @@
     <class name="de.jare.jsoncasted.io.convertservice.WoodListSharingNGTest"/>
     <class name="de.jare.jsoncasted.io.parserservice.MissingCommaNGTest"/>
     <class name="de.jare.jsoncasted.io.parserservice.WoodIdNotationNGTest"/>
+    <class name="de.jare.jsoncasted.io.parserservice.DiamondTestNG"/>
     <class name="de.jare.jsoncasted.io.writer.JsonWoodIdLevelNGTest"/>
     <class name="de.jare.jsoncasted.io.writer.SharedListWriterNGTest"/>
     <class name="de.jare.jsoncasted.io.writer.cycle.HaraldCycleNGTest"/>
