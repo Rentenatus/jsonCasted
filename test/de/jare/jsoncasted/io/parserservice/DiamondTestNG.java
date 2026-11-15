@@ -305,6 +305,173 @@ public class DiamondTestNG {
         assertFalse(links.hasUnconnectedLinks());
     }
 
+    /**
+     * The reverse depth case: the reference sits at the root, the definition is buried at the deepest level (feature
+     * comments, last member of the document). One shared instance, expected size everywhere.
+     */
+    @Test
+    public void testDefinitionDeeperThanReference() throws Exception {
+
+        final String json = "{ \"comments\": <this::7>, \"profiles\": [ { \"profile\": \"p\", \"features\": ["
+                + " { \"feature\": \"f\", \"comments\": <\"7\">[\"deep1\", \"deep2\"] } ] } ] }";
+        final LinkingSet links = parseResource(json).getLinkingSet();
+        assertFalse(links.hasUnconnectedLinks(), "the deep definition must resolve the root stub");
+
+        final JsonObject answer = parseAnswer(json);
+        final JsonItem rootComments = answer.getParam("comments");
+        assertListSize(rootComments, 2);
+        final JsonObject profile = (JsonObject) ((JsonList) answer.getParam("profiles")).listIterator().next();
+        final JsonObject feature = (JsonObject) ((JsonList) profile.getParam("features")).listIterator().next();
+        assertSame(rootComments, feature.getParam("comments"),
+                "the root stub must share the deeply nested definition");
+
+        final ConfigRoot root = buildRoot(json);
+        assertCommentsSize(root.getComments(), 2);
+        assertCommentsSize(root.getProfiles().get(0).getFeatures().get(0).getComments(), 2);
+    }
+
+    /**
+     * Quoted and unquoted diamond contents denote the same identity: {@code <1>[...] } defined, {@code <"1">}
+     * referenced - one shared list.
+     */
+    @Test
+    public void testQuotedAndUnquotedAreSameIdentity() throws Exception {
+
+        final String json = "{ \"comments\": <1>[\"a\", \"b\"], \"profiles\": [ { \"profile\": \"p\","
+                + " \"comments\": <\"1\"> } ] }";
+        final LinkingSet links = parseResource(json).getLinkingSet();
+        assertEquals(links.getObjectIdMap().size(), 1, "quoted and unquoted must collapse to one identity");
+        assertFalse(links.hasUnconnectedLinks());
+
+        final JsonObject answer = parseAnswer(json);
+        assertSame(profileComments(answer), answer.getParam("comments"));
+        assertListSize(answer.getParam("comments"), 2);
+
+        final ConfigRoot root = buildRoot(json);
+        assertCommentsSize(root.getComments(), 2);
+        assertCommentsSize(root.getProfiles().get(0).getComments(), 2);
+    }
+
+    /**
+     * Unquoted diamond contents tolerate whitespace: {@code < 1 >[...] } defines, {@code < this::1 >} references.
+     */
+    @Test
+    public void testUnquotedWithWhitespace() throws Exception {
+
+        final String json = "{ \"comments\": < 1 >[\"w\"], \"profiles\": [ { \"profile\": \"p\","
+                + " \"comments\": < this::1 > } ] }";
+        final LinkingSet links = parseResource(json).getLinkingSet();
+        assertTrue(links.getObjectIdMap().containsKey("self::1"), "whitespace must be trimmed: " + links.getObjectIdMap().keySet());
+        assertFalse(links.hasUnconnectedLinks());
+
+        final ConfigRoot root = buildRoot(json);
+        assertCommentsSize(root.getComments(), 1);
+        assertCommentsSize(root.getProfiles().get(0).getComments(), 1);
+    }
+
+    /**
+     * Many references, one definition: root plus two profiles and a feature all share the single defined array - every
+     * field the same instance, every size as expected, never null.
+     */
+    @Test
+    public void testManyReferencesOneDefinition() throws Exception {
+
+        final String json = "{ \"comments\": <\"4\">[\"x\", \"y\", \"z\"], \"profiles\": ["
+                + " { \"profile\": \"a\", \"comments\": <this::4>, \"features\": [ { \"feature\": \"f\", \"comments\": <\"this::4\"> } ] },"
+                + " { \"profile\": \"b\", \"comments\": <this::4> } ] }";
+        final JsonObject answer = parseAnswer(json);
+        final JsonItem shared = answer.getParam("comments");
+        assertListSize(shared, 3);
+        final JsonList profiles = (JsonList) answer.getParam("profiles");
+        final java.util.Iterator<JsonItem> it = profiles.listIterator();
+        final JsonObject profA = (JsonObject) it.next();
+        final JsonObject profB = (JsonObject) it.next();
+        assertSame(profA.getParam("comments"), shared);
+        assertSame(profB.getParam("comments"), shared);
+        final JsonObject feature = (JsonObject) ((JsonList) profA.getParam("features")).listIterator().next();
+        assertSame(feature.getParam("comments"), shared);
+
+        final ConfigRoot root = buildRoot(json);
+        assertCommentsSize(root.getComments(), 3);
+        assertCommentsSize(root.getProfiles().get(0).getComments(), 3);
+        assertCommentsSize(root.getProfiles().get(0).getFeatures().get(0).getComments(), 3);
+        assertCommentsSize(root.getProfiles().get(1).getComments(), 3);
+    }
+
+    /**
+     * Stress document combining everything at once: one definition shared by several stubs across levels, a second id
+     * with the stub before its definition, one dangling reference and one duplicate definition. Asserts the complete
+     * linking-set state plus instance identity and size of every array field - none may be null.
+     */
+    @Test
+    public void testCombinedStressDocument() throws Exception {
+
+        final String json = "{ \"comments\": <\"1\">[\"r1\", \"r2\"], \"profiles\": ["
+                + " { \"profile\": \"a\", \"comments\": <this::2>, \"features\": [ { \"feature\": \"f\", \"comments\": <this::1> } ] },"
+                + " { \"profile\": \"b\", \"comments\": <\"2\">[\"x\"], \"features\": [ { \"feature\": \"g\", \"comments\": <this::99> } ] },"
+                + " { \"profile\": \"c\", \"comments\": <\"1\">[\"dup\"] } ] }";
+
+        final LinkingSet links = parseResource(json).getLinkingSet();
+        assertEquals(links.getObjectIdMap().size(), 2, "self::1 and self::2: " + links.getObjectIdMap().keySet());
+        assertTrue(links.getLinkMap().containsKey("self::1"));
+        assertTrue(links.getLinkMap().containsKey("self::2"));
+        assertTrue(links.getLinkMap().containsKey("self::99"));
+        assertEquals(links.getUnconnectedSet().size(), 1);
+        assertTrue(links.getUnconnectedSet().contains("self::99"), "only the dangling one: " + links.getUnconnectedSet());
+        assertTrue(links.hasWarnings(), "the duplicate <\"1\"> definition must warn");
+        assertTrue(links.getWarnings().get(0).contains("self::1"));
+
+        final JsonObject answer = parseAnswer(json);
+        final JsonItem shared1 = answer.getParam("comments");
+        assertListSize(shared1, 2);
+        final JsonList profiles = (JsonList) answer.getParam("profiles");
+        final java.util.Iterator<JsonItem> it = profiles.listIterator();
+        final JsonObject profA = (JsonObject) it.next();
+        final JsonObject profB = (JsonObject) it.next();
+        final JsonObject profC = (JsonObject) it.next();
+        final JsonObject featF = (JsonObject) ((JsonList) profA.getParam("features")).listIterator().next();
+        final JsonObject featG = (JsonObject) ((JsonList) profB.getParam("features")).listIterator().next();
+        assertSame(featF.getParam("comments"), shared1, "feature stub shares the root definition");
+        assertSame(profC.getParam("comments"), shared1, "the duplicate resolves to the first definition");
+        assertListSize(profA.getParam("comments"), 1);
+        assertSame(profA.getParam("comments"), profB.getParam("comments"), "early stub shares the later <\"2\">");
+        assertListSize(featG.getParam("comments"), 0);
+        assertNotNull(featG.getParam("comments"), "dangling must degrade to empty, not null");
+
+        final ConfigRoot root = buildRoot(json);
+        assertCommentsSize(root.getComments(), 2);
+        assertCommentsSize(root.getProfiles().get(0).getComments(), 1);
+        assertCommentsSize(root.getProfiles().get(0).getFeatures().get(0).getComments(), 2);
+        assertCommentsSize(root.getProfiles().get(1).getComments(), 1);
+        assertCommentsSize(root.getProfiles().get(1).getFeatures().get(0).getComments(), 0);
+        assertCommentsSize(root.getProfiles().get(2).getComments(), 2);
+    }
+
+    /**
+     * Reparsing the same diamond document twice yields identical linking sets and, per parse, one shared instance with
+     * the expected size - the diamond resolution is deterministic.
+     */
+    @Test
+    public void testReparseIsDeterministic() throws Exception {
+
+        final String json = "{ \"comments\": <\"6\">[\"a\", \"b\", \"c\"], \"profiles\": [ { \"profile\": \"p\","
+                + " \"comments\": <this::6> } ] }";
+        final LinkingSet first = parseResource(json).getLinkingSet();
+        final LinkingSet second = parseResource(json).getLinkingSet();
+        assertEquals(first.getObjectIdMap().keySet(), second.getObjectIdMap().keySet());
+        assertEquals(first.getLinkMap().keySet(), second.getLinkMap().keySet());
+        assertEquals(first.getUnconnectedSet(), second.getUnconnectedSet());
+
+        final JsonObject answer1 = parseAnswer(json);
+        final JsonObject answer2 = parseAnswer(json);
+        assertListSize(answer1.getParam("comments"), 3);
+        assertListSize(answer2.getParam("comments"), 3);
+        assertSame(profileComments(answer1), answer1.getParam("comments"));
+        assertSame(profileComments(answer2), answer2.getParam("comments"));
+        assertNotSame(answer1.getParam("comments"), answer2.getParam("comments"),
+                "two parses must not leak instances into each other");
+    }
+
     private static void assertListSize(JsonItem item, int expected) {
 
         assertNotNull(item, "the list must not be null");
