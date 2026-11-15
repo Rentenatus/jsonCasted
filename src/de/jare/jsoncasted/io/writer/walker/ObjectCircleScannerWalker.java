@@ -216,7 +216,8 @@ public class ObjectCircleScannerWalker {
                 // every list inline.
                 if (definitionsContext.getWoodIdLevel() != JsonWoodIdLevel.NEVER
                         && definitionsContext.getWoodIdLevel() != JsonWoodIdLevel.INLINE
-                        && jsonField.isAsListOrArray() && jsonField.isSameCollection() && fieldValue instanceof List) {
+                        && jsonField.isAsListOrArray() && jsonField.isSameCollection()
+                        && de.jare.jsoncasted.io.writer.record.DefinitionsContext.isListOrArrayValue(fieldValue)) {
                     if (jsonField.isEqualsCollection()) {
                         definitionsContext.noteEqualsListOccurrence(fieldValue);
                     } else {

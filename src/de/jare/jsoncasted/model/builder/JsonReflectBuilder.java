@@ -93,7 +93,9 @@ public class JsonReflectBuilder implements JsonModellClassBuilder {
                 JsonItem para = jsonItem.getParam(next.getfName());
                 if (para != null) {
                     Object inst = null;
-                    if (para.getParamSet() == null || !para.getParamSet().isEmpty()) {
+                    if (para.isNull()) {
+                        inst = null; // a JSON null value maps to a null field, no build attempt
+                    } else if (para.getParamSet() == null || !para.getParamSet().isEmpty()) {
                         try {
                             inst = para.buildInstance(builderService);
                         } catch (JsonBuildException | NullPointerException ex) {
