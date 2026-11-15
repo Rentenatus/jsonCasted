@@ -274,7 +274,7 @@ public class ObjectWriteWalker {
      * @return true if the value is a shared list that must be written
      */
     private boolean isSharedListValue(JsonField field, Object attr) {
-        return field != null && field.isSameCollection() && attr instanceof List
+        return field != null && field.isSameCollection() && DefinitionsContext.isListOrArrayValue(attr)
                 && objectGetter.getDefinitionsContext().isSharedList(attr);
     }
 
@@ -476,7 +476,8 @@ public class ObjectWriteWalker {
      */
     private boolean writeListAsSharedReference(Object attr, JsonField jField, WriteNodePath iString) {
         if (strategy instanceof DefinitionalStrategy || jField == null
-                || !(jField.isSameCollection() || jField.isEqualsCollection()) || !(attr instanceof List)) {
+                || !(jField.isSameCollection() || jField.isEqualsCollection())
+                || !DefinitionsContext.isListOrArrayValue(attr)) {
             return false;
         }
         if (objectGetter.getDefinitionsContext().getWoodIdLevel() == JsonWoodIdLevel.NEVER

@@ -58,9 +58,12 @@ public class JsonMapBuilder implements JsonModellClassBuilder {
      */
     public JsonInstance buildMap(JsonMap aThis, JsonItem jsonItem, BuilderService builderService) throws JsonBuildException {
         JsonInstance ret = createInstance();
-        for (String para : jsonItem.getParamSet()) {
-            JsonItem item = jsonItem.getParam(para);
-            ret.putObject(para, item.buildInstance(builderService));
+        final java.util.Set<String> params = jsonItem.getParamSet();
+        if (params != null) {
+            for (String para : params) {
+                JsonItem item = jsonItem.getParam(para);
+                ret.putObject(para, item.buildInstance(builderService));
+            }
         }
         return ret;
     }

@@ -269,18 +269,55 @@ public class DefinitionsContext {
     }
 
     /**
-     * Notes one occurrence of a list under an equals enabled field: the list joins its content group - lists with the
-     * same component identity share one wood id, no matter whether they are the same instance.
+     * Checks whether a field value is a collection value the sharing policies apply to: a {@link List} or a Java
+     * array (the ARRAY collection type).
      *
-     * @param list the list instance to note.
+     * @param value the field value, may be null.
+     * @return true for lists and arrays.
+     */
+    public static boolean isListOrArrayValue(Object value) {
+        return value instanceof List<?> || (value != null && value.getClass().isArray());
+    }
+
+    /**
+     * Notes one occurrence of a collection under an equals enabled field: the value joins its content group -
+     * collections with the same component identity share one wood id, no matter whether they are the same instance.
+     *
+     * @param list the list or array instance to note.
      */
     public void noteEqualsListOccurrence(Object list) {
-        if (!(list instanceof List<?> values)) {
+        final List<?> values = asListView(list);
+        if (values == null) {
             return;
         }
         final String contentKey = componentIdentityKey(values);
         equalsKeyByList.put(list, contentKey);
         equalsOccurrenceCount.merge(contentKey, 1, Integer::sum);
+    }
+
+    /**
+     * Returns a list view of a collection value: lists pass through, object arrays via {@link java.util.Arrays#asList},
+     * primitive arrays are boxed element by element.
+     *
+     * @param value the collection value, may be null or not a collection.
+     * @return the list view, or null when the value is no collection.
+     */
+    private static List<?> asListView(Object value) {
+        if (value instanceof List<?> list) {
+            return list;
+        }
+        if (value == null || !value.getClass().isArray()) {
+            return null;
+        }
+        if (value instanceof Object[] objects) {
+            return java.util.Arrays.asList(objects);
+        }
+        final int length = java.lang.reflect.Array.getLength(value);
+        final List<Object> boxed = new ArrayList<>(length);
+        for (int i = 0; i < length; i++) {
+            boxed.add(java.lang.reflect.Array.get(value, i));
+        }
+        return boxed;
     }
 
     /**

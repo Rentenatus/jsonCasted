@@ -7,7 +7,15 @@ package de.jare.jsoncasted.io.parserservice;
 
 import de.jare.debug.JsonDebugLevel;
 
+import de.jare.jsoncasted.io.JsonCastingLevel;
+
+import de.jare.jsoncasted.io.JsonItemDefinition;
+
+import de.jare.jsoncasted.io.JsonObjectWriter;
+
 import de.jare.jsoncasted.io.JsonParser;
+
+import de.jare.jsoncasted.io.JsonWoodIdLevel;
 
 import de.jare.jsoncasted.io.convertservice.WoodResolution;
 
@@ -470,6 +478,131 @@ public class DiamondTestNG {
         assertSame(profileComments(answer2), answer2.getParam("comments"));
         assertNotSame(answer1.getParam("comments"), answer2.getParam("comments"),
                 "two parses must not leak instances into each other");
+    }
+
+    /**
+     * Write-read round trip of a shared ARRAY field: one String[] instance hanging at root/profile/feature comments is
+     * written with the PREFIXED level as one {@code <"N">[...]} definition plus bare {@code <"N">} stubs, and the
+     * re-parsed document shares one JsonList instance again with the expected sizes.
+     */
+    @Test
+    public void testWriteReadRoundTripSharedArrayInstance() throws Exception {
+
+        final JsonConfigDefinition definition = JsonConfigDefinition.getInstance();
+        final JsonItemDefinition prefixed = prefixedLevel(definition);
+
+        final String[] shared = {"shared a", "shared b"};
+        final ConfigFeature feature = new ConfigFeature();
+        feature.setFeature("ollama");
+        feature.setComments(shared);
+        final ConfigProfile profile = new ConfigProfile();
+        profile.setProfile("main");
+        profile.setComments(shared);
+        profile.setFeatures(java.util.List.of(feature));
+        final ConfigRoot bean = new ConfigRoot();
+        bean.setComments(shared);
+        bean.setProfiles(java.util.List.of(profile));
+
+        final String json = JsonObjectWriter.writeToString(bean, prefixed, prefixed.getRootClass());
+        assertTrue(json.matches("(?s).*\"comments\":\\s*<\"\\d+\">\\s*\\[.*"),
+                "the first comments array must become the diamond definition: " + json);
+        assertTrue(json.matches("(?s).*\"comments\":\\s*<\"\\d+\">(?!\\s*\\[).*"),
+                "the later comments must be bare diamond references: " + json);
+
+        final LinkingSet links = parseResource(json).getLinkingSet();
+        assertEquals(countArrayDefinitions(links), 1, "exactly one array definition expected: " + links.getObjectIdMap().keySet());
+        assertFalse(links.hasUnconnectedLinks(), "the written stubs must resolve: " + links.getUnconnectedSet());
+
+        final JsonObject answer = parseAnswer(json);
+        final JsonItem rootComments = answer.getParam("comments");
+        assertListSize(rootComments, 2);
+        assertSame(profileComments(answer), rootComments, "the written stub must share the written definition");
+
+        final ConfigRoot reloaded = buildRoot(json);
+        assertCommentsSize(reloaded.getComments(), 2);
+        assertCommentsSize(reloaded.getProfiles().get(0).getComments(), 2);
+        assertCommentsSize(reloaded.getProfiles().get(0).getFeatures().get(0).getComments(), 2);
+    }
+
+    /**
+     * Null tolerance on build: a feature whose map fields are JSON null ({@code "settings": null}) must build without
+     * an exception - the fields come out null, the diamond shared comments still resolve with the expected size.
+     */
+    @Test
+    public void testNullMapFieldsToleratedOnBuild() throws Exception {
+
+        final String json = "{ \"comments\": <\"2\">[\"n1\", \"n2\"], \"profiles\": [ { \"profile\": \"p\","
+                + " \"comments\": <this::2>, \"features\": [ { \"feature\": \"f\", \"settings\": null,"
+                + " \"labels\": null, \"enablements\": null, \"comments\": <this::2> } ] } ] }";
+        final ConfigRoot root = buildRoot(json);
+        assertNotNull(root);
+        assertCommentsSize(root.getComments(), 2);
+        final ConfigProfile profile = root.getProfiles().get(0);
+        assertCommentsSize(profile.getComments(), 2);
+        final ConfigFeature feature = profile.getFeatures().get(0);
+        assertNull(feature.getSettings(), "a JSON null settings must build to a null field, not crash");
+        assertNull(feature.getLabels());
+        assertNull(feature.getEnablements());
+        assertCommentsSize(feature.getComments(), 2);
+    }
+
+    /**
+     * Policy boundary: equal content but distinct String[] instances stay inline under the sameCollection policy -
+     * no array diamond is emitted, and the re-parsed document holds independent lists with the correct sizes.
+     */
+    @Test
+    public void testWriteReadDistinctArrayInstancesStayInline() throws Exception {
+
+        final JsonConfigDefinition definition = JsonConfigDefinition.getInstance();
+        final JsonItemDefinition prefixed = prefixedLevel(definition);
+
+        final ConfigProfile profile = new ConfigProfile();
+        profile.setProfile("main");
+        profile.setComments(new String[]{"same", "content"});
+        final ConfigRoot bean = new ConfigRoot();
+        bean.setComments(new String[]{"same", "content"});
+        bean.setProfiles(java.util.List.of(profile));
+
+        final String json = JsonObjectWriter.writeToString(bean, prefixed, prefixed.getRootClass());
+        assertFalse(json.matches("(?s).*\"comments\":\\s*<\"\\d+\">.*"),
+                "distinct array instances must not share an id: " + json);
+
+        final LinkingSet links = parseResource(json).getLinkingSet();
+        assertEquals(countArrayDefinitions(links), 0, "no array definition without sharing");
+
+        final JsonObject answer = parseAnswer(json);
+        assertListSize(answer.getParam("comments"), 2);
+        assertNotSame(profileComments(answer), answer.getParam("comments"),
+                "independent instances must stay independent");
+
+        final ConfigRoot reloaded = buildRoot(json);
+        assertCommentsSize(reloaded.getComments(), 2);
+        assertCommentsSize(reloaded.getProfiles().get(0).getComments(), 2);
+    }
+
+    private static JsonItemDefinition prefixedLevel(final JsonConfigDefinition definition) {
+
+        return new JsonItemDefinition() {
+            @Override
+            public de.jare.jsoncasted.model.JsonModel getModel() {
+                return definition.getModel();
+            }
+
+            @Override
+            public JsonCastingLevel getCastingLevel() {
+                return definition.getCastingLevel();
+            }
+
+            @Override
+            public JsonWoodIdLevel getWoodIdLevel() {
+                return JsonWoodIdLevel.PREFIXED;
+            }
+        };
+    }
+
+    private static long countArrayDefinitions(LinkingSet links) {
+
+        return links.getObjectIdMap().values().stream().filter(e -> e.getNode() != null && e.getNode().isArray()).count();
     }
 
     private static void assertListSize(JsonItem item, int expected) {
