@@ -600,6 +600,85 @@ public class DiamondTestNG {
         };
     }
 
+    /**
+     * Synonym check in the main file (provider self): a bare {@code <4>} is never stored bare - the raw stub carries
+     * {@code this::4} and the linking set normalizes definition and reference to {@code self::4}. No key without a
+     * provider may appear.
+     */
+    @Test
+    public void testBareDiamondAlwaysGetsSynonymInMain() throws Exception {
+
+        final JsonResource res = parseAs("self", "{ \"a\": <4>[\"x\"], \"b\": <4> }");
+        final LinkingSet links = res.getLinkingSet();
+        assertEquals(links.getObjectIdMap().keySet(), java.util.Set.of("self::4"));
+        assertEquals(links.getLinkMap().keySet(), java.util.Set.of("self::4"));
+        for (String key : links.getObjectIdMap().keySet()) {
+            assertTrue(key.contains("::"), "object id key must carry a provider: " + key);
+        }
+        for (String key : links.getLinkMap().keySet()) {
+            assertTrue(key.contains("::"), "link key must carry a provider: " + key);
+        }
+        final JsonNode stub = res.getRoot().asObjectValues().get("b");
+        assertEquals(stub.asObjectValues().get(de.jare.jsoncasted.lang.JsonTerms.TERM_WOOD_LINK).asText(), "this::4",
+                "the raw stub text must already carry the this:: synonym");
+        assertFalse(links.hasUnconnectedLinks());
+    }
+
+    /**
+     * Synonym check in another file (provider dep): the same bare {@code <4>} localizes to that file's provider -
+     * definition and reference land on {@code dep::4}, never on a bare or foreign key.
+     */
+    @Test
+    public void testBareDiamondInOtherProviderFile() throws Exception {
+
+        final JsonResource res = parseAs("dep", "{ \"a\": <4>[\"x\"], \"b\": <4> }");
+        final LinkingSet links = res.getLinkingSet();
+        assertEquals(links.getObjectIdMap().keySet(), java.util.Set.of("dep::4"));
+        assertEquals(links.getLinkMap().keySet(), java.util.Set.of("dep::4"));
+        assertFalse(links.hasUnconnectedLinks());
+    }
+
+    /**
+     * Cross-file alignment: a reference {@code <dep::4>} in main keeps the foreign synonym and matches the key the
+     * dep file registers for its {@code <4>} definition - the two resources connect on {@code dep::4}.
+     */
+    @Test
+    public void testCrossFileSynonymKeysAlign() throws Exception {
+
+        final JsonResource main = parseAs("self", "{ \"comments\": <\"dep::4\"> }");
+        final JsonResource dep = parseAs("dep", "{ \"arr\": <4>[\"x\", \"y\"] }");
+        assertTrue(main.getLinkingSet().getLinkMap().containsKey("dep::4"),
+                "main must reference dep::4 as is");
+        assertTrue(main.getLinkingSet().getUnconnectedSet().contains("dep::4"),
+                "dep::4 dangles locally in main - the definition lives in the other file");
+        assertEquals(dep.getLinkingSet().getObjectIdMap().keySet(), java.util.Set.of("dep::4"),
+                "the dep file registers its bare <4> under its own synonym");
+        assertEquals(main.getLinkingSet().getLinkMap().keySet().iterator().next(),
+                dep.getLinkingSet().getObjectIdMap().keySet().iterator().next(),
+                "link key in main must equal the definition key in dep");
+    }
+
+    /**
+     * {@code this::} and {@code self::} both map to the current file's provider; a foreign synonym stays untouched.
+     */
+    @Test
+    public void testThisAndSelfPrefixMapToCurrentProvider() throws Exception {
+
+        final JsonResource res = parseAs("dep", "{ \"a\": <this::4>, \"b\": <self::4>, \"c\": <other::4> }");
+        final LinkingSet links = res.getLinkingSet();
+        assertTrue(links.getLinkMap().containsKey("dep::4"), "this:: and self:: must map to dep::4: " + links.getLinkMap().keySet());
+        assertTrue(links.getLinkMap().containsKey("other::4"), "a foreign synonym must be kept as is");
+        assertTrue(links.getUnconnectedSet().contains("other::4"));
+        assertEquals(links.getLinkMap().size(), 2, "this::4 and self::4 collapse to one key: " + links.getLinkMap().keySet());
+    }
+
+    private JsonResource parseAs(String provider, String json) throws Exception {
+
+        final JsonResource container = JsonResource.empty();
+        container.setProviderName(provider);
+        return JsonParserService.parse(new java.io.StringReader(json), container, JsonDebugLevel.SIMPLE);
+    }
+
     private static long countArrayDefinitions(LinkingSet links) {
 
         return links.getObjectIdMap().values().stream().filter(e -> e.getNode() != null && e.getNode().isArray()).count();
