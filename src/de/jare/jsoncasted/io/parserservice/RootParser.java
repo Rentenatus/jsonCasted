@@ -81,6 +81,11 @@ public class RootParser {
                     for (JsonNode childNode : defsNode.asObjectValues().values()) {
                         container.addDefinitionNode(childNode);
                     }
+                } else if (defsNode != null && defsNode.isArray() && defsNode.asArray() != null) {
+                    // Array form (as emitted by the writer): add all entries as individual definition nodes.
+                    for (JsonNode childNode : defsNode.asArray()) {
+                        container.addDefinitionNode(childNode);
+                    }
                 }
             }
         }

@@ -215,7 +215,11 @@ public final class WoodElementResolver {
             return false;
         }
 
-        return true;
+        // Objects without their own identity still carry dependencies in their
+        // children (e.g. list fields whose stubs link to definitions), so the
+        // children must be checked as well - otherwise a parent can convert
+        // before the definitions its stubs point to are resolved.
+        return isConvertibleBelow(node, linkingSet, resolution);
     }
 
     /**
